@@ -1,0 +1,5 @@
+{
+  "name": "SAMU CoPilot OS",
+  "description": "Sistema Operacional de missão crítica para Atendimento Pré-Hospitalar (APH) com IA, triagem NLP e regulação médica.",
+  "requestFramePermissions": []
+}
