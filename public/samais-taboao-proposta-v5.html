@@ -38,11 +38,11 @@ html,body{background:#D9D3C2;font-family:'Plus Jakarta Sans',sans-serif;font-wei
 }
 
 /* ─── COMMON ELEMENTS ───────────────────── */
-.pad{padding:16mm 18mm 8mm;flex:1;min-height:0;overflow:hidden}
-.pad-tight{padding:14mm 18mm 8mm;flex:1;min-height:0;overflow:hidden}
+.pad{padding:13mm 18mm 6mm;flex:1;min-height:0;overflow:hidden}
+.pad-tight{padding:11mm 18mm 6mm;flex:1;min-height:0;overflow:hidden}
 .head-band{
   display:flex;justify-content:space-between;align-items:center;
-  padding:7mm 18mm 0;font-family:'JetBrains Mono',monospace;
+  padding:5mm 18mm 0;font-family:'JetBrains Mono',monospace;
   font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);
 }
 .head-band .hb-logo{display:flex;align-items:center;gap:3mm}
@@ -50,7 +50,7 @@ html,body{background:#D9D3C2;font-family:'Plus Jakarta Sans',sans-serif;font-wei
 .foot-band{
   position:relative;flex-shrink:0;
   display:flex;justify-content:space-between;align-items:center;
-  padding:5mm 18mm 6mm;font-family:'JetBrains Mono',monospace;
+  padding:4mm 18mm 5mm;font-family:'JetBrains Mono',monospace;
   font-size:6.5pt;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);
   border-top:1px solid var(--line);
 }
@@ -73,7 +73,7 @@ h3.h-sub{font-family:'Syne',sans-serif;font-weight:600;font-size:14pt;line-heigh
 .gold{color:var(--g1)}
 .mono{font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
 
-hr.gold-rule{border:none;height:1px;background:linear-gradient(90deg,var(--g2),transparent);margin:5mm 0}
+hr.gold-rule{border:none;height:1px;background:linear-gradient(90deg,var(--g2),transparent);margin:4mm 0}
 hr.thin{border:none;height:1px;background:var(--line);margin:4mm 0}
 
 /* ─── COVER (page 1) ───────────────────── */
@@ -135,7 +135,7 @@ hr.thin{border:none;height:1px;background:var(--line);margin:4mm 0}
 
 /* ─── PILLARS / FEATURE CARDS ─────────────── */
 .pillar-grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
-.pillar{background:var(--bg2);border:1px solid var(--line);padding:6mm 6mm;position:relative}
+.pillar{background:var(--bg2);border:1px solid var(--line);padding:5mm 5mm;position:relative}
 .pillar::before{content:'';position:absolute;top:0;left:0;width:8mm;height:1.2mm;background:var(--g2)}
 .pillar-ico{width:9mm;height:9mm;border:1px solid var(--lineG);display:flex;align-items:center;justify-content:center;margin-bottom:3mm;background:rgba(184,149,78,.06)}
 .pillar-ico svg{width:4.5mm;height:4.5mm;stroke:var(--g1);fill:none;stroke-width:1.5}
@@ -169,19 +169,19 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
 .bench-time.warn{color:#A04736}
 
 /* ─── CALLOUT ─────────────────────────── */
-.callout{background:linear-gradient(135deg,#15110C 0%,#1A1108 100%);color:#F0E2BB;padding:6mm 7mm;border-left:3mm solid var(--g2);position:relative}
+.callout{background:linear-gradient(135deg,#15110C 0%,#1A1108 100%);color:#F0E2BB;padding:5mm 6mm;border-left:3mm solid var(--g2);position:relative}
 .callout-tag{font-family:'JetBrains Mono',monospace;font-size:6.5pt;letter-spacing:.22em;text-transform:uppercase;color:var(--g3);margin-bottom:2mm}
 .callout-tx{font-family:'Syne',sans-serif;font-size:11.5pt;line-height:1.4;color:#F0E2BB;font-weight:500;letter-spacing:-.005em}
 .callout-tx b{color:var(--g3);font-weight:700}
 .callout-tx em{font-style:normal;color:var(--g4)}
 
-.callout-light{background:var(--bg2);border:1px solid var(--lineG);border-left:3mm solid var(--g2);padding:5mm 6mm}
+.callout-light{background:var(--bg2);border:1px solid var(--lineG);border-left:3mm solid var(--g2);padding:4mm 5mm}
 .callout-light .callout-tag{color:var(--g1)}
 .callout-light .callout-tx{color:var(--ink)}
 .callout-light .callout-tx b{color:var(--g1)}
 
 /* ─── PROCESS / PHASES ────────────────── */
-.phase{display:grid;grid-template-columns:30mm 1fr;gap:4mm;padding:5mm 0;border-bottom:1px solid var(--line)}
+.phase{display:grid;grid-template-columns:30mm 1fr;gap:4mm;padding:4mm 0;border-bottom:1px solid var(--line)}
 .phase:last-child{border-bottom:none}
 .phase-l{font-family:'JetBrains Mono',monospace;font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:var(--g1)}
 .phase-num{font-family:'Syne',sans-serif;font-size:22pt;font-weight:800;color:var(--g2);line-height:.95;letter-spacing:-.03em;margin-top:1mm}
@@ -189,7 +189,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
 .phase-d{font-size:8.5pt;color:var(--ink3);line-height:1.6}
 
 /* ─── CASE CARDS ───────────────────── */
-.case{border:1px solid var(--line);background:var(--bg2);padding:5.5mm;display:grid;grid-template-columns:1fr;gap:3mm}
+.case{border:1px solid var(--line);background:var(--bg2);padding:4.5mm;display:grid;grid-template-columns:1fr;gap:2.5mm}
 .case-hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--lineG);padding-bottom:3mm}
 .case-tipo{font-family:'JetBrains Mono',monospace;font-size:6.5pt;letter-spacing:.2em;text-transform:uppercase;color:var(--g1);margin-bottom:1mm}
 .case-nome{font-family:'Syne',sans-serif;font-weight:700;font-size:14pt;color:var(--ink);line-height:1.1;letter-spacing:-.015em}
@@ -212,13 +212,13 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
 .p-tag.g{border-color:var(--lineG);color:var(--g1)}
 
 /* ─── DEFINITION LIST (resumo) ─────── */
-.def{display:grid;grid-template-columns:54mm 1fr;border-top:1px solid var(--line);padding:3mm 0;gap:4mm;align-items:start}
+.def{display:grid;grid-template-columns:54mm 1fr;border-top:1px solid var(--line);padding:2.5mm 0;gap:4mm;align-items:start}
 .def-l{font-family:'JetBrains Mono',monospace;font-size:7pt;letter-spacing:.18em;text-transform:uppercase;color:var(--g1)}
 .def-v{font-size:9.5pt;color:var(--ink);line-height:1.55;font-weight:400}
 .def-v b{font-weight:600;color:var(--ink)}
 
 /* ─── LEGAL ROW ─────────────── */
-.legal-row{display:grid;grid-template-columns:60mm 1fr;gap:5mm;padding:3.5mm 0;border-bottom:1px solid var(--line)}
+.legal-row{display:grid;grid-template-columns:60mm 1fr;gap:5mm;padding:2.5mm 0;border-bottom:1px solid var(--line)}
 .legal-l{font-family:'JetBrains Mono',monospace;font-size:7.5pt;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:500}
 .legal-d{font-size:8.5pt;color:var(--ink3);line-height:1.55}
 
@@ -238,7 +238,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
 .cta-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:6.5pt;letter-spacing:.22em;text-transform:uppercase;color:rgba(240,226,187,.4);padding-top:10mm;border-top:1px solid rgba(212,177,106,.18)}
 
 /* ─── PAGE SECTION DIVIDERS (for parts) ─── */
-.part-bar{display:flex;justify-content:space-between;align-items:center;padding:4mm 0;border-top:1px solid var(--lineG);border-bottom:1px solid var(--lineG);margin-bottom:6mm}
+.part-bar{display:flex;justify-content:space-between;align-items:center;padding:3mm 0;border-top:1px solid var(--lineG);border-bottom:1px solid var(--lineG);margin-bottom:4mm}
 .part-bar-l{font-family:'JetBrains Mono',monospace;font-size:7pt;letter-spacing:.28em;text-transform:uppercase;color:var(--g1);font-weight:500}
 .part-bar-r{font-family:'JetBrains Mono',monospace;font-size:7pt;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
 
@@ -258,7 +258,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
 
 /* Big economy callouts */
 .eco-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm}
-.eco-card{background:#15110C;color:var(--g3);padding:6mm;border-top:2px solid var(--g2);text-align:left}
+.eco-card{background:#15110C;color:var(--g3);padding:5mm;border-top:2px solid var(--g2);text-align:left}
 .eco-card .eco-l{font-family:'JetBrains Mono',monospace;font-size:6.5pt;letter-spacing:.22em;color:var(--g2);text-transform:uppercase;margin-bottom:2mm}
 .eco-card .eco-v{font-family:'Syne',sans-serif;font-weight:800;font-size:24pt;color:var(--g3);line-height:.95;letter-spacing:-.025em}
 .eco-card .eco-d{font-size:7.5pt;color:rgba(240,226,187,.65);margin-top:2mm;line-height:1.5}
@@ -271,7 +271,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
 .cmp-col.pos{background:#15110C;border-color:rgba(212,177,106,.32);color:var(--g4)}
 
 /* TOP price banner — stacked: tag + title above, price row below */
-.cmp-banner{padding:5mm 5mm 4.5mm;display:flex;flex-direction:column;gap:5mm;border-bottom:1px solid rgba(0,0,0,.08);position:relative;min-height:32mm}
+.cmp-banner{padding:4mm 5mm 4mm;display:flex;flex-direction:column;gap:3mm;border-bottom:1px solid rgba(0,0,0,.08);position:relative;min-height:28mm}
 .cmp-col.pos .cmp-banner{border-bottom-color:rgba(212,177,106,.2)}
 .cmp-col.neg .cmp-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:1.2mm;background:#A8423A}
 .cmp-col.pos .cmp-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:1.2mm;background:linear-gradient(90deg,var(--g2),var(--g3))}
@@ -468,7 +468,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
       </div>
     </div>
 
-    <div class="callout" style="margin-top:7mm">
+    <div class="callout" style="margin-top:5mm">
       <div class="callout-tag">Posicionamento</div>
       <div class="callout-tx">A Samais assume integralmente a gestão operacional, técnica, jurídica e financeira do SAMU — liberando a Secretaria de Saúde para focar na <em>coordenação da rede assistencial</em> e no <em>controle de qualidade dos resultados</em>, não na administração de um serviço de alta complexidade.</div>
     </div>
@@ -498,30 +498,30 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Território e Contexto <em>Municipal</em></h2>
     <p class="lead">Cortada pela Rodovia Régis Bittencourt (BR-116), Taboão da Serra exige logística de urgência ultrarrápida, uso intensivo de motolâncias e telemetria para vencer o trânsito. Município 100% urbano, conurbado com São Paulo.</p>
 
-    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:5mm;gap:3mm">
-      <div class="kpi" style="padding:4mm">
+    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:4mm;gap:3mm">
+      <div class="kpi" style="padding:3.5mm">
         <div class="kpi-lbl">População · IBGE 2022</div>
         <div class="kpi-v" style="font-size:22pt">273<small style="font-size:.5em">mil</small></div>
         <div class="kpi-d" style="font-size:7.5pt;line-height:1.4">Estimativa 2025: ~285k. Crescimento de <strong>18,4%</strong> na última década.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3.5mm">
         <div class="kpi-lbl">Densidade</div>
         <div class="kpi-v" style="font-size:20pt">+14<small style="font-size:.45em">k/km²</small></div>
         <div class="kpi-d" style="font-size:7.5pt;line-height:1.4">Área 20,38 km². <strong>2× mais denso que Bangkok</strong>.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3.5mm">
         <div class="kpi-lbl">Rodovia BR-116</div>
         <div class="kpi-v" style="font-size:20pt">Régis</div>
         <div class="kpi-d" style="font-size:7.5pt;line-height:1.4">Corta o município — <strong>alta acidentalidade</strong>, resposta APH crítica.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3.5mm">
         <div class="kpi-lbl">Orçamento SMS 2025</div>
         <div class="kpi-v" style="font-size:20pt">R$264<small style="font-size:.5em">M</small></div>
         <div class="kpi-d" style="font-size:7.5pt;line-height:1.4"><strong>33,35%</strong> das receitas — 2× o mínimo constitucional.</div>
       </div>
     </div>
 
-    <div class="part-bar" style="margin-top:6mm">
+    <div class="part-bar" style="margin-top:5mm">
       <span class="part-bar-l">Parte II · Rede de Urgência Municipal</span>
       <span class="part-bar-r">4 equipamentos · 1 em gestão direta</span>
     </div>
@@ -541,7 +541,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
       </tbody>
     </table>
 
-    <div class="callout-light" style="margin-top:3mm;padding:3mm 4mm">
+    <div class="callout-light" style="margin-top:3mm;padding:3mm 4mm;font-size:8.5pt">
       <div class="callout-tag">Argumento Estrutural</div>
       <div class="callout-tx" style="font-size:8.8pt;line-height:1.4">O município já terceiriza três equipamentos de urgência com resultado reconhecido há mais de uma década. <b>Manter o SAMU em gestão direta é a única — e mais frágil — exceção.</b> Profissionalizar o SAMU é <b>consistência</b> com o modelo que Taboão já validou.</div>
     </div>
@@ -571,57 +571,57 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Raio-X Operacional <em>Atual</em></h2>
     <p class="lead">Dados levantados diretamente com a gestão municipal. A Central opera 100% analógica, compartilhada com Bombeiros e Polícia Militar, sem sistema informatizado, sem rastreamento de frota e sem histórico quantitativo de ocorrências.</p>
 
-    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:5mm;gap:3mm">
-      <div class="kpi" style="padding:4mm">
+    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:4mm;gap:2.5mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl">USA · Suporte Avançado</div>
-        <div class="kpi-v" style="font-size:22pt">1</div>
-        <div class="kpi-d" style="font-size:7.5pt;line-height:1.4"><strong>7 anos de uso</strong> · UTI Móvel. Único veículo USA no município.</div>
+        <div class="kpi-v" style="font-size:20pt">1</div>
+        <div class="kpi-d" style="font-size:7pt;line-height:1.35"><strong>7 anos de uso</strong> · UTI Móvel. Único veículo USA no município.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl">USB · Suporte Básico</div>
-        <div class="kpi-v" style="font-size:22pt">3</div>
-        <div class="kpi-d" style="font-size:7.5pt;line-height:1.4"><strong>Novas · 2025</strong>. Reforço federal emergencial recente.</div>
+        <div class="kpi-v" style="font-size:20pt">3</div>
+        <div class="kpi-d" style="font-size:7pt;line-height:1.35"><strong>Novas · 2025</strong>. Reforço federal emergencial recente.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl">Motolâncias</div>
-        <div class="kpi-v" style="font-size:22pt">2</div>
-        <div class="kpi-d" style="font-size:7.5pt;line-height:1.4"><strong>Área urbana densa</strong>. Eficácia na Régis Bittencourt.</div>
+        <div class="kpi-v" style="font-size:20pt">2</div>
+        <div class="kpi-d" style="font-size:7pt;line-height:1.35"><strong>Área urbana densa</strong>. Eficácia na Régis Bittencourt.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl">Central de Regulação</div>
-        <div class="kpi-v" style="font-size:11pt;letter-spacing:.04em">ANALÓGICA</div>
-        <div class="kpi-d" style="font-size:7.5pt;line-height:1.4"><strong>Sem dados</strong>. Sem GPS · Sem indicadores · Sem histórico.</div>
+        <div class="kpi-v" style="font-size:10pt;letter-spacing:.04em">ANALÓGICA</div>
+        <div class="kpi-d" style="font-size:7pt;line-height:1.35"><strong>Sem dados</strong>. Sem GPS · Sem indicadores · Sem histórico.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl">Ligações 192 / mês</div>
-        <div class="kpi-v" style="font-size:22pt">2.531</div>
-        <div class="kpi-d" style="font-size:7.5pt;line-height:1.4">Apenas <strong>26,7%</strong> resultam em atendimento.</div>
+        <div class="kpi-v" style="font-size:20pt">2.531</div>
+        <div class="kpi-d" style="font-size:7pt;line-height:1.35">Apenas <strong>26,7%</strong> resultam em atendimento.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl">Atendimentos / mês</div>
-        <div class="kpi-v" style="font-size:22pt">676</div>
-        <div class="kpi-d" style="font-size:7.5pt;line-height:1.4"><strong>~22 por dia</strong>. Demanda reprimida por subregulação.</div>
+        <div class="kpi-v" style="font-size:20pt">676</div>
+        <div class="kpi-d" style="font-size:7pt;line-height:1.35"><strong>~22 por dia</strong>. Demanda reprimida por subregulação.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl">Servidores Estatutários</div>
-        <div class="kpi-v" style="font-size:22pt">145</div>
-        <div class="kpi-d" style="font-size:7.5pt;line-height:1.4">33 condutores · 69 técnicos · 21 médicos · 22 demais.</div>
+        <div class="kpi-v" style="font-size:20pt">145</div>
+        <div class="kpi-d" style="font-size:7pt;line-height:1.35">33 condutores · 69 técnicos · 21 médicos · 22 demais.</div>
       </div>
-      <div class="kpi" style="padding:4mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl">Profissionais / Plantão</div>
-        <div class="kpi-v" style="font-size:22pt">29</div>
-        <div class="kpi-d" style="font-size:7.5pt;line-height:1.4"><strong>Sem reserva técnica</strong>. Uma falta de médico paralisa a USA.</div>
+        <div class="kpi-v" style="font-size:20pt">29</div>
+        <div class="kpi-d" style="font-size:7pt;line-height:1.35"><strong>Sem reserva técnica</strong>. Uma falta de médico paralisa a USA.</div>
       </div>
     </div>
 
-    <div class="geo-grid" style="margin-top:6mm">
+    <div class="geo-grid" style="margin-top:4mm">
       <div class="geo-box">
         <div class="callout-tag" style="color:var(--g1)">Custos Ocultos</div>
-        <p class="body-tx" style="margin-top:1mm">Gastos do SAMU diluídos no orçamento global da SMS (R$ 264,1M/2025). Custo real estimado: <b>R$ 2,157M/mês</b>. Sem visibilidade individualizada não há eficiência nem prestação de contas adequada ao controle externo.</p>
+        <p class="body-tx" style="margin-top:1mm;font-size:8.5pt;line-height:1.5">Gastos do SAMU diluídos no orçamento global da SMS (R$ 264,1M/2025). Custo real estimado: <b>R$ 2,157M/mês</b>. Sem visibilidade individualizada não há eficiência nem prestação de contas adequada ao controle externo.</p>
       </div>
       <div class="geo-box" style="border-left-color:#A04736">
         <div class="callout-tag" style="color:#A04736">Risco Operacional Crítico</div>
-        <p class="body-tx" style="margin-top:1mm">A única USA opera sob risco permanente de paralisação por ausência de médico estatutário. <b>Uma única falta não coberta deixa 273k habitantes sem UTI Móvel.</b> Esse risco inexiste em gestão profissionalizada Samais.</p>
+        <p class="body-tx" style="margin-top:1mm;font-size:8.5pt;line-height:1.5">A única USA opera sob risco permanente de paralisação por ausência de médico estatutário. <b>Uma única falta não coberta deixa 273k habitantes sem UTI Móvel.</b> Esse risco inexiste em gestão profissionalizada Samais.</p>
       </div>
     </div>
   </div>
@@ -650,7 +650,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Perfil Epidemiológico e <em>Benchmarks APH</em></h2>
     <p class="lead">O dimensionamento Samais é construído sobre o perfil real de demanda. Taboão da Serra apresenta fatores específicos que exigem planejamento APH de padrão metropolitano — não de cidade média.</p>
 
-    <h3 class="h-sub" style="margin-top:6mm">Distribuição estimada de ocorrências</h3>
+    <h3 class="h-sub" style="margin-top:5mm">Distribuição estimada de ocorrências</h3>
     <table class="t">
       <thead>
         <tr>
@@ -669,8 +669,8 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
       </tbody>
     </table>
 
-    <h3 class="h-sub" style="margin-top:7mm">Benchmark de tempo-resposta · Padrão OMS</h3>
-    <p class="body-tx" style="margin-bottom:4mm">A OMS recomenda tempo-resposta <b>inferior a 10 minutos</b> para emergências clínicas de alta gravidade. Em casos de parada cardiorrespiratória, atendimentos em &lt; 10 min aumentam a sobrevida em até <b>70%</b>. A diferença entre os melhores SAMUs do país e a média nacional não é frota — é gestão e tecnologia de regulação.</p>
+    <h3 class="h-sub" style="margin-top:5mm">Benchmark de tempo-resposta · Padrão OMS</h3>
+    <p class="body-tx" style="margin-bottom:3mm;font-size:9pt;line-height:1.5">A OMS recomenda tempo-resposta <b>inferior a 10 minutos</b> para emergências clínicas de alta gravidade. Em casos de parada cardiorrespiratória, atendimentos em &lt; 10 min aumentam a sobrevida em até <b>70%</b>. A diferença entre os melhores SAMUs do país e a média nacional não é frota — é gestão e tecnologia de regulação.</p>
 
     <div class="bench-row">
       <div class="bench-name">OMS · Meta Internacional<span>Padrão Ouro</span></div>
@@ -728,7 +728,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Proposta Comercial <em>· Comparativo</em></h2>
     <p class="lead">Operação profissionalizada, ampliada e tecnológica por custo mensal inferior ao modelo atual. A Samais não é custo adicional: é substituição de um custo maior, opaco e de baixa performance por um menor, transparente e auditável.</p>
 
-    <h3 class="h-sub" style="margin-top:6mm">Custo Atual Estimado · Gestão Direta Municipal</h3>
+    <h3 class="h-sub" style="margin-top:5mm">Custo Atual Estimado · Gestão Direta Municipal</h3>
     <table class="t">
       <thead>
         <tr><th style="width:65%">Componente do Custo Atual</th><th style="text-align:right">Valor Estimado / mês</th></tr>
@@ -886,7 +886,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Proposta Samais · <em>Gestão Integrada 360°</em></h2>
     <p class="lead">Gestão completa: Central digital com CoPilot OS, frota ampliada, capacitação contínua, gestão de absenteísmo e transparência total — todos os encargos incluídos no valor contratual.</p>
 
-    <table class="t" style="margin-top:5mm">
+    <table class="t" style="margin-top:4mm">
       <thead>
         <tr>
           <th style="width:48%">Componente</th>
@@ -907,10 +907,10 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
       </tbody>
     </table>
 
-    <hr class="gold-rule" style="margin-top:7mm">
+    <hr class="gold-rule" style="margin-top:5mm">
 
     <h3 class="h-sub">Economia e viabilidade comparativa</h3>
-    <p class="body-tx" style="margin-bottom:4mm">A substituição da gestão direta pela gestão Samais gera <b>economia real desde o primeiro mês</b> de contrato, liberando recursos para reinvestimento em outros equipamentos da rede de saúde municipal.</p>
+    <p class="body-tx" style="margin-bottom:3mm;font-size:9pt;line-height:1.5">A substituição da gestão direta pela gestão Samais gera <b>economia real desde o primeiro mês</b> de contrato, liberando recursos para reinvestimento em outros equipamentos da rede de saúde municipal.</p>
 
     <div class="eco-grid">
       <div class="eco-card">
@@ -955,7 +955,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Financiamento Tripartite e <em>Viabilidade Fiscal</em></h2>
     <p class="lead">O SAMU 192 conta com cofinanciamento federal estruturado pelo Ministério da Saúde, reduzindo substancialmente o custo líquido municipal. A Samais apoia ativamente os gestores na estruturação e captação dos repasses vigentes.</p>
 
-    <h3 class="h-sub" style="margin-top:6mm">Modelo Tripartite de Custeio</h3>
+    <h3 class="h-sub" style="margin-top:5mm">Modelo Tripartite de Custeio</h3>
     <table class="t">
       <thead>
         <tr><th style="width:24%">Esfera</th><th style="width:28%">Participação</th><th>Forma de Repasse</th></tr>
@@ -967,35 +967,35 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
       </tbody>
     </table>
 
-    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:4.5mm;gap:2.5mm">
-      <div class="kpi" style="padding:3.5mm">
+    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:3.5mm;gap:2.5mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl" style="font-size:6pt">Valor Contratual</div>
         <div class="kpi-v" style="font-size:18pt">R$1,8<small style="font-size:.5em">M</small></div>
         <div class="kpi-d" style="font-size:7pt;line-height:1.35">/mês · total</div>
       </div>
-      <div class="kpi" style="padding:3.5mm">
+      <div class="kpi" style="padding:3mm">
         <div class="kpi-lbl" style="font-size:6pt">Cofin. Federal</div>
         <div class="kpi-v" style="font-size:18pt">R$900<small style="font-size:.5em">k</small></div>
         <div class="kpi-d" style="font-size:7pt;line-height:1.35">/mês · 50% · GM/MS 1.010</div>
       </div>
-      <div class="kpi dark" style="padding:3.5mm">
+      <div class="kpi dark" style="padding:3mm">
         <div class="kpi-lbl" style="font-size:6pt">Custo Líquido Municipal</div>
         <div class="kpi-v" style="font-size:18pt">R$900<small style="font-size:.5em">k</small></div>
         <div class="kpi-d" style="font-size:7pt;line-height:1.35"><strong>4,1%</strong> do orçamento SMS</div>
       </div>
-      <div class="kpi dark" style="padding:3.5mm">
+      <div class="kpi dark" style="padding:3mm">
         <div class="kpi-lbl" style="font-size:6pt">Custo Per Capita</div>
         <div class="kpi-v" style="font-size:18pt">R$1,25</div>
         <div class="kpi-d" style="font-size:7pt;line-height:1.35">/hab/mês · pós-cofin.</div>
       </div>
     </div>
 
-    <div class="callout-light" style="margin-top:5mm">
+    <div class="callout-light" style="margin-top:4mm">
       <div class="callout-tag">Janela Fiscal Aberta</div>
       <div class="callout-tx"><b>Reajuste federal 2023:</b> a Portaria GM/MS 530/2023 aprovou reajuste de <b>30%</b> nos valores de custeio federal do SAMU 192 — ampliando o espaço fiscal dos municípios para contratar gestão profissionalizada sem impacto proporcional no orçamento local.</div>
     </div>
 
-    <div class="part-bar" style="margin-top:8mm">
+    <div class="part-bar" style="margin-top:5mm">
       <span class="part-bar-l">Parte VI · Referências Normativas</span>
       <span class="part-bar-r">Conformidade legal integral</span>
     </div>
@@ -1032,7 +1032,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Por que a <em>Samais</em>?</h2>
     <p class="lead">A Samais é uma gestora especializada em Atenção Pré-Hospitalar Móvel — não uma empresa generalista de terceirização de mão de obra. Nossa operação combina escala nacional, tecnologia proprietária e excelência técnica com presença local.</p>
 
-    <div style="display:grid;grid-template-columns:1fr 58mm;gap:6mm;margin-top:6mm">
+    <div style="display:grid;grid-template-columns:1fr 58mm;gap:5mm;margin-top:5mm">
       <ul class="feat-list">
         <li class="feat-item">
           <div class="feat-n">01</div>
@@ -1125,12 +1125,12 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Samais <em>CoPilot OS</em></h2>
     <p class="lead">O primeiro sistema de inteligência artificial desenvolvido especificamente para regulação médica de SAMU no Brasil — treinado no maior dataset proprietário de APH do país. Em Taboão da Serra: do analógico ao estado da arte em um único contrato, sem necessidade de investimento adicional em tecnologia.</p>
 
-    <div class="callout" style="margin-top:5mm">
+    <div class="callout" style="margin-top:4mm">
       <div class="callout-tag">Sistema Proprietário · Dataset APH-BR Exclusivo</div>
       <div class="callout-tx" style="font-size:14pt;line-height:1.3">CoPilot · <em>Regulação Inteligente</em><br><span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:9.5pt;font-weight:300;color:rgba(240,226,187,.7);display:block;margin-top:3mm;line-height:1.6">Centenas de milhares de ocorrências reais de SAMU processadas e aprendidas. O sistema reconhece padrões epidemiológicos locais, sugere o despacho ideal em segundos e libera o médico regulador para a decisão clínica — não para a burocracia do rádio.</span></div>
     </div>
 
-    <div class="cp-feat-grid">
+    <div class="cp-feat-grid" style="margin-top:3mm">
       <div class="cp-feat">
         <div class="cp-feat-ic"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
         <div class="cp-feat-h">Despacho em Tempo Real</div>
@@ -1153,7 +1153,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
       </div>
     </div>
 
-    <div class="impact">
+    <div class="impact" style="margin-top:4mm">
       <div class="imp">
         <div class="imp-v">↓ 23<small style="font-family:'Syne';font-size:14pt;color:var(--g1)">%</small></div>
         <div class="imp-l">Tempo de Despacho</div>
@@ -1198,7 +1198,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <p class="lead">Operação comprovada com dados auditáveis — de município médio a consórcio intermunicipal. Números verificáveis da realidade operacional Samais em contratos ativos.</p>
 
     <!-- Case 1 -->
-    <div class="case" style="margin-top:6mm">
+    <div class="case" style="margin-top:5mm">
       <div class="case-hd">
         <div>
           <div class="case-tipo">Ourinhos · São Paulo · Município</div>
@@ -1276,7 +1276,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Plano de <em>Implantação</em></h2>
     <p class="lead">A transição para a gestão Samais é planejada para ser gradual, segura e <b>sem qualquer interrupção</b> do serviço de urgência. Em até 120 dias após a assinatura do contrato, a operação está plenamente profissionalizada e o município tem o primeiro relatório de indicadores em mãos.</p>
 
-    <div style="margin-top:6mm">
+    <div style="margin-top:5mm">
       <div class="phase">
         <div>
           <div class="phase-l">Fase 1 · Dias 1–30</div>
@@ -1322,7 +1322,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
       </div>
     </div>
 
-    <div class="callout" style="margin-top:5mm">
+    <div class="callout" style="margin-top:4mm">
       <div class="callout-tag">Zero Interrupção Garantida</div>
       <div class="callout-tx">O protocolo de transição Samais prevê que <em>nenhum plantão fique sem cobertura de urgência</em> durante a migração. As equipes Samais operam em sobreposição com a estrutura atual até que a operação esteja completamente transferida, testada e validada — com <b>aceite formal do gestor municipal</b>.</div>
     </div>
@@ -1352,7 +1352,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <h2 class="h-sec">Proposta e <em>Próximos Passos</em></h2>
     <p class="lead">A Samais está pronta para iniciar o processo formal de contratação para o SAMU de Taboão da Serra. O quadro abaixo consolida os parâmetros operacionais, contratuais e financeiros da proposta.</p>
 
-    <h3 class="h-sub" style="margin-top:6mm">Resumo da Proposta</h3>
+    <h3 class="h-sub" style="margin-top:5mm">Resumo da Proposta</h3>
     <div class="def"><div class="def-l">Município</div><div class="def-v">Taboão da Serra · SP · <b>273.542 hab</b> · maior densidade demográfica do Brasil</div></div>
     <div class="def"><div class="def-l">Frota Proposta</div><div class="def-v">3 USBs · 1 USA · 2 Motolâncias · <b>Central digital com CoPilot OS</b></div></div>
     <div class="def"><div class="def-l">Equipe Estimada</div><div class="def-v">~145 profissionais — médicos reguladores, TARMs, técnicos APH, condutores e gestão</div></div>
@@ -1363,24 +1363,24 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <div class="def"><div class="def-l">Custo per Capita</div><div class="def-v"><b>R$ 1,25</b> / habitante / mês · pós-cofinanciamento</div></div>
     <div class="def" style="border-bottom:1px solid var(--line)"><div class="def-l">Prazo de Implantação</div><div class="def-v">90–120 dias após assinatura contratual · <b>zero interrupção do serviço</b></div></div>
 
-    <h3 class="h-sub" style="margin-top:7mm">Garantias Contratuais</h3>
+    <h3 class="h-sub" style="margin-top:5mm">Garantias Contratuais</h3>
     <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
-      <div class="kpi">
+      <div class="kpi" style="padding:4mm">
         <div class="kpi-lbl">Tempo-Resposta</div>
         <div class="kpi-v">≤ 8<small>min</small></div>
         <div class="kpi-d">Urbano · <strong>penalidade contratual</strong> por descumprimento</div>
       </div>
-      <div class="kpi">
+      <div class="kpi" style="padding:4mm">
         <div class="kpi-lbl">Disponibilidade Frota</div>
         <div class="kpi-v">≥ 95<em>%</em></div>
         <div class="kpi-d">Uptime contratual garantido por SLA</div>
       </div>
-      <div class="kpi">
+      <div class="kpi" style="padding:4mm">
         <div class="kpi-lbl">Relatórios</div>
         <div class="kpi-v" style="font-size:18pt">Mensais</div>
         <div class="kpi-d">+ reunião <strong>bimestral</strong> de resultados</div>
       </div>
-      <div class="kpi">
+      <div class="kpi" style="padding:4mm">
         <div class="kpi-lbl">Garantia Contratual</div>
         <div class="kpi-v">5<em>%</em></div>
         <div class="kpi-d">Do valor anual · <strong>seguro de frota incluso</strong></div>
