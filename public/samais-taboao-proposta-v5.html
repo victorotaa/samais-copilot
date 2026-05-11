@@ -351,7 +351,7 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
   <!-- Viatura watermark — full bottom width with soft gradient fade -->
   <div style="position:absolute;left:0;right:0;bottom:0;height:55%;pointer-events:none;z-index:0;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.35) 25%,rgba(0,0,0,.85) 60%,#000 100%);mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.35) 25%,rgba(0,0,0,.85) 60%,#000 100%)">
     <img src="uploads/viatura1.png" alt="" style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:115%;height:100%;object-fit:cover;object-position:center bottom;opacity:.22;filter:grayscale(.85) contrast(1.15) brightness(.95)">
-    <div style="position:absolute;inset:0;background:linear-gradient(to right,var(--bg) 0%,transparent 12%,transparent 88%,var(--bg) 100%)"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to right,#000 0%,transparent 18%,transparent 82%,#000 100%)"></div>
   </div>
   <!-- ECG ambient background -->
   <svg class="cover-ecg" viewBox="0 0 800 1100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -738,11 +738,11 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
         <tr><td class="label">TaboãoPrev — Encargo Patronal Previdenciário (~22%)</td><td class="val">R$ 253.000</td></tr>
         <tr><td class="label">Provisão 13º Salário (1/12 da folha bruta)</td><td class="val">R$ 95.800</td></tr>
         <tr><td class="label">Provisão Férias + Terço Constitucional (1/12)</td><td class="val">R$ 127.700</td></tr>
-        <tr><td class="label">Vale Alimentação / Benefícios (R$ 900 × 145 servidores)</td><td class="val">R$ 130.500</td></tr>
+        <tr><td class="label">Fornecimento de Marmitas (3 refeições/dia × R$ 15 × 145 colaboradores)</td><td class="val">R$ 195.750</td></tr>
         <tr><td class="label">Plantões / Horas Extras por Absenteísmo</td><td class="val">R$ 100.000</td></tr>
-        <tr class="sub"><td class="label">Subtotal RH</td><td class="val">R$ 1.857.000</td></tr>
-        <tr><td class="label">Frota, Insumos, Manutenção e Base Operacional</td><td class="val">R$ 300.000</td></tr>
-        <tr class="total"><td>Custo Total Atual · Estimativa Mensal</td><td style="text-align:right">R$ 2.157.000</td></tr>
+        <tr class="sub"><td class="label">Subtotal RH</td><td class="val">R$ 1.922.250</td></tr>
+        <tr><td class="label">Frota, Insumos, Manutenção e Base Operacional</td><td class="val">R$ 420.000</td></tr>
+        <tr class="total"><td>Custo Total Atual · Estimativa Mensal</td><td style="text-align:right">R$ 2.342.250</td></tr>
       </tbody>
     </table>
     <p class="note">* Estimativa baseada em custos operacionais mercadológicos para efetivo municipal equivalente. Valor passível de confirmação em diagnóstico de campo.</p>
@@ -839,6 +839,11 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
           <li>Menor consumo de combustível e pneus (capacitação)</li>
           <li><b>Maior agilidade</b> no fluxo de atendimento</li>
           <li><b>Melhor índice de satisfação</b> dos usuários</li>
+          <li>CoPilot OS embarcado — despacho IA em <b>&lt;4 segundos</b></li>
+          <li>Dataset APH-BR proprietário — <b>inteligência local</b></li>
+          <li>Dashboard do gestor em <b>tempo real 24h</b></li>
+          <li>Integração nativa <b>SUS/RNDS</b></li>
+          <li><b>100%</b> rastreabilidade de ocorrências</li>
         </ul>
         <div class="cmp-foot-note">Inclui folha, verbas trabalhistas, provisionamento demissional, gestão, manutenção, insumos, impostos, taxas e lucro.</div>
       </div>
@@ -1274,50 +1279,39 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
   <div class="pad">
     <div class="part-num">Parte X</div>
     <h2 class="h-sec">Plano de <em>Implantação</em></h2>
-    <p class="lead">A transição para a gestão Samais é planejada para ser gradual, segura e <b>sem qualquer interrupção</b> do serviço de urgência. Em até 120 dias após a assinatura do contrato, a operação está plenamente profissionalizada e o município tem o primeiro relatório de indicadores em mãos.</p>
+    <p class="lead">A transição para a gestão Samais é planejada para ser segura e <b>sem qualquer interrupção</b> do serviço de urgência. Em até <b>30 dias</b> após a assinatura do contrato, a operação está plenamente profissionalizada e o município tem o primeiro relatório de indicadores em mãos.</p>
 
     <div style="margin-top:5mm">
       <div class="phase">
         <div>
-          <div class="phase-l">Fase 1 · Dias 1–30</div>
+          <div class="phase-l">Fase 1 · Dias 1–10</div>
           <div class="phase-num">01</div>
         </div>
         <div>
-          <div class="phase-h">Diagnóstico e Planejamento Operacional</div>
+          <div class="phase-h">Diagnóstico, Mapeamento e Apresentação Técnica</div>
           <div class="phase-d">Levantamento completo da operação atual: frota, equipes, bases, protocolos vigentes, sistemas de informação, contratos de insumos e histórico disponível de ocorrências. Mapeamento detalhado da central analógica e definição do plano de digitalização com CoPilot OS. Apresentação formal ao secretário de saúde, médico coordenador e equipe técnica do SAMU.</div>
         </div>
       </div>
 
       <div class="phase">
         <div>
-          <div class="phase-l">Fase 2 · Dias 31–60</div>
+          <div class="phase-l">Fase 2 · Dias 11–20</div>
           <div class="phase-num">02</div>
         </div>
         <div>
-          <div class="phase-h">Estruturação de Equipes e Tecnologia</div>
-          <div class="phase-d">Contratação, seleção e certificação das equipes Samais (médicos reguladores, TARMs, técnicos APH, condutores). Instalação e configuração do CoPilot OS na Central de Regulação. Integração com sistemas estaduais (RAU, SAMU-SP). Adequação e equipamento da frota. Treinamento intensivo em protocolos Samais, sistemas digitais e padrões de atendimento.</div>
+          <div class="phase-h">Estruturação de Equipes, CoPilot OS e Treinamento</div>
+          <div class="phase-d">Seleção e certificação das equipes Samais (médicos reguladores, TARMs, técnicos APH, condutores). Instalação e configuração do CoPilot OS na Central de Regulação. Integração com sistemas estaduais (RAU, SAMU-SP). Adequação e equipamento da frota. Treinamento intensivo em protocolos Samais, sistemas digitais e padrões de atendimento.</div>
         </div>
       </div>
 
       <div class="phase">
         <div>
-          <div class="phase-l">Fase 3 · Dias 61–90</div>
+          <div class="phase-l">Fase 3 · Dias 21–30</div>
           <div class="phase-num">03</div>
         </div>
         <div>
-          <div class="phase-h">Operação Supervisionada</div>
-          <div class="phase-d">Operação Samais em sobreposição com a estrutura atual — garantindo continuidade total e zero risco ao serviço. Supervisão técnica intensiva com equipe de apoio da sede presente in loco. Coleta dos primeiros indicadores de performance e ajustes operacionais em tempo real com base nos dados do CoPilot OS.</div>
-        </div>
-      </div>
-
-      <div class="phase">
-        <div>
-          <div class="phase-l">Fase 4 · Dias 91–120</div>
-          <div class="phase-num">04</div>
-        </div>
-        <div>
-          <div class="phase-h">Operação Plena e Relatório de Início</div>
-          <div class="phase-d">Toda a estrutura SAMU de Taboão da Serra em operação Samais completa: central digital, frota operacional, equipes certificadas e protocolos ativos. Apresentação do Relatório de Implantação ao município: indicadores de tempo-resposta, volume de atendimentos, mapeamento de oportunidades de melhoria e roadmap dos primeiros 12 meses de contrato.</div>
+          <div class="phase-h">Operação Plena, Supervisão e Relatório de Início</div>
+          <div class="phase-d">Operação Samais em sobreposição com a estrutura atual — zero risco ao serviço. Toda a estrutura SAMU de Taboão da Serra em operação Samais completa: central digital, frota operacional e equipes certificadas. Coleta de indicadores e apresentação do Relatório de Implantação ao município: tempo-resposta, volume de atendimentos e roadmap dos primeiros 12 meses de contrato.</div>
         </div>
       </div>
     </div>
@@ -1361,14 +1355,14 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
     <div class="def"><div class="def-l">Vigência Sugerida</div><div class="def-v">48–60 meses — alinhado ao ciclo de renovação de frota e amortização de investimentos</div></div>
     <div class="def"><div class="def-l">Custo Líquido Municipal</div><div class="def-v"><b>R$ 900.000/mês</b> após cofinanciamento federal (50%) · equivale a <b>4,1%</b> do orçamento anual SMS</div></div>
     <div class="def"><div class="def-l">Custo per Capita</div><div class="def-v"><b>R$ 1,25</b> / habitante / mês · pós-cofinanciamento</div></div>
-    <div class="def" style="border-bottom:1px solid var(--line)"><div class="def-l">Prazo de Implantação</div><div class="def-v">90–120 dias após assinatura contratual · <b>zero interrupção do serviço</b></div></div>
+    <div class="def" style="border-bottom:1px solid var(--line)"><div class="def-l">Prazo de Implantação</div><div class="def-v">30 dias após assinatura contratual · <b>zero interrupção do serviço</b></div></div>
 
     <h3 class="h-sub" style="margin-top:5mm">Garantias Contratuais</h3>
     <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
       <div class="kpi" style="padding:4mm">
         <div class="kpi-lbl">Tempo-Resposta</div>
         <div class="kpi-v">≤ 8<small>min</small></div>
-        <div class="kpi-d">Urbano · <strong>penalidade contratual</strong> por descumprimento</div>
+        <div class="kpi-d">Urbano · meta contratual garantida por SLA</div>
       </div>
       <div class="kpi" style="padding:4mm">
         <div class="kpi-lbl">Disponibilidade Frota</div>
