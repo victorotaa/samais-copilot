@@ -152,6 +152,11 @@ table.t td.val{font-family:'Syne',sans-serif;font-weight:600;color:var(--ink);te
 table.t tr.total td{background:#15110C;color:var(--g3);border-top:2px solid var(--g2);border-bottom:none;font-family:'Syne',sans-serif;font-size:11pt;font-weight:700;padding:4mm 3mm}
 table.t tr.total td:first-child{color:var(--g3)}
 table.t tr.sub td{background:var(--bg2);font-weight:600;color:var(--ink)}
+table.t tr.sub-item td{background:rgba(242,237,224,.45);color:var(--ink3)}
+table.t tr.sub-item td.label{font-size:7pt;padding-left:7mm;color:var(--ink3);font-weight:400}
+table.t tr.sub-item td.val{font-size:8pt;color:var(--ink3);font-weight:500}
+table.t tr.group-head td{border-bottom:none;padding-bottom:1.5mm}
+table.t tr.group-head td.label{font-weight:600;color:var(--ink)}
 table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(--mute);letter-spacing:.04em}
 
 /* ─── BENCHMARK BARS ──────────────────── */
@@ -738,11 +743,16 @@ table.t .mini{font-family:'JetBrains Mono',monospace;font-size:6.5pt;color:var(-
         <tr><td class="label">TaboãoPrev — Encargo Patronal Previdenciário (~22%)</td><td class="val">R$ 253.000</td></tr>
         <tr><td class="label">Provisão 13º Salário (1/12 da folha bruta)</td><td class="val">R$ 95.800</td></tr>
         <tr><td class="label">Provisão Férias + Terço Constitucional (1/12)</td><td class="val">R$ 127.700</td></tr>
-        <tr><td class="label">Fornecimento de Marmitas (3 refeições/dia × R$ 15 × 145 colaboradores)</td><td class="val">R$ 195.750</td></tr>
+        <tr><td class="label">Fornecimento de Marmitas (118 op. × 15 plantões × R$ 30)</td><td class="val">R$ 53.100</td></tr>
         <tr><td class="label">Plantões / Horas Extras por Absenteísmo</td><td class="val">R$ 100.000</td></tr>
-        <tr class="sub"><td class="label">Subtotal RH</td><td class="val">R$ 1.922.250</td></tr>
-        <tr><td class="label">Frota, Insumos, Manutenção e Base Operacional</td><td class="val">R$ 420.000</td></tr>
-        <tr class="total"><td>Custo Total Atual · Estimativa Mensal</td><td style="text-align:right">R$ 2.342.250</td></tr>
+        <tr class="sub"><td class="label">Subtotal RH</td><td class="val">R$ 1.780.500</td></tr>
+        <tr class="group-head"><td class="label">Frota, Insumos e Base Operacional</td><td class="val">R$ 420.000</td></tr>
+        <tr class="sub-item"><td class="label">↳ Combustível (frota ativa)</td><td class="val">R$ 95.000</td></tr>
+        <tr class="sub-item"><td class="label">↳ Manutenção preventiva e corretiva de frota</td><td class="val">R$ 115.000</td></tr>
+        <tr class="sub-item"><td class="label">↳ Manutenção da CRU (Central de Regulação de Urgências)</td><td class="val">R$ 85.000</td></tr>
+        <tr class="sub-item"><td class="label">↳ Limpeza e higienização (bases e viaturas)</td><td class="val">R$ 55.000</td></tr>
+        <tr class="sub-item"><td class="label">↳ Insumos e materiais operacionais</td><td class="val">R$ 70.000</td></tr>
+        <tr class="total"><td>Custo Total Atual · Estimativa Mensal</td><td style="text-align:right">R$ 2.200.500</td></tr>
       </tbody>
     </table>
     <p class="note">* Estimativa baseada em custos operacionais mercadológicos para efetivo municipal equivalente. Valor passível de confirmação em diagnóstico de campo.</p>
