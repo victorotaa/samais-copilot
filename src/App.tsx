@@ -98,6 +98,31 @@ const MOCK_VEHICLES = [
   { id: 'MOT-02', type: 'MOTOLÂNCIA', status: 'MANUTENÇÃO', base: 'Base Oeste', color: 'nude', eta: 0 },
 ];
 
+const MOCK_ZONES = [
+  { id: 'Z1', name: 'Centro/Sé', coverage: 95, incidents: 28, vehicles: 2, color: 'ok' },
+  { id: 'Z2', name: 'Zona Leste', coverage: 72, incidents: 41, vehicles: 1, color: 'warn' },
+  { id: 'Z3', name: 'Zona Norte', coverage: 88, incidents: 19, vehicles: 2, color: 'ok' },
+  { id: 'Z4', name: 'Zona Sul', coverage: 61, incidents: 35, vehicles: 1, color: 'danger' },
+  { id: 'Z5', name: 'Zona Oeste', coverage: 83, incidents: 22, vehicles: 1, color: 'ok' },
+  { id: 'Z6', name: 'Guarulhos', coverage: 55, incidents: 47, vehicles: 1, color: 'danger' },
+];
+
+const MOCK_ROUTE_PLAN = [
+  { vehicleId: 'USA-01', base: 'Base Central', route: 'Centro → Bela Vista → Liberdade', status: 'ATIVO', eta: '00:42', distance: '8.4km', priority: 'RED' },
+  { vehicleId: 'USB-04', base: 'Base Leste', route: 'Penha → Tatuapé → Mooca', status: 'PLANEJADO', eta: '--', distance: '12.1km', priority: 'YELLOW' },
+  { vehicleId: 'MOT-01', base: 'Base Central', route: 'Sé → República → Sta. Cecília', status: 'ATIVO', eta: '00:18', distance: '3.2km', priority: 'RED' },
+  { vehicleId: 'USB-05', base: 'Base Norte', route: 'Santana → V. Guilherme → Tucuruvi', status: 'RETORNO', eta: '00:25', distance: '9.7km', priority: 'GREEN' },
+];
+
+const MOCK_SHIFTS: { vehicleId: string; type: string; shiftStart: number; shiftEnd: number; currentTask: { start: number; end: number } | null; nextTask: { start: number; end: number } | null; status: string }[] = [
+  { vehicleId: 'USA-01', type: 'USA', shiftStart: 6, shiftEnd: 18, currentTask: { start: 8.2, end: 8.9 }, nextTask: { start: 10.5, end: 11.2 }, status: 'ATIVO' },
+  { vehicleId: 'USB-04', type: 'USB', shiftStart: 6, shiftEnd: 18, currentTask: null, nextTask: { start: 9.0, end: 9.5 }, status: 'DISPONÍVEL' },
+  { vehicleId: 'MOT-01', type: 'MOT', shiftStart: 6, shiftEnd: 14, currentTask: { start: 8.1, end: 8.5 }, nextTask: { start: 9.2, end: 9.6 }, status: 'ATIVO' },
+  { vehicleId: 'USA-02', type: 'USA', shiftStart: 18, shiftEnd: 6, currentTask: null, nextTask: null, status: 'FOLGA' },
+  { vehicleId: 'USB-05', type: 'USB', shiftStart: 6, shiftEnd: 18, currentTask: { start: 7.5, end: 8.8 }, nextTask: { start: 10.0, end: 10.8 }, status: 'RETORNO' },
+  { vehicleId: 'MOT-02', type: 'MOT', shiftStart: 14, shiftEnd: 22, currentTask: null, nextTask: null, status: 'MANUTENÇÃO' },
+];
+
 const MOCK_RECENT_CALLS = [
   { id: '1042', phone: '(11) 98765-4321', time: '08:12', type: 'Parada Cardiorrespiratória', status: 'Despachada (USA)', statusColor: 'danger' },
   { id: '1041', phone: '(11) 91234-5678', time: '08:05', type: 'Crise Convulsiva', status: 'Despachada (USB)', statusColor: 'warn' },
@@ -224,7 +249,7 @@ export default function App() {
     soundEnabledRef.current = soundEnabled;
   }, [soundEnabled]);
 
-  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD'>('IDLE');
+  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD' | 'MASTER_ROTA'>('IDLE');
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -603,11 +628,17 @@ export default function App() {
               {currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
             </div>
           </div>
-          <button 
-            onClick={() => setCurrentModule('DASHBOARD')} 
+          <button
+            onClick={() => setCurrentModule('DASHBOARD')}
             className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${currentModule === 'DASHBOARD' ? 'bg-s-gold/20 border border-s-gold text-s-gold' : 'bg-s-surf2 border border-s-bdr text-s-ivory hover:bg-s-surf'}`}
           >
             <i className="fa-solid fa-chart-pie"></i> <span className="hidden sm:inline">Dashboard</span>
+          </button>
+          <button
+            onClick={() => setCurrentModule('MASTER_ROTA')}
+            className={`ml-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${currentModule === 'MASTER_ROTA' ? 'bg-ai/20 border border-ai text-ai' : 'bg-s-surf2 border border-s-bdr text-s-ivory hover:bg-s-surf'}`}
+          >
+            <i className="fa-solid fa-route"></i> <span className="hidden sm:inline">Rotas</span>
           </button>
         </div>
 
@@ -1794,6 +1825,306 @@ export default function App() {
           </div>
         )}
 
+        {currentModule === 'MASTER_ROTA' && (
+          <div className="flex-1 flex flex-col gap-5 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0 min-h-0">
+
+            {/* Page Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 shrink-0">
+              <div>
+                <h2 className="text-2xl font-disp font-bold text-s-ivory flex items-center gap-3">
+                  <i className="fa-solid fa-route text-s-gold"></i> Master Plan de Rotas
+                </h2>
+                <p className="text-sm text-s-nude font-mono mt-0.5">
+                  Central 192 · Planejamento tático de cobertura e despacho de frota
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="chip chip-ai text-[0.6rem]">
+                  <i className="fa-solid fa-circle text-[5px] animate-pulse"></i> IA OTIMIZANDO
+                </span>
+                <span className="chip chip-ok text-[0.6rem]">
+                  {time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} — AO VIVO
+                </span>
+              </div>
+            </div>
+
+            {/* KPI Row */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
+              <div className="gp p-4 rounded-2xl border-l-4 border-l-ok">
+                <div className="text-[0.6rem] font-bold text-s-nude uppercase tracking-widest mb-1">Cobertura Média</div>
+                <div className="text-3xl font-disp font-bold text-ok">76%</div>
+                <div className="text-[0.65rem] text-ok/70 mt-1"><i className="fa-solid fa-arrow-trend-up"></i> +4% vs turno anterior</div>
+              </div>
+              <div className="gp p-4 rounded-2xl border-l-4 border-l-danger">
+                <div className="text-[0.6rem] font-bold text-s-nude uppercase tracking-widest mb-1">Zonas Críticas</div>
+                <div className="text-3xl font-disp font-bold text-danger">2</div>
+                <div className="text-[0.65rem] text-danger/70 mt-1">Sul e Guarulhos &lt;65%</div>
+              </div>
+              <div className="gp p-4 rounded-2xl border-l-4 border-l-ai">
+                <div className="text-[0.6rem] font-bold text-s-nude uppercase tracking-widest mb-1">Rotas Ativas</div>
+                <div className="text-3xl font-disp font-bold text-ai">2</div>
+                <div className="text-[0.65rem] text-s-nude mt-1">2 planejadas / 2 livres</div>
+              </div>
+              <div className="gp p-4 rounded-2xl border-l-4 border-l-s-gold">
+                <div className="text-[0.6rem] font-bold text-s-nude uppercase tracking-widest mb-1">ETA Médio</div>
+                <div className="text-3xl font-disp font-bold text-s-gold">8.4<span className="text-lg">min</span></div>
+                <div className="text-[0.65rem] text-ok/70 mt-1"><i className="fa-solid fa-arrow-trend-down"></i> -1.2min vs meta</div>
+              </div>
+            </div>
+
+            {/* Main Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1 min-h-0">
+
+              {/* LEFT: Gantt + Zones */}
+              <div className="lg:col-span-2 flex flex-col gap-5">
+
+                {/* Gantt Timeline */}
+                <div className="gp rounded-2xl flex flex-col overflow-hidden">
+                  <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-calendar-days text-s-gold text-xs"></i>
+                      <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Escala de Turno — Hoje</span>
+                    </div>
+                    <span className="chip chip-nude text-[0.6rem]">06h → 22h</span>
+                  </div>
+                  <div className="p-4 overflow-x-auto">
+                    {/* Hour axis */}
+                    <div className="flex mb-3 ml-[88px]">
+                      {[6, 8, 10, 12, 14, 16, 18, 20, 22].map(h => (
+                        <div key={h} className="flex-1 text-center text-[0.6rem] font-mono text-s-nude/60 border-l border-s-bdr/30 pl-1">{h}h</div>
+                      ))}
+                    </div>
+                    {/* Rows */}
+                    <div className="flex flex-col gap-2 min-w-[500px]">
+                      {MOCK_SHIFTS.map(shift => {
+                        const totalHours = 16; // 6h to 22h window
+                        const toPercent = (h: number) => ((h - 6) / totalHours) * 100;
+                        const shiftLeft = toPercent(Math.max(shift.shiftStart, 6));
+                        const shiftRight = 100 - toPercent(Math.min(shift.shiftEnd > 6 ? shift.shiftEnd : 22, 22));
+
+                        const statusColor =
+                          shift.status === 'ATIVO' ? 'text-ok' :
+                          shift.status === 'DISPONÍVEL' ? 'text-ai' :
+                          shift.status === 'RETORNO' ? 'text-warn' :
+                          'text-s-nude';
+                        const shiftBg =
+                          shift.status === 'MANUTENÇÃO' || shift.status === 'FOLGA' ? 'bg-s-surf border border-s-bdr/40 opacity-40' :
+                          shift.status === 'ATIVO' ? 'bg-ok/10 border border-ok/20' :
+                          shift.status === 'RETORNO' ? 'bg-warn/10 border border-warn/20' :
+                          'bg-ai/10 border border-ai/20';
+
+                        return (
+                          <div key={shift.vehicleId} className="flex items-center gap-3">
+                            <div className="w-20 shrink-0 flex flex-col">
+                              <span className="text-xs font-bold font-mono text-s-ivory leading-none">{shift.vehicleId}</span>
+                              <span className={`text-[0.55rem] font-bold uppercase tracking-widest ${statusColor}`}>{shift.status}</span>
+                            </div>
+                            <div className="flex-1 h-7 bg-s-surf border border-s-bdr/30 rounded-lg relative overflow-hidden">
+                              {/* Shift bar */}
+                              <div
+                                className={`absolute top-0 bottom-0 ${shiftBg} rounded`}
+                                style={{ left: `${shiftLeft}%`, right: `${shiftRight}%` }}
+                              />
+                              {/* Current task */}
+                              {shift.currentTask && (
+                                <div
+                                  className="absolute top-1 bottom-1 bg-ok rounded shadow-[0_0_6px_rgba(16,185,129,0.5)]"
+                                  style={{
+                                    left: `${toPercent(shift.currentTask.start)}%`,
+                                    width: `${toPercent(shift.currentTask.end) - toPercent(shift.currentTask.start)}%`
+                                  }}
+                                />
+                              )}
+                              {/* Next task */}
+                              {shift.nextTask && (
+                                <div
+                                  className="absolute top-1 bottom-1 bg-s-gold/60 rounded border border-s-gold/40"
+                                  style={{
+                                    left: `${toPercent(shift.nextTask.start)}%`,
+                                    width: `${toPercent(shift.nextTask.end) - toPercent(shift.nextTask.start)}%`
+                                  }}
+                                />
+                              )}
+                              {/* Current time indicator */}
+                              <div
+                                className="absolute top-0 bottom-0 w-0.5 bg-danger/70 z-10"
+                                style={{ left: `${toPercent(time.getHours() + time.getMinutes() / 60)}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {/* Legend */}
+                    <div className="flex gap-4 mt-4 pt-3 border-t border-s-bdr/30">
+                      <div className="flex items-center gap-1.5"><div className="w-3 h-2 bg-ok rounded"></div><span className="text-[0.6rem] text-s-nude">Ocorrência Ativa</span></div>
+                      <div className="flex items-center gap-1.5"><div className="w-3 h-2 bg-s-gold/60 rounded"></div><span className="text-[0.6rem] text-s-nude">Próxima Tarefa</span></div>
+                      <div className="flex items-center gap-1.5"><div className="w-0.5 h-3 bg-danger/70"></div><span className="text-[0.6rem] text-s-nude">Agora</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Zone Coverage Table */}
+                <div className="gp rounded-2xl flex flex-col overflow-hidden">
+                  <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-map-marked-alt text-s-gold text-xs"></i>
+                      <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Cobertura por Zona</span>
+                    </div>
+                    <span className="chip chip-ai text-[0.6rem]"><i className="fa-solid fa-bolt"></i> IA Sugerindo Reforços</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[460px]">
+                      <thead>
+                        <tr className="border-b border-s-bdr text-[0.6rem] text-s-nude uppercase tracking-widest">
+                          <th className="px-4 py-3 font-bold">Zona</th>
+                          <th className="px-4 py-3 font-bold">Cobertura</th>
+                          <th className="px-4 py-3 font-bold">Ocorrências/Dia</th>
+                          <th className="px-4 py-3 font-bold">Viaturas</th>
+                          <th className="px-4 py-3 font-bold">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {MOCK_ZONES.map(zone => (
+                          <tr key={zone.id} className="border-b border-s-bdr/50 hover:bg-s-surf2/50 transition-colors">
+                            <td className="px-4 py-3">
+                              <div className="text-sm font-bold text-s-ivory">{zone.name}</div>
+                              <div className="text-[0.6rem] text-s-nude font-mono">{zone.id}</div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-s-surf2 rounded-full overflow-hidden w-20">
+                                  <div
+                                    className={`h-full rounded-full transition-all ${
+                                      zone.color === 'ok' ? 'bg-ok' :
+                                      zone.color === 'warn' ? 'bg-warn' : 'bg-danger'
+                                    }`}
+                                    style={{ width: `${zone.coverage}%` }}
+                                  />
+                                </div>
+                                <span className={`text-xs font-bold font-mono ${
+                                  zone.color === 'ok' ? 'text-ok' :
+                                  zone.color === 'warn' ? 'text-warn' : 'text-danger'
+                                }`}>{zone.coverage}%</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-sm font-mono font-bold text-s-ivory">{zone.incidents}</td>
+                            <td className="px-4 py-3 text-sm font-mono text-s-ivory">{zone.vehicles}</td>
+                            <td className="px-4 py-3">
+                              <span className={`chip chip-${zone.color} text-[0.6rem]`}>
+                                {zone.color === 'ok' ? 'ADEQUADA' : zone.color === 'warn' ? 'ATENÇÃO' : 'CRÍTICA'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT: Routes + AI */}
+              <div className="flex flex-col gap-5">
+
+                {/* Active Routes */}
+                <div className="gp rounded-2xl flex flex-col overflow-hidden flex-1">
+                  <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-truck-fast text-s-gold text-xs"></i>
+                      <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Rotas Ativas / Planejadas</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+                    {MOCK_ROUTE_PLAN.map(route => (
+                      <div
+                        key={route.vehicleId}
+                        className={`p-3.5 rounded-xl border flex flex-col gap-2.5 ${
+                          route.status === 'ATIVO' ? 'bg-ok/5 border-ok/20' :
+                          route.status === 'RETORNO' ? 'bg-warn/5 border-warn/20' :
+                          'bg-s-surf border-s-bdr'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <i className={`fa-solid ${route.vehicleId.includes('MOT') ? 'fa-motorcycle' : 'fa-truck-medical'} text-sm ${
+                              route.status === 'ATIVO' ? 'text-ok' :
+                              route.status === 'RETORNO' ? 'text-warn' : 'text-ai'
+                            }`}></i>
+                            <span className="text-sm font-bold font-mono text-s-ivory">{route.vehicleId}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`chip text-[0.55rem] ${
+                              route.priority === 'RED' ? 'chip-danger' :
+                              route.priority === 'YELLOW' ? 'chip-warn' : 'chip-ok'
+                            }`}>{route.priority}</span>
+                            <span className={`chip text-[0.55rem] ${
+                              route.status === 'ATIVO' ? 'chip-ok' :
+                              route.status === 'RETORNO' ? 'chip-warn' : 'chip-ai'
+                            }`}>{route.status}</span>
+                          </div>
+                        </div>
+                        <div className="text-[0.65rem] text-s-nude font-mono leading-relaxed">
+                          <i className="fa-solid fa-location-dot mr-1 text-s-nude/50"></i>{route.base}
+                        </div>
+                        <div className="text-xs text-s-ivory flex items-center gap-1.5">
+                          <i className="fa-solid fa-arrows-left-right text-s-gold/50 text-[0.65rem]"></i>
+                          {route.route}
+                        </div>
+                        <div className="flex items-center justify-between pt-1 border-t border-s-bdr/30">
+                          <div className="flex items-center gap-1 text-[0.6rem] font-mono text-s-nude">
+                            <i className="fa-solid fa-road text-s-gold/50"></i> {route.distance}
+                          </div>
+                          <div className="text-[0.6rem] font-mono font-bold text-s-gold">
+                            {route.eta !== '--' ? <>ETA {route.eta}</> : <span className="text-ai">Aguardando</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* AI Optimization Panel */}
+                <div className="gp rounded-2xl overflow-hidden border-l-4 border-l-ai shrink-0">
+                  <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center gap-2 shrink-0">
+                    <i className="fa-solid fa-robot text-ai text-xs"></i>
+                    <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Recomendações IA</span>
+                  </div>
+                  <div className="p-4 flex flex-col gap-3">
+                    <div className="p-3 bg-danger/5 border border-danger/20 rounded-xl flex gap-3">
+                      <i className="fa-solid fa-triangle-exclamation text-danger mt-0.5 text-sm shrink-0"></i>
+                      <div>
+                        <div className="text-xs font-bold text-danger mb-1">Zona Sul — Cobertura Crítica</div>
+                        <p className="text-[0.65rem] text-s-nude leading-relaxed">Realocar USB-04 da Base Leste para a Base Sul ao final da ocorrência atual (ETA 15 min).</p>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-warn/5 border border-warn/20 rounded-xl flex gap-3">
+                      <i className="fa-solid fa-circle-exclamation text-warn mt-0.5 text-sm shrink-0"></i>
+                      <div>
+                        <div className="text-xs font-bold text-warn mb-1">Guarulhos — Pico Previsto 17h</div>
+                        <p className="text-[0.65rem] text-s-nude leading-relaxed">Histórico indica +38% de ocorrências entre 17h–19h. Antecipar entrada de MOT-02 às 16h30.</p>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-ai/5 border border-ai/20 rounded-xl flex gap-3">
+                      <i className="fa-solid fa-lightbulb text-ai mt-0.5 text-sm shrink-0"></i>
+                      <div>
+                        <div className="text-xs font-bold text-ai mb-1">Otimização de Rota — USA-01</div>
+                        <p className="text-[0.65rem] text-s-nude leading-relaxed">Rota alternativa via Radial Leste economiza 2.1km e reduz ETA em ~3 min.</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => showToast('Plano otimizado aplicado à frota', 'success')}
+                      className="w-full py-3 bg-gradient-to-r from-ai/20 to-ai/10 border border-ai/30 text-ai font-bold text-xs uppercase tracking-widest rounded-xl hover:from-ai/30 hover:to-ai/20 transition-all flex items-center justify-center gap-2 mt-1"
+                    >
+                      <i className="fa-solid fa-wand-magic-sparkles"></i> Aplicar Plano Otimizado
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
 
       {/* BOTTOM NAV (OSX Dock Style) */}
@@ -1847,11 +2178,17 @@ export default function App() {
           >
             <i className="fa-solid fa-truck-medical"></i> Viatura
           </button>
-          <button 
+          <button
             onClick={() => { setCurrentModule('DASHBOARD'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'DASHBOARD' ? 'bg-s-gold text-s-dark shadow-[0_0_20px_rgba(211,160,92,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
           >
             <i className="fa-solid fa-chart-simple"></i> Dashboard
+          </button>
+          <button
+            onClick={() => { setCurrentModule('MASTER_ROTA'); setIsNavOpen(false); }}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'MASTER_ROTA' ? 'bg-ai text-s-dark shadow-[0_0_20px_rgba(0,212,168,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
+          >
+            <i className="fa-solid fa-route"></i> Rotas
           </button>
         </nav>
       </div>
