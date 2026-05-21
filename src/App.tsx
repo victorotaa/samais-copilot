@@ -603,8 +603,8 @@ export default function App() {
               {currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
             </div>
           </div>
-          <button 
-            onClick={() => setCurrentModule('DASHBOARD')} 
+          <button
+            onClick={() => setCurrentModule('DASHBOARD')}
             className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${currentModule === 'DASHBOARD' ? 'bg-s-gold/20 border border-s-gold text-s-gold' : 'bg-s-surf2 border border-s-bdr text-s-ivory hover:bg-s-surf'}`}
           >
             <i className="fa-solid fa-chart-pie"></i> <span className="hidden sm:inline">Dashboard</span>
@@ -1794,6 +1794,7 @@ export default function App() {
           </div>
         )}
 
+
       </main>
 
       {/* BOTTOM NAV (OSX Dock Style) */}
@@ -1847,7 +1848,7 @@ export default function App() {
           >
             <i className="fa-solid fa-truck-medical"></i> Viatura
           </button>
-          <button 
+          <button
             onClick={() => { setCurrentModule('DASHBOARD'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'DASHBOARD' ? 'bg-s-gold text-s-dark shadow-[0_0_20px_rgba(211,160,92,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
           >
