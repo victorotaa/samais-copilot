@@ -3,7 +3,7 @@ import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 import { useTheme } from './lib/theme';
 import { Icon } from './ui/Icon';
 import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
-import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB } from './lib/supabase';
+import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_ID } from './lib/supabase';
 
 const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
 
@@ -104,26 +104,48 @@ const MOCK_VEHICLES = [
 
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
 
-const MOCK_SCHEDULES: Record<string, { day: string; date: string; shift: string; hours: string; base: string }[]> = {
-  'TARM-04': [
-    { day: 'Seg', date: '08/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
-    { day: 'Ter', date: '09/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
-    { day: 'Qua', date: '10/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
-    { day: 'Qui', date: '11/06', shift: 'Folga', hours: '—', base: '—' },
-    { day: 'Sex', date: '12/06', shift: 'Folga', hours: '—', base: '—' },
-    { day: 'Sáb', date: '13/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
-    { day: 'Dom', date: '14/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
-  ],
-  'GESTOR-01': [
-    { day: 'Seg', date: '08/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'CRU Central' },
-    { day: 'Ter', date: '09/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'CRU Central' },
-    { day: 'Qua', date: '10/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'CRU Central' },
-    { day: 'Qui', date: '11/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'Base Leste (visita)' },
-    { day: 'Sex', date: '12/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'CRU Central' },
-    { day: 'Sáb', date: '13/06', shift: 'Sobreaviso', hours: '—', base: 'Remoto' },
-    { day: 'Dom', date: '14/06', shift: 'Folga', hours: '—', base: '—' },
-  ],
+// ── Calendário de escalas (planner do Gestor + Minha Escala) ──
+function startOfWeek(d: Date) {
+  const x = new Date(d);
+  x.setHours(12, 0, 0, 0);
+  x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); // segunda-feira
+  return x;
+}
+function addDays(d: Date, n: number) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+function isoDate(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+const MAX_WEEKS_AHEAD = 4; // consulta/criação até 1 mês à frente
+
+const TURNO_CYCLE = ['DIURNO', 'NOTURNO', 'FOLGA'];
+const TURNO_BADGE: Record<string, { label: string; full: string; hours: string; cls: string }> = {
+  DIURNO: { label: 'D', full: 'Diurno', hours: '07:00–19:00', cls: 'bg-gold-500/15 border-gold-500/50 text-gold-500' },
+  NOTURNO: { label: 'N', full: 'Noturno', hours: '19:00–07:00', cls: 'bg-info/10 border-info/40 text-info' },
+  ADMINISTRATIVO: { label: 'A', full: 'Administrativo', hours: '08:00–18:00', cls: 'bg-ai/10 border-ai/40 text-ai' },
+  SOBREAVISO: { label: 'S', full: 'Sobreaviso', hours: '—', cls: 'bg-elevated border-border-default text-ink-secondary' },
+  FOLGA: { label: 'F', full: 'Folga', hours: '—', cls: 'bg-elevated border-border-subtle text-ink-tertiary' },
 };
+
+// Semana corrente pré-povoada pelo padrão de turno de cada colaborador (demo).
+function buildInitialRoster() {
+  const r: Record<string, Record<string, string>> = {};
+  const start = startOfWeek(new Date());
+  MOCK_TEAM.forEach(m => {
+    r[m.id] = {};
+    for (let i = 0; i < 7; i++) {
+      const dia = isoDate(addDays(start, i));
+      if (m.status === 'FÉRIAS' || m.status === 'ATESTADO') { r[m.id][dia] = 'FOLGA'; continue; }
+      if (m.id === 'GESTOR-01') { r[m.id][dia] = i < 5 ? 'ADMINISTRATIVO' : i === 5 ? 'SOBREAVISO' : 'FOLGA'; continue; }
+      r[m.id][dia] = i < 5 ? (m.shift === 'Noturno' ? 'NOTURNO' : 'DIURNO') : 'FOLGA';
+    }
+  });
+  return r;
+}
 
 const MOCK_TEAM = [
   { id: 'TARM-04', name: 'Mariana S.', role: 'TARM', shift: 'Diurno', status: 'EM PLANTÃO' },
@@ -321,7 +343,7 @@ export default function App() {
   const [isDispatching, setIsDispatching] = useState(false);
   const [vehicles, setVehicles] = useState(MOCK_VEHICLES);
   const [role, setRole] = useState<'OPERACAO' | 'GESTOR'>('OPERACAO');
-  const [team, setTeam] = useState(MOCK_TEAM);
+  const [team] = useState(MOCK_TEAM);
   const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>({ 'MOT-02': '2026-06-14' });
   const [missionStatus, setMissionStatus] = useState('A CAMINHO');
   const [connected, setConnected] = useState(false);
@@ -329,7 +351,10 @@ export default function App() {
   const [operatorId, setOperatorId] = useState('TARM-04');
   const [loginMatricula, setLoginMatricula] = useState('TARM-04');
   const [loginPassword, setLoginPassword] = useState('SamaisDemo2026');
-  const [dbSchedule, setDbSchedule] = useState<{ day: string; date: string; shift: string; hours: string; base: string }[] | null>(null);
+  const [roster, setRoster] = useState<Record<string, Record<string, string>>>(buildInitialRoster);
+  const [userIds, setUserIds] = useState<Record<string, string>>({});
+  const [myWeek, setMyWeek] = useState(0);
+  const [gWeek, setGWeek] = useState(0);
   const [queue, setQueue] = useState(() => MOCK_QUEUE.map(q => {
     const [m, sec] = q.waitTime.split(':').map(Number);
     return { ...q, seconds: m * 60 + sec };
@@ -608,32 +633,48 @@ export default function App() {
     return () => { active = false; supabase.removeChannel(channel); };
   }, [connected]);
 
-  // Minha Escala do banco quando conectado
+  // Escalas do banco (intervalo: semana atual até +1 mês) — gestor vê todas (RLS),
+  // operação só as próprias.
   useEffect(() => {
-    if (!connected || currentModule !== 'ESCALA') return;
+    if (!connected) return;
     (async () => {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) return;
-      const { data } = await supabase
-        .from('escalas')
-        .select('dia, turno, hora_inicio, hora_fim, status')
-        .eq('usuario_id', auth.user.id)
-        .order('dia');
-      if (!data || data.length === 0) return;
-      const DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-      const TURNO_LABEL: Record<string, string> = { DIURNO: 'Diurno', NOTURNO: 'Noturno', ADMINISTRATIVO: 'Administrativo', SOBREAVISO: 'Sobreaviso', FOLGA: 'Folga' };
-      setDbSchedule(data.map(r => {
-        const d = new Date(r.dia + 'T12:00');
-        return {
-          day: DIAS[d.getDay()],
-          date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-          shift: TURNO_LABEL[r.turno] || r.turno,
-          hours: r.hora_inicio ? `${r.hora_inicio.slice(0, 5)}–${r.hora_fim?.slice(0, 5)}` : '—',
-          base: 'CRU Central',
-        };
-      }));
+      const { data: us } = await supabase.from('usuarios').select('id, matricula');
+      if (us) setUserIds(Object.fromEntries(us.map(u => [u.matricula, u.id])));
+      const from = isoDate(startOfWeek(new Date()));
+      const to = isoDate(addDays(startOfWeek(new Date()), 7 * (MAX_WEEKS_AHEAD + 1)));
+      const { data: es } = await supabase.from('escalas').select('usuario_id, dia, turno').gte('dia', from).lt('dia', to);
+      if (es && us) {
+        const byId = Object.fromEntries(us.map(u => [u.id, u.matricula]));
+        setRoster(prev => {
+          const r = { ...prev };
+          es.forEach(e => {
+            const m = byId[e.usuario_id];
+            if (!m) return;
+            r[m] = { ...(r[m] || {}), [e.dia]: e.turno };
+          });
+          return r;
+        });
+      }
     })();
-  }, [connected, currentModule]);
+  }, [connected]);
+
+  // Edição de 1 clique no planner do Gestor; persiste quando conectado.
+  const setShift = (matricula: string, dia: string, turno: string | null) => {
+    setRoster(prev => {
+      const r = { ...prev, [matricula]: { ...(prev[matricula] || {}) } };
+      if (turno) r[matricula][dia] = turno; else delete r[matricula][dia];
+      return r;
+    });
+    if (connected && userIds[matricula]) {
+      if (turno) {
+        supabase.from('escalas')
+          .upsert({ tenant_id: TENANT_ID, usuario_id: userIds[matricula], dia, turno, status: 'PROGRAMADO' }, { onConflict: 'usuario_id,dia' })
+          .then();
+      } else {
+        supabase.from('escalas').delete().eq('usuario_id', userIds[matricula]).eq('dia', dia).then();
+      }
+    }
+  };
 
   const acceptCall = () => {
     setIncomingCall(false);
@@ -826,12 +867,14 @@ export default function App() {
               {role === 'GESTOR' ? 'Central 192 — Gestão da Operação' : currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
             </div>
           </div>
+          {role === 'GESTOR' && (
           <button
             onClick={() => setCurrentModule('DASHBOARD')}
             className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${currentModule === 'DASHBOARD' ? 'bg-gold-500/20 border border-gold-500 text-gold-500' : 'bg-elevated border border-border-subtle text-ink-primary hover:bg-surface'}`}
           >
             <Icon name="chart-pie" /> <span className="hidden sm:inline">Dashboard</span>
           </button>
+          )}
         </div>
 
         <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
@@ -865,6 +908,13 @@ export default function App() {
             <Icon name="moon" />
           </button>
           <div className="h-7 w-px bg-hover"></div>
+          <button
+            onClick={() => setCurrentModule('ESCALA')}
+            className={`px-3 h-9 rounded-lg flex items-center gap-2 text-xs font-bold transition-colors ${currentModule === 'ESCALA' ? 'bg-gold-500/20 border border-gold-500 text-gold-500' : 'bg-elevated border border-border-subtle text-ink-secondary hover:text-gold-500 hover:border-gold-500'}`}
+            title="Minha escala"
+          >
+            <Icon name="calendar" /> <span className="hidden md:inline">Escala</span>
+          </button>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">{operatorName}</div>
@@ -1821,40 +1871,62 @@ export default function App() {
             </div>
           </div>
         )}
-        {currentModule === 'ESCALA' && (
+        {currentModule === 'ESCALA' && (() => {
+          const weekStart = addDays(startOfWeek(new Date()), myWeek * 7);
+          const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+          const todayIso = isoDate(new Date());
+          const own = roster[operatorId] || {};
+          const plantoes = days.filter(d => { const t = own[isoDate(d)]; return t && t !== 'FOLGA'; }).length;
+          return (
           <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
-            <div>
-              <div className="eyebrow mb-1">{operatorId} · {operatorName.toUpperCase()}{connected ? ' · BACKEND ATIVO' : ' · DEMO'}</div>
-              <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
-                <Icon name="clock-rotate-left" className="text-gold-500" /> Minha Escala
-              </h2>
-              <p className="text-sm text-ink-secondary">Semana de 08/06 a 14/06 · escala designada pela coordenação</p>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <div className="eyebrow mb-1">{operatorId} · {operatorName.toUpperCase()}{connected ? ' · BACKEND ATIVO' : ' · DEMO'}</div>
+                <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
+                  <Icon name="calendar" className="text-gold-500" /> Minha Escala
+                </h2>
+                <p className="text-sm text-ink-secondary">Escala designada pela coordenação · consulta até 1 mês à frente</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setMyWeek(w => Math.max(0, w - 1))} disabled={myWeek === 0} aria-label="Semana anterior" className="w-9 h-9 rounded-md bg-elevated border border-border-subtle text-ink-secondary hover:border-gold-500 hover:text-gold-300 disabled:opacity-30 flex items-center justify-center">
+                  <Icon name="chevron-left" />
+                </button>
+                <span className="font-mono text-xs text-ink-primary min-w-[170px] text-center">
+                  {days[0].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} – {days[6].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}{myWeek === 0 ? ' · atual' : ''}
+                </span>
+                <button onClick={() => setMyWeek(w => Math.min(MAX_WEEKS_AHEAD, w + 1))} disabled={myWeek === MAX_WEEKS_AHEAD} aria-label="Semana seguinte" className="w-9 h-9 rounded-md bg-elevated border border-border-subtle text-ink-secondary hover:border-gold-500 hover:text-gold-300 disabled:opacity-30 flex items-center justify-center">
+                  <Icon name="chevron-right" />
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
-              {(dbSchedule || MOCK_SCHEDULES[role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04'] || []).map(d => {
-                const isToday = d.date === '10/06';
-                const off = d.shift === 'Folga';
+              {days.map((d, i) => {
+                const dia = isoDate(d);
+                const turno = own[dia];
+                const info = turno ? TURNO_BADGE[turno] : null;
+                const isToday = dia === todayIso;
+                const off = !turno || turno === 'FOLGA';
                 return (
-                  <div key={d.day} className={`card-data p-4 flex flex-col gap-2 ${isToday ? 'border-gold-500 shadow-[0_0_20px_rgba(191,154,61,0.15)]' : ''} ${off ? 'opacity-60' : ''}`}>
+                  <div key={dia} className={`card-data p-4 flex flex-col gap-2 ${isToday ? 'border-gold-500 shadow-[0_0_20px_rgba(191,154,61,0.15)]' : ''} ${off ? 'opacity-60' : ''}`}>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">{d.day}</span>
-                      <span className="font-mono text-[0.65rem] text-ink-tertiary">{d.date}</span>
+                      <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">{WEEKDAYS[i]}</span>
+                      <span className="font-mono text-[0.65rem] text-ink-tertiary">{d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span>
                     </div>
-                    <div className={`text-sm font-bold ${off ? 'text-ink-secondary' : 'text-gold-500'}`}>{d.shift}</div>
-                    <div className="font-mono text-[0.7rem] text-ink-secondary">{d.hours}</div>
-                    <div className="text-[0.65rem] text-ink-tertiary">{d.base}</div>
+                    <div className={`text-sm font-bold ${off ? 'text-ink-secondary' : 'text-gold-500'}`}>{info ? info.full : 'Sem escala'}</div>
+                    <div className="font-mono text-[0.7rem] text-ink-secondary">{info ? info.hours : '—'}</div>
+                    <div className="text-[0.65rem] text-ink-tertiary">{turno && turno !== 'FOLGA' ? 'CRU Central' : '—'}</div>
                     {isToday && <span className="chip chip-ok text-[0.55rem] w-fit mt-1">HOJE</span>}
                   </div>
                 );
               })}
             </div>
             <div className="gp p-4 rounded-2xl flex flex-wrap items-center gap-4">
-              <span className="chip chip-nude text-[0.65rem]">5 plantões na semana</span>
-              <span className="chip chip-nude text-[0.65rem]">60h programadas</span>
+              <span className="chip chip-nude text-[0.65rem]">{plantoes} plantões na semana</span>
               <span className="text-[0.7rem] text-ink-tertiary">Trocas de plantão são solicitadas à coordenação e aparecem aqui após aprovação do Gestor.</span>
             </div>
           </div>
-        )}
+          );
+        })()}
         {currentModule === 'GESTOR' && (
           <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
             <div>
@@ -1881,7 +1953,7 @@ export default function App() {
               </div>
               <div className="card-data p-5">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">Equipe em plantão</div>
-                <div className="text-4xl font-mono font-medium text-gold-500">{team.filter(m => m.status === 'EM PLANTÃO').length}<span className="text-base text-ink-tertiary">/{team.length}</span></div>
+                <div className="text-4xl font-mono font-medium text-gold-500">{team.filter(m => { const t = (roster[m.id] || {})[isoDate(new Date())]; return t && t !== 'FOLGA'; }).length}<span className="text-base text-ink-tertiary">/{team.length}</span></div>
               </div>
             </div>
 
@@ -1933,41 +2005,80 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Equipe e escala: status editável */}
-              <div className="gp p-5 rounded-2xl">
-                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <Icon name="user" className="text-gold-500" /> Equipe e escala
+              {/* Planner de escalas — semana navegável, edição de 1 clique */}
+              <div className="gp p-5 rounded-2xl xl:col-span-2">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
+                  <div className="text-xs font-bold text-ink-primary uppercase tracking-widest flex items-center gap-2">
+                    <Icon name="calendar" className="text-gold-500" /> Escalas da equipe
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setGWeek(w => Math.max(0, w - 1))} disabled={gWeek === 0} aria-label="Semana anterior" className="w-8 h-8 rounded-md bg-elevated border border-border-subtle text-ink-secondary hover:border-gold-500 hover:text-gold-300 disabled:opacity-30 flex items-center justify-center">
+                      <Icon name="chevron-left" />
+                    </button>
+                    <span className="font-mono text-xs text-ink-primary min-w-[160px] text-center">
+                      {addDays(startOfWeek(new Date()), gWeek * 7).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} – {addDays(startOfWeek(new Date()), gWeek * 7 + 6).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}{gWeek === 0 ? ' · atual' : ''}
+                    </span>
+                    <button onClick={() => setGWeek(w => Math.min(MAX_WEEKS_AHEAD, w + 1))} disabled={gWeek === MAX_WEEKS_AHEAD} aria-label="Semana seguinte" className="w-8 h-8 rounded-md bg-elevated border border-border-subtle text-ink-secondary hover:border-gold-500 hover:text-gold-300 disabled:opacity-30 flex items-center justify-center">
+                      <Icon name="chevron-right" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-3">
-                  {team.map(m => (
-                    <div key={m.id} className="p-3 rounded-xl bg-elevated border border-border-subtle flex flex-wrap items-center gap-3">
-                      <div className="min-w-[170px]">
-                        <div className="text-sm font-bold text-ink-primary">{m.name} <span className="font-mono text-[0.65rem] text-ink-tertiary">{m.id}</span></div>
-                        <div className="text-[0.65rem] text-ink-secondary">{m.role}</div>
-                      </div>
-                      <select
-                        value={m.shift}
-                        onChange={(e) => {
-                          setTeam(prev => prev.map(x => x.id === m.id ? { ...x, shift: e.target.value } : x));
-                          showToast(`${m.name} → turno ${e.target.value}`, 'success');
-                        }}
-                        className="inp !w-auto text-xs font-bold py-1.5"
-                        aria-label={`Turno de ${m.name}`}
-                      >
-                        {['Diurno', 'Noturno'].map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
-                      <select
-                        value={m.status}
-                        onChange={(e) => {
-                          setTeam(prev => prev.map(x => x.id === m.id ? { ...x, status: e.target.value } : x));
-                          showToast(`${m.name} → ${e.target.value}`, 'success');
-                        }}
-                        className={`inp !w-auto text-xs font-bold py-1.5 ml-auto text-${TEAM_STATUS_COLOR[m.status] === 'nude' ? 'ink-secondary' : TEAM_STATUS_COLOR[m.status]}`}
-                        aria-label={`Status de ${m.name}`}
-                      >
-                        {['EM PLANTÃO', 'FOLGA', 'FÉRIAS', 'ATESTADO'].map(st => <option key={st} value={st}>{st}</option>)}
-                      </select>
-                    </div>
+                <p className="text-[0.7rem] text-ink-tertiary mb-4">Clique na célula para definir o turno (Diurno → Noturno → Folga → vazio) · criação e edição até 1 mês à frente · cada colaborador vê a própria escala no menu Escala</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-separate" style={{ borderSpacing: '4px' }}>
+                    <thead>
+                      <tr>
+                        <th className="text-left text-[0.65rem] font-mono uppercase tracking-widest text-ink-tertiary pb-1 pr-2 min-w-[150px]">Colaborador</th>
+                        {Array.from({ length: 7 }, (_, i) => {
+                          const d = addDays(startOfWeek(new Date()), gWeek * 7 + i);
+                          const isToday = isoDate(d) === isoDate(new Date());
+                          return (
+                            <th key={i} className={`text-center text-[0.65rem] font-mono uppercase tracking-widest pb-1 ${isToday ? 'text-gold-300' : 'text-ink-tertiary'}`}>
+                              {WEEKDAYS[i]}<br /><span className="text-[0.6rem]">{d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span>
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {team.map(m => (
+                        <tr key={m.id}>
+                          <td className="pr-2 py-1">
+                            <div className="text-xs font-bold text-ink-primary leading-tight">{m.name}</div>
+                            <div className="text-[0.6rem] text-ink-tertiary">{m.role} · <span className="font-mono">{m.id}</span>{connected && !userIds[m.id] ? ' · local' : ''}</div>
+                          </td>
+                          {Array.from({ length: 7 }, (_, i) => {
+                            const d = addDays(startOfWeek(new Date()), gWeek * 7 + i);
+                            const dia = isoDate(d);
+                            const turno = (roster[m.id] || {})[dia] || null;
+                            const info = turno ? TURNO_BADGE[turno] : null;
+                            const isToday = dia === isoDate(new Date());
+                            const next = () => {
+                              const idx = turno ? TURNO_CYCLE.indexOf(turno) : -1;
+                              const nx = idx === -1 ? TURNO_CYCLE[0] : (idx + 1 < TURNO_CYCLE.length ? TURNO_CYCLE[idx + 1] : null);
+                              setShift(m.id, dia, nx);
+                            };
+                            return (
+                              <td key={dia} className="text-center">
+                                <button
+                                  onClick={next}
+                                  title={`${m.name} · ${d.toLocaleDateString('pt-BR')} · ${info ? info.full : 'sem escala'}`}
+                                  aria-label={`Turno de ${m.name} em ${d.toLocaleDateString('pt-BR')}`}
+                                  className={`w-full min-w-[40px] h-9 rounded-md border font-mono text-xs font-bold transition-colors ${info ? info.cls : 'bg-transparent border-dashed border-border-default text-ink-disabled hover:border-gold-500'} ${isToday ? 'ring-1 ring-gold-500/60' : ''}`}
+                                >
+                                  {info ? info.label : '·'}
+                                </button>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="flex flex-wrap gap-3 mt-3">
+                  {Object.entries(TURNO_BADGE).map(([k, v]) => (
+                    <span key={k} className={`px-2 py-0.5 rounded border font-mono text-[0.6rem] ${v.cls}`}>{v.label} · {v.full}</span>
                   ))}
                 </div>
               </div>
@@ -2249,12 +2360,6 @@ export default function App() {
             <Icon name="truck-medical" /> Viatura
           </button>
           </>)}
-          <button
-            onClick={() => { setCurrentModule('ESCALA'); setIsNavOpen(false); }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'ESCALA' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
-          >
-            <Icon name="clock-rotate-left" /> Escala
-          </button>
           {role === 'GESTOR' && (
           <button
             onClick={() => { setCurrentModule('GESTOR'); setIsNavOpen(false); }}
@@ -2263,12 +2368,14 @@ export default function App() {
             <Icon name="list-check" /> Gestão
           </button>
           )}
+          {role === 'GESTOR' && (
           <button
             onClick={() => { setCurrentModule('DASHBOARD'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'DASHBOARD' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <Icon name="chart-simple" /> Dashboard
           </button>
+          )}
         </nav>
       </div>
     </div>

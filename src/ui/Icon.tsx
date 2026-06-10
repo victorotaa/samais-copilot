@@ -1,5 +1,6 @@
 import {
   Ambulance,
+  Calendar,
   ArrowRight,
   Bike,
   Bot,
@@ -72,6 +73,7 @@ const ICONS: Record<string, LucideIcon> = {
   'arrow-trend-up': TrendingUp,
   bolt: Zap,
   brain: Brain,
+  calendar: Calendar,
   camera: Camera,
   'chart-pie': ChartPie,
   'chart-simple': ChartColumn,

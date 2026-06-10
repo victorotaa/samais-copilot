@@ -15,6 +15,7 @@ const SUPABASE_KEY =
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export const TENANT_SLUG = 'cru-sao-paulo';
+export const TENANT_ID = '11111111-1111-1111-1111-111111111111'; // seed do tenant demo
 
 /** Login por matrícula: e-mail sintético `<matricula>@<tenant>.samais.app`. */
 export function matriculaToEmail(matricula: string): string {
