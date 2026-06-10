@@ -100,6 +100,31 @@ const MOCK_VEHICLES = [
   { id: 'MOT-02', type: 'MOTOLÂNCIA', status: 'MANUTENÇÃO', base: 'Base Oeste', color: 'nude', eta: 0 },
 ];
 
+const MOCK_TEAM = [
+  { id: 'TARM-04', name: 'Mariana S.', role: 'TARM', shift: 'Diurno', status: 'EM PLANTÃO' },
+  { id: 'TARM-07', name: 'Rafael O.', role: 'TARM', shift: 'Noturno', status: 'FOLGA' },
+  { id: 'REG-02', name: 'Dr. Almeida', role: 'Médico Regulador', shift: 'Diurno', status: 'EM PLANTÃO' },
+  { id: 'REG-05', name: 'Dra. Costa', role: 'Médico Regulador', shift: 'Noturno', status: 'FOLGA' },
+  { id: 'COND-11', name: 'José P.', role: 'Condutor', shift: 'Diurno', status: 'EM PLANTÃO' },
+  { id: 'ENF-09', name: 'Paula R.', role: 'Enfermeira', shift: 'Diurno', status: 'EM PLANTÃO' },
+  { id: 'COND-14', name: 'Marcos T.', role: 'Condutor', shift: 'Noturno', status: 'ATESTADO' },
+  { id: 'ENF-12', name: 'Bruno L.', role: 'Enfermeiro', shift: 'Noturno', status: 'FÉRIAS' },
+];
+
+const VEHICLE_STATUS_COLOR: Record<string, string> = {
+  'DISPONÍVEL': 'ok',
+  'EM ATENDIMENTO': 'danger',
+  'RETORNO': 'warn',
+  'MANUTENÇÃO': 'nude',
+};
+
+const TEAM_STATUS_COLOR: Record<string, string> = {
+  'EM PLANTÃO': 'ok',
+  'FOLGA': 'nude',
+  'FÉRIAS': 'ai',
+  'ATESTADO': 'warn',
+};
+
 const MOCK_RECENT_CALLS = [
   { id: '1042', phone: '(11) 98765-4321', time: '08:12', type: 'Parada Cardiorrespiratória', status: 'Despachada (USA)', statusColor: 'danger' },
   { id: '1041', phone: '(11) 91234-5678', time: '08:05', type: 'Crise Convulsiva', status: 'Despachada (USB)', statusColor: 'warn' },
@@ -218,6 +243,9 @@ const playSound = (type: 'call' | 'vehicle' | 'alert', enabled: boolean) => {
 
 export default function App() {
   const { theme, toggleTheme } = useTheme();
+  const chartTheme = theme === 'dark'
+    ? { grid: '#2A2B33', axis: '#6E6E78', tooltipBg: '#161618', tooltipBorder: '#3A3B45', tooltipText: '#F4F4F5' }
+    : { grid: '#D1D1C9', axis: '#828279', tooltipBg: '#FFFFFF', tooltipBorder: '#D1D1C9', tooltipText: '#1A1A17' };
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -227,7 +255,7 @@ export default function App() {
     soundEnabledRef.current = soundEnabled;
   }, [soundEnabled]);
 
-  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD'>('IDLE');
+  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD' | 'GESTOR'>('IDLE');
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -267,7 +295,9 @@ export default function App() {
   const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'info' | 'warn'} | null>(null);
   const [isDispatching, setIsDispatching] = useState(false);
   const [vehicles, setVehicles] = useState(MOCK_VEHICLES);
-  const [showCameraModal, setShowCameraModal] = useState(false);
+  const [role, setRole] = useState<'OPERACAO' | 'GESTOR'>('OPERACAO');
+  const [team, setTeam] = useState(MOCK_TEAM);
+  const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>({ 'MOT-02': '2026-06-14' });
   const [protocolSteps, setProtocolSteps] = useState<{id: string, label: string, checked: boolean}[]>([]);
 
   const showToast = (message: string, type: 'success' | 'info' | 'warn' = 'info') => {
@@ -341,6 +371,27 @@ export default function App() {
     const src = GMAPS_KEY
       ? `https://www.google.com/maps/embed/v1/place?key=${GMAPS_KEY}&q=${amlData.lat},${amlData.lng}&zoom=16`
       : `https://maps.google.com/maps?q=${amlData.lat},${amlData.lng}&z=16&output=embed`;
+    return (
+      <iframe
+        width="100%"
+        height="100%"
+        style={{ border: 0, filter: mapFilter }}
+        loading="lazy"
+        allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+        src={src}>
+      </iframe>
+    );
+  }, [amlData, GMAPS_KEY, mapFilter]);
+
+  // Rota da viatura: base operacional → local da ocorrência.
+  const RouteMapIframe = useMemo(() => {
+    if (!amlData) return null;
+    const origin = '-23.5505,-46.6333'; // Base Central (config do tenant no futuro)
+    const dest = `${amlData.lat},${amlData.lng}`;
+    const src = GMAPS_KEY
+      ? `https://www.google.com/maps/embed/v1/directions?key=${GMAPS_KEY}&origin=${origin}&destination=${dest}&mode=driving`
+      : `https://maps.google.com/maps?saddr=${origin}&daddr=${dest}&output=embed`;
     return (
       <iframe
         width="100%"
@@ -448,6 +499,7 @@ export default function App() {
     setTimeout(() => {
       setIsAuthenticated(true);
       setIsAuthenticating(false);
+      setCurrentModule(role === 'GESTOR' ? 'GESTOR' : 'IDLE');
     }, 1500);
   };
 
@@ -516,10 +568,29 @@ export default function App() {
 
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
             <div>
+              <label className="lbl">Perfil de Acesso</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRole('OPERACAO')}
+                  className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === 'OPERACAO' ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
+                >
+                  <Icon name="headset" /> Operação
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('GESTOR')}
+                  className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === 'GESTOR' ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
+                >
+                  <Icon name="chart-simple" /> Gestor
+                </button>
+              </div>
+            </div>
+            <div>
               <label className="lbl">Matrícula Operacional</label>
               <div className="relative">
                 <Icon name="id-badge" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50" />
-                <input type="text" className="inp pl-10" placeholder="Ex: TARM-04" required defaultValue="TARM-04" />
+                <input type="text" className="inp pl-10" placeholder="Ex: TARM-04" required key={role} defaultValue={role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04'} />
               </div>
             </div>
             
@@ -618,9 +689,9 @@ export default function App() {
         <div className="flex items-center gap-4">
           <img src="/brand/samais-monograma-gold.svg" alt="Samais" className="h-9 shrink-0" />
           <div className="hidden sm:block">
-            <img src="/brand/samais-logo-white-currentcolor.svg" alt="SAMAIS" className="h-4 text-ink-primary" />
+            <img src="/brand/samais-logo-white-currentcolor.svg" alt="SAMAIS" className="h-5 text-ink-primary" />
             <div className="text-[0.6rem] text-gold-500 uppercase tracking-widest font-mono">
-              {currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
+              {role === 'GESTOR' ? 'Central 192 — Gestão da Operação' : currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
             </div>
           </div>
           <button
@@ -631,10 +702,10 @@ export default function App() {
           </button>
         </div>
 
-        <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 ${currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
-          <Icon name="circle" className={`text-[7px] ${currentModule !== 'IDLE' ? 'text-danger animate-pulse' : 'text-ink-secondary'}`} />
-          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${currentModule !== 'IDLE' ? 'text-danger' : 'text-ink-secondary'}`}>
-            {currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA'}
+        <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
+          <Icon name="circle" className={`text-[7px] ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'text-danger animate-pulse' : 'text-ink-secondary'}`} />
+          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'text-danger' : 'text-ink-secondary'}`}>
+            {role === 'GESTOR' ? 'GESTÃO' : currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA'}
           </span>
         </div>
 
@@ -664,8 +735,8 @@ export default function App() {
           <div className="h-7 w-px bg-hover"></div>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Mariana S.</div>
-              <div className="text-xs font-bold text-gold-500">TARM-04</div>
+              <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">{role === 'GESTOR' ? 'Carlos M.' : 'Mariana S.'}</div>
+              <div className="text-xs font-bold text-gold-500">{role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04'}</div>
             </div>
             <button 
               onClick={() => setIsAuthenticated(false)}
@@ -714,7 +785,7 @@ export default function App() {
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {MOCK_VEHICLES.map(v => (
+                  {vehicles.map(v => (
                     <div key={v.id} className={`gp p-4 rounded-xl border-l-4 flex items-center gap-4 ${
                       v.color === 'ok' ? 'border-l-ok' : 
                       v.color === 'danger' ? 'border-l-danger' : 
@@ -753,9 +824,9 @@ export default function App() {
                   </div>
                   <span className="chip chip-ok text-[0.6rem] animate-pulse"><Icon name="satellite-dish" /> GPS ATIVO</span>
                 </div>
-                <div className="flex-1 relative bg-[#161618]">
+                <div className="flex-1 relative bg-elevated">
                   {IdleMapIframe}
-                  <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(7,7,8,0.8)]"></div>
+                  <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
                   
                   {/* Simulated Moving Vehicles */}
                   <div className="absolute top-1/3 left-1/4 z-10 flex flex-col items-center pointer-events-none transition-all duration-[3000ms] ease-linear" style={{ transform: `translate(${Math.sin(time.getTime() / 2000) * 20}px, ${Math.cos(time.getTime() / 2000) * 20}px)` }}>
@@ -922,7 +993,7 @@ export default function App() {
                   {amlData && <span className="chip chip-ok text-[0.6rem] animate-pulse"><Icon name="satellite-dish" /> FIXADO ±5M</span>}
                 </div>
                 
-                <div className="flex-1 relative bg-[#161618] overflow-hidden">
+                <div className="flex-1 relative bg-elevated overflow-hidden">
                   {MapIframe || (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-ink-secondary/50">
                       <Icon name="satellite-dish" className="text-4xl mb-3 animate-pulse" />
@@ -931,7 +1002,7 @@ export default function App() {
                   )}
                   {amlData && (
                     <>
-                      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(7,7,8,0.8)]"></div>
+                      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 flex flex-col items-center pointer-events-none">
                         <div className="w-8 h-8 bg-danger border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_20px_rgba(229,57,53,0.7)] flex items-center justify-center">
                           <Icon name="truck-medical" className="text-white text-[0.6rem] rotate-45" />
@@ -1155,7 +1226,7 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="flex-1 p-5 lg:overflow-y-auto flex flex-col gap-4 bg-[#0E0E10]">
+              <div className="flex-1 p-5 lg:overflow-y-auto flex flex-col gap-4 bg-surface">
                 {tarmChat.map((msg, idx) => (
                   <div key={idx} className={`flex flex-col ${msg.speaker === 'TARM' ? 'items-end' : msg.speaker === 'SYS' ? 'items-center' : 'items-start'} fu`}>
                     {msg.speaker === 'SYS' ? (
@@ -1199,7 +1270,7 @@ export default function App() {
             </div>
 
             {/* Handoff CTAs (Mobile) */}
-            <div className="flex lg:hidden flex-col gap-2 shrink-0 order-3 w-full mt-2 sticky bottom-0 bg-[#070708] pt-2 pb-4 z-10">
+            <div className="flex lg:hidden flex-col gap-2 shrink-0 order-3 w-full mt-2 sticky bottom-0 bg-canvas pt-2 pb-4 z-10">
               {handoffCTAs}
             </div>
           </div>
@@ -1414,7 +1485,7 @@ export default function App() {
                         <Icon name="map-location-dot" className="text-3xl text-ink-secondary/30" />
                       </>
                     )}
-                    <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(7,7,8,0.8)]"></div>
+                    <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.35)]"></div>
                     <div className="absolute bottom-2 right-2 px-2 py-1 bg-canvas/80 backdrop-blur rounded text-[0.6rem] font-mono text-gold-500 border border-border-subtle z-10">
                       Distância: 4.2km
                     </div>
@@ -1481,10 +1552,7 @@ export default function App() {
         {currentModule === 'VIATURA' && currentCaller && (
           <div className="flex-1 flex flex-col relative fu min-h-0 -m-4 md:-m-5 overflow-hidden">
             {/* Top Bar for Vehicle */}
-            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-canvas/90 to-transparent z-20 flex justify-between items-start pointer-events-none">
-              <button className="pointer-events-auto w-12 h-12 bg-danger/90 backdrop-blur border border-danger/50 rounded-full text-white shadow-[0_0_20px_rgba(229,57,53,0.4)] flex items-center justify-center text-lg hover:scale-105 transition-transform">
-                <Icon name="triangle-exclamation" />
-              </button>
+            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-canvas/90 to-transparent z-20 flex justify-end items-start pointer-events-none">
               <div className="flex flex-col gap-2 pointer-events-auto items-end">
                 <button className="px-4 py-2 bg-canvas/90 backdrop-blur border border-border-subtle rounded-full text-xs font-bold text-ink-primary shadow-lg flex items-center gap-2">
                   <Icon name={selectedVehicleId?.includes('MOT') ? 'motorcycle' : 'truck-medical'} className="text-gold-500" /> {selectedVehicleId || 'VIATURA'}
@@ -1495,26 +1563,14 @@ export default function App() {
               </div>
             </div>
 
-            {/* Full screen map */}
-            <div className="absolute inset-0 bg-[#161618]">
-              {MapIframe || (
+            {/* Full screen map — rota base → ocorrência */}
+            <div className="absolute inset-0 bg-elevated">
+              {RouteMapIframe || MapIframe || (
                 <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>
               )}
-              <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(7,7,8,0.8)]"></div>
+              <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
             </div>
 
-            {/* Floating Action Buttons (Right Side) */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
-              <button className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
-                <Icon name="location-arrow" className="text-ai" />
-              </button>
-              <button className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
-                <Icon name="walkie-talkie" className="text-gold-500" />
-              </button>
-              <button onClick={() => setShowCameraModal(true)} className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
-                <Icon name="camera" className="text-ok" />
-              </button>
-            </div>
 
             {/* Top Floating ETA */}
             <div className="absolute top-24 left-4 right-4 md:top-6 md:left-1/2 md:-translate-x-1/2 md:w-fit bg-canvas/90 backdrop-blur-md border border-border-subtle px-4 py-2 rounded-xl shadow-2xl flex items-center justify-center gap-4 z-10">
@@ -1588,11 +1644,128 @@ export default function App() {
                   </div>
                 </div>
                 
-                {/* Action Grid */}
+                {/* Ação única e real: a viatura fala com a CRU quando precisa de apoio */}
                 <div className="grid grid-cols-1 gap-2 mt-2">
-                  <button onClick={() => setShowCameraModal(true)} className="py-3.5 bg-ok/20 border border-ok/40 rounded-xl text-xs font-bold text-ok hover:bg-ok/30 transition-colors flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(67,160,71,0.1)]">
-                    <Icon name="video" /> Iniciar Live View da Cena
+                  <button onClick={() => { playSound('call', soundEnabledRef.current); showToast('Conectando à CRU — Regulação Médica', 'info'); }} className="py-3.5 bg-gold-500/15 border border-gold-500/40 rounded-xl text-xs font-bold text-gold-500 hover:bg-gold-500/25 transition-colors flex items-center justify-center gap-2">
+                    <Icon name="headset" /> Falar com a CRU · Apoio Médico
                   </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {currentModule === 'GESTOR' && (
+          <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
+            <div>
+              <div className="eyebrow mb-1">CRU SÃO PAULO · TENANT DEMO</div>
+              <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
+                <Icon name="list-check" className="text-gold-500" /> Gestão da Operação
+              </h2>
+              <p className="text-sm text-ink-secondary">Frota, equipe, escala e manutenção — visão sem dados de paciente (PII)</p>
+            </div>
+
+            {/* KPIs derivados do estado vivo */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="card-data p-5">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">Viaturas disponíveis</div>
+                <div className="text-4xl font-mono font-medium text-ok">{vehicles.filter(v => v.status === 'DISPONÍVEL').length}</div>
+              </div>
+              <div className="card-data p-5">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">Em atendimento</div>
+                <div className="text-4xl font-mono font-medium text-danger">{vehicles.filter(v => v.status === 'EM ATENDIMENTO').length}</div>
+              </div>
+              <div className="card-data p-5">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">Em manutenção</div>
+                <div className="text-4xl font-mono font-medium text-warn">{vehicles.filter(v => v.status === 'MANUTENÇÃO').length}</div>
+              </div>
+              <div className="card-data p-5">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">Equipe em plantão</div>
+                <div className="text-4xl font-mono font-medium text-gold-500">{team.filter(m => m.status === 'EM PLANTÃO').length}<span className="text-base text-ink-tertiary">/{team.length}</span></div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {/* Frota: status editável + manutenção programada */}
+              <div className="gp p-5 rounded-2xl">
+                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Icon name="truck-medical" className="text-gold-500" /> Frota — status e manutenção
+                </div>
+                <div className="flex flex-col gap-3">
+                  {vehicles.map(v => (
+                    <div key={v.id} className="p-3 rounded-xl bg-elevated border border-border-subtle flex flex-wrap items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-[140px]">
+                        <Icon name={v.type.includes('MOTOLÂNCIA') ? 'motorcycle' : 'truck-medical'} className={`text-${v.color === 'nude' ? 'ink-secondary' : v.color}`} />
+                        <div>
+                          <div className="text-sm font-bold text-ink-primary">{v.id}</div>
+                          <div className="text-[0.65rem] text-ink-secondary">{v.type} · {v.base}</div>
+                        </div>
+                      </div>
+                      <select
+                        value={v.status}
+                        onChange={(e) => {
+                          const status = e.target.value;
+                          setVehicles(prev => prev.map(x => x.id === v.id ? { ...x, status, color: VEHICLE_STATUS_COLOR[status] || 'nude' } : x));
+                          showToast(`${v.id} → ${status}`, 'success');
+                        }}
+                        className="inp !w-auto text-xs font-bold py-1.5"
+                        aria-label={`Status da viatura ${v.id}`}
+                      >
+                        {['DISPONÍVEL', 'EM ATENDIMENTO', 'RETORNO', 'MANUTENÇÃO'].map(st => <option key={st} value={st}>{st}</option>)}
+                      </select>
+                      <div className="flex items-center gap-2 ml-auto">
+                        <label className="text-[0.6rem] text-ink-secondary uppercase tracking-widest" htmlFor={`maint-${v.id}`}>Manutenção</label>
+                        <input
+                          id={`maint-${v.id}`}
+                          type="date"
+                          value={maintSchedule[v.id] || ''}
+                          onChange={(e) => {
+                            setMaintSchedule(prev => ({ ...prev, [v.id]: e.target.value }));
+                            if (e.target.value) showToast(`Manutenção de ${v.id} programada para ${new Date(e.target.value + 'T12:00').toLocaleDateString('pt-BR')}`, 'info');
+                          }}
+                          className="inp !w-auto text-xs py-1.5"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Equipe e escala: status editável */}
+              <div className="gp p-5 rounded-2xl">
+                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Icon name="user" className="text-gold-500" /> Equipe e escala
+                </div>
+                <div className="flex flex-col gap-3">
+                  {team.map(m => (
+                    <div key={m.id} className="p-3 rounded-xl bg-elevated border border-border-subtle flex flex-wrap items-center gap-3">
+                      <div className="min-w-[170px]">
+                        <div className="text-sm font-bold text-ink-primary">{m.name} <span className="font-mono text-[0.65rem] text-ink-tertiary">{m.id}</span></div>
+                        <div className="text-[0.65rem] text-ink-secondary">{m.role}</div>
+                      </div>
+                      <select
+                        value={m.shift}
+                        onChange={(e) => {
+                          setTeam(prev => prev.map(x => x.id === m.id ? { ...x, shift: e.target.value } : x));
+                          showToast(`${m.name} → turno ${e.target.value}`, 'success');
+                        }}
+                        className="inp !w-auto text-xs font-bold py-1.5"
+                        aria-label={`Turno de ${m.name}`}
+                      >
+                        {['Diurno', 'Noturno'].map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                      <select
+                        value={m.status}
+                        onChange={(e) => {
+                          setTeam(prev => prev.map(x => x.id === m.id ? { ...x, status: e.target.value } : x));
+                          showToast(`${m.name} → ${e.target.value}`, 'success');
+                        }}
+                        className={`inp !w-auto text-xs font-bold py-1.5 ml-auto text-${TEAM_STATUS_COLOR[m.status] === 'nude' ? 'ink-secondary' : TEAM_STATUS_COLOR[m.status]}`}
+                        aria-label={`Status de ${m.name}`}
+                      >
+                        {['EM PLANTÃO', 'FOLGA', 'FÉRIAS', 'ATESTADO'].map(st => <option key={st} value={st}>{st}</option>)}
+                      </select>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1716,14 +1889,14 @@ export default function App() {
                       { time: '18h', volume: 150, responseTime: 15 },
                       { time: '20h', volume: 120, responseTime: 11 },
                     ]}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#2A2B33" vertical={false} />
-                      <XAxis dataKey="time" stroke="#6E6E78" fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="left" stroke="#6E6E78" fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="right" orientation="right" stroke="#6E6E78" fontSize={10} tickLine={false} axisLine={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
+                      <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis yAxisId="left" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis yAxisId="right" orientation="right" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#161618', borderColor: '#3A3B45', borderRadius: '8px' }}
-                        itemStyle={{ fontSize: '12px' }}
-                        labelStyle={{ fontSize: '12px', color: '#6E6E78', marginBottom: '4px' }}
+                        contentStyle={{ backgroundColor: chartTheme.tooltipBg, borderColor: chartTheme.tooltipBorder, borderRadius: '8px' }}
+                        itemStyle={{ fontSize: '12px', color: chartTheme.tooltipText }}
+                        labelStyle={{ fontSize: '12px', color: chartTheme.axis, marginBottom: '4px' }}
                       />
                       <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
                       <Bar yAxisId="left" dataKey="volume" name="Volume Ocorrências" fill="#6E8AAA" radius={[4, 4, 0, 0]} barSize={40} />
@@ -1764,8 +1937,8 @@ export default function App() {
                         ))}
                       </Pie>
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#161618', borderColor: '#3A3B45', borderRadius: '8px' }}
-                        itemStyle={{ fontSize: '12px', color: '#fff' }}
+                        contentStyle={{ backgroundColor: chartTheme.tooltipBg, borderColor: chartTheme.tooltipBorder, borderRadius: '8px' }}
+                        itemStyle={{ fontSize: '12px', color: chartTheme.tooltipText }}
                       />
                       <Legend 
                         layout="horizontal" 
@@ -1836,11 +2009,12 @@ export default function App() {
         <div className={`absolute bottom-2 w-12 h-1.5 bg-ink-secondary/30 rounded-full md:hidden transition-opacity duration-300 ${isNavOpen ? 'opacity-0' : 'opacity-100'}`}></div>
 
         <nav 
-          className={`relative p-2 rounded-full flex gap-2 bg-surface/90 border border-border-subtle shadow-[0_15px_50px_rgba(0,0,0,0.9)] backdrop-blur-2xl overflow-x-auto max-w-[92vw] no-scrollbar snap-x snap-mandatory transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          className={`relative p-2 rounded-full flex gap-2 bg-surface/90 border border-border-subtle shadow-[0_15px_50px_rgba(0,0,0,0.45)] backdrop-blur-2xl overflow-x-auto max-w-[92vw] no-scrollbar snap-x snap-mandatory transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
             isNavOpen ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto' : 'translate-y-full opacity-0 scale-95 pointer-events-none'
           }`}
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside nav
         >
+          {role === 'OPERACAO' && (<>
           <button 
             onClick={() => { setCurrentModule('IDLE'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'IDLE' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
@@ -1871,6 +2045,15 @@ export default function App() {
           >
             <Icon name="truck-medical" /> Viatura
           </button>
+          </>)}
+          {role === 'GESTOR' && (
+          <button
+            onClick={() => { setCurrentModule('GESTOR'); setIsNavOpen(false); }}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'GESTOR' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
+          >
+            <Icon name="list-check" /> Gestão
+          </button>
+          )}
           <button
             onClick={() => { setCurrentModule('DASHBOARD'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'DASHBOARD' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}

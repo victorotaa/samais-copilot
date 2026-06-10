@@ -91,15 +91,11 @@ Princípios:
 - **Modo noturno automático** (já temos dark) + brilho alto para sol — toggle rápido na barra.
 - O turn-by-turn nativo exige Google Navigation SDK (Android) ou handoff para Waze/Google Maps com deep link — recomendo **deep link na fase 1** (zero custo, motorista já confia) e SDK quando houver hardware padronizado.
 
-## 5. Live view — o que indica e quando vale
+## 5. Live view — DESCARTADO (decisão Victor, jun/2026)
 
-O modal "câmera ao vivo" hoje é placeholder. O que ele **deve** ser, em ordem de valor real:
+Decisão de produto: live view **não entra**. Traria carga e complexidade à operação sem necessidade — a regulação permanece dentro da CRU, e as equipes de viatura, que sabem o que fazer em cena, **ligam para a CRU** quando precisam de consulta ou apoio médico adicional.
 
-1. **Vídeo do solicitante → Regulador (fase 1, alto valor):** link SMS para o celular de quem ligou abre WebRTC com a câmera — o Regulador vê a cena/vítima antes de decidir recurso. É o padrão emergente em centrais europeias/americanas (ex.: GoodSAM Instant-On-Scene). Reduz despacho às cegas e USA evitável — e é só software.
-2. **Câmera da viatura → Regulador (fase 2):** contexto da cena ao chegar; útil para regulação de apoio (segunda viatura? PM?).
-3. **Telemedicina no transporte (fase 3):** médico orienta procedimento durante o transporte, vira diferencial contratual com hospital de destino.
-
-Recomendo declarar o live view como **item 1** no produto: barato (WebRTC + TURN), impacto narrativo enorme na demo, e mensurável (% de regulações com vídeo).
+Reflexo no produto: o placeholder de câmera foi removido da tela de viatura e substituído por uma ação única e real — **"Falar com a CRU · Apoio Médico"**. Os botões sem função do menu da viatura (pânico, navegação solta, walkie-talkie) também foram removidos.
 
 ## 6. Tablet por viatura + Starlink — minha leitura
 
@@ -114,6 +110,8 @@ Recomendo declarar o live view como **item 1** no produto: barato (WebRTC + TURN
 Resumo do custo-sentido: Starlink em 100% das CRUs, Starlink Mini em ~20–30% da frota (rural), dual-SIM em 100% da frota, offline-first no app sempre.
 
 ## 7. Multi-tenancy e perfis — alinhado ao PEP
+
+> **Status (jun/2026):** o perfil **Gestor** já existe na demo — seletor de perfil no login (padrão tenants do PEP demo), painel de gestão com frota (status editável + manutenção programável), equipe/escala (turno e status editáveis) e KPIs vivos derivados do estado. O fluxo de operação atual ficou intacto. O modelo abaixo é a versão de produção (backend).
 
 Pedido do Victor: tenants como no PEP, perfil **Gestor** só-métricas, e login/senha por colaborador de CRU.
 
