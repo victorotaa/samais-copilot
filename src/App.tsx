@@ -392,7 +392,10 @@ export default function App() {
     return vehicles.filter(v => v.type.includes('USA') || v.type.includes('USB')).sort((a, b) => a.eta - b.eta);
   }, [vehicles]);
 
-  const GMAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  // Maps Demo Key — strictly for prototyping (Maps Embed API, restrita por
+  // referrer no Google Cloud). Sobrescrevível por env em produção.
+  const MAPS_DEMO_KEY = 'AIzaSyCoGU5ALKohNGruaHB6ch2VWVTdi2WG_HA';
+  const GMAPS_KEY = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) || MAPS_DEMO_KEY;
   const mapFilter = theme === 'dark' ? 'invert(90%) hue-rotate(180deg) contrast(110%)' : 'none';
 
   const MapIframe = useMemo(() => {
