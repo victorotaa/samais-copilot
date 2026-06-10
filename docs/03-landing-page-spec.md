@@ -17,7 +17,7 @@ CTA principal: **"Agendar demonstração da central"**. CTA secundário: **"Baix
 
 ## 3. Identidade visual
 
-Aguardando paridade com PEP OS (Sprint 1 do roadmap). Enquanto não está liberado, usar tokens unificados do design system (`docs/04-design-system.md`) — dark como padrão, light disponível em toggle no topo.
+Paridade com PEP OS concluída (Sprint 1). A LP usa os tokens canônicos da marca (`docs/04-design-system.md`, fonte: PEP OS v1.0) — dark como padrão, light disponível em toggle no topo. Implementada em `lp/index.html` (opção B, deploy standalone).
 
 ## 4. Estrutura (top → bottom)
 

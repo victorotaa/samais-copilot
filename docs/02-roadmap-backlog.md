@@ -25,21 +25,21 @@
 | 0.9 | README real (substitui boilerplate AI Studio) | ✅ entregue | 🟢 |
 | 0.10 | `package.json` com nome/descrição corretos, dependências mortas removidas | ✅ entregue | 🟢 |
 
-## Sprint 1 — Paridade visual com PEP OS (bloqueada até liberação do repo)
+## Sprint 1 — Paridade visual com PEP OS
 
 | # | Item | Status | Tipo |
 |---|------|--------|------|
-| 1.1 | Adicionar `victorotaa/samais-pep` ao escopo da sessão | aguardando | 🔴 |
-| 1.2 | Extrair tokens visuais do PEP OS (paleta exata, raios, sombras, type scale) | bloqueado | 🟡 (após 1.1) |
-| 1.3 | Aplicar tokens ao `--theme` do CoPilot | bloqueado | 🟡 (após 1.2) |
-| 1.4 | Unificar paleta entre `App.tsx` e `master-plan-rota.html` | bloqueado | 🟡 (após 1.2) |
-| 1.5 | Validar paridade light/dark com prints lado a lado PEP × CoPilot | bloqueado | 🟡 (após 1.3) |
+| 1.1 | Adicionar `victorotaa/samais-pep` ao escopo da sessão | ✅ liberado | 🔴 |
+| 1.2 | Extrair tokens visuais do PEP OS (paleta exata, raios, sombras, type scale) | ✅ entregue (fonte: `design/samais-pep-os-design-tokens.json` v1.0) | 🟢 |
+| 1.3 | Aplicar tokens ao `--theme` do CoPilot — **migração big-bang do App.tsx para tokens semânticos** | ✅ entregue | 🟢 |
+| 1.4 | Unificar paleta entre `App.tsx` e `master-plan-rota.html` | ✅ entregue | 🟢 |
+| 1.5 | Validar paridade light/dark com prints lado a lado PEP × CoPilot | pendente (requer revisão visual sua) | 🟡 |
 
 ## Sprint 2 — Landing Page B2B
 
 | # | Item | Status | Tipo |
 |---|------|--------|------|
-| 2.1 | Implementar LP (rota `/` separada ou subdomínio) seguindo `03-landing-page-spec.md` | a fazer | 🟢 (posso fechar) |
+| 2.1 | Implementar LP seguindo `03-landing-page-spec.md` — opção B: `lp/` standalone com `vercel.json` próprio | ✅ entregue | 🟢 |
 | 2.2 | Forms de contato comercial (gestor público, plano, hospital) | a fazer | 🟡 (precisa: para onde envia? Resend? webhook? CRM?) |
 | 2.3 | Provas sociais (cases Ourinhos, CISNORPI, Campos Gerais já citados na PR #1) | a fazer | 🟡 (precisa: autorização para usar nome dos parceiros) |
 | 2.4 | Vídeo demo de 90s do CoPilot | não iniciado | 🔴 (gravação) |
@@ -95,7 +95,7 @@
 
 ## O que preciso de você para destravar (lista curta e prática)
 
-1. **Adicionar `victorotaa/samais-pep` ao escopo da sessão** — desbloqueia Sprint 1 inteira.
+1. ~~Adicionar `victorotaa/samais-pep` ao escopo da sessão~~ — ✅ feito; Sprint 1 executada (resta sua revisão visual, item 1.5).
 2. **Decidir backend** (Supabase é o caminho mais rápido para um produto multi-tenant; me confirme e eu monto schema + auth + RLS).
 3. **Credenciais para a build de produção**:
    - `GEMINI_API_KEY` (Vercel env)

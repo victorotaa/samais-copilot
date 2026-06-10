@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070708">
+<title>Samais CoPilot OS · Despacho APH com IA para centrais 192</title>
+<meta name="description" content="Sistema operacional para centrais 192 e despacho APH: IA que ouve a chamada, classifica risco Manchester e justifica decisões para o Médico Regulador. Agende uma demonstração.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Samais CoPilot OS · Despacho APH com IA para centrais 192">
+<meta property="og:description" content="Cada minuto da central, auditado, classificado, e a caminho. Agende uma demonstração.">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Samais">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23070708'/><text x='50%25' y='52%25' text-anchor='middle' dominant-baseline='middle' font-family='Syne, sans-serif' font-weight='800' font-size='22' fill='%23BF9A3D'>S</text></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script>
+  // Bootstrap de tema antes da pintura — dark é o padrão da marca.
+  (function () {
+    try {
+      var t = localStorage.getItem('samais.theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) {}
+  })();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Samais Gestão em Saúde",
+      "url": "https://samais.com.br",
+      "sameAs": ["https://www.linkedin.com/company/samais"]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Samais CoPilot OS",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web",
+      "description": "Sistema operacional de despacho APH com IA assistencial para centrais 192: triagem NLP, regulação médica e auditoria LGPD.",
+      "inLanguage": "pt-BR"
+    }
+  ]
+}
+</script>
+
+<style>
+/* ── Tokens canônicos Samais (fonte: PEP OS design-tokens v1.0) ── */
+:root{
+  --canvas:#070708; --surface:#0E0E10; --elevated:#161618;
+  --border-subtle:#1F1F22; --border-default:#2A2B33; --border-strong:#3A3B45;
+  --ink:#F4F4F5; --ink-2:#A8A8B0; --ink-3:#6E6E78; --on-gold:#070708;
+  --gold-300:#EAC97A; --gold-500:#BF9A3D; --gold-600:#A18230; --gold-rgb:191,154,61;
+  --ok:#43A047; --warn:#FDD835; --danger:#E53935; --info:#1E88E5; --ai:#00D4A8;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --canvas:#FAFAF7; --surface:#FFFFFF; --elevated:#F1F1ED;
+  --border-subtle:#E4E4DE; --border-default:#D1D1C9; --border-strong:#B7B7AD;
+  --ink:#1A1A17; --ink-2:#52524C; --ink-3:#828279; --on-gold:#070708;
+  --gold-300:#8A6E28; --gold-500:#A88230; --gold-600:#7E6624;
+  --ok:#2E7D32; --warn:#B58A00; --danger:#C62828; --info:#1565C0; --ai:#00875F;
+  color-scheme:light;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--canvas); color:var(--ink);
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  font-size:15.5px; line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  transition:background-color 240ms var(--ease),color 240ms var(--ease);
+}
+::selection{background:var(--gold-500);color:var(--on-gold)}
+:focus-visible{outline:3px solid var(--gold-500);outline-offset:2px;border-radius:6px}
+img{max-width:100%}
+a{color:inherit}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+section{padding:96px 0}
+
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-300);
+  display:flex;align-items:center;gap:12px;margin-bottom:22px;
+}
+.eyebrow::before{content:'';width:28px;height:1px;background:var(--gold-500);opacity:.6}
+
+h1,h2,h3{font-family:'Syne',sans-serif;line-height:1.08;letter-spacing:-0.02em}
+h2{font-size:clamp(28px,4vw,44px);font-weight:700;margin-bottom:18px}
+.sub{color:var(--ink-2);max-width:680px}
+
+/* ── Top bar ── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb,var(--canvas) 88%,transparent);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border-subtle);
+}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.lockup{display:flex;align-items:baseline;gap:10px;text-decoration:none}
+.lockup b{font-family:'Syne',sans-serif;font-weight:600;font-size:18px;letter-spacing:-0.02em;color:var(--gold-500)}
+.lockup span{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;color:var(--ink-3);text-transform:uppercase}
+.topnav{display:flex;align-items:center;gap:8px}
+.topnav a.link{font-size:13px;font-weight:500;color:var(--ink-2);text-decoration:none;padding:8px 12px;border-radius:6px;transition:all 180ms}
+.topnav a.link:hover{color:var(--ink);background:var(--elevated)}
+@media(max-width:820px){.topnav a.link{display:none}}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:14px;
+  padding:13px 22px;min-height:44px;border-radius:6px;border:1px solid transparent;
+  cursor:pointer;text-decoration:none;transition:all 180ms cubic-bezier(0.4,0,0.2,1);
+}
+.btn-primary{background:var(--gold-500);color:var(--on-gold)}
+.btn-primary:hover{background:var(--gold-300);box-shadow:0 0 24px rgba(var(--gold-rgb),.15)}
+.btn-secondary{background:var(--elevated);color:var(--ink);border-color:var(--border-default)}
+.btn-secondary:hover{border-color:var(--border-strong)}
+.btn-ghost{background:transparent;color:var(--ink-2);border:1px solid var(--border-subtle);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:9px 14px;min-height:36px}
+.btn-ghost:hover{border-color:var(--gold-500);color:var(--gold-300)}
+
+/* ── Hero ── */
+.hero{position:relative;padding:120px 0 80px;overflow:hidden}
+.hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(var(--gold-rgb),.05) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--gold-rgb),.05) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 0%,black 30%,transparent 75%);
+}
+.hero::after{
+  content:'';position:absolute;top:-220px;left:50%;transform:translateX(-50%);
+  width:900px;height:520px;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(var(--gold-rgb),.13),transparent);
+}
+.hero .wrap{position:relative;z-index:1}
+.hero h1{font-size:clamp(38px,6vw,64px);font-weight:800;max-width:880px;margin-bottom:24px}
+.hero h1 em{font-style:normal;color:var(--gold-500)}
+.hero .sub{font-size:18px;margin-bottom:36px}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:64px}
+.stat-strip{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.stat-chip{
+  display:inline-flex;align-items:baseline;gap:8px;
+  background:var(--surface);border:1px solid var(--border-subtle);border-radius:6px;
+  padding:10px 16px;
+}
+.stat-chip b{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:17px;color:var(--gold-300)}
+.stat-chip span{font-size:12px;color:var(--ink-2)}
+.stat-note{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ── Cards ── */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+@media(max-width:920px){.grid-3,.grid-2{grid-template-columns:1fr}}
+.card{
+  background:var(--surface);border:1px solid var(--border-subtle);
+  border-radius:8px;padding:28px;
+  transition:border-color 240ms var(--ease);
+}
+.card:hover{border-color:var(--border-strong)}
+.card-data{border-top:2px solid var(--gold-500)}
+.card h3{font-size:19px;font-weight:700;margin:14px 0 10px}
+.card p{font-size:14px;color:var(--ink-2)}
+.card .tag{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--gold-300);
+}
+.card .metric{
+  display:block;margin-top:18px;padding-top:14px;border-top:1px solid var(--border-subtle);
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-3);
+}
+.card .metric b{color:var(--gold-300);font-weight:500}
+.icon{
+  width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.25);
+  color:var(--gold-300);font-size:17px;
+}
+
+/* ── Demo ── */
+.demo-frame{
+  position:relative;border:1px solid var(--border-default);border-radius:12px;overflow:hidden;
+  background:var(--surface);box-shadow:0 24px 64px rgba(0,0,0,.5);
+}
+:root[data-theme="light"] .demo-frame{box-shadow:0 24px 64px rgba(0,0,0,.12)}
+.demo-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border-subtle);background:var(--elevated)}
+.demo-bar i{width:10px;height:10px;border-radius:50%;background:var(--border-strong);display:block}
+.demo-bar i:first-child{background:var(--danger)}
+.demo-bar span{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-3);margin-left:8px}
+.demo-body{padding:36px;display:grid;grid-template-columns:1.4fr 1fr;gap:24px}
+@media(max-width:820px){.demo-body{grid-template-columns:1fr}}
+.demo-panel{background:var(--elevated);border:1px solid var(--border-subtle);border-radius:8px;padding:20px}
+.demo-panel .tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:12px}
+.transcript p{font-size:13px;color:var(--ink-2);padding:8px 12px;border-radius:6px;margin-bottom:8px;background:var(--surface);border:1px solid var(--border-subtle)}
+.transcript p b{color:var(--ink);font-weight:600}
+.callout{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 10px;border-radius:6px;margin:4px 4px 4px 0}
+.callout.red{color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent);border:1px solid color-mix(in srgb,var(--danger) 30%,transparent)}
+.callout.ai{color:var(--ai);background:color-mix(in srgb,var(--ai) 10%,transparent);border:1px solid color-mix(in srgb,var(--ai) 30%,transparent)}
+.callout.goldc{color:var(--gold-300);background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.25)}
+
+/* ── Quem usa ── */
+.proof{border-block:1px solid var(--border-subtle);background:var(--surface)}
+.proof .wrap{display:flex;flex-wrap:wrap;gap:32px;align-items:center;justify-content:space-between;padding-top:40px;padding-bottom:40px}
+.proof p{font-size:14px;color:var(--ink-2);max-width:560px}
+.proof .stamp{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ── FAQ ── */
+details{border:1px solid var(--border-subtle);border-radius:8px;background:var(--surface);margin-bottom:12px}
+details summary{
+  cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:18px 22px;font-weight:600;font-size:15px;
+}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:'+';font-family:'JetBrains Mono',monospace;color:var(--gold-500);font-size:18px;transition:transform 180ms}
+details[open] summary::after{transform:rotate(45deg)}
+details .a{padding:0 22px 20px;font-size:14px;color:var(--ink-2)}
+
+/* ── CTA final ── */
+.final{
+  text-align:center;position:relative;overflow:hidden;
+  border-top:1px solid var(--border-subtle);
+}
+.final::before{
+  content:'';position:absolute;bottom:-260px;left:50%;transform:translateX(-50%);
+  width:820px;height:480px;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(var(--gold-rgb),.12),transparent);
+}
+.final h2{font-size:clamp(30px,4.5vw,48px)}
+.final .sub{margin:0 auto 36px}
+.final .after-note{margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--border-subtle);padding:40px 0;background:var(--surface)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:center}
+footer p,footer a{font-size:12.5px;color:var(--ink-3);text-decoration:none}
+footer a:hover{color:var(--gold-300)}
+footer nav{display:flex;gap:20px}
+
+/* ── Modal ── */
+dialog{
+  border:1px solid var(--border-default);border-radius:12px;background:var(--elevated);color:var(--ink);
+  width:min(520px,92vw);padding:0;
+}
+dialog::backdrop{background:rgba(7,7,8,.75);backdrop-filter:blur(4px)}
+.modal-head{padding:24px 28px 0}
+.modal-head h3{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
+.modal-head p{font-size:13px;color:var(--ink-2);margin-top:6px}
+dialog form{padding:20px 28px 28px;display:flex;flex-direction:column;gap:14px}
+dialog label{font-size:13px;font-weight:500;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+dialog input,dialog select{
+  background:var(--surface);border:1px solid var(--border-subtle);color:var(--ink);
+  font-family:inherit;font-size:14px;padding:10px 12px;border-radius:6px;
+  transition:border-color 180ms,box-shadow 180ms;
+}
+dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500);box-shadow:0 0 0 3px rgba(var(--gold-rgb),.15)}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:8px}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="lockup" href="#"><b>Samais</b><span>· CoPilot OS</span></a>
+    <nav class="topnav">
+      <a class="link" href="#problema">O problema</a>
+      <a class="link" href="#pilares">Como resolve</a>
+      <a class="link" href="#demo">Demo</a>
+      <a class="link" href="#modelos">Contratação</a>
+      <a class="link" href="#faq">FAQ</a>
+      <button class="btn btn-ghost" id="themeToggle" aria-label="Alternar tema claro e escuro">Modo claro</button>
+      <a class="btn btn-primary" href="#" data-open-modal>Agendar demonstração</a>
+    </nav>
+  </div>
+</header>
+
+<!-- 4.1 Hero -->
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Samais · Co-piloto de despacho APH</p>
+    <h1>Cada minuto da central, <em>auditado</em>, <em>classificado</em>, e a caminho.</h1>
+    <p class="sub">Sistema operacional para centrais 192 e despacho APH, com IA que ouve a chamada, identifica risco e justifica decisões para o Médico Regulador.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#" data-open-modal>Agendar demonstração</a>
+      <a class="btn btn-secondary" href="#demo">Ver o CoPilot rodando</a>
+    </div>
+    <div class="stat-strip">
+      <div class="stat-chip"><b>1m12s</b><span>T. médio de regulação</span></div>
+      <div class="stat-chip"><b>29%</b><span>trotes filtrados</span></div>
+      <div class="stat-chip"><b>96.8%</b><span>acurácia Manchester</span></div>
+      <span class="stat-note">Métricas do ambiente de demonstração</span>
+    </div>
+  </div>
+</section>
+
+<!-- 4.2 Problema -->
+<section id="problema">
+  <div class="wrap">
+    <p class="eyebrow">O problema</p>
+    <h2>O que acontece na maioria das centrais hoje</h2>
+    <p class="sub" style="margin-bottom:48px">Três pontos de perda que se repetem em qualquer operação 192 — pública ou privada.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">☎</div>
+        <h3>TARM sobrecarregado</h3>
+        <p>Escuta, digita, classifica e transfere — tudo ao mesmo tempo, sob pressão. Sem apoio de IA, cada chamada acumula segundos de retrabalho que viram minutos na fila.</p>
+        <span class="metric">Perda típica: <b>retrabalho a cada chamada</b></span>
+      </div>
+      <div class="card">
+        <div class="icon">⚕</div>
+        <h3>Regulação às cegas</h3>
+        <p>O Médico Regulador decide com o resumo verbal de terceiros, sem trilha do que o solicitante disse de fato. A decisão é boa — mas não é auditável.</p>
+        <span class="metric">Risco: <b>decisão sem trilha de evidência</b></span>
+      </div>
+      <div class="card">
+        <div class="icon">🚑</div>
+        <h3>Viatura sem contexto</h3>
+        <p>A equipe chega ao local sem saber se é trauma, parada cardiorrespiratória ou crise de ansiedade. O primeiro minuto na cena é gasto redescobrindo o caso.</p>
+        <span class="metric">Custo: <b>contexto perdido no handoff</b></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4.3 Pilares -->
+<section id="pilares" style="background:var(--surface);border-block:1px solid var(--border-subtle)">
+  <div class="wrap">
+    <p class="eyebrow">Como o CoPilot resolve</p>
+    <h2>Quatro pilares, um fluxo contínuo</h2>
+    <p class="sub" style="margin-bottom:48px">Do primeiro toque do 192 ao fechamento da ocorrência, cada etapa alimenta a seguinte.</p>
+    <div class="grid-2">
+      <div class="card card-data" style="background:var(--elevated)">
+        <span class="tag">Pilar 01</span>
+        <h3>Triagem IA em tempo real</h3>
+        <p>STT e NLP em português transcrevem a chamada ao vivo, extraem sintomas, comorbidades e dados do paciente, e sugerem a classificação Manchester.</p>
+        <span class="metric">Alvo: <b>−45s no T. médio de regulação</b></span>
+      </div>
+      <div class="card card-data" style="background:var(--elevated)">
+        <span class="tag">Pilar 02</span>
+        <h3>Apoio à decisão clínica</h3>
+        <p>Protocolo sugerido, checklist Manchester e alternativas na tela do Regulador. Divergências são registradas com justificativa — e viram aprendizado.</p>
+        <span class="metric">Resultado: <b>acurácia auditável vs ground truth</b></span>
+      </div>
+      <div class="card card-data" style="background:var(--elevated)">
+        <span class="tag">Pilar 03</span>
+        <h3>Despacho otimizado</h3>
+        <p>Recurso recomendado por ETA e gravidade — USA, USB ou orientação — com justificativa registrada em cada despacho.</p>
+        <span class="metric">Alvo: <b>menos despachos USA evitáveis</b></span>
+      </div>
+      <div class="card card-data" style="background:var(--elevated)">
+        <span class="tag">Pilar 04</span>
+        <h3>Auditoria e BI</h3>
+        <p>Cadeia de custódia LGPD, trilha de cada decisão e dashboard de SLA contratual para gestores, tribunais de contas e órgãos de controle.</p>
+        <span class="metric">Entrega: <b>relatórios prontos para auditoria</b></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4.4 Demo -->
+<section id="demo">
+  <div class="wrap">
+    <p class="eyebrow">Veja o CoPilot rodando</p>
+    <h2>Da chamada ao despacho, em uma tela</h2>
+    <p class="sub" style="margin-bottom:48px">O fluxo completo — recepção, triagem, regulação e viatura — como a sua equipe veria em plantão.</p>
+    <div class="demo-frame">
+      <div class="demo-bar"><i></i><i></i><i></i><span>Samais CoPilot OS · TARM · Chamada #4017</span></div>
+      <div class="demo-body">
+        <div class="demo-panel transcript">
+          <span class="tag">Transcrição em tempo real</span>
+          <p><b>Solicitante:</b> ele tá com uma dor forte no peito, tá suando muito…</p>
+          <p><b>TARM:</b> A dor irradia para o braço ou mandíbula?</p>
+          <p><b>Solicitante:</b> pro braço esquerdo, sim… ele tem pressão alta.</p>
+        </div>
+        <div class="demo-panel">
+          <span class="tag">Extração clínica · IA</span>
+          <span class="callout ai">✓ dor torácica irradiada</span>
+          <span class="callout ai">✓ sudorese</span>
+          <span class="callout ai">✓ HAS prévia</span>
+          <span class="callout red">Manchester: VERMELHO</span>
+          <span class="callout goldc">Protocolo sugerido: IAM</span>
+          <span class="callout goldc">Recurso: USA · ETA 8 min</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:36px">
+      <!-- Destino definitivo depende do domínio de deploy do app (rewrite em vercel.json). -->
+      <a class="btn btn-primary" href="/app">Entrar na demo interativa</a>
+    </div>
+  </div>
+</section>
+
+<!-- 4.5 Quem usa — nomes de parceiros entram após autorização formal (backlog 2.3) -->
+<div class="proof">
+  <div class="wrap">
+    <p>Construído por quem opera APH na prática: centrais municipais, consórcios intermunicipais e operações de transporte sanitário no interior de São Paulo e do Paraná.</p>
+    <span class="stamp">Cases nomeados sob autorização · disponíveis na demonstração</span>
+  </div>
+</div>
+
+<!-- 4.6 Modelos de contratação -->
+<section id="modelos">
+  <div class="wrap">
+    <p class="eyebrow">Modelos de contratação</p>
+    <h2>Três formas de levar o CoPilot para a sua operação</h2>
+    <p class="sub" style="margin-bottom:48px">Transparentes desde a primeira conversa — sem caixa-preta de precificação.</p>
+    <div class="grid-3">
+      <div class="card card-data">
+        <span class="tag">Modelo 01</span>
+        <h3>Operação completa</h3>
+        <p>A Samais opera sua central 192 ponta a ponta: equipe, frota, protocolos e tecnologia. Você acompanha tudo por SLA contratual.</p>
+        <span class="metric">Para: <b>municípios e consórcios</b></span>
+      </div>
+      <div class="card card-data">
+        <span class="tag">Modelo 02</span>
+        <h3>Licença CoPilot OS</h3>
+        <p>Você opera, nosso software faz a inteligência. Licenciamento por posição de TARM/Regulador ou por volume de chamadas.</p>
+        <span class="metric">Para: <b>hospitais, planos e operadoras</b></span>
+      </div>
+      <div class="card">
+        <span class="tag">Modelo 03 · Em breve</span>
+        <h3>API APH-BR</h3>
+        <p>Dados operacionais anonimizados e agregados para planos, seguradoras e pesquisa. Em desenvolvimento — entre na lista de espera.</p>
+        <span class="metric">Status: <b>lista de espera aberta</b></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4.7 Compliance -->
+<section id="compliance" style="background:var(--surface);border-block:1px solid var(--border-subtle)">
+  <div class="wrap">
+    <p class="eyebrow">Compliance e segurança</p>
+    <h2>Conformidade que se demonstra, não se declara</h2>
+    <p class="sub" style="margin-bottom:48px">O que está em produção e o que está em implantação — sem maquiagem. Detalhamento técnico completo disponível na demonstração, sob NDA.</p>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag">Compromisso de arquitetura</span>
+        <h3>Desenho LGPD-first</h3>
+        <p>Produto desenhado sobre a Lei 13.709/2018: minimização de dados, finalidade explícita por tela e trilha de acesso por perfil (TARM, Regulador, Viatura, Gestor).</p>
+      </div>
+      <div class="card">
+        <span class="tag">Roadmap de certificação · em implantação</span>
+        <h3>Criptografia, audit log e hospedagem nacional</h3>
+        <p>AES-256 em repouso, TLS 1.3 em trânsito, audit log append-only com hash encadeado e hospedagem em região São Paulo entram em produção junto com o backend — cada item só vira claim comercial quando estiver auditável.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4.8 FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <p class="eyebrow">Perguntas de quem opera</p>
+    <h2>FAQ</h2>
+    <p class="sub" style="margin-bottom:40px">As perguntas que aparecem em conversa comercial de verdade.</p>
+
+    <details>
+      <summary>Como funciona com o nosso PABX atual?</summary>
+      <div class="a">O CoPilot consome o áudio da chamada via integração com o PABX/SBC existente (SIP ou gateway dedicado). O levantamento da telefonia atual faz parte do diagnóstico de implantação — sem troca obrigatória de central telefônica.</div>
+    </details>
+    <details>
+      <summary>Os dados ficam onde? Quem acessa?</summary>
+      <div class="a">Dados operacionais ficam em infraestrutura na região São Paulo, isolados por contratante (multi-tenant com isolamento estrito). Acesso por perfil e matrícula, com trilha de auditoria. O contratante é o controlador dos dados; a Samais atua como operadora nos termos da LGPD.</div>
+    </details>
+    <details>
+      <summary>Se a IA errar a classificação, o que acontece?</summary>
+      <div class="a">A IA é copiloto, não piloto. Toda classificação é sugestão: o Médico Regulador é a autoridade final e pode divergir registrando justificativa. A divergência fica auditável e retroalimenta o modelo.</div>
+    </details>
+    <details>
+      <summary>Conseguimos exportar tudo se trocarmos de fornecedor?</summary>
+      <div class="a">Sim. Exportação completa das ocorrências em formato aberto (CSV/JSON) está prevista em contrato. Seus dados são seus — a retenção de cliente tem que vir do produto, não do lock-in.</div>
+    </details>
+    <details>
+      <summary>Funciona com SAMU SUS ou apenas privado?</summary>
+      <div class="a">Ambos. O fluxo nasceu na realidade SAMU (TARM → Regulador → Viatura, protocolos Manchester e AVPU), e a mesma arquitetura atende centrais privadas de planos, hospitais e transporte sanitário.</div>
+    </details>
+    <details>
+      <summary>Em quanto tempo fica de pé numa central nova?</summary>
+      <div class="a">O cronograma típico de implantação — diagnóstico, integração de telefonia, parametrização de protocolos e treinamento — é definido no diagnóstico inicial e varia com a infraestrutura existente. A demonstração inclui um plano de implantação para o seu cenário.</div>
+    </details>
+    <details>
+      <summary>Treinamento da equipe está incluso?</summary>
+      <div class="a">Sim. Treinamento de TARMs, Reguladores e equipes de viatura faz parte da implantação, com material de referência e acompanhamento assistido nos primeiros plantões.</div>
+    </details>
+    <details>
+      <summary>Qual o SLA contratual de uptime?</summary>
+      <div class="a">SLA de disponibilidade, tempo de resposta de suporte e plano de contingência (modo degradado sem IA) são definidos em contrato conforme a criticidade da operação. Operação 192 é missão crítica — tratamos como tal.</div>
+    </details>
+  </div>
+</section>
+
+<!-- 4.9 CTA final -->
+<section class="final">
+  <div class="wrap" style="position:relative;z-index:1">
+    <p class="eyebrow" style="justify-content:center">Próximo passo</p>
+    <h2>A próxima chamada da sua central<br>vai ser melhor.</h2>
+    <p class="sub">Demonstração ao vivo do fluxo completo, com o seu cenário operacional na mesa.</p>
+    <a class="btn btn-primary" href="#" data-open-modal>Agendar demonstração</a>
+    <p class="after-note">Resposta comercial em ≤ 24h úteis</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>© <span id="year"></span> Samais Gestão em Saúde · Brasil</p>
+    <nav>
+      <a href="https://www.linkedin.com/company/samais" rel="noopener" target="_blank">LinkedIn</a>
+      <a href="mailto:comercial@samais.com.br">comercial@samais.com.br</a>
+      <a href="#" aria-disabled="true" title="Em publicação">Privacidade</a>
+      <a href="#" aria-disabled="true" title="Em publicação">Termos</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- Modal de agendamento — sem backend ainda (backlog 2.2): envia via e-mail pré-preenchido. -->
+<dialog id="demoModal">
+  <div class="modal-head">
+    <h3>Agendar demonstração</h3>
+    <p>Conte o essencial da sua operação. Resposta comercial em até 24h úteis.</p>
+  </div>
+  <form id="demoForm" method="dialog">
+    <label>Nome
+      <input name="nome" type="text" required autocomplete="name">
+    </label>
+    <label>E-mail institucional
+      <input name="email" type="email" required autocomplete="email">
+    </label>
+    <label>Perfil da organização
+      <select name="perfil" required>
+        <option value="" selected disabled>Selecione…</option>
+        <option>Secretaria Municipal de Saúde</option>
+        <option>Consórcio intermunicipal</option>
+        <option>Plano de saúde</option>
+        <option>Hospital</option>
+        <option>Operadora de transporte sanitário</option>
+        <option>Outro</option>
+      </select>
+    </label>
+    <label>Tamanho da central (chamadas/dia)
+      <select name="volume" required>
+        <option value="" selected disabled>Selecione…</option>
+        <option>Até 100</option>
+        <option>100 a 500</option>
+        <option>500 a 2.000</option>
+        <option>Acima de 2.000</option>
+        <option>Ainda não temos central</option>
+      </select>
+    </label>
+    <label>Urgência
+      <select name="urgencia" required>
+        <option value="" selected disabled>Selecione…</option>
+        <option>Este mês</option>
+        <option>Este trimestre</option>
+        <option>Sem prazo definido</option>
+      </select>
+    </label>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" value="cancel" formnovalidate>Cancelar</button>
+      <button class="btn btn-primary" id="demoSubmit" value="default">Enviar pedido</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Toggle de tema — dark é o padrão da marca; light é opção do usuário.
+  var toggle = document.getElementById('themeToggle');
+  function syncToggleLabel() {
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    toggle.textContent = light ? 'Modo escuro' : 'Modo claro';
+  }
+  toggle.addEventListener('click', function () {
+    var root = document.documentElement;
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('samais.theme', next); } catch (e) {}
+    syncToggleLabel();
+  });
+  syncToggleLabel();
+
+  // Modal de demonstração
+  var modal = document.getElementById('demoModal');
+  document.querySelectorAll('[data-open-modal]').forEach(function (el) {
+    el.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      modal.showModal();
+    });
+  });
+
+  // Sem backend de formulário ainda: monta um e-mail pré-preenchido.
+  document.getElementById('demoSubmit').addEventListener('click', function () {
+    var f = document.getElementById('demoForm');
+    if (!f.reportValidity()) return;
+    var d = new FormData(f);
+    var body = [
+      'Nome: ' + d.get('nome'),
+      'E-mail: ' + d.get('email'),
+      'Perfil: ' + d.get('perfil'),
+      'Volume: ' + d.get('volume'),
+      'Urgência: ' + d.get('urgencia'),
+      '',
+      'Origem: landing page CoPilot OS'
+    ].join('\n');
+    window.location.href = 'mailto:comercial@samais.com.br'
+      + '?subject=' + encodeURIComponent('Demonstração CoPilot OS — ' + d.get('perfil'))
+      + '&body=' + encodeURIComponent(body);
+  });
+</script>
+</body>
+</html>

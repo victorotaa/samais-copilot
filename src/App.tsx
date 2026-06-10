@@ -333,7 +333,7 @@ export default function App() {
   }, [vehicles]);
 
   const MapIframe = useMemo(() => {
-    if (!amlData) return <div className="w-full h-full flex items-center justify-center text-s-nude">Sem dados de localização</div>;
+    if (!amlData) return <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>;
     return (
       <iframe 
         width="100%" 
@@ -451,7 +451,7 @@ export default function App() {
           setIncomingCall(false);
           setCurrentModule('IDLE');
         }}
-        className="w-full py-3 bg-s-surf2 border border-s-bdr text-s-ivory font-bold font-sans uppercase tracking-widest text-xs rounded-xl hover:bg-s-surf transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+        className="w-full py-3 bg-elevated border border-border-subtle text-ink-primary font-bold font-sans uppercase tracking-widest text-xs rounded-xl hover:bg-surface transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
       >
         <i className="fa-solid fa-forward-step"></i> Handoff & Próxima Chamada
       </button>
@@ -463,7 +463,7 @@ export default function App() {
           }
           setCurrentModule('REGULADOR');
         }}
-        className="w-full py-4 bg-gradient-to-r from-s-gold to-s-terra text-s-dark font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_30px_rgba(211,160,92,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
+        className="w-full py-4 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_30px_rgba(191,154,61,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
       >
         <i className="fa-solid fa-user-doctor text-lg"></i> Handoff & Ir para Regulador
       </button>
@@ -473,28 +473,28 @@ export default function App() {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-[var(--color-bg)] relative overflow-hidden transition-colors">
-        <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-s-gold/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-gold-500/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-ai/5 rounded-full blur-3xl"></div>
         
         <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center fu">
-          <div className="text-2xl font-mono font-bold text-s-ivory tracking-widest">{time.toLocaleTimeString('pt-BR')}</div>
-          <div className="text-[0.65rem] text-s-nude uppercase tracking-widest">{time.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+          <div className="text-2xl font-mono font-bold text-ink-primary tracking-widest">{time.toLocaleTimeString('pt-BR')}</div>
+          <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">{time.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
         </div>
 
         <div className="gp p-10 rounded-2xl w-full max-w-md relative z-10 fu">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-s-gold to-s-terra rounded-2xl flex items-center justify-center shadow-lg border border-s-ivory/15 mb-4">
-              <span className="font-disp font-bold text-4xl text-s-dark">S</span>
+            <div className="w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-700 rounded-2xl flex items-center justify-center shadow-lg border border-ink-primary/15 mb-4">
+              <span className="font-disp font-bold text-4xl text-ink-inverse">S</span>
             </div>
-            <h1 className="font-disp font-bold text-2xl text-s-ivory tracking-wide">SAMAIS</h1>
-            <p className="text-xs text-s-gold uppercase tracking-widest font-mono mt-1">SAMU CoPilot OS</p>
+            <h1 className="font-disp font-bold text-2xl text-ink-primary tracking-wide">SAMAIS</h1>
+            <p className="text-xs text-gold-500 uppercase tracking-widest font-mono mt-1">SAMU CoPilot OS</p>
           </div>
 
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
             <div>
               <label className="lbl">Matrícula Operacional</label>
               <div className="relative">
-                <i className="fa-solid fa-id-badge absolute left-3.5 top-1/2 -translate-y-1/2 text-s-nude/50"></i>
+                <i className="fa-solid fa-id-badge absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50"></i>
                 <input type="text" className="inp pl-10" placeholder="Ex: TARM-04" required defaultValue="TARM-04" />
               </div>
             </div>
@@ -502,23 +502,23 @@ export default function App() {
             <div>
               <label className="lbl">Senha de Acesso</label>
               <div className="relative">
-                <i className="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-s-nude/50"></i>
+                <i className="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50"></i>
                 <input type="password" className="inp pl-10" placeholder="••••••••" required defaultValue="password" />
               </div>
             </div>
 
-            <div className="p-4 bg-s-surf2 border border-s-bdr rounded-xl mt-2 flex items-start gap-3">
+            <div className="p-4 bg-elevated border border-border-subtle rounded-xl mt-2 flex items-start gap-3">
               <i className="fa-solid fa-fingerprint text-ai text-xl mt-0.5"></i>
               <div>
-                <p className="text-xs font-bold text-s-ivory">Verificação Biométrica MFA</p>
-                <p className="text-[0.65rem] text-s-nude font-mono mt-1">Requisito LGPD para acesso a dados sensíveis (PII).</p>
+                <p className="text-xs font-bold text-ink-primary">Verificação Biométrica MFA</p>
+                <p className="text-[0.65rem] text-ink-secondary font-mono mt-1">Requisito LGPD para acesso a dados sensíveis (PII).</p>
               </div>
             </div>
 
             <button 
               type="submit" 
               disabled={isAuthenticating}
-              className="mt-4 w-full py-3.5 bg-gradient-to-r from-s-gold to-s-terra text-s-dark font-extrabold text-[0.8rem] uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(211,160,92,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:scale-100"
+              className="mt-4 w-full py-3.5 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold text-[0.8rem] uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(191,154,61,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:scale-100"
             >
               {isAuthenticating ? (
                 <><i className="fa-solid fa-circle-notch fa-spin"></i> Autenticando...</>
@@ -554,38 +554,38 @@ export default function App() {
 
       {/* INCOMING CALL OVERLAY */}
       {incomingCall && currentCaller && (
-        <div className="fixed inset-0 bg-s-dark/95 z-[500] flex flex-col items-center justify-center fu backdrop-blur-md px-6">
+        <div className="fixed inset-0 bg-canvas/95 z-[500] flex flex-col items-center justify-center fu backdrop-blur-md px-6">
           <div className="relative w-32 h-32 md:w-44 md:h-44 flex items-center justify-center mb-6 md:mb-8">
             <div className="absolute inset-0 rounded-full bg-danger/15 animate-ping" style={{ animationDuration: '2s' }}></div>
             <div className="absolute inset-3 rounded-full bg-danger/25 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }}></div>
-            <div className="relative z-10 w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-danger to-red-900 flex items-center justify-center shadow-[0_0_60px_rgba(239,68,68,0.8)] text-3xl md:text-4xl text-white">
+            <div className="relative z-10 w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-danger to-red-900 flex items-center justify-center shadow-[0_0_60px_rgba(229,57,53,0.8)] text-3xl md:text-4xl text-white">
               <i className="fa-solid fa-phone-volume animate-pulse"></i>
             </div>
           </div>
           <div className="text-center w-full max-w-sm">
             <div className="text-[0.6rem] md:text-[0.65rem] font-mono font-bold tracking-widest text-danger/70 mb-2 uppercase">Chamada Entrante — 192</div>
-            <h2 className="text-3xl md:text-4xl font-disp font-bold text-danger tracking-widest mb-4" style={{ textShadow: '0 0 30px rgba(239,68,68,0.5)' }}>EMERGÊNCIA 192</h2>
+            <h2 className="text-3xl md:text-4xl font-disp font-bold text-danger tracking-widest mb-4" style={{ textShadow: '0 0 30px rgba(229,57,53,0.5)' }}>EMERGÊNCIA 192</h2>
             
-            <div className="inline-flex items-center gap-3 px-6 md:px-8 py-3 bg-s-surf border border-s-bdr rounded-full mb-6 md:mb-8 shadow-lg w-full justify-center">
-              <i className="fa-solid fa-mobile-screen text-lg md:text-xl text-s-nude"></i>
-              <span className="text-s-ivory font-mono text-xl md:text-2xl font-bold truncate">{currentCaller.phone}</span>
+            <div className="inline-flex items-center gap-3 px-6 md:px-8 py-3 bg-surface border border-border-subtle rounded-full mb-6 md:mb-8 shadow-lg w-full justify-center">
+              <i className="fa-solid fa-mobile-screen text-lg md:text-xl text-ink-secondary"></i>
+              <span className="text-ink-primary font-mono text-xl md:text-2xl font-bold truncate">{currentCaller.phone}</span>
             </div>
 
             {/* Mobile Transcription Box (Preview) */}
-            <div className="md:hidden w-full p-4 bg-s-surf2/50 border border-s-bdr rounded-2xl mb-8 flex flex-col gap-2">
+            <div className="md:hidden w-full p-4 bg-elevated/50 border border-border-subtle rounded-2xl mb-8 flex flex-col gap-2">
               <div className="flex items-center gap-2 text-[0.6rem] font-bold text-ai uppercase tracking-widest">
                 <i className="fa-solid fa-microphone-lines animate-pulse"></i> Transcrição Prévia (IA)
               </div>
-              <div className="text-xs text-s-ivory italic text-left line-clamp-2">
+              <div className="text-xs text-ink-primary italic text-left line-clamp-2">
                 "Socorro! Meu pai está com muita dor no peito e não consegue respirar direito, estamos na rua..."
               </div>
             </div>
 
             <div className="flex gap-4 w-full">
-              <button onClick={ignoreCall} className="flex-1 px-4 py-3 rounded-xl border border-s-bdr text-s-nude font-bold tracking-widest hover:bg-s-surf2 transition-all text-xs md:text-sm">
+              <button onClick={ignoreCall} className="flex-1 px-4 py-3 rounded-xl border border-border-subtle text-ink-secondary font-bold tracking-widest hover:bg-elevated transition-all text-xs md:text-sm">
                 IGNORAR
               </button>
-              <button onClick={acceptCall} className="flex-[1.5] px-4 py-3 bg-ok text-s-dark font-extrabold font-disp text-sm md:text-lg rounded-xl shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:scale-105 transition-all flex items-center justify-center gap-2 md:gap-3">
+              <button onClick={acceptCall} className="flex-[1.5] px-4 py-3 bg-ok text-ink-inverse font-extrabold font-disp text-sm md:text-lg rounded-xl shadow-[0_0_30px_rgba(67,160,71,0.4)] hover:scale-105 transition-all flex items-center justify-center gap-2 md:gap-3">
                 <i className="fa-solid fa-headset"></i> ATENDER
               </button>
             </div>
@@ -594,64 +594,64 @@ export default function App() {
       )}
 
       {/* GLOBAL HEADER */}
-      <header className="h-[3.75rem] border-b border-s-bdr bg-s-surf flex items-center justify-between px-5 shrink-0 z-50 shadow-md relative">
+      <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-5 shrink-0 z-50 shadow-md relative">
         <div className="flex items-center gap-4">
-          <div className="w-9 h-9 bg-gradient-to-br from-s-gold to-s-terra rounded-xl flex items-center justify-center shadow-lg border border-s-ivory/15 shrink-0">
-            <span className="font-disp font-bold text-xl text-s-dark">S</span>
+          <div className="w-9 h-9 bg-gradient-to-br from-gold-500 to-gold-700 rounded-xl flex items-center justify-center shadow-lg border border-ink-primary/15 shrink-0">
+            <span className="font-disp font-bold text-xl text-ink-inverse">S</span>
           </div>
           <div className="hidden sm:block">
-            <div className="font-disp font-bold text-base tracking-wide text-s-ivory leading-tight">SAMAIS</div>
-            <div className="text-[0.6rem] text-s-gold uppercase tracking-widest font-mono">
+            <div className="font-disp font-bold text-base tracking-wide text-ink-primary leading-tight">SAMAIS</div>
+            <div className="text-[0.6rem] text-gold-500 uppercase tracking-widest font-mono">
               {currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
             </div>
           </div>
           <button
             onClick={() => setCurrentModule('DASHBOARD')}
-            className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${currentModule === 'DASHBOARD' ? 'bg-s-gold/20 border border-s-gold text-s-gold' : 'bg-s-surf2 border border-s-bdr text-s-ivory hover:bg-s-surf'}`}
+            className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${currentModule === 'DASHBOARD' ? 'bg-gold-500/20 border border-gold-500 text-gold-500' : 'bg-elevated border border-border-subtle text-ink-primary hover:bg-surface'}`}
           >
             <i className="fa-solid fa-chart-pie"></i> <span className="hidden sm:inline">Dashboard</span>
           </button>
         </div>
 
-        <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 ${currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-s-surf2 border-s-bdr'} shadow-inner`}>
-          <i className={`fa-solid fa-circle text-[7px] ${currentModule !== 'IDLE' ? 'text-danger animate-pulse' : 'text-s-nude'}`}></i>
-          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${currentModule !== 'IDLE' ? 'text-danger' : 'text-s-nude'}`}>
+        <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 ${currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
+          <i className={`fa-solid fa-circle text-[7px] ${currentModule !== 'IDLE' ? 'text-danger animate-pulse' : 'text-ink-secondary'}`}></i>
+          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${currentModule !== 'IDLE' ? 'text-danger' : 'text-ink-secondary'}`}>
             {currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA'}
           </span>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="text-right hidden sm:block">
-            <div className="text-[0.6rem] text-s-nude uppercase tracking-widest font-bold">Hora Local</div>
-            <div className="text-sm font-bold font-mono text-s-ivory">
+            <div className="text-[0.6rem] text-ink-secondary uppercase tracking-widest font-bold">Hora Local</div>
+            <div className="text-sm font-bold font-mono text-ink-primary">
               {new Date().toLocaleTimeString('pt-BR')}
             </div>
           </div>
-          <div className="h-7 w-px bg-s-bdr hidden sm:block"></div>
+          <div className="h-7 w-px bg-hover hidden sm:block"></div>
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${soundEnabled ? 'bg-s-surf2 border border-s-bdr text-s-gold hover:border-s-gold' : 'bg-s-surf2 border border-s-bdr text-s-nude hover:text-s-ivory'}`}
+            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${soundEnabled ? 'bg-elevated border border-border-subtle text-gold-500 hover:border-gold-500' : 'bg-elevated border border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
             title={soundEnabled ? "Desativar Sons" : "Ativar Sons"}
           >
             <i className={`fa-solid ${soundEnabled ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
           </button>
           <button
             onClick={toggleTheme}
-            className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors bg-s-surf2 border border-s-bdr text-s-nude hover:text-s-gold hover:border-s-gold"
+            className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors bg-elevated border border-border-subtle text-ink-secondary hover:text-gold-500 hover:border-gold-500"
             title={theme === 'dark' ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
             aria-label="Alternar tema"
           >
             <i className={`fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
           </button>
-          <div className="h-7 w-px bg-s-bdr"></div>
+          <div className="h-7 w-px bg-hover"></div>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <div className="text-[0.65rem] text-s-nude uppercase tracking-widest">Mariana S.</div>
-              <div className="text-xs font-bold text-s-gold">TARM-04</div>
+              <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Mariana S.</div>
+              <div className="text-xs font-bold text-gold-500">TARM-04</div>
             </div>
             <button 
               onClick={() => setIsAuthenticated(false)}
-              className="w-9 h-9 rounded-lg bg-s-surf2 border border-s-bdr hover:border-danger hover:text-danger text-s-nude transition-all flex items-center justify-center text-sm" 
+              className="w-9 h-9 rounded-lg bg-elevated border border-border-subtle hover:border-danger hover:text-danger text-ink-secondary transition-all flex items-center justify-center text-sm" 
               title="Sair"
             >
               <i className="fa-solid fa-arrow-right-from-bracket"></i>
@@ -664,7 +664,7 @@ export default function App() {
       <main className={`flex-1 flex flex-col relative overflow-hidden p-4 md:p-5`}>
         {/* Guardrails for empty states */}
         {(currentModule === 'AML' || currentModule === 'TARM' || currentModule === 'REGULADOR' || currentModule === 'VIATURA') && !currentCaller && (
-          <div className="flex-1 flex flex-col items-center justify-center text-s-nude/50">
+          <div className="flex-1 flex flex-col items-center justify-center text-ink-secondary/50">
             <i className="fa-solid fa-headset text-4xl mb-4 animate-pulse"></i>
             <p className="font-mono text-sm uppercase tracking-widest">Aguardando chamada entrante...</p>
           </div>
@@ -674,11 +674,11 @@ export default function App() {
           <div className="flex-1 flex flex-col items-center pt-10 pb-20 fu overflow-y-auto min-h-0">
             {/* Large Clock */}
             <div className="text-center mb-12">
-              <div className="text-6xl md:text-8xl font-disp font-bold text-s-ivory tracking-widest" style={{ textShadow: '0 0 40px rgba(255,245,233,0.1)' }}>
+              <div className="text-6xl md:text-8xl font-disp font-bold text-ink-primary tracking-widest" style={{ textShadow: '0 0 40px rgba(244,244,245,0.1)' }}>
                 {time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                <span className="text-3xl md:text-5xl text-s-gold ml-2 animate-pulse">{time.getSeconds().toString().padStart(2, '0')}</span>
+                <span className="text-3xl md:text-5xl text-gold-500 ml-2 animate-pulse">{time.getSeconds().toString().padStart(2, '0')}</span>
               </div>
-              <div className="text-sm md:text-base text-s-nude uppercase tracking-widest font-mono mt-4">
+              <div className="text-sm md:text-base text-ink-secondary uppercase tracking-widest font-mono mt-4">
                 {time.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </div>
             </div>
@@ -686,9 +686,9 @@ export default function App() {
             {/* Vehicles Grid & Map */}
             <div className="w-full max-w-7xl px-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col">
-                <div className="flex items-center gap-3 mb-6 border-b border-s-bdr pb-3">
-                  <i className="fa-solid fa-truck-medical text-s-gold text-xl"></i>
-                  <h3 className="text-lg font-disp font-bold text-s-ivory uppercase tracking-widest">Status da Frota</h3>
+                <div className="flex items-center gap-3 mb-6 border-b border-border-subtle pb-3">
+                  <i className="fa-solid fa-truck-medical text-gold-500 text-xl"></i>
+                  <h3 className="text-lg font-disp font-bold text-ink-primary uppercase tracking-widest">Status da Frota</h3>
                   <div className="ml-auto flex gap-2">
                      <span className="chip chip-ok text-[0.6rem]">3 DISPONÍVEIS</span>
                      <span className="chip chip-danger text-[0.6rem]">1 EM ATENDIMENTO</span>
@@ -700,26 +700,26 @@ export default function App() {
                     <div key={v.id} className={`gp p-4 rounded-xl border-l-4 flex items-center gap-4 ${
                       v.color === 'ok' ? 'border-l-ok' : 
                       v.color === 'danger' ? 'border-l-danger' : 
-                      v.color === 'warn' ? 'border-l-warn' : 'border-l-s-nude'
+                      v.color === 'warn' ? 'border-l-warn' : 'border-l-ink-secondary'
                     }`}>
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0 ${
                         v.color === 'ok' ? 'bg-ok/10 text-ok' : 
                         v.color === 'danger' ? 'bg-danger/10 text-danger' : 
-                        v.color === 'warn' ? 'bg-warn/10 text-warn' : 'bg-s-nude/10 text-s-nude'
+                        v.color === 'warn' ? 'bg-warn/10 text-warn' : 'bg-ink-secondary/10 text-ink-secondary'
                       }`}>
                         <i className={`fa-solid ${v.type.includes('MOTOLÂNCIA') ? 'fa-motorcycle' : 'fa-truck-medical'}`}></i>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-s-ivory font-mono">{v.id}</span>
+                          <span className="font-bold text-ink-primary font-mono">{v.id}</span>
                           <span className={`text-[0.6rem] font-bold uppercase tracking-widest ${
                             v.color === 'ok' ? 'text-ok' : 
                             v.color === 'danger' ? 'text-danger' : 
-                            v.color === 'warn' ? 'text-warn' : 'text-s-nude'
+                            v.color === 'warn' ? 'text-warn' : 'text-ink-secondary'
                           }`}>{v.status}</span>
                         </div>
-                        <div className="text-[0.65rem] text-s-nude uppercase tracking-widest">{v.type}</div>
-                        <div className="text-[0.65rem] text-s-nude/70 font-mono mt-1"><i className="fa-solid fa-location-dot mr-1"></i> {v.base}</div>
+                        <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">{v.type}</div>
+                        <div className="text-[0.65rem] text-ink-secondary/70 font-mono mt-1"><i className="fa-solid fa-location-dot mr-1"></i> {v.base}</div>
                       </div>
                     </div>
                   ))}
@@ -727,36 +727,36 @@ export default function App() {
               </div>
 
               {/* Map Panel */}
-              <div className="gp rounded-2xl flex flex-col overflow-hidden min-h-[400px] lg:min-h-0 border border-s-bdr">
-                <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+              <div className="gp rounded-2xl flex flex-col overflow-hidden min-h-[400px] lg:min-h-0 border border-border-subtle">
+                <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-map-location-dot text-s-gold text-xs"></i>
-                    <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Posicionamento Global</span>
+                    <i className="fa-solid fa-map-location-dot text-gold-500 text-xs"></i>
+                    <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Posicionamento Global</span>
                   </div>
                   <span className="chip chip-ok text-[0.6rem] animate-pulse"><i className="fa-solid fa-satellite-dish"></i> GPS ATIVO</span>
                 </div>
-                <div className="flex-1 relative bg-[#1a1a1a]">
+                <div className="flex-1 relative bg-[#161618]">
                   {MapIframe || (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-s-nude/50">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-ink-secondary/50">
                       <i className="fa-solid fa-satellite-dish text-4xl mb-3 animate-pulse"></i>
                       <p className="font-mono text-xs uppercase tracking-widest">Carregando mapa...</p>
                     </div>
                   )}
-                  <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(9,10,15,0.8)]"></div>
+                  <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(7,7,8,0.8)]"></div>
                   
                   {/* Simulated Moving Vehicles */}
                   <div className="absolute top-1/3 left-1/4 z-10 flex flex-col items-center pointer-events-none transition-all duration-[3000ms] ease-linear" style={{ transform: `translate(${Math.sin(time.getTime() / 2000) * 20}px, ${Math.cos(time.getTime() / 2000) * 20}px)` }}>
-                    <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(16,185,129,0.7)] flex items-center justify-center">
+                    <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(67,160,71,0.7)] flex items-center justify-center">
                       <i className="fa-solid fa-truck-medical text-white text-[0.5rem] rotate-45"></i>
                     </div>
-                    <div className="text-[0.5rem] font-bold text-white bg-s-dark/80 px-1 rounded mt-1">USA-01</div>
+                    <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">USA-01</div>
                   </div>
 
                   <div className="absolute top-2/3 left-2/3 z-10 flex flex-col items-center pointer-events-none transition-all duration-[2000ms] ease-linear" style={{ transform: `translate(${Math.cos(time.getTime() / 1500) * 30}px, ${Math.sin(time.getTime() / 1500) * 30}px)` }}>
-                    <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(16,185,129,0.7)] flex items-center justify-center">
+                    <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(67,160,71,0.7)] flex items-center justify-center">
                       <i className="fa-solid fa-motorcycle text-white text-[0.5rem] rotate-45"></i>
                     </div>
-                    <div className="text-[0.5rem] font-bold text-white bg-s-dark/80 px-1 rounded mt-1">MOT-01</div>
+                    <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">MOT-01</div>
                   </div>
                 </div>
               </div>
@@ -768,42 +768,42 @@ export default function App() {
           <div className="flex-1 flex flex-col gap-4 fu min-h-0 overflow-y-auto lg:overflow-hidden pb-6 lg:pb-0 pr-2 -mr-2 lg:pr-0 lg:mr-0">
             {/* Top row: caller + anti-trote */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 shrink-0 order-2 lg:order-1">
-              <div className="lg:col-span-2 gp rounded-2xl p-4 flex items-center gap-5 border-l-4 border-l-s-gold">
-                <div className="w-12 h-12 rounded-full bg-s-surf2 flex items-center justify-center border border-s-bdr text-lg text-s-gold shrink-0">
+              <div className="lg:col-span-2 gp rounded-2xl p-4 flex items-center gap-5 border-l-4 border-l-gold-500">
+                <div className="w-12 h-12 rounded-full bg-elevated flex items-center justify-center border border-border-subtle text-lg text-gold-500 shrink-0">
                   <i className="fa-solid fa-user"></i>
                 </div>
                 <div className="flex-1">
                   <div className="lbl">Origem da Chamada</div>
-                  <div className="text-xl font-mono font-bold text-s-ivory">{currentCaller.phone}</div>
-                  <div className="text-[0.65rem] text-s-nude font-mono mt-0.5">
-                    Histórico 30d: <span className={currentCaller.hasHistory ? (currentCaller.historyCount > 0 ? "text-warn font-bold" : "text-ok font-bold") : "text-s-nude font-bold"}>
+                  <div className="text-xl font-mono font-bold text-ink-primary">{currentCaller.phone}</div>
+                  <div className="text-[0.65rem] text-ink-secondary font-mono mt-0.5">
+                    Histórico 30d: <span className={currentCaller.hasHistory ? (currentCaller.historyCount > 0 ? "text-warn font-bold" : "text-ok font-bold") : "text-ink-secondary font-bold"}>
                       {currentCaller.hasHistory ? `${currentCaller.historyCount} ocorrência(s)` : "Número Desconhecido"}
                     </span>
                   </div>
                 </div>
-                <div className="h-10 w-px bg-s-bdr"></div>
+                <div className="h-10 w-px bg-hover"></div>
                 <div className="text-right">
                   <div className="lbl">Tipo de Linha</div>
-                  <div className="text-sm font-bold text-s-ivory">Celular 4G</div>
-                  <div className="text-[0.65rem] text-s-nude font-mono">Operadora: Vivo</div>
+                  <div className="text-sm font-bold text-ink-primary">Celular 4G</div>
+                  <div className="text-[0.65rem] text-ink-secondary font-mono">Operadora: Vivo</div>
                 </div>
               </div>
               
               {/* Anti-trote */}
-              <div className={`gp rounded-2xl p-4 flex items-center gap-4 ${currentCaller.hasHistory ? 'bg-ok/8 border-ok/30 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-s-surf2 border-s-bdr'}`}>
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center border text-lg shrink-0 ${currentCaller.hasHistory ? 'bg-ok/15 border-ok/40 text-ok' : 'bg-s-surf border-s-bdr text-s-nude'}`}>
+              <div className={`gp rounded-2xl p-4 flex items-center gap-4 ${currentCaller.hasHistory ? 'bg-ok/8 border-ok/30 shadow-[0_0_20px_rgba(67,160,71,0.1)]' : 'bg-elevated border-border-subtle'}`}>
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center border text-lg shrink-0 ${currentCaller.hasHistory ? 'bg-ok/15 border-ok/40 text-ok' : 'bg-surface border-border-subtle text-ink-secondary'}`}>
                   <i className="fa-solid fa-shield-halved"></i>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`lbl ${currentCaller.hasHistory ? 'text-ok' : 'text-s-nude'}`}>Score Anti-Trote</div>
+                  <div className={`lbl ${currentCaller.hasHistory ? 'text-ok' : 'text-ink-secondary'}`}>Score Anti-Trote</div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg font-bold text-s-ivory">{currentCaller.hasHistory ? '98%' : 'N/A'}</span>
+                    <span className="text-lg font-bold text-ink-primary">{currentCaller.hasHistory ? '98%' : 'N/A'}</span>
                     <span className={`chip ${currentCaller.hasHistory ? 'chip-ok' : 'chip-nude'} text-[0.6rem]`}>
                       {currentCaller.hasHistory ? 'Autêntica' : 'Análise Pendente'}
                     </span>
                   </div>
-                  <div className="bg-s-dark rounded-full h-1.5 overflow-hidden">
-                    <div className={`h-full rounded-full ${currentCaller.hasHistory ? 'bg-ok' : 'bg-s-nude/30'}`} style={{ width: currentCaller.hasHistory ? '98%' : '10%', transition: 'width 1s ease-in-out' }}></div>
+                  <div className="bg-canvas rounded-full h-1.5 overflow-hidden">
+                    <div className={`h-full rounded-full ${currentCaller.hasHistory ? 'bg-ok' : 'bg-ink-secondary/30'}`} style={{ width: currentCaller.hasHistory ? '98%' : '10%', transition: 'width 1s ease-in-out' }}></div>
                   </div>
                 </div>
               </div>
@@ -813,10 +813,10 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-[600px] lg:min-h-0">
               {/* Form */}
               <div className="gp rounded-2xl flex flex-col overflow-hidden order-2 lg:order-1">
-                <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+                <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-file-lines text-s-gold text-xs"></i>
-                    <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Dados do Solicitante</span>
+                    <i className="fa-solid fa-file-lines text-gold-500 text-xs"></i>
+                    <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Dados do Solicitante</span>
                   </div>
                   {currentCaller.hasHistory ? (
                     <span className="chip chip-ai text-[0.6rem]"><i className="fa-solid fa-bolt"></i> CAD AUTO-FILL</span>
@@ -842,14 +842,14 @@ export default function App() {
                       <span className="lbl">Nome do Solicitante</span>
                       <input 
                         type="text" 
-                        className="inp bg-s-surf border-s-bdr text-s-ivory focus:border-s-gold focus:ring-1 focus:ring-s-gold transition-all" 
+                        className="inp bg-surface border-border-subtle text-ink-primary focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all" 
                         placeholder="Digite o nome do solicitante..."
                         defaultValue=""
                       />
-                      <div className="mt-2 p-3 bg-s-surf border border-s-bdr rounded-xl flex items-start gap-3">
-                        <i className="fa-solid fa-circle-info text-s-nude mt-0.5 text-xs"></i>
+                      <div className="mt-2 p-3 bg-surface border border-border-subtle rounded-xl flex items-start gap-3">
+                        <i className="fa-solid fa-circle-info text-ink-secondary mt-0.5 text-xs"></i>
                         <div>
-                          <p className="text-[0.65rem] text-s-nude font-mono leading-relaxed">
+                          <p className="text-[0.65rem] text-ink-secondary font-mono leading-relaxed">
                             Sem lastro no CAD. Preencha manualmente ou aguarde a extração automática da IA no Módulo TARM.
                           </p>
                         </div>
@@ -881,7 +881,7 @@ export default function App() {
                     <span className="lbl">Bairro / Referência</span>
                     <input className="inp cursor-not-allowed opacity-70" value={amlData ? amlData.neighborhood : ""} readOnly />
                   </div>
-                  <div className="mt-auto pt-3 border-t border-s-bdr">
+                  <div className="mt-auto pt-3 border-t border-border-subtle">
                     <div className="flex items-center gap-2 text-[0.65rem] font-mono text-ok">
                       {amlData ? (
                         <>
@@ -901,26 +901,26 @@ export default function App() {
 
               {/* Google Maps iframe simulation */}
               <div className="gp rounded-2xl flex flex-col lg:overflow-hidden relative flex-1 min-h-[300px] lg:min-h-0">
-                <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between z-10 relative shrink-0">
+                <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between z-10 relative shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-map-location-dot text-s-gold text-xs"></i>
-                    <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Google Maps API</span>
+                    <i className="fa-solid fa-map-location-dot text-gold-500 text-xs"></i>
+                    <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Google Maps API</span>
                   </div>
                   {amlData && <span className="chip chip-ok text-[0.6rem] animate-pulse"><i className="fa-solid fa-satellite-dish"></i> FIXADO ±5M</span>}
                 </div>
                 
-                <div className="flex-1 relative bg-[#1a1a1a] overflow-hidden">
+                <div className="flex-1 relative bg-[#161618] overflow-hidden">
                   {MapIframe || (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-s-nude/50">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-ink-secondary/50">
                       <i className="fa-solid fa-satellite-dish text-4xl mb-3 animate-pulse"></i>
                       <p className="font-mono text-xs uppercase tracking-widest">Aguardando triangulação...</p>
                     </div>
                   )}
                   {amlData && (
                     <>
-                      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(9,10,15,0.8)]"></div>
+                      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(7,7,8,0.8)]"></div>
                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 flex flex-col items-center pointer-events-none">
-                        <div className="w-8 h-8 bg-danger border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_20px_rgba(239,68,68,0.7)] flex items-center justify-center">
+                        <div className="w-8 h-8 bg-danger border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_20px_rgba(229,57,53,0.7)] flex items-center justify-center">
                           <i className="fa-solid fa-truck-medical text-white text-[0.6rem] rotate-45"></i>
                         </div>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 border-2 border-danger/60 rounded-full animate-ping" style={{ animationDuration: '2s' }}></div>
@@ -939,7 +939,7 @@ export default function App() {
                   setCurrentModule('TARM');
                 }}
                 disabled={!amlData}
-                className="px-10 py-4 bg-gradient-to-r from-s-gold to-s-terra text-s-dark font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_40px_rgba(211,160,92,0.35)] hover:scale-[1.02] transition-transform flex items-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
+                className="px-10 py-4 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_40px_rgba(191,154,61,0.35)] hover:scale-[1.02] transition-transform flex items-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
               >
                 <i className="fa-solid fa-check-double text-lg"></i> Confirmar AML & Iniciar Triagem
                 <i className="fa-solid fa-arrow-right text-lg"></i>
@@ -952,24 +952,24 @@ export default function App() {
           <div className="flex-1 flex flex-col lg:flex-row gap-4 fu min-h-0 overflow-y-auto lg:overflow-hidden pb-6 lg:pb-0 pr-2 -mr-2 lg:pr-0 lg:mr-0">
             {/* Left Panel: Call Queue (Hidden on Mobile) */}
             <div className="w-full lg:w-[250px] h-48 lg:h-auto gp rounded-2xl flex flex-col lg:overflow-hidden shrink-0 hidden md:flex">
-              <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+              <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
-                  <i className="fa-solid fa-list-ol text-s-gold text-xs"></i>
-                  <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Fila de Espera</span>
+                  <i className="fa-solid fa-list-ol text-gold-500 text-xs"></i>
+                  <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Fila de Espera</span>
                 </div>
                 <span className="chip chip-warn text-[0.6rem]">{MOCK_QUEUE.length} na fila</span>
               </div>
               <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
                 {MOCK_QUEUE.map(q => (
-                  <div key={q.id} className="p-3 rounded-xl bg-s-surf border border-s-bdr flex flex-col gap-2 relative overflow-hidden">
+                  <div key={q.id} className="p-3 rounded-xl bg-surface border border-border-subtle flex flex-col gap-2 relative overflow-hidden">
                     {q.priority === 'high' && <div className="absolute top-0 left-0 w-1 h-full bg-danger"></div>}
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold text-s-ivory">{q.phone}</span>
-                      <span className={`text-[0.6rem] font-bold px-1.5 py-0.5 rounded font-mono ${q.priority === 'high' ? 'bg-danger/20 text-danger animate-pulse' : 'bg-s-surf2 text-s-nude'}`}>
+                      <span className="text-xs font-mono font-bold text-ink-primary">{q.phone}</span>
+                      <span className={`text-[0.6rem] font-bold px-1.5 py-0.5 rounded font-mono ${q.priority === 'high' ? 'bg-danger/20 text-danger animate-pulse' : 'bg-elevated text-ink-secondary'}`}>
                         {q.waitTime}
                       </span>
                     </div>
-                    <div className="text-[0.6rem] text-s-nude uppercase tracking-widest">Aguardando TARM</div>
+                    <div className="text-[0.6rem] text-ink-secondary uppercase tracking-widest">Aguardando TARM</div>
                   </div>
                 ))}
               </div>
@@ -978,10 +978,10 @@ export default function App() {
             {/* Right Panel: Cognitive Extraction (Prominent on Mobile) */}
             <div className="w-full lg:w-[400px] flex flex-col gap-4 shrink-0 order-1 lg:order-3">
               <div className="gp rounded-2xl flex flex-col lg:overflow-hidden flex-1">
-                <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+                <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
                     <i className="fa-solid fa-brain text-ai text-xs"></i>
-                    <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Extração Cognitiva (NLP)</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Extração Cognitiva (NLP)</span>
                   </div>
                   <span className={`chip ${aiActive ? 'chip-ai' : 'chip-warn'} text-[0.6rem]`}>
                     {aiActive ? 'AUTO' : 'MANUAL'}
@@ -990,25 +990,25 @@ export default function App() {
                 
                 <div className="p-5 flex flex-col gap-5 lg:overflow-y-auto">
                   {/* Telemetry Panel */}
-                  <div className="p-3 rounded-xl border border-s-bdr bg-s-surf2/50 flex flex-col gap-2">
-                    <div className="text-[0.6rem] font-bold uppercase tracking-widest text-s-nude flex items-center gap-2 mb-1">
-                      <i className="fa-solid fa-server text-s-gold"></i> Telemetria do Sistema
+                  <div className="p-3 rounded-xl border border-border-subtle bg-elevated/50 flex flex-col gap-2">
+                    <div className="text-[0.6rem] font-bold uppercase tracking-widest text-ink-secondary flex items-center gap-2 mb-1">
+                      <i className="fa-solid fa-server text-gold-500"></i> Telemetria do Sistema
                     </div>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[0.65rem] font-mono">
                       <div className="flex justify-between items-center">
-                        <span className="text-s-nude">STT Engine:</span>
+                        <span className="text-ink-secondary">STT Engine:</span>
                         <span className="text-ai font-bold">Deepgram Nova-2</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-s-nude">Latência:</span>
+                        <span className="text-ink-secondary">Latência:</span>
                         <span className="text-ok font-bold">~118ms</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-s-nude">LLM Engine:</span>
-                        <span className="text-s-gold font-bold">Gemini 1.5 Flash</span>
+                        <span className="text-ink-secondary">LLM Engine:</span>
+                        <span className="text-gold-500 font-bold">Gemini 1.5 Flash</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-s-nude">Confiança:</span>
+                        <span className="text-ink-secondary">Confiança:</span>
                         <span className="text-ok font-bold">98.4%</span>
                       </div>
                     </div>
@@ -1018,19 +1018,19 @@ export default function App() {
                   <div className={`p-4 rounded-xl border ${
                     extractedData.risk === 'RED' ? 'bg-danger/10 border-danger/40' :
                     extractedData.risk === 'YELLOW' ? 'bg-warn/10 border-warn/40' :
-                    'bg-s-surf border-s-bdr'
+                    'bg-surface border-border-subtle'
                   } transition-colors duration-500`}>
-                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-2">Classificação de Risco Sugerida</div>
+                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-2">Classificação de Risco Sugerida</div>
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${
-                        extractedData.risk === 'RED' ? 'bg-danger shadow-[0_0_10px_rgba(239,68,68,0.8)]' :
-                        extractedData.risk === 'YELLOW' ? 'bg-warn shadow-[0_0_10px_rgba(245,158,11,0.8)]' :
-                        'bg-s-bdr'
+                        extractedData.risk === 'RED' ? 'bg-danger shadow-[0_0_10px_rgba(229,57,53,0.8)]' :
+                        extractedData.risk === 'YELLOW' ? 'bg-warn shadow-[0_0_10px_rgba(253,216,53,0.8)]' :
+                        'bg-hover'
                       }`}></div>
                       <span className={`text-lg font-bold font-disp ${
                         extractedData.risk === 'RED' ? 'text-danger' :
                         extractedData.risk === 'YELLOW' ? 'text-warn' :
-                        'text-s-ivory'
+                        'text-ink-primary'
                       }`}>
                         {extractedData.protocol}
                       </span>
@@ -1039,30 +1039,30 @@ export default function App() {
 
                   {/* Patient Info */}
                   <div>
-                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-3 border-b border-s-bdr pb-2">Dados do Paciente</div>
+                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 border-b border-border-subtle pb-2">Dados do Paciente</div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="col-span-2">
                         <span className="lbl">Nome do Paciente</span>
-                        <input type="text" className="inp bg-s-surf" placeholder="Aguardando..." value={extractedData.patientName} readOnly={aiActive} onChange={(e) => setExtractedData({...extractedData, patientName: e.target.value})} />
+                        <input type="text" className="inp bg-surface" placeholder="Aguardando..." value={extractedData.patientName} readOnly={aiActive} onChange={(e) => setExtractedData({...extractedData, patientName: e.target.value})} />
                       </div>
                       <div>
                         <span className="lbl">Idade</span>
-                        <input type="text" className="inp bg-s-surf" placeholder="..." value={extractedData.age} readOnly={aiActive} onChange={(e) => setExtractedData({...extractedData, age: e.target.value})} />
+                        <input type="text" className="inp bg-surface" placeholder="..." value={extractedData.age} readOnly={aiActive} onChange={(e) => setExtractedData({...extractedData, age: e.target.value})} />
                       </div>
                       <div>
                         <span className="lbl">Sexo Biológico</span>
-                        <input type="text" className="inp bg-s-surf" placeholder="..." value={extractedData.gender} readOnly={aiActive} onChange={(e) => setExtractedData({...extractedData, gender: e.target.value})} />
+                        <input type="text" className="inp bg-surface" placeholder="..." value={extractedData.gender} readOnly={aiActive} onChange={(e) => setExtractedData({...extractedData, gender: e.target.value})} />
                       </div>
                     </div>
                   </div>
 
                   {/* Clinical Extraction */}
                   <div>
-                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-3 border-b border-s-bdr pb-2">Quadro Clínico</div>
+                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 border-b border-border-subtle pb-2">Quadro Clínico</div>
                     
                     <div className="mb-4">
                       <span className="lbl">Sintomas Extraídos</span>
-                      <div className="flex flex-wrap gap-2 mt-1 min-h-[40px] p-2 bg-s-surf border border-s-bdr rounded-lg">
+                      <div className="flex flex-wrap gap-2 mt-1 min-h-[40px] p-2 bg-surface border border-border-subtle rounded-lg">
                         {extractedData.symptoms.length > 0 ? (
                           extractedData.symptoms.map((sym, i) => (
                             <span key={i} className="px-2.5 py-1 rounded-md bg-danger/15 border border-danger/30 text-danger text-xs font-bold fu">
@@ -1070,14 +1070,14 @@ export default function App() {
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-s-nude/50 italic p-1">Aguardando fala...</span>
+                          <span className="text-xs text-ink-secondary/50 italic p-1">Aguardando fala...</span>
                         )}
                       </div>
                     </div>
 
                     <div className="mb-4">
                       <span className="lbl">Comorbidades / Histórico</span>
-                      <div className="flex flex-wrap gap-2 mt-1 min-h-[40px] p-2 bg-s-surf border border-s-bdr rounded-lg">
+                      <div className="flex flex-wrap gap-2 mt-1 min-h-[40px] p-2 bg-surface border border-border-subtle rounded-lg">
                         {extractedData.comorbidities.length > 0 ? (
                           extractedData.comorbidities.map((com, i) => (
                             <span key={i} className="px-2.5 py-1 rounded-md bg-warn/15 border border-warn/30 text-warn text-xs font-bold fu">
@@ -1085,7 +1085,7 @@ export default function App() {
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-s-nude/50 italic p-1">Aguardando fala...</span>
+                          <span className="text-xs text-ink-secondary/50 italic p-1">Aguardando fala...</span>
                         )}
                       </div>
                     </div>
@@ -1093,7 +1093,7 @@ export default function App() {
                     <div>
                       <span className="lbl">Observações do TARM</span>
                       <textarea 
-                        className="inp bg-s-surf min-h-[80px] resize-none mt-1" 
+                        className="inp bg-surface min-h-[80px] resize-none mt-1" 
                         placeholder="Adicione notas contextuais para o Médico Regulador..."
                         value={extractedData.observations}
                         onChange={(e) => setExtractedData({...extractedData, observations: e.target.value})}
@@ -1111,14 +1111,14 @@ export default function App() {
 
             {/* Center Panel: Transcription Chat */}
             <div className="flex-1 gp rounded-2xl flex flex-col lg:overflow-hidden border-l-4 border-l-ai order-2 lg:order-2 shrink-0 min-h-[400px] lg:min-h-0">
-              <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+              <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-ai/15 flex items-center justify-center text-ai border border-ai/30 relative overflow-hidden">
                     <i className="fa-solid fa-microphone-lines relative z-10"></i>
                     {aiActive && <div className="absolute inset-0 bg-ai/20 animate-ping" style={{ animationDuration: '2s' }}></div>}
                   </div>
                   <div>
-                    <div className="text-xs font-bold uppercase tracking-widest text-s-ivory flex items-center gap-3">
+                    <div className="text-xs font-bold uppercase tracking-widest text-ink-primary flex items-center gap-3">
                       Transcrição em Tempo Real
                       <AudioWaveform active={aiActive} />
                     </div>
@@ -1134,7 +1134,7 @@ export default function App() {
                   className={`px-4 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-widest flex items-center gap-2 transition-all border ${
                     aiActive 
                       ? 'bg-danger/10 border-danger/30 text-danger hover:bg-danger hover:text-white' 
-                      : 'bg-s-surf border-s-bdr text-s-nude hover:bg-s-surf2'
+                      : 'bg-surface border-border-subtle text-ink-secondary hover:bg-elevated'
                   }`}
                 >
                   <i className="fa-solid fa-power-off"></i>
@@ -1142,26 +1142,26 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="flex-1 p-5 lg:overflow-y-auto flex flex-col gap-4 bg-[#0d1018]">
+              <div className="flex-1 p-5 lg:overflow-y-auto flex flex-col gap-4 bg-[#0E0E10]">
                 {tarmChat.map((msg, idx) => (
                   <div key={idx} className={`flex flex-col ${msg.speaker === 'TARM' ? 'items-end' : msg.speaker === 'SYS' ? 'items-center' : 'items-start'} fu`}>
                     {msg.speaker === 'SYS' ? (
-                      <div className="px-4 py-1.5 rounded-full bg-s-surf border border-s-bdr text-[0.65rem] font-mono text-s-nude uppercase tracking-widest">
+                      <div className="px-4 py-1.5 rounded-full bg-surface border border-border-subtle text-[0.65rem] font-mono text-ink-secondary uppercase tracking-widest">
                         {msg.text}
                       </div>
                     ) : (
                       <div className={`max-w-[80%] flex flex-col ${msg.speaker === 'TARM' ? 'items-end' : 'items-start'}`}>
-                        <div className="text-[0.6rem] font-mono text-s-nude mb-1 flex items-center gap-2">
+                        <div className="text-[0.6rem] font-mono text-ink-secondary mb-1 flex items-center gap-2">
                           {msg.speaker === 'TARM' ? (
-                            <><span className="text-s-gold">TARM-04</span> • {msg.time}</>
+                            <><span className="text-gold-500">TARM-04</span> • {msg.time}</>
                           ) : (
-                            <>{msg.time} • <span className="text-s-ivory">Solicitante</span></>
+                            <>{msg.time} • <span className="text-ink-primary">Solicitante</span></>
                           )}
                         </div>
                         <div className={`p-3.5 rounded-2xl text-sm leading-relaxed ${
                           msg.speaker === 'TARM' 
-                            ? 'bg-s-surf2 border border-s-bdr text-s-ivory rounded-tr-sm' 
-                            : 'bg-ai/10 border border-ai/20 text-s-ivory rounded-tl-sm'
+                            ? 'bg-elevated border border-border-subtle text-ink-primary rounded-tr-sm' 
+                            : 'bg-ai/10 border border-ai/20 text-ink-primary rounded-tl-sm'
                         }`}>
                           <TypingMessage text={msg.text} />
                         </div>
@@ -1175,7 +1175,7 @@ export default function App() {
                     <i className="fa-solid fa-triangle-exclamation text-warn mt-0.5"></i>
                     <div>
                       <p className="text-sm font-bold text-warn mb-1">Modo Manual Ativado</p>
-                      <p className="text-xs text-s-nude leading-relaxed">
+                      <p className="text-xs text-ink-secondary leading-relaxed">
                         A transcrição e extração por IA foram pausadas. Utilize o painel acima para preencher os dados clínicos manualmente.
                       </p>
                     </div>
@@ -1186,7 +1186,7 @@ export default function App() {
             </div>
 
             {/* Handoff CTAs (Mobile) */}
-            <div className="flex lg:hidden flex-col gap-2 shrink-0 order-3 w-full mt-2 sticky bottom-0 bg-[#090a0f] pt-2 pb-4 z-10">
+            <div className="flex lg:hidden flex-col gap-2 shrink-0 order-3 w-full mt-2 sticky bottom-0 bg-[#070708] pt-2 pb-4 z-10">
               {handoffCTAs}
             </div>
           </div>
@@ -1195,10 +1195,10 @@ export default function App() {
           <div className="flex-1 flex flex-col lg:flex-row gap-4 fu min-h-0 overflow-y-auto lg:overflow-hidden pb-6 lg:pb-0">
             {/* Left Panel: Handoff Summary & Chat */}
             <div className="w-full lg:w-[300px] gp rounded-2xl flex flex-col overflow-hidden shrink-0">
-              <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+              <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
-                  <i className="fa-solid fa-file-medical text-s-gold text-xs"></i>
-                  <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Handoff do TARM</span>
+                  <i className="fa-solid fa-file-medical text-gold-500 text-xs"></i>
+                  <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Handoff do TARM</span>
                 </div>
                 <span className={`chip ${
                   extractedData.risk === 'RED' ? 'chip-danger' :
@@ -1209,17 +1209,17 @@ export default function App() {
               <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
                 {/* Patient Info */}
                 <div>
-                  <div className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-2 flex items-center justify-between">
+                  <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-2 flex items-center justify-between">
                     Paciente
                     {extractedData.confidence.patientName > 0 && <span className="text-[0.55rem] text-ai font-mono">CONF: {(extractedData.confidence.patientName * 100).toFixed(0)}%</span>}
                   </div>
-                  <div className="text-sm font-bold text-s-ivory">{extractedData.patientName || 'Desconhecido'}</div>
-                  <div className="text-xs text-s-nude">{extractedData.age || '--'} • {extractedData.gender || '--'}</div>
+                  <div className="text-sm font-bold text-ink-primary">{extractedData.patientName || 'Desconhecido'}</div>
+                  <div className="text-xs text-ink-secondary">{extractedData.age || '--'} • {extractedData.gender || '--'}</div>
                 </div>
                 
                 {/* Clinical Picture */}
                 <div>
-                  <div className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-2 flex items-center justify-between">
+                  <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-2 flex items-center justify-between">
                     Quadro Clínico
                     {extractedData.confidence.symptoms > 0 && <span className="text-[0.55rem] text-ai font-mono">CONF: {(extractedData.confidence.symptoms * 100).toFixed(0)}%</span>}
                   </div>
@@ -1242,22 +1242,22 @@ export default function App() {
                 {/* TARM Observations */}
                 {extractedData.observations && (
                   <div>
-                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-2">Notas do TARM</div>
-                    <div className="p-3 bg-s-surf border border-s-bdr rounded-xl text-xs text-s-ivory italic">
+                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-2">Notas do TARM</div>
+                    <div className="p-3 bg-surface border border-border-subtle rounded-xl text-xs text-ink-primary italic">
                       "{extractedData.observations}"
                     </div>
                   </div>
                 )}
 
                 {/* Mini Chat History */}
-                <div className="mt-2 pt-4 border-t border-s-bdr">
-                  <div className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-3 flex items-center justify-between">
+                <div className="mt-2 pt-4 border-t border-border-subtle">
+                  <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center justify-between">
                     <span>Histórico da Ligação</span>
-                    <button className="text-s-gold hover:text-s-ivory transition-colors"><i className="fa-solid fa-expand"></i></button>
+                    <button className="text-gold-500 hover:text-ink-primary transition-colors"><i className="fa-solid fa-expand"></i></button>
                   </div>
                   <div className="flex flex-col gap-2">
                     {tarmChat.slice(-4).map((msg, idx) => (
-                      <div key={idx} className={`text-[0.65rem] ${msg.speaker === 'TARM' ? 'text-s-nude' : 'text-s-ivory'}`}>
+                      <div key={idx} className={`text-[0.65rem] ${msg.speaker === 'TARM' ? 'text-ink-secondary' : 'text-ink-primary'}`}>
                         <span className="font-bold">{msg.speaker === 'TARM' ? 'TARM:' : 'SOLICITANTE:'}</span> {msg.text}
                       </div>
                     ))}
@@ -1268,13 +1268,13 @@ export default function App() {
 
             {/* Center Panel: Clinical Decision Support (CDS) */}
             <div className="flex-1 gp rounded-2xl flex flex-col overflow-hidden border-l-4 border-l-ai min-w-[300px]">
-              <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+              <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-ai/20 flex items-center justify-center">
                     <i className="fa-solid fa-stethoscope text-ai text-xs"></i>
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-s-ivory leading-none">Apoio à Decisão Clínica (CDS)</h2>
+                    <h2 className="text-sm font-bold text-ink-primary leading-none">Apoio à Decisão Clínica (CDS)</h2>
                     <span className="text-[0.6rem] text-ai font-mono uppercase tracking-widest">IA Analisando Protocolos</span>
                   </div>
                 </div>
@@ -1290,37 +1290,37 @@ export default function App() {
                       Recomendação do Sistema
                       {extractedData.confidence.protocol > 0 && <span className="text-[0.55rem] text-ai font-mono bg-ai/10 px-1.5 py-0.5 rounded">CONF: {(extractedData.confidence.protocol * 100).toFixed(0)}%</span>}
                     </h3>
-                    <p className="text-xs text-s-ivory leading-relaxed mb-3">
+                    <p className="text-xs text-ink-primary leading-relaxed mb-3">
                       Com base nos sintomas extraídos, o protocolo sugerido é <strong>{extractedData.protocol}</strong>. Recomenda-se envio imediato de Suporte Avançado de Vida.
                     </p>
                     <div className="flex gap-3">
-                      <div className="px-3 py-1.5 rounded-lg bg-s-surf border border-s-bdr flex items-center gap-2">
-                        <span className="text-[0.65rem] text-s-nude uppercase tracking-widest">Prioridade</span>
+                      <div className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle flex items-center gap-2">
+                        <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Prioridade</span>
                         <span className={`text-xs font-bold ${extractedData.risk === 'RED' ? 'text-danger' : extractedData.risk === 'YELLOW' ? 'text-warn' : 'text-ok'}`}>{extractedData.risk}</span>
                       </div>
-                      <div className="px-3 py-1.5 rounded-lg bg-s-surf border border-s-bdr flex items-center gap-2">
-                        <span className="text-[0.65rem] text-s-nude uppercase tracking-widest">Recurso</span>
-                        <span className="text-xs font-bold text-s-ivory">USA (UTI Móvel)</span>
+                      <div className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle flex items-center gap-2">
+                        <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Recurso</span>
+                        <span className="text-xs font-bold text-ink-primary">USA (UTI Móvel)</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Protocolo de Manchester (Checklist) */}
-                <div className="p-4 bg-s-surf border border-s-bdr rounded-xl">
-                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-3 flex items-center gap-2">
-                    <i className="fa-solid fa-list-check text-s-gold"></i> Validação do Protocolo (Manchester)
+                <div className="p-4 bg-surface border border-border-subtle rounded-xl">
+                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center gap-2">
+                    <i className="fa-solid fa-list-check text-gold-500"></i> Validação do Protocolo (Manchester)
                   </h3>
                   <div className="flex flex-col gap-2">
                     {protocolSteps.map(step => (
-                      <label key={step.id} className="flex items-center gap-3 p-3 rounded-xl bg-s-surf2 border border-s-bdr cursor-pointer hover:border-s-gold transition-colors">
+                      <label key={step.id} className="flex items-center gap-3 p-3 rounded-xl bg-elevated border border-border-subtle cursor-pointer hover:border-gold-500 transition-colors">
                         <input 
                           type="checkbox" 
                           checked={step.checked} 
                           onChange={() => toggleProtocolStep(step.id)}
-                          className="w-4 h-4 rounded border-s-bdr text-s-gold focus:ring-s-gold bg-s-dark"
+                          className="w-4 h-4 rounded border-border-subtle text-gold-500 focus:ring-gold-500 bg-canvas"
                         />
-                        <span className={`text-sm ${step.checked ? 'text-s-ivory' : 'text-s-nude'}`}>{step.label}</span>
+                        <span className={`text-sm ${step.checked ? 'text-ink-primary' : 'text-ink-secondary'}`}>{step.label}</span>
                       </label>
                     ))}
                   </div>
@@ -1328,35 +1328,35 @@ export default function App() {
 
                 {/* Divergent Decision Justification */}
                 {selectedVehicleId && selectedVehicleId !== MOCK_VEHICLES.filter(v => v.type.includes('USA'))[0]?.id && (
-                  <div className="p-4 bg-s-surf border border-s-bdr rounded-xl shrink-0">
-                    <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-3 flex items-center gap-2">
+                  <div className="p-4 bg-surface border border-border-subtle rounded-xl shrink-0">
+                    <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center gap-2">
                       <i className="fa-solid fa-code-branch"></i> Decisão Divergente
                     </h3>
-                    <p className="text-xs text-s-ivory mb-3">Se a sua decisão médica for diferente da recomendação da IA, selecione a justificativa abaixo para fins de auditoria e aprendizado do sistema:</p>
+                    <p className="text-xs text-ink-primary mb-3">Se a sua decisão médica for diferente da recomendação da IA, selecione a justificativa abaixo para fins de auditoria e aprendizado do sistema:</p>
                     <div className="grid grid-cols-2 gap-2">
                       <button 
                         onClick={() => setJustification('ansiedade')}
-                        className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'ansiedade' ? 'bg-s-gold/20 border-s-gold text-s-ivory' : 'bg-s-surf2 border-s-bdr text-s-nude hover:text-s-ivory hover:border-s-gold'}`}
+                        className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'ansiedade' ? 'bg-gold-500/20 border-gold-500 text-ink-primary' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500'}`}
                       >
-                        <i className="fa-solid fa-brain text-s-gold"></i> Crise de Ansiedade / Pânico
+                        <i className="fa-solid fa-brain text-gold-500"></i> Crise de Ansiedade / Pânico
                       </button>
                       <button 
                         onClick={() => setJustification('trote')}
-                        className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'trote' ? 'bg-s-gold/20 border-s-gold text-s-ivory' : 'bg-s-surf2 border-s-bdr text-s-nude hover:text-s-ivory hover:border-s-gold'}`}
+                        className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'trote' ? 'bg-gold-500/20 border-gold-500 text-ink-primary' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500'}`}
                       >
-                        <i className="fa-solid fa-mask text-s-gold"></i> Suspeita de Trote
+                        <i className="fa-solid fa-mask text-gold-500"></i> Suspeita de Trote
                       </button>
                       <button 
                         onClick={() => setJustification('gravidade')}
-                        className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'gravidade' ? 'bg-s-gold/20 border-s-gold text-s-ivory' : 'bg-s-surf2 border-s-bdr text-s-nude hover:text-s-ivory hover:border-s-gold'}`}
+                        className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'gravidade' ? 'bg-gold-500/20 border-gold-500 text-ink-primary' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500'}`}
                       >
-                        <i className="fa-solid fa-scale-unbalanced text-s-gold"></i> Gravidade Superestimada pela IA
+                        <i className="fa-solid fa-scale-unbalanced text-gold-500"></i> Gravidade Superestimada pela IA
                       </button>
                       <button 
                         onClick={() => setJustification('recurso')}
-                        className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'recurso' ? 'bg-s-gold/20 border-s-gold text-s-ivory' : 'bg-s-surf2 border-s-bdr text-s-nude hover:text-s-ivory hover:border-s-gold'}`}
+                        className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'recurso' ? 'bg-gold-500/20 border-gold-500 text-ink-primary' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500'}`}
                       >
-                        <i className="fa-solid fa-truck-medical text-s-gold"></i> Recurso Ideal Indisponível (Downgrade)
+                        <i className="fa-solid fa-truck-medical text-gold-500"></i> Recurso Ideal Indisponível (Downgrade)
                       </button>
                     </div>
                   </div>
@@ -1364,19 +1364,19 @@ export default function App() {
 
                 {/* Pre-arrival Instructions */}
                 <div>
-                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-3">Instruções Pré-Chegada (Ler para o Solicitante)</h3>
+                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3">Instruções Pré-Chegada (Ler para o Solicitante)</h3>
                   <div className="flex flex-col gap-2">
-                    <div className="p-3 bg-s-surf border border-s-bdr rounded-xl flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-s-surf2 border border-s-bdr flex items-center justify-center text-[0.6rem] font-bold text-s-gold shrink-0">1</div>
-                      <p className="text-sm text-s-ivory">Mantenha a vítima em repouso absoluto, de preferência sentada ou semi-sentada se estiver consciente.</p>
+                    <div className="p-3 bg-surface border border-border-subtle rounded-xl flex gap-3 items-start">
+                      <div className="w-5 h-5 rounded-full bg-elevated border border-border-subtle flex items-center justify-center text-[0.6rem] font-bold text-gold-500 shrink-0">1</div>
+                      <p className="text-sm text-ink-primary">Mantenha a vítima em repouso absoluto, de preferência sentada ou semi-sentada se estiver consciente.</p>
                     </div>
-                    <div className="p-3 bg-s-surf border border-s-bdr rounded-xl flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-s-surf2 border border-s-bdr flex items-center justify-center text-[0.6rem] font-bold text-s-gold shrink-0">2</div>
-                      <p className="text-sm text-s-ivory">Afrouxe roupas apertadas, cintos e colarinhos para facilitar a respiração.</p>
+                    <div className="p-3 bg-surface border border-border-subtle rounded-xl flex gap-3 items-start">
+                      <div className="w-5 h-5 rounded-full bg-elevated border border-border-subtle flex items-center justify-center text-[0.6rem] font-bold text-gold-500 shrink-0">2</div>
+                      <p className="text-sm text-ink-primary">Afrouxe roupas apertadas, cintos e colarinhos para facilitar a respiração.</p>
                     </div>
-                    <div className="p-3 bg-s-surf border border-s-bdr rounded-xl flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-s-surf2 border border-s-bdr flex items-center justify-center text-[0.6rem] font-bold text-s-gold shrink-0">3</div>
-                      <p className="text-sm text-s-ivory">Se ele usar algum remédio para o coração (como AAS ou isordil) e estiver acordado, pode ajudar a tomar.</p>
+                    <div className="p-3 bg-surface border border-border-subtle rounded-xl flex gap-3 items-start">
+                      <div className="w-5 h-5 rounded-full bg-elevated border border-border-subtle flex items-center justify-center text-[0.6rem] font-bold text-gold-500 shrink-0">3</div>
+                      <p className="text-sm text-ink-primary">Se ele usar algum remédio para o coração (como AAS ou isordil) e estiver acordado, pode ajudar a tomar.</p>
                     </div>
                   </div>
                 </div>
@@ -1386,30 +1386,30 @@ export default function App() {
             {/* Right Panel: Resource Map & Dispatch */}
             <div className="w-full lg:w-[300px] flex flex-col gap-4 shrink-0">
               <div className="gp rounded-2xl flex flex-col overflow-hidden flex-1">
-                <div className="p-3.5 border-b border-s-bdr bg-s-surf2 flex items-center justify-between shrink-0">
+                <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-truck-medical text-s-gold text-xs"></i>
-                    <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Recursos & Despacho</span>
+                    <i className="fa-solid fa-truck-medical text-gold-500 text-xs"></i>
+                    <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Recursos & Despacho</span>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
                   {/* Map Placeholder */}
-                  <div className="h-32 rounded-xl bg-s-surf border border-s-bdr relative overflow-hidden flex items-center justify-center">
+                  <div className="h-32 rounded-xl bg-surface border border-border-subtle relative overflow-hidden flex items-center justify-center">
                     {MapIframe || (
                       <>
-                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #d3a05c 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
-                        <i className="fa-solid fa-map-location-dot text-3xl text-s-nude/30"></i>
+                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #BF9A3D 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
+                        <i className="fa-solid fa-map-location-dot text-3xl text-ink-secondary/30"></i>
                       </>
                     )}
-                    <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(9,10,15,0.8)]"></div>
-                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-s-dark/80 backdrop-blur rounded text-[0.6rem] font-mono text-s-gold border border-s-bdr z-10">
+                    <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(7,7,8,0.8)]"></div>
+                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-canvas/80 backdrop-blur rounded text-[0.6rem] font-mono text-gold-500 border border-border-subtle z-10">
                       Distância: 4.2km
                     </div>
                   </div>
 
                   {/* Vehicles List */}
                   <div>
-                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-s-nude mb-3 flex items-center justify-between">
+                    <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center justify-between">
                       Viaturas Recomendadas
                       <span className="text-[0.55rem] text-ok flex items-center gap-1"><i className="fa-solid fa-circle text-[4px] animate-pulse"></i> LIVE</span>
                     </div>
@@ -1421,18 +1421,18 @@ export default function App() {
                         <div 
                           key={v.id} 
                           onClick={() => setSelectedVehicleId(v.id)}
-                          className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${isSelected ? 'bg-s-gold/10 border-s-gold shadow-[0_0_15px_rgba(211,160,92,0.2)]' : 'bg-s-surf border-s-bdr hover:border-s-nude'}`}
+                          className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${isSelected ? 'bg-gold-500/10 border-gold-500 shadow-[0_0_15px_rgba(191,154,61,0.2)]' : 'bg-surface border-border-subtle hover:border-ink-secondary'}`}
                         >
                           <div className="flex items-center gap-3">
                             <div className={`w-2 h-2 rounded-full bg-${v.color}`}></div>
                             <div>
-                              <div className="text-xs font-bold text-s-ivory">{v.id}</div>
-                              <div className="text-[0.6rem] text-s-nude">{v.type}</div>
+                              <div className="text-xs font-bold text-ink-primary">{v.id}</div>
+                              <div className="text-[0.6rem] text-ink-secondary">{v.type}</div>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-xs font-mono text-s-gold">ETA {v.eta} min</div>
-                            <div className="text-[0.6rem] text-s-nude">{v.base}</div>
+                            <div className="text-xs font-mono text-gold-500">ETA {v.eta} min</div>
+                            <div className="text-[0.6rem] text-ink-secondary">{v.base}</div>
                           </div>
                         </div>
                       )})}
@@ -1453,7 +1453,7 @@ export default function App() {
                   }, 800);
                 }}
                 disabled={isDispatching}
-                className="w-full py-4 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_30px_rgba(239,68,68,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-70 disabled:hover:scale-100"
+                className="w-full py-4 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_30px_rgba(229,57,53,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-70 disabled:hover:scale-100"
               >
                 {isDispatching ? (
                   <><i className="fa-solid fa-circle-notch fa-spin text-lg"></i> Acionando...</>
@@ -1468,13 +1468,13 @@ export default function App() {
         {currentModule === 'VIATURA' && currentCaller && (
           <div className="flex-1 flex flex-col relative fu min-h-0 -m-4 md:-m-5 overflow-hidden">
             {/* Top Bar for Vehicle */}
-            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-s-dark/90 to-transparent z-20 flex justify-between items-start pointer-events-none">
-              <button className="pointer-events-auto w-12 h-12 bg-danger/90 backdrop-blur border border-danger/50 rounded-full text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] flex items-center justify-center text-lg hover:scale-105 transition-transform">
+            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-canvas/90 to-transparent z-20 flex justify-between items-start pointer-events-none">
+              <button className="pointer-events-auto w-12 h-12 bg-danger/90 backdrop-blur border border-danger/50 rounded-full text-white shadow-[0_0_20px_rgba(229,57,53,0.4)] flex items-center justify-center text-lg hover:scale-105 transition-transform">
                 <i className="fa-solid fa-triangle-exclamation"></i>
               </button>
               <div className="flex flex-col gap-2 pointer-events-auto items-end">
-                <button className="px-4 py-2 bg-s-dark/90 backdrop-blur border border-s-bdr rounded-full text-xs font-bold text-s-ivory shadow-lg flex items-center gap-2">
-                  <i className={`fa-solid ${selectedVehicleId?.includes('MOT') ? 'fa-motorcycle' : 'fa-truck-medical'} text-s-gold`}></i> {selectedVehicleId || 'VIATURA'}
+                <button className="px-4 py-2 bg-canvas/90 backdrop-blur border border-border-subtle rounded-full text-xs font-bold text-ink-primary shadow-lg flex items-center gap-2">
+                  <i className={`fa-solid ${selectedVehicleId?.includes('MOT') ? 'fa-motorcycle' : 'fa-truck-medical'} text-gold-500`}></i> {selectedVehicleId || 'VIATURA'}
                 </button>
                 <span className="px-3 py-1 bg-warn/20 border border-warn/30 text-warn text-[0.65rem] font-bold rounded-full w-fit flex items-center gap-1.5 shadow-lg">
                   <span className="w-1.5 h-1.5 rounded-full bg-warn animate-pulse"></span> QTI - A CAMINHO
@@ -1483,70 +1483,70 @@ export default function App() {
             </div>
 
             {/* Full screen map */}
-            <div className="absolute inset-0 bg-[#1a1a1a]">
+            <div className="absolute inset-0 bg-[#161618]">
               {MapIframe || (
-                <div className="w-full h-full flex items-center justify-center text-s-nude">Sem dados de localização</div>
+                <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>
               )}
-              <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(9,10,15,0.8)]"></div>
+              <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(7,7,8,0.8)]"></div>
             </div>
 
             {/* Floating Action Buttons (Right Side) */}
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
-              <button className="w-12 h-12 bg-s-surf/90 backdrop-blur border border-s-bdr rounded-full text-s-ivory shadow-lg flex items-center justify-center text-lg hover:bg-s-surf2 transition-colors">
+              <button className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
                 <i className="fa-solid fa-location-arrow text-ai"></i>
               </button>
-              <button className="w-12 h-12 bg-s-surf/90 backdrop-blur border border-s-bdr rounded-full text-s-ivory shadow-lg flex items-center justify-center text-lg hover:bg-s-surf2 transition-colors">
-                <i className="fa-solid fa-walkie-talkie text-s-gold"></i>
+              <button className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
+                <i className="fa-solid fa-walkie-talkie text-gold-500"></i>
               </button>
-              <button onClick={() => setShowCameraModal(true)} className="w-12 h-12 bg-s-surf/90 backdrop-blur border border-s-bdr rounded-full text-s-ivory shadow-lg flex items-center justify-center text-lg hover:bg-s-surf2 transition-colors">
+              <button onClick={() => setShowCameraModal(true)} className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
                 <i className="fa-solid fa-camera text-ok"></i>
               </button>
             </div>
 
             {/* Top Floating ETA */}
-            <div className="absolute top-24 left-4 right-4 md:top-6 md:left-1/2 md:-translate-x-1/2 md:w-fit bg-s-dark/90 backdrop-blur-md border border-s-bdr px-4 py-2 rounded-xl shadow-2xl flex items-center justify-center gap-4 z-10">
+            <div className="absolute top-24 left-4 right-4 md:top-6 md:left-1/2 md:-translate-x-1/2 md:w-fit bg-canvas/90 backdrop-blur-md border border-border-subtle px-4 py-2 rounded-xl shadow-2xl flex items-center justify-center gap-4 z-10">
               <div className="text-center">
                 <div className="text-xl font-disp font-bold text-ok">08<span className="text-xs">min</span></div>
-                <div className="text-[0.55rem] text-s-nude uppercase tracking-widest">ETA</div>
+                <div className="text-[0.55rem] text-ink-secondary uppercase tracking-widest">ETA</div>
               </div>
-              <div className="w-px h-6 bg-s-bdr"></div>
+              <div className="w-px h-6 bg-hover"></div>
               <div className="text-center">
-                <div className="text-sm font-mono font-bold text-s-ivory">4.2<span className="text-[0.6rem]">km</span></div>
-                <div className="text-[0.55rem] text-s-nude uppercase tracking-widest">Distância</div>
+                <div className="text-sm font-mono font-bold text-ink-primary">4.2<span className="text-[0.6rem]">km</span></div>
+                <div className="text-[0.55rem] text-ink-secondary uppercase tracking-widest">Distância</div>
               </div>
             </div>
 
             {/* Vehicle Telemetry Panel */}
-            <div className="absolute top-40 left-4 md:top-24 md:left-4 bg-s-dark/90 backdrop-blur-md border border-s-bdr p-3 rounded-xl shadow-2xl z-10 flex flex-col gap-2 pointer-events-none w-[180px]">
-              <div className="text-[0.6rem] font-bold uppercase tracking-widest text-s-nude flex items-center gap-2 mb-1">
-                <i className="fa-solid fa-satellite text-s-gold"></i> Telemetria
+            <div className="absolute top-40 left-4 md:top-24 md:left-4 bg-canvas/90 backdrop-blur-md border border-border-subtle p-3 rounded-xl shadow-2xl z-10 flex flex-col gap-2 pointer-events-none w-[180px]">
+              <div className="text-[0.6rem] font-bold uppercase tracking-widest text-ink-secondary flex items-center gap-2 mb-1">
+                <i className="fa-solid fa-satellite text-gold-500"></i> Telemetria
               </div>
               <div className="flex flex-col gap-2 text-[0.65rem] font-mono">
                 <div className="flex justify-between items-center">
-                  <span className="text-s-nude">Velocidade:</span>
-                  <span className="text-s-ivory font-bold">68 km/h</span>
+                  <span className="text-ink-secondary">Velocidade:</span>
+                  <span className="text-ink-primary font-bold">68 km/h</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-s-nude">Precisão GPS:</span>
+                  <span className="text-ink-secondary">Precisão GPS:</span>
                   <span className="text-ok font-bold">±2.5m</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-s-nude">Conexão:</span>
+                  <span className="text-ink-secondary">Conexão:</span>
                   <span className="text-ai font-bold">5G (MQTT)</span>
                 </div>
               </div>
             </div>
 
             {/* Bottom Sheet for Patient Info */}
-            <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-s-dark/95 backdrop-blur-xl border border-s-bdr rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden pb-2 max-h-[35vh] md:max-h-none">
+            <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-canvas/95 backdrop-blur-xl border border-border-subtle rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden pb-2 max-h-[35vh] md:max-h-none">
               {/* Drag Handle */}
               <div className="w-full flex justify-center pt-3 pb-1">
-                <div className="w-12 h-1.5 bg-s-bdr rounded-full"></div>
+                <div className="w-12 h-1.5 bg-hover rounded-full"></div>
               </div>
-              <div className="px-4 pb-3 border-b border-s-bdr flex items-center justify-between">
+              <div className="px-4 pb-3 border-b border-border-subtle flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <i className="fa-solid fa-file-medical text-s-gold"></i>
-                  <span className="text-xs font-bold uppercase tracking-widest text-s-ivory">Handoff Médico</span>
+                  <i className="fa-solid fa-file-medical text-gold-500"></i>
+                  <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Handoff Médico</span>
                 </div>
                 <span className={`chip text-[0.6rem] ${extractedData.risk === 'RED' ? 'chip-danger' : extractedData.risk === 'YELLOW' ? 'chip-warn' : 'chip-ok'}`}>
                   PRIORIDADE {extractedData.risk === 'RED' ? 'VERMELHA' : extractedData.risk === 'YELLOW' ? 'AMARELA' : 'VERDE'}
@@ -1554,20 +1554,20 @@ export default function App() {
               </div>
               <div className="p-4 flex flex-col gap-3 overflow-y-auto">
                 <div>
-                  <div className="text-[0.65rem] text-s-nude uppercase tracking-widest mb-1">Local da Ocorrência</div>
-                  <div className="text-sm font-bold text-s-ivory">{amlData?.address || 'Endereço não disponível'}, {amlData?.number}</div>
-                  <div className="text-xs text-s-nude">{amlData?.neighborhood} - {amlData?.city}</div>
+                  <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest mb-1">Local da Ocorrência</div>
+                  <div className="text-sm font-bold text-ink-primary">{amlData?.address || 'Endereço não disponível'}, {amlData?.number}</div>
+                  <div className="text-xs text-ink-secondary">{amlData?.neighborhood} - {amlData?.city}</div>
                 </div>
                 <div>
-                  <div className="text-[0.65rem] text-s-nude uppercase tracking-widest mb-1">Paciente</div>
-                  <div className="text-sm font-bold text-s-ivory">{extractedData.patientName || 'Desconhecido'} • {extractedData.age || '--'} • {extractedData.gender || '--'}</div>
+                  <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest mb-1">Paciente</div>
+                  <div className="text-sm font-bold text-ink-primary">{extractedData.patientName || 'Desconhecido'} • {extractedData.age || '--'} • {extractedData.gender || '--'}</div>
                 </div>
                 <div>
-                  <div className="text-[0.65rem] text-s-nude uppercase tracking-widest mb-1">Suspeita / Protocolo</div>
+                  <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest mb-1">Suspeita / Protocolo</div>
                   <div className="text-sm font-bold text-danger">{extractedData.protocol}</div>
                 </div>
                 <div>
-                  <div className="text-[0.65rem] text-s-nude uppercase tracking-widest mb-1">Sintomas Relatados</div>
+                  <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest mb-1">Sintomas Relatados</div>
                   <div className="flex flex-wrap gap-1.5">
                     {extractedData.symptoms.map((s, i) => (
                       <span key={i} className="px-2 py-1 rounded bg-danger/10 border border-danger/20 text-danger text-[0.65rem]">{s}</span>
@@ -1577,7 +1577,7 @@ export default function App() {
                 
                 {/* Action Grid */}
                 <div className="grid grid-cols-1 gap-2 mt-2">
-                  <button onClick={() => setShowCameraModal(true)} className="py-3.5 bg-ok/20 border border-ok/40 rounded-xl text-xs font-bold text-ok hover:bg-ok/30 transition-colors flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                  <button onClick={() => setShowCameraModal(true)} className="py-3.5 bg-ok/20 border border-ok/40 rounded-xl text-xs font-bold text-ok hover:bg-ok/30 transition-colors flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(67,160,71,0.1)]">
                     <i className="fa-solid fa-video"></i> Iniciar Live View da Cena
                   </button>
                 </div>
@@ -1589,31 +1589,31 @@ export default function App() {
           <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-disp font-bold text-s-ivory flex items-center gap-3">
-                  <i className="fa-solid fa-chart-simple text-s-gold"></i> Relatório Operacional & BI
+                <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
+                  <i className="fa-solid fa-chart-simple text-gold-500"></i> Relatório Operacional & BI
                 </h2>
-                <p className="text-sm text-s-nude">Central 192 · Métricas de performance e assertividade do Co-piloto</p>
+                <p className="text-sm text-ink-secondary">Central 192 · Métricas de performance e assertividade do Co-piloto</p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <div className="relative">
                   <div 
                     onClick={() => setShowDatePicker(!showDatePicker)}
-                    className="bg-s-surf2 border border-s-bdr rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer hover:bg-s-surf transition-colors"
+                    className="bg-elevated border border-border-subtle rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer hover:bg-surface transition-colors"
                   >
-                    <span className="text-xs font-bold text-s-ivory">{selectedPeriod}</span>
-                    <i className="fa-solid fa-chevron-down text-s-nude text-[0.6rem]"></i>
+                    <span className="text-xs font-bold text-ink-primary">{selectedPeriod}</span>
+                    <i className="fa-solid fa-chevron-down text-ink-secondary text-[0.6rem]"></i>
                   </div>
                   
                   {showDatePicker && (
-                    <div className="absolute top-full right-0 mt-2 w-64 bg-s-dark border border-s-bdr rounded-xl shadow-2xl z-50 overflow-hidden">
-                      <div className="p-3 border-b border-s-bdr bg-s-surf2">
-                        <div className="text-xs font-bold text-s-ivory mb-2">Período</div>
+                    <div className="absolute top-full right-0 mt-2 w-64 bg-canvas border border-border-subtle rounded-xl shadow-2xl z-50 overflow-hidden">
+                      <div className="p-3 border-b border-border-subtle bg-elevated">
+                        <div className="text-xs font-bold text-ink-primary mb-2">Período</div>
                         <div className="grid grid-cols-2 gap-2">
                           {['Hoje', '7 dias', '14 dias', '28 dias', '30 dias', '60 dias'].map(p => (
                             <button 
                               key={p}
                               onClick={() => { setSelectedPeriod(p); setShowDatePicker(false); }}
-                              className="px-2 py-1.5 text-[0.65rem] font-bold rounded bg-s-surf border border-s-bdr text-s-nude hover:text-s-ivory hover:border-s-gold transition-colors"
+                              className="px-2 py-1.5 text-[0.65rem] font-bold rounded bg-surface border border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500 transition-colors"
                             >
                               {p}
                             </button>
@@ -1622,16 +1622,16 @@ export default function App() {
                       </div>
                       <div className="p-3">
                         <div className="flex items-center justify-between mb-2">
-                          <i className="fa-solid fa-chevron-left text-s-nude text-[0.6rem] cursor-pointer hover:text-s-ivory"></i>
-                          <span className="text-xs font-bold text-s-ivory">Abril 2026</span>
-                          <i className="fa-solid fa-chevron-right text-s-nude text-[0.6rem] cursor-pointer hover:text-s-ivory"></i>
+                          <i className="fa-solid fa-chevron-left text-ink-secondary text-[0.6rem] cursor-pointer hover:text-ink-primary"></i>
+                          <span className="text-xs font-bold text-ink-primary">Abril 2026</span>
+                          <i className="fa-solid fa-chevron-right text-ink-secondary text-[0.6rem] cursor-pointer hover:text-ink-primary"></i>
                         </div>
                         <div className="grid grid-cols-7 gap-1 text-center mb-1">
-                          {['D','S','T','Q','Q','S','S'].map(d => <div key={d} className="text-[0.6rem] text-s-nude font-bold">{d}</div>)}
+                          {['D','S','T','Q','Q','S','S'].map(d => <div key={d} className="text-[0.6rem] text-ink-secondary font-bold">{d}</div>)}
                         </div>
                         <div className="grid grid-cols-7 gap-1 text-center">
                           {Array.from({length: 30}).map((_, i) => (
-                            <div key={i} className={`text-[0.65rem] py-1 rounded cursor-pointer ${i === 6 ? 'bg-s-gold text-s-dark font-bold' : 'text-s-ivory hover:bg-s-surf2'}`}>
+                            <div key={i} className={`text-[0.65rem] py-1 rounded cursor-pointer ${i === 6 ? 'bg-gold-500 text-ink-inverse font-bold' : 'text-ink-primary hover:bg-elevated'}`}>
                               {i + 1}
                             </div>
                           ))}
@@ -1640,8 +1640,8 @@ export default function App() {
                     </div>
                   )}
                 </div>
-                <button className="px-4 py-2 rounded-lg bg-s-surf border border-s-bdr text-xs font-bold text-s-ivory hover:bg-s-surf2 transition-colors flex items-center gap-2">
-                  <i className="fa-solid fa-file-pdf text-s-nude"></i> Exportar PDF
+                <button className="px-4 py-2 rounded-lg bg-surface border border-border-subtle text-xs font-bold text-ink-primary hover:bg-elevated transition-colors flex items-center gap-2">
+                  <i className="fa-solid fa-file-pdf text-ink-secondary"></i> Exportar PDF
                 </button>
               </div>
             </div>
@@ -1663,26 +1663,26 @@ export default function App() {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="gp p-5 rounded-2xl border-l-4 border-l-s-nude">
-                <div className="text-[0.65rem] font-bold text-s-nude uppercase tracking-widest mb-2">CHAMADAS RECEBIDAS</div>
-                <div className="text-4xl font-disp font-bold text-s-ivory mb-2">1.432</div>
+              <div className="gp p-5 rounded-2xl border-l-4 border-l-ink-secondary">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS RECEBIDAS</div>
+                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">1.432</div>
                 <div className="text-xs text-ok"><i className="fa-solid fa-arrow-trend-up"></i> +5% vs período anterior</div>
               </div>
-              <div className="gp p-5 rounded-2xl border-l-4 border-l-s-gold relative overflow-hidden">
-                <div className="text-[0.65rem] font-bold text-s-nude uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
-                <div className="text-4xl font-disp font-bold text-s-gold mb-2">418</div>
-                <div className="text-xs text-s-gold/70">~29% do total</div>
-                <div className="absolute bottom-4 right-4 px-2 py-1 rounded bg-s-gold/10 border border-s-gold/30 text-xs font-mono font-bold text-s-gold">R$ 38k</div>
+              <div className="gp p-5 rounded-2xl border-l-4 border-l-gold-500 relative overflow-hidden">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
+                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">418</div>
+                <div className="text-xs text-gold-500/70">~29% do total</div>
+                <div className="absolute bottom-4 right-4 px-2 py-1 rounded bg-gold-500/10 border border-gold-500/30 text-xs font-mono font-bold text-gold-500">R$ 38k</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ok">
-                <div className="text-[0.65rem] font-bold text-s-nude uppercase tracking-widest mb-2">T. MÉDIO REGULAÇÃO</div>
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">T. MÉDIO REGULAÇÃO</div>
                 <div className="text-4xl font-disp font-bold text-ok mb-2">1m 12s</div>
                 <div className="text-xs text-ok/70"><i className="fa-solid fa-arrow-trend-down"></i> -45s vs Média Nac.</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-danger">
-                <div className="text-[0.65rem] font-bold text-s-nude uppercase tracking-widest mb-2">DESPACHOS USA (VERMELHO)</div>
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">DESPACHOS USA (VERMELHO)</div>
                 <div className="text-4xl font-disp font-bold text-danger mb-2">94</div>
-                <div className="text-xs text-s-nude">Acurácia (Ground Truth): <span className="text-ok">96.8%</span></div>
+                <div className="text-xs text-ink-secondary">Acurácia (Ground Truth): <span className="text-ok">96.8%</span></div>
               </div>
             </div>
 
@@ -1690,7 +1690,7 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-[400px]">
               {/* Left Chart */}
               <div className="gp p-5 rounded-2xl flex flex-col min-h-[300px]">
-                <div className="text-xs font-bold text-s-ivory uppercase tracking-widest mb-6">VOLUME VS TEMPO DE RESPOSTA</div>
+                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-6">VOLUME VS TEMPO DE RESPOSTA</div>
                 <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={[
@@ -1703,18 +1703,18 @@ export default function App() {
                       { time: '18h', volume: 150, responseTime: 15 },
                       { time: '20h', volume: 120, responseTime: 11 },
                     ]}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" vertical={false} />
-                      <XAxis dataKey="time" stroke="#888" fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="left" stroke="#888" fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="right" orientation="right" stroke="#888" fontSize={10} tickLine={false} axisLine={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#2A2B33" vertical={false} />
+                      <XAxis dataKey="time" stroke="#6E6E78" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis yAxisId="left" stroke="#6E6E78" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis yAxisId="right" orientation="right" stroke="#6E6E78" fontSize={10} tickLine={false} axisLine={false} />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#1a1a1a', borderColor: '#333', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#161618', borderColor: '#3A3B45', borderRadius: '8px' }}
                         itemStyle={{ fontSize: '12px' }}
-                        labelStyle={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}
+                        labelStyle={{ fontSize: '12px', color: '#6E6E78', marginBottom: '4px' }}
                       />
                       <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
-                      <Bar yAxisId="left" dataKey="volume" name="Volume Ocorrências" fill="#0f766e" radius={[4, 4, 0, 0]} barSize={40} />
-                      <Line yAxisId="right" type="monotone" dataKey="responseTime" name="T. Médio Resposta (min)" stroke="#d3a05c" strokeWidth={2} dot={{ r: 4, fill: '#d3a05c' }} />
+                      <Bar yAxisId="left" dataKey="volume" name="Volume Ocorrências" fill="#6E8AAA" radius={[4, 4, 0, 0]} barSize={40} />
+                      <Line yAxisId="right" type="monotone" dataKey="responseTime" name="T. Médio Resposta (min)" stroke="#BF9A3D" strokeWidth={2} dot={{ r: 4, fill: '#BF9A3D' }} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </div>
@@ -1722,16 +1722,16 @@ export default function App() {
 
               {/* Right Chart */}
               <div className="gp p-5 rounded-2xl flex flex-col min-h-[300px]">
-                <div className="text-xs font-bold text-s-ivory uppercase tracking-widest mb-6">CLASSIFICAÇÃO DE DESPACHOS</div>
+                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-6">CLASSIFICAÇÃO DE DESPACHOS</div>
                 <div className="flex-1 w-full h-full flex items-center justify-center">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={[
-                          { name: 'Vermelho (USA)', value: 94, color: '#ef4444' },
-                          { name: 'Amarelo (USA/USB)', value: 150, color: '#f59e0b' },
-                          { name: 'Verde (USB)', value: 250, color: '#10b981' },
-                          { name: 'Azul (Orientações)', value: 120, color: '#3b82f6' },
+                          { name: 'Vermelho (USA)', value: 94, color: '#E53935' },
+                          { name: 'Amarelo (USA/USB)', value: 150, color: '#FDD835' },
+                          { name: 'Verde (USB)', value: 250, color: '#43A047' },
+                          { name: 'Azul (Orientações)', value: 120, color: '#1E88E5' },
                         ]}
                         cx="50%"
                         cy="50%"
@@ -1742,16 +1742,16 @@ export default function App() {
                         stroke="none"
                       >
                         {[
-                          { name: 'Vermelho (USA)', value: 94, color: '#ef4444' },
-                          { name: 'Amarelo (USA/USB)', value: 150, color: '#f59e0b' },
-                          { name: 'Verde (USB)', value: 250, color: '#10b981' },
-                          { name: 'Azul (Orientações)', value: 120, color: '#3b82f6' },
+                          { name: 'Vermelho (USA)', value: 94, color: '#E53935' },
+                          { name: 'Amarelo (USA/USB)', value: 150, color: '#FDD835' },
+                          { name: 'Verde (USB)', value: 250, color: '#43A047' },
+                          { name: 'Azul (Orientações)', value: 120, color: '#1E88E5' },
                         ].map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#1a1a1a', borderColor: '#333', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#161618', borderColor: '#3A3B45', borderRadius: '8px' }}
                         itemStyle={{ fontSize: '12px', color: '#fff' }}
                       />
                       <Legend 
@@ -1769,13 +1769,13 @@ export default function App() {
 
             {/* Recent Calls History */}
             <div className="gp p-5 rounded-2xl flex flex-col">
-              <div className="text-xs font-bold text-s-ivory uppercase tracking-widest mb-4 flex items-center gap-2">
-                <i className="fa-solid fa-clock-rotate-left text-s-gold"></i> Histórico de Chamadas Recentes
+              <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-4 flex items-center gap-2">
+                <i className="fa-solid fa-clock-rotate-left text-gold-500"></i> Histórico de Chamadas Recentes
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
-                    <tr className="border-b border-s-bdr text-[0.65rem] text-s-nude uppercase tracking-widest">
+                    <tr className="border-b border-border-subtle text-[0.65rem] text-ink-secondary uppercase tracking-widest">
                       <th className="pb-3 font-bold">ID</th>
                       <th className="pb-3 font-bold">Número</th>
                       <th className="pb-3 font-bold">Hora</th>
@@ -1785,11 +1785,11 @@ export default function App() {
                   </thead>
                   <tbody>
                     {MOCK_RECENT_CALLS.map((call, idx) => (
-                      <tr key={idx} className="border-b border-s-bdr/50 hover:bg-s-surf2/50 transition-colors">
-                        <td className="py-3 text-[0.65rem] font-mono text-s-nude">#{call.id}</td>
-                        <td className="py-3 text-sm font-mono font-bold text-s-ivory">{call.phone}</td>
-                        <td className="py-3 text-xs text-s-nude">{call.time}</td>
-                        <td className="py-3 text-xs font-bold text-s-ivory">{call.type}</td>
+                      <tr key={idx} className="border-b border-border-subtle/50 hover:bg-elevated/50 transition-colors">
+                        <td className="py-3 text-[0.65rem] font-mono text-ink-secondary">#{call.id}</td>
+                        <td className="py-3 text-sm font-mono font-bold text-ink-primary">{call.phone}</td>
+                        <td className="py-3 text-xs text-ink-secondary">{call.time}</td>
+                        <td className="py-3 text-xs font-bold text-ink-primary">{call.type}</td>
                         <td className="py-3">
                           <span className={`chip chip-${call.statusColor} text-[0.6rem]`}>
                             {call.status}
@@ -1820,47 +1820,47 @@ export default function App() {
         ></div>
 
         {/* Mobile Indicator (Small pill at the bottom) */}
-        <div className={`absolute bottom-2 w-12 h-1.5 bg-s-nude/30 rounded-full md:hidden transition-opacity duration-300 ${isNavOpen ? 'opacity-0' : 'opacity-100'}`}></div>
+        <div className={`absolute bottom-2 w-12 h-1.5 bg-ink-secondary/30 rounded-full md:hidden transition-opacity duration-300 ${isNavOpen ? 'opacity-0' : 'opacity-100'}`}></div>
 
         <nav 
-          className={`relative p-2 rounded-full flex gap-2 bg-s-surf/90 border border-s-bdr shadow-[0_15px_50px_rgba(0,0,0,0.9)] backdrop-blur-2xl overflow-x-auto max-w-[92vw] no-scrollbar snap-x snap-mandatory transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          className={`relative p-2 rounded-full flex gap-2 bg-surface/90 border border-border-subtle shadow-[0_15px_50px_rgba(0,0,0,0.9)] backdrop-blur-2xl overflow-x-auto max-w-[92vw] no-scrollbar snap-x snap-mandatory transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
             isNavOpen ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto' : 'translate-y-full opacity-0 scale-95 pointer-events-none'
           }`}
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside nav
         >
           <button 
             onClick={() => { setCurrentModule('IDLE'); setIsNavOpen(false); }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'IDLE' ? 'bg-s-gold text-s-dark shadow-[0_0_20px_rgba(211,160,92,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'IDLE' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <i className="fa-solid fa-house-signal"></i> Home
           </button>
           <button 
             onClick={() => { setCurrentModule('AML'); setIsNavOpen(false); }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'AML' ? 'bg-s-gold text-s-dark shadow-[0_0_20px_rgba(211,160,92,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'AML' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <i className="fa-solid fa-location-crosshairs"></i> Ligação
           </button>
           <button 
             onClick={() => { setCurrentModule('TARM'); setIsNavOpen(false); }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'TARM' ? 'bg-s-gold text-s-dark shadow-[0_0_20px_rgba(211,160,92,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'TARM' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <i className="fa-solid fa-microphone-lines"></i> TARM
           </button>
           <button 
             onClick={() => { setCurrentModule('REGULADOR'); setIsNavOpen(false); }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'REGULADOR' ? 'bg-s-gold text-s-dark shadow-[0_0_20px_rgba(211,160,92,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'REGULADOR' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <i className="fa-solid fa-user-doctor"></i> Médico
           </button>
           <button 
             onClick={() => { setCurrentModule('VIATURA'); setIsNavOpen(false); }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'VIATURA' ? 'bg-s-gold text-s-dark shadow-[0_0_20px_rgba(211,160,92,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'VIATURA' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <i className="fa-solid fa-truck-medical"></i> Viatura
           </button>
           <button
             onClick={() => { setCurrentModule('DASHBOARD'); setIsNavOpen(false); }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'DASHBOARD' ? 'bg-s-gold text-s-dark shadow-[0_0_20px_rgba(211,160,92,0.6)]' : 'text-s-nude hover:bg-s-bdr'}`}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'DASHBOARD' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <i className="fa-solid fa-chart-simple"></i> Dashboard
           </button>

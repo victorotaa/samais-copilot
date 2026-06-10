@@ -1,202 +1,134 @@
 # Design System Samais — Tokens, Dual Theme, Componentes
 
-> Fonte única de verdade para a identidade visual da Samais. Vale para o CoPilot OS, o PEP OS (quando integrarmos), o master-plan-rota e qualquer LP futura.
+> Fonte única de verdade para a identidade visual da Samais no CoPilot OS.
+> **A paleta canônica da marca vive no PEP OS** (`samais-pep/design/samais-pep-os-design-tokens.json`, v1.0, Maio 2026) — este documento registra como o CoPilot a consome e o que foi decidido na unificação (Sprint 1).
 
-## 1. Estado atual e o problema
+## 1. Decisão de unificação (Sprint 1 — resolvida)
 
-Hoje existem **três paletas levemente diferentes** circulando:
+As três paletas divergentes foram unificadas. **O PEP OS venceu como referencial canônico** — é o artefato mais maduro, com tokens formais (Tokens Studio schema), design system documentado e dual theme implementado.
 
-| Arquivo | Background primário | Gold | Fonte sans |
-|---------|---------------------|------|------------|
-| `src/index.css` (App) | `#090A0F` | `#D3A05C` | Inter |
-| `master-plan-rota.html` | `#070708` | `#C9A84C` | Plus Jakarta Sans |
-| PEP OS (não acessado nesta sessão) | ? | ? | ? |
+| Artefato | Antes | Depois |
+|----------|-------|--------|
+| `src/index.css` (App) | `#090A0F` / gold `#D3A05C` / Inter | Canônico PEP (`#070708` / gold `#BF9A3D` / Plus Jakarta Sans) |
+| `master-plan-rota.html` | `#070708` / gold `#C9A84C` | Canônico PEP (vars atualizadas in loco) |
+| PEP OS | Canônico v1.0 | Inalterado (referência) |
+| `lp/index.html` (LP B2B) | — (novo) | Nasceu canônico |
 
-Antes de qualquer paridade visual ampla, é preciso **escolher uma única paleta canônica** e migrar os outros artefatos. Este documento propõe uma estrutura que aceita os tokens definitivos sem precisar reescrever componentes.
+A migração dos componentes do `App.tsx` para tokens semânticos foi feita **big-bang nesta rodada** (não restam classes `s-*` legadas). O mapeamento aplicado:
+
+| Token legado | Token semântico | Valor dark |
+|--------------|-----------------|------------|
+| `s-dark` | `canvas` | `#070708` |
+| `s-surf` | `surface` | `#0E0E10` |
+| `s-surf2` | `elevated` | `#161618` |
+| `s-ivory` | `ink-primary` | `#F4F4F5` |
+| `s-nude` | `ink-secondary` | `#A8A8B0` |
+| `s-gold` | `gold-500` | `#BF9A3D` |
+| `s-terra` | `gold-700` | `#7E6624` (gradientes tonais da marca) |
+| `s-bdr` (borda) | `border-subtle` | `#1F1F22` |
+| `s-bdr` (bg de hover) | `hover` | `#22232A` |
+| `text-s-dark` (texto sobre ouro) | `ink-inverse` | `#070708` (constante nos dois temas) |
+
+Decisões de calibração específicas do CoPilot:
+
+- **Sinais operacionais vivos.** No CoPilot, `ok`/`warn`/`danger`/`info` apontam para a paleta **Manchester** do PEP (`#43A047`/`#FDD835`/`#E53935`/`#1E88E5`), não para os sinais dessaturados — em sala de despacho, a classificação de risco precisa gritar. Os sinais dessaturados do PEP (`signal-*`) existem como primitivos para UI administrativa (deltas, banners).
+- **`ai` (#00D4A8)** é extensão da família, exclusiva do CoPilot — marca elementos gerados por IA. Documentada aqui para eventual upstream no PEP.
+- **Bordas neutras.** As bordas gold-tintadas legadas viraram bordas neutras (`border-subtle`), seguindo o princípio do PEP: *"ouro como sinal, não como decoração"*. Ouro em borda ficou reservado à assinatura Samais (top border 2px em `card-data`).
+- **Tipografia: Plus Jakarta Sans** vence como sans canônica (Inter saiu do bundle de fontes). Syne segue display; JetBrains Mono segue dados/eyebrows.
 
 ## 2. Estratégia de tokens em duas camadas
 
 ### Camada 1 — Tokens primitivos (valor literal)
 
-Cores, fontes, raios, sombras, espaçamentos com valor concreto. Não usar diretamente em componentes.
+Em `@theme` no `src/index.css`: escala gold 50–900 (espelho do PEP), `signal-*` dessaturados, `manchester-*` protocolares, fontes.
 
-```css
-@theme {
-  --color-gold-400: #D3A05C;
-  --color-ivory-50: #FFF5E9;
-  --color-onyx-950: #090A0F;
-  /* ... */
-}
-```
+### Camada 2 — Tokens semânticos (intenção, theme-aware)
 
-### Camada 2 — Tokens semânticos (intenção)
-
-Apontam para um primitivo, mas mudam de valor conforme o tema ativo. **Usar estes em componentes.**
-
-```css
-:root[data-theme="dark"] {
-  --color-bg:        var(--color-onyx-950);
-  --color-surface:   var(--color-onyx-900);
-  --color-surface-2: var(--color-onyx-800);
-  --color-content:   var(--color-ivory-50);
-  --color-content-2: var(--color-ivory-200);
-  --color-accent:    var(--color-gold-400);
-  --color-border:    rgb(211 160 92 / 0.20);
-}
-
-:root[data-theme="light"] {
-  --color-bg:        var(--color-ivory-50);
-  --color-surface:   #FFFFFF;
-  --color-surface-2: var(--color-ivory-100);
-  --color-content:   var(--color-onyx-950);
-  --color-content-2: var(--color-onyx-700);
-  --color-accent:    var(--color-gold-500);  /* slight shade darker for AA contrast */
-  --color-border:    rgb(169 95 65 / 0.18);
-}
-```
-
-Os componentes usam só os semânticos (`bg-surface`, `text-content`, `border-border`). Swap de tema vira **mudança de variável**, não refactor de classe.
-
-## 3. Paleta canônica proposta (pendente confirmação com PEP OS)
-
-### Primitivas — escala completa
+Vars CSS em `:root[data-theme="dark"]` (padrão) e `:root[data-theme="light"]`, expostas como utilities Tailwind v4 via `@theme inline`:
 
 ```
-GOLD (acento primário)
-  100  #FAEDD3
-  200  #F0D8A4
-  300  #E2BC78
-  400  #D3A05C  ← atual App.tsx
-  500  #C9A84C  ← atual master-plan-rota
-  600  #A98342
-  700  #816636
+bg-canvas · bg-surface · bg-elevated · bg-overlay · bg-hover · bg-pressed
+text-ink-primary · text-ink-secondary · text-ink-tertiary · text-ink-inverse
+border-border-subtle · border-border-default · border-border-strong
+text-gold-300 · bg-gold-500 (theme-aware: escurecem no light p/ contraste AA)
+text-ok / warn / danger / info / ai (theme-aware)
+```
 
-TERRA (acento secundário, hover de CTA)
-  300  #C7846A
-  400  #A95F41  ← atual
+Componentes usam **apenas** a camada semântica. Swap de tema é mudança de variável, não refactor de classe. Modificadores de opacidade (`bg-canvas/80`) funcionam via `color-mix`.
 
-IVORY (conteúdo claro / bg light)
-  50   #FFF5E9
-  100  #F7EBDB
-  200  #FCD7B8  ← s-nude atual
+## 3. Paleta canônica (= PEP OS v1.0)
 
-ONYX (bg dark / conteúdo escuro)
-  700  #2A2E3A
-  800  #1B202C  ← s-surf2
-  900  #141720  ← s-surf
-  950  #090A0F  ← s-dark
+### Dark (padrão de produção — sala de central 24/7)
 
-AI (cyan)
-  400  #00D4A8  ← s-ai
+```
+canvas   #070708     surface  #0E0E10     elevated #161618
+overlay  #1F1F22     hover    #22232A     pressed  #2A2B33
+border   #1F1F22 / #2A2B33 / #3A3B45 (subtle/default/strong)
+ink      #F4F4F5 / #A8A8B0 / #6E6E78 / #3A3B45 (primary/secondary/tertiary/disabled)
+gold     50 #FAF3DD · 100 #F5E8B8 · 200 #EAD78E · 300 #EAC97A · 400 #D4B45E
+         500 #BF9A3D ← marca · 600 #A18230 · 700 #7E6624 · 800 #5C4A1A · 900 #3D3110
+signal   success #5C8F6E · warning #C9A84C · danger #B8554E · info #6E8AAA
+manchester red #E53935 · orange #FB8C00 · yellow #FDD835 · green #43A047 · blue #1E88E5
+ai       #00D4A8 (extensão CoPilot)
+```
 
-SEMANTIC
-  ok:     #10B981
-  warn:   #F59E0B
-  danger: #EF4444
-  info:   #3B82F6
+### Light (opção de usuário — fadiga visual / preferência)
+
+```
+canvas   #FAFAF7     surface  #FFFFFF     elevated #F1F1ED
+ink      #1A1A17 / #52524C / #828279
+gold-300 #8A6E28 · gold-500 #A88230 (escurecidos p/ AA sobre branco)
+ok #2E7D32 · warn #B58A00 · danger #C62828 · info #1565C0 · ai #00875F
 ```
 
 ### Tipografia
 
 ```
---font-display:  "Syne", system-ui, sans-serif
---font-sans:     "Plus Jakarta Sans", "Inter", system-ui, sans-serif
---font-mono:     "JetBrains Mono", ui-monospace, monospace
+--font-disp:  "Syne" (500–800) — títulos, marca, hero
+--font-sans:  "Plus Jakarta Sans" (400–800) — corpo, formulários, navegação
+--font-mono:  "JetBrains Mono" (400–500) — dados, eyebrows, códigos, KPIs
 ```
 
-> Decisão pendente: o App usa **Inter** (mais técnico, mais "OS"), o master-plan usa **Plus Jakarta** (mais editorial). Recomendo padronizar em **Plus Jakarta para o produto inteiro**, mantendo Inter como fallback até a decisão. Aguarda input PEP OS.
+Eyebrow editorial Samais (classe `.eyebrow`): JetBrains Mono 500, 11px, tracking 0.08–0.12em, UPPERCASE, gold-300 — sempre acima de títulos importantes.
 
-### Escala tipográfica
-
-```
-display-xl   72px / 1.05 / -0.03em / Syne 800
-display      54px / 1.08 / -0.025em / Syne 800
-heading-1    32px / 1.15 / -0.02em / Syne 700
-heading-2    22px / 1.2  / -0.01em / Syne 700
-body         15.5px / 1.75 / 0     / Jakarta 400
-body-bold    15.5px / 1.75 / 0     / Jakarta 600
-small        13px / 1.6  / 0       / Jakarta 400
-caption      11px / 1.4  / 0.12em  / JetBrains Mono 500
-overline     10px / 1.3  / 0.2em   / JetBrains Mono 600 UPPERCASE
-```
-
-### Raios e sombras
+### Raios, sombras e motion (PEP)
 
 ```
---radius-sm:   4px
---radius-md:   8px   ← inputs, chips
---radius-lg:   12px  ← cards
---radius-xl:   16px  ← painéis principais
---radius-2xl:  24px  ← modais
---radius-full: 9999px
-
---shadow-glow-gold:  0 0 30px rgb(211 160 92 / 0.20)
---shadow-glow-ai:    0 0 30px rgb(0 212 168 / 0.20)
---shadow-glow-danger:0 0 30px rgb(239 68 68 / 0.30)
---shadow-panel:      0 8px 32px rgb(0 0 0 / 0.55)
+radius: 6px padrão (inputs/botões) · 8px cards · 12px modais · nunca >12px em UI principal
+shadow-glow: 0 0 24px rgba(191,154,61,0.15) — ações primárias
+motion: 240ms cubic-bezier(0.22,1,0.36,1) (easing editorial) · hover 180ms · nunca bounce/elastic
 ```
 
-### Espaçamento
+### Assinatura Samais
 
-Múltiplos de 4px (`0, 2, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 100`). Tailwind default cobre.
+**Top border ouro 2px** em cards de dados (`.card-data`). Foco visível: anel ouro 3px com offset 2px. Selection: ouro sobre `ink-inverse`.
 
 ## 4. Componentes do design system
 
-### Atoms
+Classes compostas já migradas para semânticos em `src/index.css`: `.gp` (panel), `.inp`, `.lbl`, `.chip-{ok|warn|danger|ai|nude}`, `.eyebrow`, `.card-data`, `.fu`.
 
-- `Button` (variants: `primary` = gold gradient, `secondary` = surface outlined, `danger`, `ghost`, `link`)
-- `IconButton`
-- `Input` (text, password, search)
-- `Textarea`
-- `Checkbox`, `Switch`
-- `Chip` / `Badge` (variants: `ok`, `warn`, `danger`, `ai`, `nude`, `neutral`)
-- `Avatar`
-- `Tooltip`
+A extração para componentes React (`src/ui/`: Button, Chip, Panel, Input, Modal…) segue no Sprint 5 (modularização do App.tsx) — a migração de tokens desta rodada garante que isso será refactor de estrutura, não de cor.
 
-### Molecules
+## 5. Estado da implementação
 
-- `Panel` (glass + border, replaces `.gp`)
-- `Card` (variants: `kpi`, `vehicle`, `caller`)
-- `Modal`
-- `Toast`
-- `DataTable`
-- `EmptyState`
+| Etapa | Status |
+|-------|--------|
+| Camada semântica dual theme em `src/index.css` | ✅ |
+| Theme toggle persistente (`samais.theme` em localStorage) | ✅ (Sprint 0) |
+| Migração big-bang do App.tsx para tokens semânticos | ✅ (Sprint 1) |
+| Unificação `master-plan-rota.html` | ✅ (Sprint 1) |
+| LP B2B nascida canônica (`lp/index.html`) | ✅ (Sprint 1) |
+| Validação visual lado a lado PEP × CoPilot (prints) | ◻ pendente (item 1.5) |
+| Gráficos Recharts theme-aware (hoje têm cores fixas dark) | ◻ Sprint 5 |
+| Extração de componentes React | ◻ Sprint 5 |
 
-### Organisms (específicos do CoPilot)
+> Nota de interoperabilidade: o PEP usa classe `.light` no `<html>` (Tailwind 3 + Next), o CoPilot usa `data-theme="light"` (Tailwind v4 + Vite). Os **valores** são idênticos; convergir o mecanismo é tarefa do Sprint 5/monorepo. A chave de localStorage já é a mesma (`samais.theme`).
 
-- `IncomingCallOverlay`
-- `TranscriptionChat`
-- `ExtractedClinicalPanel`
-- `VehicleList`
-- `MapPanel`
-- `ManchesterChecklist`
-- `JustificationPicker`
+## 6. Acessibilidade
 
-## 5. Implementação progressiva (caminho real)
-
-A migração completa demanda refator do App.tsx inteiro (Sprint 5 do roadmap). Para esta rodada, a estratégia adotada é:
-
-1. **Adicionar a camada semântica** ao `src/index.css` com `data-theme="dark"` (default) e `data-theme="light"`.
-2. **Manter as variáveis primitivas legadas** (`--color-s-*`) intactas, para que nenhuma classe Tailwind existente quebre.
-3. **Adicionar um Theme Toggle funcional** que muda `data-theme` no `<html>` e persiste em `localStorage`.
-4. **Aplicar tokens semânticos imediatamente apenas no `body`** (cor de fundo e texto) — assim o swap de tema é visível e validável, mesmo sem ter migrado todos os componentes.
-5. **Documentar a migração componente a componente** (Sprint 5).
-
-Resultado: a infraestrutura está pronta, o toggle funciona, e a migração interna pode ser feita aos poucos sem big-bang.
-
-## 6. Como aplicar PEP OS quando ele for liberado
-
-1. Adicionar `victorotaa/samais-pep` ao escopo da sessão.
-2. Ler os tokens equivalentes nesse repo (provavelmente em `src/styles/tokens.css` ou `tailwind.config`).
-3. Confirmar (com você) qual paleta vence em cada conflito — geralmente o produto mais maduro é o referencial.
-4. Atualizar a camada primitiva deste documento. A camada semântica não muda.
-5. Eliminar a divergência do `master-plan-rota.html` (substituir cores literais por `var(--color-*)`).
-
-## 7. Acessibilidade
-
-- Contraste WCAG AA mínimo em todos os pares texto/fundo. AAA onde possível para o produto operacional (cansaço visual em 12h de plantão).
-- Foco visível com outline gold em todos os elementos interativos.
+- Contraste WCAG AA mínimo em todos os pares texto/fundo (gold-300/500 escurecem no light para isso). AAA onde possível no produto operacional (12h de plantão).
+- Foco visível com anel ouro em todos os elementos interativos.
 - `prefers-reduced-motion: reduce` desliga animações de pulso, ping, gradiente animado.
 - `aria-label` em todos os botões só-ícone.
-- Tamanho mínimo de hit area: 44×44px (mobile-first).
-- Modo de alta-densidade (toggle futuro) reduz padding em 30% para usuários em monitor secundário/lateral.
+- Hit area mínima: 44×44px (mobile-first).
+- Modo de alta-densidade (toggle futuro) reduz padding em 30% para monitor secundário.
