@@ -3,6 +3,7 @@ import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 import { useTheme } from './lib/theme';
 import { Icon } from './ui/Icon';
 import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
+import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB } from './lib/supabase';
 
 const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
 
@@ -323,6 +324,12 @@ export default function App() {
   const [team, setTeam] = useState(MOCK_TEAM);
   const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>({ 'MOT-02': '2026-06-14' });
   const [missionStatus, setMissionStatus] = useState('A CAMINHO');
+  const [connected, setConnected] = useState(false);
+  const [operatorName, setOperatorName] = useState('Mariana S.');
+  const [operatorId, setOperatorId] = useState('TARM-04');
+  const [loginMatricula, setLoginMatricula] = useState('TARM-04');
+  const [loginPassword, setLoginPassword] = useState('SamaisDemo2026');
+  const [dbSchedule, setDbSchedule] = useState<{ day: string; date: string; shift: string; hours: string; base: string }[] | null>(null);
   const [queue, setQueue] = useState(() => MOCK_QUEUE.map(q => {
     const [m, sec] = q.waitTime.split(':').map(Number);
     return { ...q, seconds: m * 60 + sec };
@@ -553,15 +560,80 @@ export default function App() {
     }
   }, [currentModule, aiActive]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsAuthenticating(true);
+    const perfil = await tryRealLogin(loginMatricula, loginPassword);
+    if (perfil) {
+      setConnected(true);
+      setOperatorName(perfil.name);
+      setOperatorId(perfil.matricula);
+      const nextRole = perfil.role === 'GESTOR' || perfil.role === 'ADMIN_TENANT' ? 'GESTOR' : 'OPERACAO';
+      setRole(nextRole);
+      setIsAuthenticated(true);
+      setIsAuthenticating(false);
+      setCurrentModule(nextRole === 'GESTOR' ? 'GESTOR' : 'IDLE');
+      showToast(`Conectado ao backend Samais · ${perfil.matricula}`, 'success');
+      return;
+    }
+    // Backend indisponível ou credencial não semeada: a demo nunca trava.
     setTimeout(() => {
+      setConnected(false);
+      setOperatorName(role === 'GESTOR' ? 'Carlos M.' : 'Mariana S.');
+      setOperatorId(role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04');
       setIsAuthenticated(true);
       setIsAuthenticating(false);
       setCurrentModule(role === 'GESTOR' ? 'GESTOR' : 'IDLE');
-    }, 1500);
+      showToast('Modo demonstração — backend offline', 'info');
+    }, 1200);
   };
+
+  // Frota do banco + realtime quando conectado
+  useEffect(() => {
+    if (!connected) return;
+    let active = true;
+    const load = async () => {
+      const { data } = await supabase.from('viaturas').select('codigo, tipo, status, manutencao_prevista');
+      if (!active || !data || data.length === 0) return;
+      setVehicles(data.map(r => mapDbVehicle(r, VEHICLE_STATUS_COLOR)) as typeof MOCK_VEHICLES);
+      const maint: Record<string, string> = {};
+      data.forEach(r => { if (r.manutencao_prevista) maint[r.codigo] = r.manutencao_prevista; });
+      setMaintSchedule(maint);
+    };
+    load();
+    const channel = supabase
+      .channel('viaturas-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'viaturas' }, load)
+      .subscribe();
+    return () => { active = false; supabase.removeChannel(channel); };
+  }, [connected]);
+
+  // Minha Escala do banco quando conectado
+  useEffect(() => {
+    if (!connected || currentModule !== 'ESCALA') return;
+    (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return;
+      const { data } = await supabase
+        .from('escalas')
+        .select('dia, turno, hora_inicio, hora_fim, status')
+        .eq('usuario_id', auth.user.id)
+        .order('dia');
+      if (!data || data.length === 0) return;
+      const DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      const TURNO_LABEL: Record<string, string> = { DIURNO: 'Diurno', NOTURNO: 'Noturno', ADMINISTRATIVO: 'Administrativo', SOBREAVISO: 'Sobreaviso', FOLGA: 'Folga' };
+      setDbSchedule(data.map(r => {
+        const d = new Date(r.dia + 'T12:00');
+        return {
+          day: DIAS[d.getDay()],
+          date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          shift: TURNO_LABEL[r.turno] || r.turno,
+          hours: r.hora_inicio ? `${r.hora_inicio.slice(0, 5)}–${r.hora_fim?.slice(0, 5)}` : '—',
+          base: 'CRU Central',
+        };
+      }));
+    })();
+  }, [connected, currentModule]);
 
   const acceptCall = () => {
     setIncomingCall(false);
@@ -632,14 +704,14 @@ export default function App() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setRole('OPERACAO')}
+                  onClick={() => { setRole('OPERACAO'); setLoginMatricula('TARM-04'); }}
                   className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === 'OPERACAO' ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
                 >
                   <Icon name="headset" /> Operação
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole('GESTOR')}
+                  onClick={() => { setRole('GESTOR'); setLoginMatricula('GESTOR-01'); }}
                   className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === 'GESTOR' ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
                 >
                   <Icon name="chart-simple" /> Gestor
@@ -650,7 +722,7 @@ export default function App() {
               <label className="lbl">Matrícula Operacional</label>
               <div className="relative">
                 <Icon name="id-badge" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50" />
-                <input type="text" className="inp pl-10" placeholder="Ex: TARM-04" required key={role} defaultValue={role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04'} />
+                <input type="text" className="inp pl-10" placeholder="Ex: TARM-04" required value={loginMatricula} onChange={(e) => setLoginMatricula(e.target.value)} />
               </div>
             </div>
             
@@ -658,7 +730,7 @@ export default function App() {
               <label className="lbl">Senha de Acesso</label>
               <div className="relative">
                 <Icon name="lock" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50" />
-                <input type="password" className="inp pl-10" placeholder="••••••••" required defaultValue="password" />
+                <input type="password" className="inp pl-10" placeholder="••••••••" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
               </div>
             </div>
 
@@ -795,11 +867,11 @@ export default function App() {
           <div className="h-7 w-px bg-hover"></div>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">{role === 'GESTOR' ? 'Carlos M.' : 'Mariana S.'}</div>
-              <div className="text-xs font-bold text-gold-500">{role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04'}</div>
+              <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">{operatorName}</div>
+              <div className="text-xs font-bold text-gold-500">{operatorId}{connected ? '' : ' · demo'}</div>
             </div>
             <button 
-              onClick={() => setIsAuthenticated(false)}
+              onClick={() => { supabase.auth.signOut().catch(() => {}); setConnected(false); setIsAuthenticated(false); }}
               className="w-9 h-9 rounded-lg bg-elevated border border-border-subtle hover:border-danger hover:text-danger text-ink-secondary transition-all flex items-center justify-center text-sm" 
               title="Sair"
             >
@@ -1752,14 +1824,14 @@ export default function App() {
         {currentModule === 'ESCALA' && (
           <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
             <div>
-              <div className="eyebrow mb-1">{role === 'GESTOR' ? 'GESTOR-01 · CARLOS M.' : 'TARM-04 · MARIANA S.'}</div>
+              <div className="eyebrow mb-1">{operatorId} · {operatorName.toUpperCase()}{connected ? ' · BACKEND ATIVO' : ' · DEMO'}</div>
               <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
                 <Icon name="clock-rotate-left" className="text-gold-500" /> Minha Escala
               </h2>
               <p className="text-sm text-ink-secondary">Semana de 08/06 a 14/06 · escala designada pela coordenação</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
-              {(MOCK_SCHEDULES[role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04'] || []).map(d => {
+              {(dbSchedule || MOCK_SCHEDULES[role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04'] || []).map(d => {
                 const isToday = d.date === '10/06';
                 const off = d.shift === 'Folga';
                 return (
@@ -1834,6 +1906,7 @@ export default function App() {
                         onChange={(e) => {
                           const status = e.target.value;
                           setVehicles(prev => prev.map(x => x.id === v.id ? { ...x, status, color: VEHICLE_STATUS_COLOR[status] || 'nude' } : x));
+                          if (connected) supabase.from('viaturas').update({ status: VEHICLE_STATUS_UI_TO_DB[status] }).eq('codigo', v.id).then();
                           showToast(`${v.id} → ${status}`, 'success');
                         }}
                         className="inp !w-auto text-xs font-bold py-1.5"
@@ -1849,6 +1922,7 @@ export default function App() {
                           value={maintSchedule[v.id] || ''}
                           onChange={(e) => {
                             setMaintSchedule(prev => ({ ...prev, [v.id]: e.target.value }));
+                            if (connected) supabase.from('viaturas').update({ manutencao_prevista: e.target.value || null }).eq('codigo', v.id).then();
                             if (e.target.value) showToast(`Manutenção de ${v.id} programada para ${new Date(e.target.value + 'T12:00').toLocaleDateString('pt-BR')}`, 'info');
                           }}
                           className="inp !w-auto text-xs py-1.5"
