@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useTheme } from './lib/theme';
 
 const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
 
@@ -215,6 +216,7 @@ const playSound = (type: 'call' | 'vehicle' | 'alert', enabled: boolean) => {
 };
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -470,7 +472,7 @@ export default function App() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center justify-center h-screen w-screen bg-s-dark relative overflow-hidden">
+      <div className="flex items-center justify-center h-screen w-screen bg-[var(--color-bg)] relative overflow-hidden transition-colors">
         <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-s-gold/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-ai/5 rounded-full blur-3xl"></div>
         
@@ -531,7 +533,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-s-dark">
+    <div className="flex flex-col h-screen w-screen bg-[var(--color-bg)] transition-colors">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
@@ -626,12 +628,20 @@ export default function App() {
             </div>
           </div>
           <div className="h-7 w-px bg-s-bdr hidden sm:block"></div>
-          <button 
+          <button
             onClick={() => setSoundEnabled(!soundEnabled)}
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${soundEnabled ? 'bg-s-surf2 border border-s-bdr text-s-gold hover:border-s-gold' : 'bg-s-surf2 border border-s-bdr text-s-nude hover:text-s-ivory'}`}
             title={soundEnabled ? "Desativar Sons" : "Ativar Sons"}
           >
             <i className={`fa-solid ${soundEnabled ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
+          </button>
+          <button
+            onClick={toggleTheme}
+            className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors bg-s-surf2 border border-s-bdr text-s-nude hover:text-s-gold hover:border-s-gold"
+            title={theme === 'dark' ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
+            aria-label="Alternar tema"
+          >
+            <i className={`fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
           </button>
           <div className="h-7 w-px bg-s-bdr"></div>
           <div className="flex items-center gap-3">

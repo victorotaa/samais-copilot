@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────
+ * Camada 1 — Tokens primitivos (literal values).
+ * Used by Tailwind utilities (bg-s-dark, text-s-ivory, etc.).
+ * Kept stable so existing classes don't break.
+ * ──────────────────────────────────────────────────────────────────── */
 @theme {
   --color-s-ivory: #FFF5E9;
   --color-s-nude: #FCD7B8;
@@ -8,22 +13,63 @@
   --color-s-dark: #090A0F;
   --color-s-surf: #141720;
   --color-s-surf2: #1B202C;
-  --color-s-bdr: rgba(211,160,92,0.2);
+  --color-s-bdr: rgba(211, 160, 92, 0.2);
   --color-ai: #00d4a8;
   --color-danger: #EF4444;
   --color-ok: #10B981;
   --color-warn: #F59E0B;
-  
-  --font-sans: "Inter", sans-serif;
+
+  --font-sans: "Inter", "Plus Jakarta Sans", sans-serif;
   --font-disp: "Syne", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+ * Camada 2 — Tokens semânticos por tema.
+ * Components should reference these via var(--color-bg) etc.
+ * Full migration is tracked in docs/04-design-system.md (Sprint 5).
+ * ──────────────────────────────────────────────────────────────────── */
+:root,
+:root[data-theme="dark"] {
+  --color-bg: #090A0F;
+  --color-surface: #141720;
+  --color-surface-2: #1B202C;
+  --color-content: #FFF5E9;
+  --color-content-2: #FCD7B8;
+  --color-accent: #D3A05C;
+  --color-accent-2: #A95F41;
+  --color-border: rgba(211, 160, 92, 0.2);
+  --color-scrim: rgba(9, 10, 15, 0.95);
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --color-bg: #FFF5E9;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F7EBDB;
+  --color-content: #090A0F;
+  --color-content-2: #4A3829;
+  --color-accent: #A98342;
+  --color-accent-2: #A95F41;
+  --color-border: rgba(169, 131, 66, 0.25);
+  --color-scrim: rgba(255, 245, 233, 0.95);
+  color-scheme: light;
+}
+
 @layer base {
   body {
-    @apply bg-s-dark text-s-ivory font-sans antialiased overflow-hidden h-screen w-screen m-0 p-0;
+    background: var(--color-bg);
+    color: var(--color-content);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    transition: background-color 250ms ease, color 250ms ease;
   }
-  
+
   ::-webkit-scrollbar {
     width: 4px;
   }
@@ -31,8 +77,19 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(211, 160, 92, 0.3);
+    background: var(--color-border);
     border-radius: 10px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -54,8 +111,7 @@
   .chip-danger { @apply bg-danger/10 border border-danger/30 text-danger; }
   .chip-ai { @apply bg-ai/10 border border-ai/30 text-ai; }
   .chip-nude { @apply bg-s-surf2 border border-s-bdr text-s-nude; }
-  
-  /* Animations */
+
   .fu {
     animation: fadeUp 0.4s ease forwards;
   }
@@ -63,5 +119,5 @@
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
