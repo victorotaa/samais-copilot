@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useTheme } from './lib/theme';
+import { Icon } from './ui/Icon';
 
 const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
 
@@ -332,20 +333,45 @@ export default function App() {
     return vehicles.filter(v => v.type.includes('USA') || v.type.includes('USB')).sort((a, b) => a.eta - b.eta);
   }, [vehicles]);
 
+  const GMAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  const mapFilter = theme === 'dark' ? 'invert(90%) hue-rotate(180deg) contrast(110%)' : 'none';
+
   const MapIframe = useMemo(() => {
     if (!amlData) return <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>;
+    const src = GMAPS_KEY
+      ? `https://www.google.com/maps/embed/v1/place?key=${GMAPS_KEY}&q=${amlData.lat},${amlData.lng}&zoom=16`
+      : `https://maps.google.com/maps?q=${amlData.lat},${amlData.lng}&z=16&output=embed`;
     return (
-      <iframe 
-        width="100%" 
-        height="100%" 
-        style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(110%)' }} 
-        loading="lazy" 
-        allowFullScreen 
-        referrerPolicy="no-referrer-when-downgrade" 
-        src={`https://maps.google.com/maps?q=${amlData.lat},${amlData.lng}&z=16&output=embed`}>
+      <iframe
+        width="100%"
+        height="100%"
+        style={{ border: 0, filter: mapFilter }}
+        loading="lazy"
+        allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+        src={src}>
       </iframe>
     );
-  }, [amlData]);
+  }, [amlData, GMAPS_KEY, mapFilter]);
+
+  // Mapa da tela de espera — base operacional (centro de São Paulo por ora;
+  // vira configuração do tenant quando houver backend).
+  const IdleMapIframe = useMemo(() => {
+    const src = GMAPS_KEY
+      ? `https://www.google.com/maps/embed/v1/view?key=${GMAPS_KEY}&center=-23.5505,-46.6333&zoom=13&maptype=roadmap`
+      : `https://maps.google.com/maps?q=-23.5505,-46.6333&z=13&output=embed`;
+    return (
+      <iframe
+        width="100%"
+        height="100%"
+        style={{ border: 0, filter: mapFilter }}
+        loading="lazy"
+        allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+        src={src}>
+      </iframe>
+    );
+  }, [GMAPS_KEY, mapFilter]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -370,7 +396,7 @@ export default function App() {
         setCurrentCaller(randomCaller);
         setAmlData(null);
         setIncomingCall(true);
-      }, 5000);
+      }, 10000);
     }
     return () => clearTimeout(timer);
   }, [isAuthenticated, currentModule, incomingCall]);
@@ -453,7 +479,7 @@ export default function App() {
         }}
         className="w-full py-3 bg-elevated border border-border-subtle text-ink-primary font-bold font-sans uppercase tracking-widest text-xs rounded-xl hover:bg-surface transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
       >
-        <i className="fa-solid fa-forward-step"></i> Handoff & Próxima Chamada
+        <Icon name="forward-step" /> Handoff & Próxima Chamada
       </button>
       <button 
         disabled={extractedData.risk === 'PENDING' && aiActive}
@@ -465,14 +491,14 @@ export default function App() {
         }}
         className="w-full py-4 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_30px_rgba(191,154,61,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
       >
-        <i className="fa-solid fa-user-doctor text-lg"></i> Handoff & Ir para Regulador
+        <Icon name="user-doctor" className="text-lg" /> Handoff & Ir para Regulador
       </button>
     </>
   );
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center justify-center h-screen w-screen bg-[var(--color-bg)] relative overflow-hidden transition-colors">
+      <div className="flex items-center justify-center h-screen w-screen bg-canvas relative overflow-hidden transition-colors">
         <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-gold-500/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-ai/5 rounded-full blur-3xl"></div>
         
@@ -483,10 +509,8 @@ export default function App() {
 
         <div className="gp p-10 rounded-2xl w-full max-w-md relative z-10 fu">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-700 rounded-2xl flex items-center justify-center shadow-lg border border-ink-primary/15 mb-4">
-              <span className="font-disp font-bold text-4xl text-ink-inverse">S</span>
-            </div>
-            <h1 className="font-disp font-bold text-2xl text-ink-primary tracking-wide">SAMAIS</h1>
+            <img src="/brand/samais-monograma-gold.svg" alt="Samais" className="h-16 mb-2" />
+            <img src="/brand/samais-logo-white-currentcolor.svg" alt="SAMAIS" className="h-7 text-ink-primary" />
             <p className="text-xs text-gold-500 uppercase tracking-widest font-mono mt-1">SAMU CoPilot OS</p>
           </div>
 
@@ -494,7 +518,7 @@ export default function App() {
             <div>
               <label className="lbl">Matrícula Operacional</label>
               <div className="relative">
-                <i className="fa-solid fa-id-badge absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50"></i>
+                <Icon name="id-badge" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50" />
                 <input type="text" className="inp pl-10" placeholder="Ex: TARM-04" required defaultValue="TARM-04" />
               </div>
             </div>
@@ -502,13 +526,13 @@ export default function App() {
             <div>
               <label className="lbl">Senha de Acesso</label>
               <div className="relative">
-                <i className="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50"></i>
+                <Icon name="lock" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary/50" />
                 <input type="password" className="inp pl-10" placeholder="••••••••" required defaultValue="password" />
               </div>
             </div>
 
             <div className="p-4 bg-elevated border border-border-subtle rounded-xl mt-2 flex items-start gap-3">
-              <i className="fa-solid fa-fingerprint text-ai text-xl mt-0.5"></i>
+              <Icon name="fingerprint" className="text-ai text-xl mt-0.5" />
               <div>
                 <p className="text-xs font-bold text-ink-primary">Verificação Biométrica MFA</p>
                 <p className="text-[0.65rem] text-ink-secondary font-mono mt-1">Requisito LGPD para acesso a dados sensíveis (PII).</p>
@@ -521,9 +545,9 @@ export default function App() {
               className="mt-4 w-full py-3.5 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold text-[0.8rem] uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(191,154,61,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:scale-100"
             >
               {isAuthenticating ? (
-                <><i className="fa-solid fa-circle-notch fa-spin"></i> Autenticando...</>
+                <><Icon name="circle-notch" className="animate-spin" /> Autenticando...</>
               ) : (
-                <>Acessar Central <i className="fa-solid fa-arrow-right"></i></>
+                <>Acessar Central <Icon name="arrow-right" /></>
               )}
             </button>
           </form>
@@ -533,7 +557,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[var(--color-bg)] transition-colors">
+    <div className="flex flex-col h-screen w-screen bg-canvas transition-colors">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
@@ -542,11 +566,7 @@ export default function App() {
             toast.type === 'warn' ? 'bg-warn/20 border-warn/40 text-warn' :
             'bg-ai/20 border-ai/40 text-ai'
           }`}>
-            <i className={`fa-solid ${
-              toast.type === 'success' ? 'fa-circle-check' :
-              toast.type === 'warn' ? 'fa-triangle-exclamation' :
-              'fa-circle-info'
-            }`}></i>
+            <Icon name={toast.type === 'success' ? 'circle-check' : toast.type === 'warn' ? 'triangle-exclamation' : 'circle-info'} />
             <span className="text-sm font-bold">{toast.message}</span>
           </div>
         </div>
@@ -559,7 +579,7 @@ export default function App() {
             <div className="absolute inset-0 rounded-full bg-danger/15 animate-ping" style={{ animationDuration: '2s' }}></div>
             <div className="absolute inset-3 rounded-full bg-danger/25 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }}></div>
             <div className="relative z-10 w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-danger to-red-900 flex items-center justify-center shadow-[0_0_60px_rgba(229,57,53,0.8)] text-3xl md:text-4xl text-white">
-              <i className="fa-solid fa-phone-volume animate-pulse"></i>
+              <Icon name="phone-volume" className="animate-pulse" />
             </div>
           </div>
           <div className="text-center w-full max-w-sm">
@@ -567,14 +587,14 @@ export default function App() {
             <h2 className="text-3xl md:text-4xl font-disp font-bold text-danger tracking-widest mb-4" style={{ textShadow: '0 0 30px rgba(229,57,53,0.5)' }}>EMERGÊNCIA 192</h2>
             
             <div className="inline-flex items-center gap-3 px-6 md:px-8 py-3 bg-surface border border-border-subtle rounded-full mb-6 md:mb-8 shadow-lg w-full justify-center">
-              <i className="fa-solid fa-mobile-screen text-lg md:text-xl text-ink-secondary"></i>
+              <Icon name="mobile-screen" className="text-lg md:text-xl text-ink-secondary" />
               <span className="text-ink-primary font-mono text-xl md:text-2xl font-bold truncate">{currentCaller.phone}</span>
             </div>
 
             {/* Mobile Transcription Box (Preview) */}
             <div className="md:hidden w-full p-4 bg-elevated/50 border border-border-subtle rounded-2xl mb-8 flex flex-col gap-2">
               <div className="flex items-center gap-2 text-[0.6rem] font-bold text-ai uppercase tracking-widest">
-                <i className="fa-solid fa-microphone-lines animate-pulse"></i> Transcrição Prévia (IA)
+                <Icon name="microphone-lines" className="animate-pulse" /> Transcrição Prévia (IA)
               </div>
               <div className="text-xs text-ink-primary italic text-left line-clamp-2">
                 "Socorro! Meu pai está com muita dor no peito e não consegue respirar direito, estamos na rua..."
@@ -586,7 +606,7 @@ export default function App() {
                 IGNORAR
               </button>
               <button onClick={acceptCall} className="flex-[1.5] px-4 py-3 bg-ok text-ink-inverse font-extrabold font-disp text-sm md:text-lg rounded-xl shadow-[0_0_30px_rgba(67,160,71,0.4)] hover:scale-105 transition-all flex items-center justify-center gap-2 md:gap-3">
-                <i className="fa-solid fa-headset"></i> ATENDER
+                <Icon name="headset" /> ATENDER
               </button>
             </div>
           </div>
@@ -596,11 +616,9 @@ export default function App() {
       {/* GLOBAL HEADER */}
       <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-5 shrink-0 z-50 shadow-md relative">
         <div className="flex items-center gap-4">
-          <div className="w-9 h-9 bg-gradient-to-br from-gold-500 to-gold-700 rounded-xl flex items-center justify-center shadow-lg border border-ink-primary/15 shrink-0">
-            <span className="font-disp font-bold text-xl text-ink-inverse">S</span>
-          </div>
+          <img src="/brand/samais-monograma-gold.svg" alt="Samais" className="h-9 shrink-0" />
           <div className="hidden sm:block">
-            <div className="font-disp font-bold text-base tracking-wide text-ink-primary leading-tight">SAMAIS</div>
+            <img src="/brand/samais-logo-white-currentcolor.svg" alt="SAMAIS" className="h-4 text-ink-primary" />
             <div className="text-[0.6rem] text-gold-500 uppercase tracking-widest font-mono">
               {currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
             </div>
@@ -609,12 +627,12 @@ export default function App() {
             onClick={() => setCurrentModule('DASHBOARD')}
             className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${currentModule === 'DASHBOARD' ? 'bg-gold-500/20 border border-gold-500 text-gold-500' : 'bg-elevated border border-border-subtle text-ink-primary hover:bg-surface'}`}
           >
-            <i className="fa-solid fa-chart-pie"></i> <span className="hidden sm:inline">Dashboard</span>
+            <Icon name="chart-pie" /> <span className="hidden sm:inline">Dashboard</span>
           </button>
         </div>
 
         <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 ${currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
-          <i className={`fa-solid fa-circle text-[7px] ${currentModule !== 'IDLE' ? 'text-danger animate-pulse' : 'text-ink-secondary'}`}></i>
+          <Icon name="circle" className={`text-[7px] ${currentModule !== 'IDLE' ? 'text-danger animate-pulse' : 'text-ink-secondary'}`} />
           <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${currentModule !== 'IDLE' ? 'text-danger' : 'text-ink-secondary'}`}>
             {currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA'}
           </span>
@@ -633,7 +651,7 @@ export default function App() {
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${soundEnabled ? 'bg-elevated border border-border-subtle text-gold-500 hover:border-gold-500' : 'bg-elevated border border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
             title={soundEnabled ? "Desativar Sons" : "Ativar Sons"}
           >
-            <i className={`fa-solid ${soundEnabled ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
+            <Icon name={soundEnabled ? 'volume-high' : 'volume-xmark'} />
           </button>
           <button
             onClick={toggleTheme}
@@ -641,7 +659,7 @@ export default function App() {
             title={theme === 'dark' ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
             aria-label="Alternar tema"
           >
-            <i className={`fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
+            <Icon name="moon" />
           </button>
           <div className="h-7 w-px bg-hover"></div>
           <div className="flex items-center gap-3">
@@ -654,7 +672,7 @@ export default function App() {
               className="w-9 h-9 rounded-lg bg-elevated border border-border-subtle hover:border-danger hover:text-danger text-ink-secondary transition-all flex items-center justify-center text-sm" 
               title="Sair"
             >
-              <i className="fa-solid fa-arrow-right-from-bracket"></i>
+              <Icon name="arrow-right-from-bracket" />
             </button>
           </div>
         </div>
@@ -665,7 +683,7 @@ export default function App() {
         {/* Guardrails for empty states */}
         {(currentModule === 'AML' || currentModule === 'TARM' || currentModule === 'REGULADOR' || currentModule === 'VIATURA') && !currentCaller && (
           <div className="flex-1 flex flex-col items-center justify-center text-ink-secondary/50">
-            <i className="fa-solid fa-headset text-4xl mb-4 animate-pulse"></i>
+            <Icon name="headset" className="text-4xl mb-4 animate-pulse" />
             <p className="font-mono text-sm uppercase tracking-widest">Aguardando chamada entrante...</p>
           </div>
         )}
@@ -687,7 +705,7 @@ export default function App() {
             <div className="w-full max-w-7xl px-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col">
                 <div className="flex items-center gap-3 mb-6 border-b border-border-subtle pb-3">
-                  <i className="fa-solid fa-truck-medical text-gold-500 text-xl"></i>
+                  <Icon name="truck-medical" className="text-gold-500 text-xl" />
                   <h3 className="text-lg font-disp font-bold text-ink-primary uppercase tracking-widest">Status da Frota</h3>
                   <div className="ml-auto flex gap-2">
                      <span className="chip chip-ok text-[0.6rem]">3 DISPONÍVEIS</span>
@@ -707,7 +725,7 @@ export default function App() {
                         v.color === 'danger' ? 'bg-danger/10 text-danger' : 
                         v.color === 'warn' ? 'bg-warn/10 text-warn' : 'bg-ink-secondary/10 text-ink-secondary'
                       }`}>
-                        <i className={`fa-solid ${v.type.includes('MOTOLÂNCIA') ? 'fa-motorcycle' : 'fa-truck-medical'}`}></i>
+                        <Icon name={v.type.includes('MOTOLÂNCIA') ? 'motorcycle' : 'truck-medical'} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
@@ -719,7 +737,7 @@ export default function App() {
                           }`}>{v.status}</span>
                         </div>
                         <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">{v.type}</div>
-                        <div className="text-[0.65rem] text-ink-secondary/70 font-mono mt-1"><i className="fa-solid fa-location-dot mr-1"></i> {v.base}</div>
+                        <div className="text-[0.65rem] text-ink-secondary/70 font-mono mt-1"><Icon name="location-dot" className="mr-1" /> {v.base}</div>
                       </div>
                     </div>
                   ))}
@@ -730,31 +748,26 @@ export default function App() {
               <div className="gp rounded-2xl flex flex-col overflow-hidden min-h-[400px] lg:min-h-0 border border-border-subtle">
                 <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-map-location-dot text-gold-500 text-xs"></i>
+                    <Icon name="map-location-dot" className="text-gold-500 text-xs" />
                     <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Posicionamento Global</span>
                   </div>
-                  <span className="chip chip-ok text-[0.6rem] animate-pulse"><i className="fa-solid fa-satellite-dish"></i> GPS ATIVO</span>
+                  <span className="chip chip-ok text-[0.6rem] animate-pulse"><Icon name="satellite-dish" /> GPS ATIVO</span>
                 </div>
                 <div className="flex-1 relative bg-[#161618]">
-                  {MapIframe || (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-ink-secondary/50">
-                      <i className="fa-solid fa-satellite-dish text-4xl mb-3 animate-pulse"></i>
-                      <p className="font-mono text-xs uppercase tracking-widest">Carregando mapa...</p>
-                    </div>
-                  )}
+                  {IdleMapIframe}
                   <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(7,7,8,0.8)]"></div>
                   
                   {/* Simulated Moving Vehicles */}
                   <div className="absolute top-1/3 left-1/4 z-10 flex flex-col items-center pointer-events-none transition-all duration-[3000ms] ease-linear" style={{ transform: `translate(${Math.sin(time.getTime() / 2000) * 20}px, ${Math.cos(time.getTime() / 2000) * 20}px)` }}>
                     <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(67,160,71,0.7)] flex items-center justify-center">
-                      <i className="fa-solid fa-truck-medical text-white text-[0.5rem] rotate-45"></i>
+                      <Icon name="truck-medical" className="text-white text-[0.5rem] rotate-45" />
                     </div>
                     <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">USA-01</div>
                   </div>
 
                   <div className="absolute top-2/3 left-2/3 z-10 flex flex-col items-center pointer-events-none transition-all duration-[2000ms] ease-linear" style={{ transform: `translate(${Math.cos(time.getTime() / 1500) * 30}px, ${Math.sin(time.getTime() / 1500) * 30}px)` }}>
                     <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(67,160,71,0.7)] flex items-center justify-center">
-                      <i className="fa-solid fa-motorcycle text-white text-[0.5rem] rotate-45"></i>
+                      <Icon name="motorcycle" className="text-white text-[0.5rem] rotate-45" />
                     </div>
                     <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">MOT-01</div>
                   </div>
@@ -770,7 +783,7 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 shrink-0 order-2 lg:order-1">
               <div className="lg:col-span-2 gp rounded-2xl p-4 flex items-center gap-5 border-l-4 border-l-gold-500">
                 <div className="w-12 h-12 rounded-full bg-elevated flex items-center justify-center border border-border-subtle text-lg text-gold-500 shrink-0">
-                  <i className="fa-solid fa-user"></i>
+                  <Icon name="user" />
                 </div>
                 <div className="flex-1">
                   <div className="lbl">Origem da Chamada</div>
@@ -792,7 +805,7 @@ export default function App() {
               {/* Anti-trote */}
               <div className={`gp rounded-2xl p-4 flex items-center gap-4 ${currentCaller.hasHistory ? 'bg-ok/8 border-ok/30 shadow-[0_0_20px_rgba(67,160,71,0.1)]' : 'bg-elevated border-border-subtle'}`}>
                 <div className={`w-11 h-11 rounded-full flex items-center justify-center border text-lg shrink-0 ${currentCaller.hasHistory ? 'bg-ok/15 border-ok/40 text-ok' : 'bg-surface border-border-subtle text-ink-secondary'}`}>
-                  <i className="fa-solid fa-shield-halved"></i>
+                  <Icon name="shield-halved" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`lbl ${currentCaller.hasHistory ? 'text-ok' : 'text-ink-secondary'}`}>Score Anti-Trote</div>
@@ -815,13 +828,13 @@ export default function App() {
               <div className="gp rounded-2xl flex flex-col overflow-hidden order-2 lg:order-1">
                 <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-file-lines text-gold-500 text-xs"></i>
+                    <Icon name="file-lines" className="text-gold-500 text-xs" />
                     <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Dados do Solicitante</span>
                   </div>
                   {currentCaller.hasHistory ? (
-                    <span className="chip chip-ai text-[0.6rem]"><i className="fa-solid fa-bolt"></i> CAD AUTO-FILL</span>
+                    <span className="chip chip-ai text-[0.6rem]"><Icon name="bolt" /> CAD AUTO-FILL</span>
                   ) : (
-                    <span className="chip chip-warn text-[0.6rem]"><i className="fa-solid fa-keyboard"></i> PREENCHIMENTO MANUAL</span>
+                    <span className="chip chip-warn text-[0.6rem]"><Icon name="keyboard" /> PREENCHIMENTO MANUAL</span>
                   )}
                 </div>
                 <div className="p-5 flex flex-col gap-4 overflow-y-auto max-h-[40vh] lg:max-h-none">
@@ -847,7 +860,7 @@ export default function App() {
                         defaultValue=""
                       />
                       <div className="mt-2 p-3 bg-surface border border-border-subtle rounded-xl flex items-start gap-3">
-                        <i className="fa-solid fa-circle-info text-ink-secondary mt-0.5 text-xs"></i>
+                        <Icon name="circle-info" className="text-ink-secondary mt-0.5 text-xs" />
                         <div>
                           <p className="text-[0.65rem] text-ink-secondary font-mono leading-relaxed">
                             Sem lastro no CAD. Preencha manualmente ou aguarde a extração automática da IA no Módulo TARM.
@@ -885,12 +898,12 @@ export default function App() {
                     <div className="flex items-center gap-2 text-[0.65rem] font-mono text-ok">
                       {amlData ? (
                         <>
-                          <i className="fa-solid fa-circle-check"></i>
+                          <Icon name="circle-check" />
                           <span>Coordenadas AML fixadas: <span className="font-bold">{amlData.lat}°, {amlData.lng}°</span> · Precisão: ±5m</span>
                         </>
                       ) : (
                         <>
-                          <i className="fa-solid fa-circle-notch fa-spin"></i>
+                          <Icon name="circle-notch" className="animate-spin" />
                           <span>Interceptando sinal GPS via operadora...</span>
                         </>
                       )}
@@ -903,16 +916,16 @@ export default function App() {
               <div className="gp rounded-2xl flex flex-col lg:overflow-hidden relative flex-1 min-h-[300px] lg:min-h-0">
                 <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between z-10 relative shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-map-location-dot text-gold-500 text-xs"></i>
+                    <Icon name="map-location-dot" className="text-gold-500 text-xs" />
                     <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Google Maps API</span>
                   </div>
-                  {amlData && <span className="chip chip-ok text-[0.6rem] animate-pulse"><i className="fa-solid fa-satellite-dish"></i> FIXADO ±5M</span>}
+                  {amlData && <span className="chip chip-ok text-[0.6rem] animate-pulse"><Icon name="satellite-dish" /> FIXADO ±5M</span>}
                 </div>
                 
                 <div className="flex-1 relative bg-[#161618] overflow-hidden">
                   {MapIframe || (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-ink-secondary/50">
-                      <i className="fa-solid fa-satellite-dish text-4xl mb-3 animate-pulse"></i>
+                      <Icon name="satellite-dish" className="text-4xl mb-3 animate-pulse" />
                       <p className="font-mono text-xs uppercase tracking-widest">Aguardando triangulação...</p>
                     </div>
                   )}
@@ -921,7 +934,7 @@ export default function App() {
                       <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(7,7,8,0.8)]"></div>
                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 flex flex-col items-center pointer-events-none">
                         <div className="w-8 h-8 bg-danger border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_20px_rgba(229,57,53,0.7)] flex items-center justify-center">
-                          <i className="fa-solid fa-truck-medical text-white text-[0.6rem] rotate-45"></i>
+                          <Icon name="truck-medical" className="text-white text-[0.6rem] rotate-45" />
                         </div>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 border-2 border-danger/60 rounded-full animate-ping" style={{ animationDuration: '2s' }}></div>
                       </div>
@@ -941,8 +954,8 @@ export default function App() {
                 disabled={!amlData}
                 className="px-10 py-4 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_40px_rgba(191,154,61,0.35)] hover:scale-[1.02] transition-transform flex items-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
               >
-                <i className="fa-solid fa-check-double text-lg"></i> Confirmar AML & Iniciar Triagem
-                <i className="fa-solid fa-arrow-right text-lg"></i>
+                <Icon name="check-double" className="text-lg" /> Confirmar AML & Iniciar Triagem
+                <Icon name="arrow-right" className="text-lg" />
               </button>
             </div>
           </div>
@@ -954,7 +967,7 @@ export default function App() {
             <div className="w-full lg:w-[250px] h-48 lg:h-auto gp rounded-2xl flex flex-col lg:overflow-hidden shrink-0 hidden md:flex">
               <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
-                  <i className="fa-solid fa-list-ol text-gold-500 text-xs"></i>
+                  <Icon name="list-ol" className="text-gold-500 text-xs" />
                   <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Fila de Espera</span>
                 </div>
                 <span className="chip chip-warn text-[0.6rem]">{MOCK_QUEUE.length} na fila</span>
@@ -980,7 +993,7 @@ export default function App() {
               <div className="gp rounded-2xl flex flex-col lg:overflow-hidden flex-1">
                 <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-brain text-ai text-xs"></i>
+                    <Icon name="brain" className="text-ai text-xs" />
                     <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Extração Cognitiva (NLP)</span>
                   </div>
                   <span className={`chip ${aiActive ? 'chip-ai' : 'chip-warn'} text-[0.6rem]`}>
@@ -992,7 +1005,7 @@ export default function App() {
                   {/* Telemetry Panel */}
                   <div className="p-3 rounded-xl border border-border-subtle bg-elevated/50 flex flex-col gap-2">
                     <div className="text-[0.6rem] font-bold uppercase tracking-widest text-ink-secondary flex items-center gap-2 mb-1">
-                      <i className="fa-solid fa-server text-gold-500"></i> Telemetria do Sistema
+                      <Icon name="server" className="text-gold-500" /> Telemetria do Sistema
                     </div>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[0.65rem] font-mono">
                       <div className="flex justify-between items-center">
@@ -1114,7 +1127,7 @@ export default function App() {
               <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-ai/15 flex items-center justify-center text-ai border border-ai/30 relative overflow-hidden">
-                    <i className="fa-solid fa-microphone-lines relative z-10"></i>
+                    <Icon name="microphone-lines" className="relative z-10" />
                     {aiActive && <div className="absolute inset-0 bg-ai/20 animate-ping" style={{ animationDuration: '2s' }}></div>}
                   </div>
                   <div>
@@ -1123,7 +1136,7 @@ export default function App() {
                       <AudioWaveform active={aiActive} />
                     </div>
                     <div className="text-[0.6rem] text-ai font-mono flex items-center gap-1.5 mt-0.5">
-                      <i className="fa-solid fa-circle text-[5px] animate-pulse"></i> STT Engine Ativo
+                      <Icon name="circle" className="text-[5px] animate-pulse" /> STT Engine Ativo
                     </div>
                   </div>
                 </div>
@@ -1137,7 +1150,7 @@ export default function App() {
                       : 'bg-surface border-border-subtle text-ink-secondary hover:bg-elevated'
                   }`}
                 >
-                  <i className="fa-solid fa-power-off"></i>
+                  <Icon name="power-off" />
                   {aiActive ? 'Pausar IA' : 'IA Pausada'}
                 </button>
               </div>
@@ -1172,7 +1185,7 @@ export default function App() {
                 
                 {!aiActive && (
                   <div className="mt-4 p-4 bg-warn/10 border border-warn/30 rounded-xl flex items-start gap-3 fu">
-                    <i className="fa-solid fa-triangle-exclamation text-warn mt-0.5"></i>
+                    <Icon name="triangle-exclamation" className="text-warn mt-0.5" />
                     <div>
                       <p className="text-sm font-bold text-warn mb-1">Modo Manual Ativado</p>
                       <p className="text-xs text-ink-secondary leading-relaxed">
@@ -1197,7 +1210,7 @@ export default function App() {
             <div className="w-full lg:w-[300px] gp rounded-2xl flex flex-col overflow-hidden shrink-0">
               <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
-                  <i className="fa-solid fa-file-medical text-gold-500 text-xs"></i>
+                  <Icon name="file-medical" className="text-gold-500 text-xs" />
                   <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Handoff do TARM</span>
                 </div>
                 <span className={`chip ${
@@ -1253,7 +1266,7 @@ export default function App() {
                 <div className="mt-2 pt-4 border-t border-border-subtle">
                   <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center justify-between">
                     <span>Histórico da Ligação</span>
-                    <button className="text-gold-500 hover:text-ink-primary transition-colors"><i className="fa-solid fa-expand"></i></button>
+                    <button className="text-gold-500 hover:text-ink-primary transition-colors"><Icon name="expand" /></button>
                   </div>
                   <div className="flex flex-col gap-2">
                     {tarmChat.slice(-4).map((msg, idx) => (
@@ -1271,7 +1284,7 @@ export default function App() {
               <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-ai/20 flex items-center justify-center">
-                    <i className="fa-solid fa-stethoscope text-ai text-xs"></i>
+                    <Icon name="stethoscope" className="text-ai text-xs" />
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-ink-primary leading-none">Apoio à Decisão Clínica (CDS)</h2>
@@ -1283,7 +1296,7 @@ export default function App() {
                 {/* AI Recommendation */}
                 <div className="p-4 bg-ai/5 border border-ai/20 rounded-xl flex gap-4">
                   <div className="w-10 h-10 rounded-full bg-ai/20 flex items-center justify-center shrink-0">
-                    <i className="fa-solid fa-robot text-ai"></i>
+                    <Icon name="robot" className="text-ai" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-ai mb-1 flex items-center justify-between">
@@ -1309,7 +1322,7 @@ export default function App() {
                 {/* Protocolo de Manchester (Checklist) */}
                 <div className="p-4 bg-surface border border-border-subtle rounded-xl">
                   <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center gap-2">
-                    <i className="fa-solid fa-list-check text-gold-500"></i> Validação do Protocolo (Manchester)
+                    <Icon name="list-check" className="text-gold-500" /> Validação do Protocolo (Manchester)
                   </h3>
                   <div className="flex flex-col gap-2">
                     {protocolSteps.map(step => (
@@ -1330,7 +1343,7 @@ export default function App() {
                 {selectedVehicleId && selectedVehicleId !== MOCK_VEHICLES.filter(v => v.type.includes('USA'))[0]?.id && (
                   <div className="p-4 bg-surface border border-border-subtle rounded-xl shrink-0">
                     <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center gap-2">
-                      <i className="fa-solid fa-code-branch"></i> Decisão Divergente
+                      <Icon name="code-branch" /> Decisão Divergente
                     </h3>
                     <p className="text-xs text-ink-primary mb-3">Se a sua decisão médica for diferente da recomendação da IA, selecione a justificativa abaixo para fins de auditoria e aprendizado do sistema:</p>
                     <div className="grid grid-cols-2 gap-2">
@@ -1338,25 +1351,25 @@ export default function App() {
                         onClick={() => setJustification('ansiedade')}
                         className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'ansiedade' ? 'bg-gold-500/20 border-gold-500 text-ink-primary' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500'}`}
                       >
-                        <i className="fa-solid fa-brain text-gold-500"></i> Crise de Ansiedade / Pânico
+                        <Icon name="brain" className="text-gold-500" /> Crise de Ansiedade / Pânico
                       </button>
                       <button 
                         onClick={() => setJustification('trote')}
                         className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'trote' ? 'bg-gold-500/20 border-gold-500 text-ink-primary' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500'}`}
                       >
-                        <i className="fa-solid fa-mask text-gold-500"></i> Suspeita de Trote
+                        <Icon name="mask" className="text-gold-500" /> Suspeita de Trote
                       </button>
                       <button 
                         onClick={() => setJustification('gravidade')}
                         className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'gravidade' ? 'bg-gold-500/20 border-gold-500 text-ink-primary' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500'}`}
                       >
-                        <i className="fa-solid fa-scale-unbalanced text-gold-500"></i> Gravidade Superestimada pela IA
+                        <Icon name="scale-unbalanced" className="text-gold-500" /> Gravidade Superestimada pela IA
                       </button>
                       <button 
                         onClick={() => setJustification('recurso')}
                         className={`p-2 border rounded-lg text-xs transition-colors text-left flex items-center gap-2 ${justification === 'recurso' ? 'bg-gold-500/20 border-gold-500 text-ink-primary' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary hover:border-gold-500'}`}
                       >
-                        <i className="fa-solid fa-truck-medical text-gold-500"></i> Recurso Ideal Indisponível (Downgrade)
+                        <Icon name="truck-medical" className="text-gold-500" /> Recurso Ideal Indisponível (Downgrade)
                       </button>
                     </div>
                   </div>
@@ -1388,7 +1401,7 @@ export default function App() {
               <div className="gp rounded-2xl flex flex-col overflow-hidden flex-1">
                 <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-truck-medical text-gold-500 text-xs"></i>
+                    <Icon name="truck-medical" className="text-gold-500 text-xs" />
                     <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Recursos & Despacho</span>
                   </div>
                 </div>
@@ -1398,7 +1411,7 @@ export default function App() {
                     {MapIframe || (
                       <>
                         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #BF9A3D 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
-                        <i className="fa-solid fa-map-location-dot text-3xl text-ink-secondary/30"></i>
+                        <Icon name="map-location-dot" className="text-3xl text-ink-secondary/30" />
                       </>
                     )}
                     <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(7,7,8,0.8)]"></div>
@@ -1411,7 +1424,7 @@ export default function App() {
                   <div>
                     <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center justify-between">
                       Viaturas Recomendadas
-                      <span className="text-[0.55rem] text-ok flex items-center gap-1"><i className="fa-solid fa-circle text-[4px] animate-pulse"></i> LIVE</span>
+                      <span className="text-[0.55rem] text-ok flex items-center gap-1"><Icon name="circle" className="text-[4px] animate-pulse" /> LIVE</span>
                     </div>
                     <div className="flex flex-col gap-2">
                       {recommendedVehicles.map((v, i) => {
@@ -1456,9 +1469,9 @@ export default function App() {
                 className="w-full py-4 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_30px_rgba(229,57,53,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-70 disabled:hover:scale-100"
               >
                 {isDispatching ? (
-                  <><i className="fa-solid fa-circle-notch fa-spin text-lg"></i> Acionando...</>
+                  <><Icon name="circle-notch" className="animate-spin text-lg" /> Acionando...</>
                 ) : (
-                  <><i className="fa-solid fa-truck-fast text-lg"></i> Acionar Viatura</>
+                  <><Icon name="truck-fast" className="text-lg" /> Acionar Viatura</>
                 )}
               </button>
             </div>
@@ -1470,11 +1483,11 @@ export default function App() {
             {/* Top Bar for Vehicle */}
             <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-canvas/90 to-transparent z-20 flex justify-between items-start pointer-events-none">
               <button className="pointer-events-auto w-12 h-12 bg-danger/90 backdrop-blur border border-danger/50 rounded-full text-white shadow-[0_0_20px_rgba(229,57,53,0.4)] flex items-center justify-center text-lg hover:scale-105 transition-transform">
-                <i className="fa-solid fa-triangle-exclamation"></i>
+                <Icon name="triangle-exclamation" />
               </button>
               <div className="flex flex-col gap-2 pointer-events-auto items-end">
                 <button className="px-4 py-2 bg-canvas/90 backdrop-blur border border-border-subtle rounded-full text-xs font-bold text-ink-primary shadow-lg flex items-center gap-2">
-                  <i className={`fa-solid ${selectedVehicleId?.includes('MOT') ? 'fa-motorcycle' : 'fa-truck-medical'} text-gold-500`}></i> {selectedVehicleId || 'VIATURA'}
+                  <Icon name={selectedVehicleId?.includes('MOT') ? 'motorcycle' : 'truck-medical'} className="text-gold-500" /> {selectedVehicleId || 'VIATURA'}
                 </button>
                 <span className="px-3 py-1 bg-warn/20 border border-warn/30 text-warn text-[0.65rem] font-bold rounded-full w-fit flex items-center gap-1.5 shadow-lg">
                   <span className="w-1.5 h-1.5 rounded-full bg-warn animate-pulse"></span> QTI - A CAMINHO
@@ -1493,13 +1506,13 @@ export default function App() {
             {/* Floating Action Buttons (Right Side) */}
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
               <button className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
-                <i className="fa-solid fa-location-arrow text-ai"></i>
+                <Icon name="location-arrow" className="text-ai" />
               </button>
               <button className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
-                <i className="fa-solid fa-walkie-talkie text-gold-500"></i>
+                <Icon name="walkie-talkie" className="text-gold-500" />
               </button>
               <button onClick={() => setShowCameraModal(true)} className="w-12 h-12 bg-surface/90 backdrop-blur border border-border-subtle rounded-full text-ink-primary shadow-lg flex items-center justify-center text-lg hover:bg-elevated transition-colors">
-                <i className="fa-solid fa-camera text-ok"></i>
+                <Icon name="camera" className="text-ok" />
               </button>
             </div>
 
@@ -1519,7 +1532,7 @@ export default function App() {
             {/* Vehicle Telemetry Panel */}
             <div className="absolute top-40 left-4 md:top-24 md:left-4 bg-canvas/90 backdrop-blur-md border border-border-subtle p-3 rounded-xl shadow-2xl z-10 flex flex-col gap-2 pointer-events-none w-[180px]">
               <div className="text-[0.6rem] font-bold uppercase tracking-widest text-ink-secondary flex items-center gap-2 mb-1">
-                <i className="fa-solid fa-satellite text-gold-500"></i> Telemetria
+                <Icon name="satellite" className="text-gold-500" /> Telemetria
               </div>
               <div className="flex flex-col gap-2 text-[0.65rem] font-mono">
                 <div className="flex justify-between items-center">
@@ -1545,7 +1558,7 @@ export default function App() {
               </div>
               <div className="px-4 pb-3 border-b border-border-subtle flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <i className="fa-solid fa-file-medical text-gold-500"></i>
+                  <Icon name="file-medical" className="text-gold-500" />
                   <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Handoff Médico</span>
                 </div>
                 <span className={`chip text-[0.6rem] ${extractedData.risk === 'RED' ? 'chip-danger' : extractedData.risk === 'YELLOW' ? 'chip-warn' : 'chip-ok'}`}>
@@ -1578,7 +1591,7 @@ export default function App() {
                 {/* Action Grid */}
                 <div className="grid grid-cols-1 gap-2 mt-2">
                   <button onClick={() => setShowCameraModal(true)} className="py-3.5 bg-ok/20 border border-ok/40 rounded-xl text-xs font-bold text-ok hover:bg-ok/30 transition-colors flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(67,160,71,0.1)]">
-                    <i className="fa-solid fa-video"></i> Iniciar Live View da Cena
+                    <Icon name="video" /> Iniciar Live View da Cena
                   </button>
                 </div>
               </div>
@@ -1590,7 +1603,7 @@ export default function App() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
-                  <i className="fa-solid fa-chart-simple text-gold-500"></i> Relatório Operacional & BI
+                  <Icon name="chart-simple" className="text-gold-500" /> Relatório Operacional & BI
                 </h2>
                 <p className="text-sm text-ink-secondary">Central 192 · Métricas de performance e assertividade do Co-piloto</p>
               </div>
@@ -1601,7 +1614,7 @@ export default function App() {
                     className="bg-elevated border border-border-subtle rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer hover:bg-surface transition-colors"
                   >
                     <span className="text-xs font-bold text-ink-primary">{selectedPeriod}</span>
-                    <i className="fa-solid fa-chevron-down text-ink-secondary text-[0.6rem]"></i>
+                    <Icon name="chevron-down" className="text-ink-secondary text-[0.6rem]" />
                   </div>
                   
                   {showDatePicker && (
@@ -1622,9 +1635,9 @@ export default function App() {
                       </div>
                       <div className="p-3">
                         <div className="flex items-center justify-between mb-2">
-                          <i className="fa-solid fa-chevron-left text-ink-secondary text-[0.6rem] cursor-pointer hover:text-ink-primary"></i>
+                          <Icon name="chevron-left" className="text-ink-secondary text-[0.6rem] cursor-pointer hover:text-ink-primary" />
                           <span className="text-xs font-bold text-ink-primary">Abril 2026</span>
-                          <i className="fa-solid fa-chevron-right text-ink-secondary text-[0.6rem] cursor-pointer hover:text-ink-primary"></i>
+                          <Icon name="chevron-right" className="text-ink-secondary text-[0.6rem] cursor-pointer hover:text-ink-primary" />
                         </div>
                         <div className="grid grid-cols-7 gap-1 text-center mb-1">
                           {['D','S','T','Q','Q','S','S'].map(d => <div key={d} className="text-[0.6rem] text-ink-secondary font-bold">{d}</div>)}
@@ -1641,7 +1654,7 @@ export default function App() {
                   )}
                 </div>
                 <button className="px-4 py-2 rounded-lg bg-surface border border-border-subtle text-xs font-bold text-ink-primary hover:bg-elevated transition-colors flex items-center gap-2">
-                  <i className="fa-solid fa-file-pdf text-ink-secondary"></i> Exportar PDF
+                  <Icon name="file-pdf" className="text-ink-secondary" /> Exportar PDF
                 </button>
               </div>
             </div>
@@ -1649,7 +1662,7 @@ export default function App() {
             {/* LGPD Banner */}
             <div className="gp p-4 rounded-2xl border border-ok/20 bg-ok/5 flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-ok/10 flex items-center justify-center shrink-0">
-                <i className="fa-solid fa-lock text-ok text-lg"></i>
+                <Icon name="lock" className="text-ok text-lg" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-bold text-ok uppercase tracking-widest mb-1">AES-256 · CONFORMIDADE LGPD (LEI 13.709/2018)</div>
@@ -1666,7 +1679,7 @@ export default function App() {
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ink-secondary">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS RECEBIDAS</div>
                 <div className="text-4xl font-disp font-bold text-ink-primary mb-2">1.432</div>
-                <div className="text-xs text-ok"><i className="fa-solid fa-arrow-trend-up"></i> +5% vs período anterior</div>
+                <div className="text-xs text-ok"><Icon name="arrow-trend-up" /> +5% vs período anterior</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-gold-500 relative overflow-hidden">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
@@ -1677,7 +1690,7 @@ export default function App() {
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ok">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">T. MÉDIO REGULAÇÃO</div>
                 <div className="text-4xl font-disp font-bold text-ok mb-2">1m 12s</div>
-                <div className="text-xs text-ok/70"><i className="fa-solid fa-arrow-trend-down"></i> -45s vs Média Nac.</div>
+                <div className="text-xs text-ok/70"><Icon name="arrow-trend-down" /> -45s vs Média Nac.</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-danger">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">DESPACHOS USA (VERMELHO)</div>
@@ -1770,7 +1783,7 @@ export default function App() {
             {/* Recent Calls History */}
             <div className="gp p-5 rounded-2xl flex flex-col">
               <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-4 flex items-center gap-2">
-                <i className="fa-solid fa-clock-rotate-left text-gold-500"></i> Histórico de Chamadas Recentes
+                <Icon name="clock-rotate-left" className="text-gold-500" /> Histórico de Chamadas Recentes
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[600px]">
@@ -1832,37 +1845,37 @@ export default function App() {
             onClick={() => { setCurrentModule('IDLE'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'IDLE' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
-            <i className="fa-solid fa-house-signal"></i> Home
+            <Icon name="house-signal" /> Home
           </button>
           <button 
             onClick={() => { setCurrentModule('AML'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'AML' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
-            <i className="fa-solid fa-location-crosshairs"></i> Ligação
+            <Icon name="location-crosshairs" /> Ligação
           </button>
           <button 
             onClick={() => { setCurrentModule('TARM'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'TARM' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
-            <i className="fa-solid fa-microphone-lines"></i> TARM
+            <Icon name="microphone-lines" /> TARM
           </button>
           <button 
             onClick={() => { setCurrentModule('REGULADOR'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'REGULADOR' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
-            <i className="fa-solid fa-user-doctor"></i> Médico
+            <Icon name="user-doctor" /> Médico
           </button>
           <button 
             onClick={() => { setCurrentModule('VIATURA'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'VIATURA' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
-            <i className="fa-solid fa-truck-medical"></i> Viatura
+            <Icon name="truck-medical" /> Viatura
           </button>
           <button
             onClick={() => { setCurrentModule('DASHBOARD'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'DASHBOARD' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
-            <i className="fa-solid fa-chart-simple"></i> Dashboard
+            <Icon name="chart-simple" /> Dashboard
           </button>
         </nav>
       </div>

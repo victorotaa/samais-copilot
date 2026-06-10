@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="Samais">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23070708'/><text x='50%25' y='52%25' text-anchor='middle' dominant-baseline='middle' font-family='Syne, sans-serif' font-weight='800' font-size='22' fill='%23BF9A3D'>S</text></svg>">
+<link rel="icon" type="image/svg+xml" href="/brand/samais-monograma-gold.svg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -108,7 +108,7 @@ h2{font-size:clamp(28px,4vw,44px);font-weight:700;margin-bottom:18px}
   border-bottom:1px solid var(--border-subtle);
 }
 .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-.lockup{display:flex;align-items:baseline;gap:10px;text-decoration:none}
+.lockup{display:flex;align-items:center;gap:10px;text-decoration:none}
 .lockup b{font-family:'Syne',sans-serif;font-weight:600;font-size:18px;letter-spacing:-0.02em;color:var(--gold-500)}
 .lockup span{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;color:var(--ink-3);text-transform:uppercase}
 .topnav{display:flex;align-items:center;gap:8px}
@@ -273,7 +273,7 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
 
 <header class="topbar">
   <div class="wrap">
-    <a class="lockup" href="#"><b>Samais</b><span>· CoPilot OS</span></a>
+    <a class="lockup" href="#"><img src="/brand/samais-monograma-gold.svg" alt="" style="height:26px"><img src="/brand/samais-logo-white-currentcolor.svg" alt="Samais" style="height:13px;color:var(--ink)"><span>· CoPilot OS</span></a>
     <nav class="topnav">
       <a class="link" href="#problema">O problema</a>
       <a class="link" href="#pilares">Como resolve</a>
@@ -291,7 +291,7 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
   <div class="wrap">
     <p class="eyebrow">Samais · Co-piloto de despacho APH</p>
     <h1>Cada minuto da central, <em>auditado</em>, <em>classificado</em>, e a caminho.</h1>
-    <p class="sub">Sistema operacional para centrais 192 e despacho APH, com IA que ouve a chamada, identifica risco e justifica decisões para o Médico Regulador.</p>
+    <p class="sub">Quando alguém liga para o 192, cada segundo decide se uma vida é salva. O CoPilot OS é o sistema que ouve a chamada junto com a equipe, entende a gravidade na hora e ajuda o médico a enviar a ambulância certa — mais rápido e com tudo registrado.</p>
     <div class="hero-ctas">
       <a class="btn btn-primary" href="#" data-open-modal>Agendar demonstração</a>
       <a class="btn btn-secondary" href="#demo">Ver o CoPilot rodando</a>
@@ -310,24 +310,24 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
   <div class="wrap">
     <p class="eyebrow">O problema</p>
     <h2>O que acontece na maioria das centrais hoje</h2>
-    <p class="sub" style="margin-bottom:48px">Três pontos de perda que se repetem em qualquer operação 192 — pública ou privada.</p>
+    <p class="sub" style="margin-bottom:48px">Em uma emergência, minutos perdidos dentro da central custam vidas lá fora. Três pontos de perda se repetem em qualquer operação 192 — pública ou privada.</p>
     <div class="grid-3">
       <div class="card">
         <div class="icon">☎</div>
         <h3>TARM sobrecarregado</h3>
-        <p>Escuta, digita, classifica e transfere — tudo ao mesmo tempo, sob pressão. Sem apoio de IA, cada chamada acumula segundos de retrabalho que viram minutos na fila.</p>
+        <p>O atendente que recebe a ligação precisa escutar, digitar, classificar e transferir — tudo ao mesmo tempo, sob pressão. Cada segundo de retrabalho vira minuto na fila de quem espera socorro.</p>
         <span class="metric">Perda típica: <b>retrabalho a cada chamada</b></span>
       </div>
       <div class="card">
         <div class="icon">⚕</div>
         <h3>Regulação às cegas</h3>
-        <p>O Médico Regulador decide com o resumo verbal de terceiros, sem trilha do que o solicitante disse de fato. A decisão é boa — mas não é auditável.</p>
+        <p>O médico que autoriza o envio da ambulância decide com base em um resumo verbal, sem registro do que a pessoa disse de fato ao telefone. A decisão pode ser boa — mas não fica provada.</p>
         <span class="metric">Risco: <b>decisão sem trilha de evidência</b></span>
       </div>
       <div class="card">
         <div class="icon">🚑</div>
         <h3>Viatura sem contexto</h3>
-        <p>A equipe chega ao local sem saber se é trauma, parada cardiorrespiratória ou crise de ansiedade. O primeiro minuto na cena é gasto redescobrindo o caso.</p>
+        <p>A equipe chega ao endereço sem saber se vai encontrar um acidente, uma parada cardíaca ou uma crise de ansiedade. O primeiro minuto no local — o mais valioso — é gasto redescobrindo o caso.</p>
         <span class="metric">Custo: <b>contexto perdido no handoff</b></span>
       </div>
     </div>
@@ -339,30 +339,30 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
   <div class="wrap">
     <p class="eyebrow">Como o CoPilot resolve</p>
     <h2>Quatro pilares, um fluxo contínuo</h2>
-    <p class="sub" style="margin-bottom:48px">Do primeiro toque do 192 ao fechamento da ocorrência, cada etapa alimenta a seguinte.</p>
+    <p class="sub" style="margin-bottom:48px">Do primeiro toque do telefone até o paciente entregue no hospital, cada etapa alimenta a seguinte — e nenhum segundo se perde no caminho.</p>
     <div class="grid-2">
       <div class="card card-data" style="background:var(--elevated)">
         <span class="tag">Pilar 01</span>
         <h3>Triagem IA em tempo real</h3>
-        <p>STT e NLP em português transcrevem a chamada ao vivo, extraem sintomas, comorbidades e dados do paciente, e sugerem a classificação Manchester.</p>
+        <p>A IA escuta a ligação em português e transforma fala em texto na hora: sintomas, doenças prévias e dados do paciente aparecem na tela enquanto a pessoa ainda fala. A gravidade é sugerida no padrão internacional Manchester (vermelho, amarelo, verde).</p>
         <span class="metric">Alvo: <b>−45s no T. médio de regulação</b></span>
       </div>
       <div class="card card-data" style="background:var(--elevated)">
         <span class="tag">Pilar 02</span>
         <h3>Apoio à decisão clínica</h3>
-        <p>Protocolo sugerido, checklist Manchester e alternativas na tela do Regulador. Divergências são registradas com justificativa — e viram aprendizado.</p>
+        <p>O médico vê o protocolo sugerido e um checklist de conferência na tela. A palavra final é sempre do médico — e quando ele discorda da IA, a justificativa fica registrada e o sistema aprende.</p>
         <span class="metric">Resultado: <b>acurácia auditável vs ground truth</b></span>
       </div>
       <div class="card card-data" style="background:var(--elevated)">
         <span class="tag">Pilar 03</span>
         <h3>Despacho otimizado</h3>
-        <p>Recurso recomendado por ETA e gravidade — USA, USB ou orientação — com justificativa registrada em cada despacho.</p>
+        <p>O sistema recomenda qual ambulância enviar — a avançada (UTI móvel), a básica, ou apenas orientação por telefone — combinando gravidade e tempo de chegada. Cada decisão fica registrada com o porquê.</p>
         <span class="metric">Alvo: <b>menos despachos USA evitáveis</b></span>
       </div>
       <div class="card card-data" style="background:var(--elevated)">
         <span class="tag">Pilar 04</span>
         <h3>Auditoria e BI</h3>
-        <p>Cadeia de custódia LGPD, trilha de cada decisão e dashboard de SLA contratual para gestores, tribunais de contas e órgãos de controle.</p>
+        <p>O gestor enxerga a operação em números: tempo de resposta, chamadas atendidas, falsos chamados filtrados. Tudo com trilha completa para prestação de contas a tribunais e órgãos de controle.</p>
         <span class="metric">Entrega: <b>relatórios prontos para auditoria</b></span>
       </div>
     </div>
@@ -374,7 +374,7 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
   <div class="wrap">
     <p class="eyebrow">Veja o CoPilot rodando</p>
     <h2>Da chamada ao despacho, em uma tela</h2>
-    <p class="sub" style="margin-bottom:48px">O fluxo completo — recepção, triagem, regulação e viatura — como a sua equipe veria em plantão.</p>
+    <p class="sub" style="margin-bottom:48px">O caminho completo de uma emergência — da ligação atendida à ambulância na rua — como a sua equipe veria em plantão.</p>
     <div class="demo-frame">
       <div class="demo-bar"><i></i><i></i><i></i><span>Samais CoPilot OS · TARM · Chamada #4017</span></div>
       <div class="demo-body">
@@ -506,8 +506,8 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
 <section class="final">
   <div class="wrap" style="position:relative;z-index:1">
     <p class="eyebrow" style="justify-content:center">Próximo passo</p>
-    <h2>A próxima chamada da sua central<br>vai ser melhor.</h2>
-    <p class="sub">Demonstração ao vivo do fluxo completo, com o seu cenário operacional na mesa.</p>
+    <h2>A próxima chamada da sua central<br>pode salvar uma vida a mais.</h2>
+    <p class="sub">Demonstração ao vivo do fluxo completo, com o seu cenário operacional na mesa. Cada segundo recuperado dentro da central é socorro chegando mais cedo.</p>
     <a class="btn btn-primary" href="#" data-open-modal>Agendar demonstração</a>
     <p class="after-note">Resposta comercial em ≤ 24h úteis</p>
   </div>

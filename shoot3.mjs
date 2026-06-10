@@ -1,0 +1,17 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.5, colorScheme: 'dark' });
+const p = await ctx.newPage();
+await p.goto('http://localhost:4175', { waitUntil: 'networkidle' });
+await p.waitForTimeout(600);
+await p.screenshot({ path: '/tmp/shots/v2-login-dark.png' });
+const inputs = p.locator('input');
+for (let i = 0; i < await inputs.count(); i++) await inputs.nth(i).fill(i === 0 ? 'victor.ota' : 'demo1234');
+await p.locator('button[type="submit"]').first().click();
+await p.waitForTimeout(2500);
+await p.screenshot({ path: '/tmp/shots/v2-idle-dark.png' });
+await p.goto('http://localhost:4175/lp/', { waitUntil: 'networkidle' });
+await p.waitForTimeout(600);
+await p.screenshot({ path: '/tmp/shots/v2-lp-dark.png' });
+await b.close();
+console.log('done');
