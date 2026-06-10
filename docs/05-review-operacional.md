@@ -62,7 +62,11 @@ As CRUs brasileiras rodam majoritariamente Asterisk/Issabel, Khomp ou PABX legad
 
 Importante: o CoPilot **não substitui** a telefonia da CRU na fase 1 — ele escuta. Isso reduz o risco percebido pelo gestor e elimina objeção de "e se o sistema de vocês cair?".
 
-## 4. Tela de viatura — proposta de redesenho
+## 4. Tela de viatura — redesenho IMPLEMENTADO (jun/2026)
+
+> O layout abaixo está em produção na demo: rota 60% + ETA gigante, painel do paciente 40% com badge Manchester, e barra de missão com 4 botões de status de 1 toque (alvos ≥60px). Briefing TTS e deep link de navegação seguem como evolução de produto.
+
+### Proposta original
 
 Concordo com o desconforto. A tela atual é um "mapa com telemetria" — bonita em demo, mas não responde às três perguntas da equipe embarcada: **para onde vou, o que vou encontrar, o que faço quando chegar.**
 
@@ -134,7 +138,15 @@ Tenant (CRU / consórcio / operação)
 - **Auditoria por usuário**: cada decisão clínica e cada acesso a PII logado com matrícula — isso é o lastro real do banner LGPD.
 - O perfil GESTOR materializa o workspace `EXECUTIVE` previsto na visão de produto (§4 de `01-visao-produto.md`) e vira argumento direto de venda: o contratante tem a própria tela desde o dia 1, sem enxergar dado sensível.
 
-## 8. Riscos abertos (sem mudança desde o último review)
+## 8. Decisões adicionais (jun/2026)
+
+- **LP sem formulário e não pública** — será sempre apresentada diretamente a entes públicos; CTAs apontam para a demo ao vivo.
+- **Escala por login (esquema PEP):** módulo "Minha Escala" na demo — cada matrícula vê a semana designada a ela; trocas passam pela coordenação/Gestor.
+- **IA explicável no TARM:** card de risco mostra os fatores que pesaram (sintomas + agravantes com pesos) e o lembrete de autoridade do Regulador.
+- **Fila de espera viva** na demo (tempos reais, entrada/saída de chamadas).
+- **Google Maps:** demo roda keyless; chave restrita de prototipagem é criada pelo Victor no Google Cloud (instruções na conversa) e entra como `VITE_GOOGLE_MAPS_API_KEY` no Vercel.
+
+## 8b. Riscos abertos (sem mudança desde o último review)
 
 1. Backend inexistente — bloqueia tenants, auth real, persistência e o lastro dos claims LGPD. **Decisão 4.1 (Supabase × alternativas) é o gargalo de tudo da seção 7.**
 2. IA mockada — a recomendação da seção 2 destrava o plano real.

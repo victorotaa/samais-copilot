@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useTheme } from './lib/theme';
 import { Icon } from './ui/Icon';
+import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
 
 const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
 
@@ -99,6 +100,29 @@ const MOCK_VEHICLES = [
   { id: 'USB-05', type: 'USB (Básica)', status: 'RETORNO', base: 'Base Norte', color: 'warn', eta: 18 },
   { id: 'MOT-02', type: 'MOTOLÂNCIA', status: 'MANUTENÇÃO', base: 'Base Oeste', color: 'nude', eta: 0 },
 ];
+
+const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
+
+const MOCK_SCHEDULES: Record<string, { day: string; date: string; shift: string; hours: string; base: string }[]> = {
+  'TARM-04': [
+    { day: 'Seg', date: '08/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
+    { day: 'Ter', date: '09/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
+    { day: 'Qua', date: '10/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
+    { day: 'Qui', date: '11/06', shift: 'Folga', hours: '—', base: '—' },
+    { day: 'Sex', date: '12/06', shift: 'Folga', hours: '—', base: '—' },
+    { day: 'Sáb', date: '13/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
+    { day: 'Dom', date: '14/06', shift: 'Diurno', hours: '07:00–19:00', base: 'CRU Central' },
+  ],
+  'GESTOR-01': [
+    { day: 'Seg', date: '08/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'CRU Central' },
+    { day: 'Ter', date: '09/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'CRU Central' },
+    { day: 'Qua', date: '10/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'CRU Central' },
+    { day: 'Qui', date: '11/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'Base Leste (visita)' },
+    { day: 'Sex', date: '12/06', shift: 'Administrativo', hours: '08:00–18:00', base: 'CRU Central' },
+    { day: 'Sáb', date: '13/06', shift: 'Sobreaviso', hours: '—', base: 'Remoto' },
+    { day: 'Dom', date: '14/06', shift: 'Folga', hours: '—', base: '—' },
+  ],
+};
 
 const MOCK_TEAM = [
   { id: 'TARM-04', name: 'Mariana S.', role: 'TARM', shift: 'Diurno', status: 'EM PLANTÃO' },
@@ -255,7 +279,7 @@ export default function App() {
     soundEnabledRef.current = soundEnabled;
   }, [soundEnabled]);
 
-  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD' | 'GESTOR'>('IDLE');
+  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD' | 'GESTOR' | 'ESCALA'>('IDLE');
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -298,6 +322,11 @@ export default function App() {
   const [role, setRole] = useState<'OPERACAO' | 'GESTOR'>('OPERACAO');
   const [team, setTeam] = useState(MOCK_TEAM);
   const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>({ 'MOT-02': '2026-06-14' });
+  const [missionStatus, setMissionStatus] = useState('A CAMINHO');
+  const [queue, setQueue] = useState(() => MOCK_QUEUE.map(q => {
+    const [m, sec] = q.waitTime.split(':').map(Number);
+    return { ...q, seconds: m * 60 + sec };
+  }));
   const [protocolSteps, setProtocolSteps] = useState<{id: string, label: string, checked: boolean}[]>([]);
 
   const showToast = (message: string, type: 'success' | 'info' | 'warn' = 'info') => {
@@ -441,6 +470,7 @@ export default function App() {
       setExtractedData({ patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '', confidence: { patientName: 0, symptoms: 0, protocol: 0 } });
       setAiActive(true);
       setActiveScriptIndex(Math.floor(Math.random() * MOCK_SCRIPTS.length));
+      setMissionStatus('A CAMINHO');
 
       timer = setTimeout(() => {
         const randomCaller = MOCK_CALLERS[Math.floor(Math.random() * MOCK_CALLERS.length)];
@@ -451,6 +481,33 @@ export default function App() {
     }
     return () => clearTimeout(timer);
   }, [isAuthenticated, currentModule, incomingCall]);
+
+  // Fila de espera viva: tempos sobem em tempo real; chamadas entram e são atendidas.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let tick = 0;
+    const interval = setInterval(() => {
+      tick += 1;
+      setQueue(prev => {
+        let next = prev.map(q => ({ ...q, seconds: q.seconds + 1, priority: q.seconds + 1 > 90 ? 'high' : q.priority }));
+        if (tick % 17 === 0 && next.length < 6) {
+          const ddd = ['11', '12', '13'][Math.floor(Math.random() * 3)];
+          next = [...next, {
+            id: `Q${Date.now()}`,
+            phone: `(${ddd}) 9${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`,
+            waitTime: '00:00',
+            priority: 'normal',
+            seconds: 0,
+          }];
+        }
+        if (tick % 26 === 0 && next.length > 1) {
+          next = next.slice(1); // a mais antiga foi atendida por outro TARM
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     let ringInterval: NodeJS.Timeout;
@@ -561,8 +618,8 @@ export default function App() {
 
         <div className="gp p-10 rounded-2xl w-full max-w-md relative z-10 fu">
           <div className="flex flex-col items-center mb-8">
-            <img src="/brand/samais-monograma-gold.svg" alt="Samais" className="h-16 mb-2" />
-            <img src="/brand/samais-logo-white-currentcolor.svg" alt="SAMAIS" className="h-7 text-ink-primary" />
+            <SamaisMonogram className="h-16 mb-2 text-gold-500" />
+            <SamaisWordmark className="h-7 text-ink-primary" />
             <p className="text-xs text-gold-500 uppercase tracking-widest font-mono mt-1">SAMU CoPilot OS</p>
           </div>
 
@@ -687,9 +744,9 @@ export default function App() {
       {/* GLOBAL HEADER */}
       <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-5 shrink-0 z-50 shadow-md relative">
         <div className="flex items-center gap-4">
-          <img src="/brand/samais-monograma-gold.svg" alt="Samais" className="h-9 shrink-0" />
+          <SamaisMonogram className="h-9 shrink-0 text-gold-500" />
           <div className="hidden sm:block">
-            <img src="/brand/samais-logo-white-currentcolor.svg" alt="SAMAIS" className="h-5 text-ink-primary" />
+            <SamaisWordmark className="h-5 text-ink-primary" />
             <div className="text-[0.6rem] text-gold-500 uppercase tracking-widest font-mono">
               {role === 'GESTOR' ? 'Central 192 — Gestão da Operação' : currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
             </div>
@@ -1041,16 +1098,16 @@ export default function App() {
                   <Icon name="list-ol" className="text-gold-500 text-xs" />
                   <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Fila de Espera</span>
                 </div>
-                <span className="chip chip-warn text-[0.6rem]">{MOCK_QUEUE.length} na fila</span>
+                <span className="chip chip-warn text-[0.6rem]">{queue.length} na fila</span>
               </div>
               <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
-                {MOCK_QUEUE.map(q => (
+                {queue.map(q => (
                   <div key={q.id} className="p-3 rounded-xl bg-surface border border-border-subtle flex flex-col gap-2 relative overflow-hidden">
                     {q.priority === 'high' && <div className="absolute top-0 left-0 w-1 h-full bg-danger"></div>}
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-mono font-bold text-ink-primary">{q.phone}</span>
                       <span className={`text-[0.6rem] font-bold px-1.5 py-0.5 rounded font-mono ${q.priority === 'high' ? 'bg-danger/20 text-danger animate-pulse' : 'bg-elevated text-ink-secondary'}`}>
-                        {q.waitTime}
+                        {`${String(Math.floor(q.seconds / 60)).padStart(2, '0')}:${String(q.seconds % 60).padStart(2, '0')}`}
                       </span>
                     </div>
                     <div className="text-[0.6rem] text-ink-secondary uppercase tracking-widest">Aguardando TARM</div>
@@ -1119,6 +1176,28 @@ export default function App() {
                         {extractedData.protocol}
                       </span>
                     </div>
+                    {(extractedData.symptoms.length > 0 || extractedData.comorbidities.length > 0) && (
+                      <div className="mt-3 pt-3 border-t border-border-subtle">
+                        <div className="text-[0.6rem] font-mono font-bold uppercase tracking-widest text-ai mb-2 flex items-center gap-1.5">
+                          <Icon name="brain" /> Por que esta classificação
+                        </div>
+                        <ul className="flex flex-col gap-1">
+                          {extractedData.symptoms.slice(0, 4).map((sym, i) => (
+                            <li key={`s-${i}`} className="text-[0.7rem] text-ink-secondary flex items-center justify-between gap-2">
+                              <span className="truncate">• {sym}</span>
+                              <span className="font-mono text-ai shrink-0">peso {(0.94 - i * 0.09).toFixed(2)}</span>
+                            </li>
+                          ))}
+                          {extractedData.comorbidities.slice(0, 2).map((c, i) => (
+                            <li key={`c-${i}`} className="text-[0.7rem] text-ink-secondary flex items-center justify-between gap-2">
+                              <span className="truncate">• {c} <span className="text-ink-tertiary">(agravante)</span></span>
+                              <span className="font-mono text-ai shrink-0">peso {(0.58 - i * 0.08).toFixed(2)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="text-[0.6rem] text-ink-tertiary mt-2">A decisão final é do Médico Regulador. Divergências são registradas e retroalimentam o modelo.</div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Patient Info */}
@@ -1550,107 +1629,154 @@ export default function App() {
         )}
 
         {currentModule === 'VIATURA' && currentCaller && (
-          <div className="flex-1 flex flex-col relative fu min-h-0 -m-4 md:-m-5 overflow-hidden">
-            {/* Top Bar for Vehicle */}
-            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-canvas/90 to-transparent z-20 flex justify-end items-start pointer-events-none">
-              <div className="flex flex-col gap-2 pointer-events-auto items-end">
-                <button className="px-4 py-2 bg-canvas/90 backdrop-blur border border-border-subtle rounded-full text-xs font-bold text-ink-primary shadow-lg flex items-center gap-2">
-                  <Icon name={selectedVehicleId?.includes('MOT') ? 'motorcycle' : 'truck-medical'} className="text-gold-500" /> {selectedVehicleId || 'VIATURA'}
-                </button>
-                <span className="px-3 py-1 bg-warn/20 border border-warn/30 text-warn text-[0.65rem] font-bold rounded-full w-fit flex items-center gap-1.5 shadow-lg">
-                  <span className="w-1.5 h-1.5 rounded-full bg-warn animate-pulse"></span> QTI - A CAMINHO
-                </span>
-              </div>
-            </div>
+          <div className="flex-1 flex flex-col fu min-h-0 -m-4 md:-m-5 overflow-hidden">
+            {/* 3 zonas: rota (60%) · paciente (40%) · barra de missão */}
+            <div className="flex-1 flex flex-col lg:flex-row min-h-0">
 
-            {/* Full screen map — rota base → ocorrência */}
-            <div className="absolute inset-0 bg-elevated">
-              {RouteMapIframe || MapIframe || (
-                <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>
-              )}
-              <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
-            </div>
+              {/* ZONA ROTA */}
+              <div className="relative flex-[3] min-h-[260px] bg-elevated">
+                {RouteMapIframe || MapIframe || (
+                  <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>
+                )}
+                <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
 
-
-            {/* Top Floating ETA */}
-            <div className="absolute top-24 left-4 right-4 md:top-6 md:left-1/2 md:-translate-x-1/2 md:w-fit bg-canvas/90 backdrop-blur-md border border-border-subtle px-4 py-2 rounded-xl shadow-2xl flex items-center justify-center gap-4 z-10">
-              <div className="text-center">
-                <div className="text-xl font-disp font-bold text-ok">08<span className="text-xs">min</span></div>
-                <div className="text-[0.55rem] text-ink-secondary uppercase tracking-widest">ETA</div>
-              </div>
-              <div className="w-px h-6 bg-hover"></div>
-              <div className="text-center">
-                <div className="text-sm font-mono font-bold text-ink-primary">4.2<span className="text-[0.6rem]">km</span></div>
-                <div className="text-[0.55rem] text-ink-secondary uppercase tracking-widest">Distância</div>
-              </div>
-            </div>
-
-            {/* Vehicle Telemetry Panel */}
-            <div className="absolute top-40 left-4 md:top-24 md:left-4 bg-canvas/90 backdrop-blur-md border border-border-subtle p-3 rounded-xl shadow-2xl z-10 flex flex-col gap-2 pointer-events-none w-[180px]">
-              <div className="text-[0.6rem] font-bold uppercase tracking-widest text-ink-secondary flex items-center gap-2 mb-1">
-                <Icon name="satellite" className="text-gold-500" /> Telemetria
-              </div>
-              <div className="flex flex-col gap-2 text-[0.65rem] font-mono">
-                <div className="flex justify-between items-center">
-                  <span className="text-ink-secondary">Velocidade:</span>
-                  <span className="text-ink-primary font-bold">68 km/h</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-ink-secondary">Precisão GPS:</span>
-                  <span className="text-ok font-bold">±2.5m</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-ink-secondary">Conexão:</span>
-                  <span className="text-ai font-bold">5G (MQTT)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Sheet for Patient Info */}
-            <div className="absolute bottom-28 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-canvas/95 backdrop-blur-xl border border-border-subtle rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden pb-2 max-h-[35vh] md:max-h-none">
-              {/* Drag Handle */}
-              <div className="w-full flex justify-center pt-3 pb-1">
-                <div className="w-12 h-1.5 bg-hover rounded-full"></div>
-              </div>
-              <div className="px-4 pb-3 border-b border-border-subtle flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Icon name="file-medical" className="text-gold-500" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Handoff Médico</span>
-                </div>
-                <span className={`chip text-[0.6rem] ${extractedData.risk === 'RED' ? 'chip-danger' : extractedData.risk === 'YELLOW' ? 'chip-warn' : 'chip-ok'}`}>
-                  PRIORIDADE {extractedData.risk === 'RED' ? 'VERMELHA' : extractedData.risk === 'YELLOW' ? 'AMARELA' : 'VERDE'}
-                </span>
-              </div>
-              <div className="p-4 flex flex-col gap-3 overflow-y-auto">
-                <div>
-                  <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest mb-1">Local da Ocorrência</div>
-                  <div className="text-sm font-bold text-ink-primary">{amlData?.address || 'Endereço não disponível'}, {amlData?.number}</div>
-                  <div className="text-xs text-ink-secondary">{amlData?.neighborhood} - {amlData?.city}</div>
-                </div>
-                <div>
-                  <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest mb-1">Paciente</div>
-                  <div className="text-sm font-bold text-ink-primary">{extractedData.patientName || 'Desconhecido'} • {extractedData.age || '--'} • {extractedData.gender || '--'}</div>
-                </div>
-                <div>
-                  <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest mb-1">Suspeita / Protocolo</div>
-                  <div className="text-sm font-bold text-danger">{extractedData.protocol}</div>
-                </div>
-                <div>
-                  <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest mb-1">Sintomas Relatados</div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {extractedData.symptoms.map((s, i) => (
-                      <span key={i} className="px-2 py-1 rounded bg-danger/10 border border-danger/20 text-danger text-[0.65rem]">{s}</span>
-                    ))}
+                {/* ETA gigante */}
+                <div className="absolute top-4 left-4 bg-canvas/90 backdrop-blur-md border border-border-subtle px-5 py-3 rounded-xl shadow-2xl z-10">
+                  <div className="flex items-end gap-3">
+                    <div>
+                      <div className="text-4xl font-mono font-medium text-ok leading-none">08<span className="text-base">min</span></div>
+                      <div className="text-[0.55rem] text-ink-secondary uppercase tracking-widest mt-1">ETA · 4.2 km</div>
+                    </div>
+                    <div className="w-px h-10 bg-hover"></div>
+                    <div className="pb-0.5">
+                      <div className="text-xs font-bold text-ink-primary flex items-center gap-1.5">
+                        <Icon name={selectedVehicleId?.includes('MOT') ? 'motorcycle' : 'truck-medical'} className="text-gold-500" /> {selectedVehicleId || 'USA-01'}
+                      </div>
+                      <div className="text-[0.55rem] font-mono text-ink-secondary mt-1">68 km/h · GPS ±2.5m · 5G</div>
+                    </div>
                   </div>
                 </div>
-                
-                {/* Ação única e real: a viatura fala com a CRU quando precisa de apoio */}
-                <div className="grid grid-cols-1 gap-2 mt-2">
-                  <button onClick={() => { playSound('call', soundEnabledRef.current); showToast('Conectando à CRU — Regulação Médica', 'info'); }} className="py-3.5 bg-gold-500/15 border border-gold-500/40 rounded-xl text-xs font-bold text-gold-500 hover:bg-gold-500/25 transition-colors flex items-center justify-center gap-2">
+              </div>
+
+              {/* ZONA PACIENTE */}
+              <div className="flex-[2] bg-surface border-t lg:border-t-0 lg:border-l border-border-subtle flex flex-col overflow-y-auto">
+                <div className={`px-5 py-4 flex items-center justify-between border-b border-border-subtle ${
+                  extractedData.risk === 'RED' ? 'bg-danger/10' : extractedData.risk === 'YELLOW' ? 'bg-warn/10' : 'bg-ok/10'
+                }`}>
+                  <div>
+                    <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-secondary mb-1">Classificação Manchester</div>
+                    <div className={`text-2xl font-disp font-bold ${
+                      extractedData.risk === 'RED' ? 'text-danger' : extractedData.risk === 'YELLOW' ? 'text-warn' : 'text-ok'
+                    }`}>
+                      {extractedData.risk === 'RED' ? 'VERMELHO' : extractedData.risk === 'YELLOW' ? 'AMARELO' : 'VERDE'}
+                    </div>
+                  </div>
+                  <div className={`w-14 h-14 rounded-full border-4 ${
+                    extractedData.risk === 'RED' ? 'border-danger bg-danger/20' : extractedData.risk === 'YELLOW' ? 'border-warn bg-warn/20' : 'border-ok bg-ok/20'
+                  }`}></div>
+                </div>
+
+                <div className="p-5 flex flex-col gap-4">
+                  <div>
+                    <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-1">Paciente</div>
+                    <div className="text-lg font-bold text-ink-primary">{extractedData.patientName || 'Desconhecido'}</div>
+                    <div className="text-sm text-ink-secondary font-mono">{extractedData.age || '--'} · {extractedData.gender || '--'}</div>
+                  </div>
+                  <div>
+                    <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-1">Suspeita / Protocolo</div>
+                    <div className="text-base font-bold text-danger">{extractedData.protocol}</div>
+                  </div>
+                  <div>
+                    <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-1.5">Queixa relatada</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {extractedData.symptoms.map((sym, i) => (
+                        <span key={i} className="px-2 py-1 rounded bg-danger/10 border border-danger/20 text-danger text-xs">{sym}</span>
+                      ))}
+                    </div>
+                  </div>
+                  {extractedData.comorbidities.length > 0 && (
+                    <div>
+                      <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-1.5">Comorbidades</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {extractedData.comorbidities.map((c, i) => (
+                          <span key={i} className="px-2 py-1 rounded bg-elevated border border-border-default text-ink-secondary text-xs">{c}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-1">Local</div>
+                    <div className="text-sm font-bold text-ink-primary">{amlData?.address || 'Endereço não disponível'}, {amlData?.number}</div>
+                    <div className="text-xs text-ink-secondary">{amlData?.neighborhood} - {amlData?.city}</div>
+                  </div>
+                  <button onClick={() => { playSound('call', soundEnabledRef.current); showToast('Conectando à CRU — Regulação Médica', 'info'); }} className="py-4 min-h-[56px] bg-gold-500/15 border border-gold-500/40 rounded-xl text-sm font-bold text-gold-500 hover:bg-gold-500/25 transition-colors flex items-center justify-center gap-2">
                     <Icon name="headset" /> Falar com a CRU · Apoio Médico
                   </button>
                 </div>
               </div>
+            </div>
+
+            {/* BARRA DE MISSÃO — status de 1 toque, alvos grandes (luva), alimenta T0–T4 */}
+            <div className="shrink-0 bg-canvas border-t border-border-subtle p-3 pb-14 md:pb-16 grid grid-cols-4 gap-2">
+              {MISSION_STEPS.map((step, i) => {
+                const stateIdx = MISSION_STEPS.indexOf(missionStatus);
+                const isDone = i < stateIdx;
+                const isCurrent = i === stateIdx;
+                return (
+                  <button
+                    key={step}
+                    onClick={() => {
+                      setMissionStatus(step);
+                      playSound('vehicle', soundEnabledRef.current);
+                      showToast(`${selectedVehicleId || 'USA-01'} → ${step} · ${new Date().toLocaleTimeString('pt-BR')}`, 'success');
+                    }}
+                    className={`min-h-[60px] rounded-xl text-[0.65rem] md:text-xs font-bold uppercase tracking-wider transition-all flex flex-col items-center justify-center gap-1 border ${
+                      isCurrent
+                        ? 'bg-gold-500 text-ink-inverse border-gold-500 shadow-[0_0_20px_rgba(191,154,61,0.4)]'
+                        : isDone
+                          ? 'bg-ok/15 text-ok border-ok/40'
+                          : 'bg-elevated text-ink-secondary border-border-subtle hover:border-gold-500'
+                    }`}
+                  >
+                    {isDone && <Icon name="circle-check" />}
+                    {step}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {currentModule === 'ESCALA' && (
+          <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
+            <div>
+              <div className="eyebrow mb-1">{role === 'GESTOR' ? 'GESTOR-01 · CARLOS M.' : 'TARM-04 · MARIANA S.'}</div>
+              <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
+                <Icon name="clock-rotate-left" className="text-gold-500" /> Minha Escala
+              </h2>
+              <p className="text-sm text-ink-secondary">Semana de 08/06 a 14/06 · escala designada pela coordenação</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
+              {(MOCK_SCHEDULES[role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04'] || []).map(d => {
+                const isToday = d.date === '10/06';
+                const off = d.shift === 'Folga';
+                return (
+                  <div key={d.day} className={`card-data p-4 flex flex-col gap-2 ${isToday ? 'border-gold-500 shadow-[0_0_20px_rgba(191,154,61,0.15)]' : ''} ${off ? 'opacity-60' : ''}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">{d.day}</span>
+                      <span className="font-mono text-[0.65rem] text-ink-tertiary">{d.date}</span>
+                    </div>
+                    <div className={`text-sm font-bold ${off ? 'text-ink-secondary' : 'text-gold-500'}`}>{d.shift}</div>
+                    <div className="font-mono text-[0.7rem] text-ink-secondary">{d.hours}</div>
+                    <div className="text-[0.65rem] text-ink-tertiary">{d.base}</div>
+                    {isToday && <span className="chip chip-ok text-[0.55rem] w-fit mt-1">HOJE</span>}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="gp p-4 rounded-2xl flex flex-wrap items-center gap-4">
+              <span className="chip chip-nude text-[0.65rem]">5 plantões na semana</span>
+              <span className="chip chip-nude text-[0.65rem]">60h programadas</span>
+              <span className="text-[0.7rem] text-ink-tertiary">Trocas de plantão são solicitadas à coordenação e aparecem aqui após aprovação do Gestor.</span>
             </div>
           </div>
         )}
@@ -2046,6 +2172,12 @@ export default function App() {
             <Icon name="truck-medical" /> Viatura
           </button>
           </>)}
+          <button
+            onClick={() => { setCurrentModule('ESCALA'); setIsNavOpen(false); }}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'ESCALA' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
+          >
+            <Icon name="clock-rotate-left" /> Escala
+          </button>
           {role === 'GESTOR' && (
           <button
             onClick={() => { setCurrentModule('GESTOR'); setIsNavOpen(false); }}

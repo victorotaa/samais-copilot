@@ -99,6 +99,16 @@ shadow-glow: 0 0 24px rgba(191,154,61,0.15) — ações primárias
 motion: 240ms cubic-bezier(0.22,1,0.36,1) (easing editorial) · hover 180ms · nunca bounce/elastic
 ```
 
+### Regra de contraste do logotipo (obrigatória — não repetir o erro)
+
+> Violada uma vez em jun/2026 (monograma gold fixo sobre fundo claro); codificada aqui e no vault Obsidian para não se repetir.
+
+1. **Nunca aplicar o logo com cor fixa em UI.** Usar as variantes `-currentcolor` (`public/brand/*-currentcolor.svg`) herdando um token semântico — o tema resolve a cor.
+2. **Wordmark SAMAIS:** sobre superfície escura → `ink-primary` (branco) ou `gold-300`; sobre superfície clara → `ink-primary` (preto) ou `gold-600`.
+3. **Monograma SA+:** sempre `gold-500` **semântico** (dark `#BF9A3D` / light `#A88230` — o valor light já é calibrado para contraste sobre branco).
+4. **Contraste mínimo logo×fundo: ≥ 3:1** (WCAG 1.4.11, objetos gráficos). Se a superfície não garantir, colocar chapa `surface` atrás do lockup.
+5. **Favicon:** monograma gold fixo `#BF9A3D` sobre transparente (legível em abas claras e escuras).
+
 ### Assinatura Samais
 
 **Top border ouro 2px** em cards de dados (`.card-data`). Foco visível: anel ouro 3px com offset 2px. Selection: ouro sobre `ink-inverse`.
