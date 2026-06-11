@@ -102,6 +102,28 @@ const MOCK_VEHICLES = [
   { id: 'MOT-02', type: 'MOTOLÂNCIA', status: 'MANUTENÇÃO', base: 'Base Oeste', color: 'nude', eta: 0 },
 ];
 
+// Handoffs aguardando regulação — o médico alterna entre casos antes de decidir.
+const MEDICO_CASES = [
+  { num: '#4017', caller: 0, label: 'João da Silva · 65', data: {
+    patientName: 'João da Silva', age: '65 anos', gender: 'Masculino',
+    symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)'],
+    comorbidities: ['Hipertensão (HAS)', 'Diabetes (DM)'], risk: 'RED',
+    protocol: 'Suspeita de IAM (Infarto)', observations: '',
+    confidence: { patientName: 0.96, symptoms: 0.89, protocol: 0.92 } } },
+  { num: '#4015', caller: 1, label: 'Acidente moto × carro', data: {
+    patientName: 'Carlos Pereira', age: '31 anos', gender: 'Masculino',
+    symptoms: ['Trauma em MMII', 'Sangramento moderado', 'Consciente e orientado'],
+    comorbidities: [], risk: 'YELLOW',
+    protocol: 'Trauma — acidente de trânsito', observations: '',
+    confidence: { patientName: 0.91, symptoms: 0.87, protocol: 0.9 } } },
+  { num: '#4012', caller: 2, label: 'OVACE · lactente', data: {
+    patientName: 'Bebê de Ana Souza', age: '8 meses', gender: 'Feminino',
+    symptoms: ['Engasgo com corpo estranho', 'Cianose revertida', 'Choro presente'],
+    comorbidities: [], risk: 'RED',
+    protocol: 'OVACE em lactente', observations: '',
+    confidence: { patientName: 0.88, symptoms: 0.93, protocol: 0.95 } } },
+];
+
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
 
 // ── Calendário de escalas (planner do Gestor + Minha Escala) ──
@@ -302,7 +324,7 @@ export default function App() {
     soundEnabledRef.current = soundEnabled;
   }, [soundEnabled]);
 
-  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD' | 'GESTOR' | 'ESCALA'>('IDLE');
+  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD' | 'GESTOR' | 'FROTA' | 'ESCALAS'>('IDLE');
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -342,7 +364,7 @@ export default function App() {
   const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'info' | 'warn'} | null>(null);
   const [isDispatching, setIsDispatching] = useState(false);
   const [vehicles, setVehicles] = useState(MOCK_VEHICLES);
-  const [role, setRole] = useState<'OPERACAO' | 'GESTOR'>('OPERACAO');
+  const [role, setRole] = useState<'TARM' | 'MEDICO' | 'VIATURA' | 'GESTOR'>('TARM');
   const [team] = useState(MOCK_TEAM);
   const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>({ 'MOT-02': '2026-06-14' });
   const [missionStatus, setMissionStatus] = useState('A CAMINHO');
@@ -354,6 +376,7 @@ export default function App() {
   const [roster, setRoster] = useState<Record<string, Record<string, string>>>(buildInitialRoster);
   const [userIds, setUserIds] = useState<Record<string, string>>({});
   const [myWeek, setMyWeek] = useState(0);
+  const [showEscala, setShowEscala] = useState(false);
   const [gWeek, setGWeek] = useState(0);
   const [queue, setQueue] = useState(() => MOCK_QUEUE.map(q => {
     const [m, sec] = q.waitTime.split(':').map(Number);
@@ -544,6 +567,18 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+  // Espera da viatura: tablet em prontidão até receber um despacho (demo).
+  useEffect(() => {
+    if (!(isAuthenticated && role === 'VIATURA' && currentModule === 'VIATURA' && !currentCaller)) return;
+    const t = setTimeout(() => {
+      applyDemoSnapshot();
+      playSound('vehicle', soundEnabledRef.current);
+      showToast('Nova ocorrência designada à USA-01', 'warn');
+      setMissionStatus('A CAMINHO');
+    }, 10000);
+    return () => clearTimeout(t);
+  }, [isAuthenticated, role, currentModule, currentCaller]);
+
   useEffect(() => {
     let ringInterval: NodeJS.Timeout;
     if (incomingCall) {
@@ -593,22 +628,25 @@ export default function App() {
       setConnected(true);
       setOperatorName(perfil.name);
       setOperatorId(perfil.matricula);
-      const nextRole = perfil.role === 'GESTOR' || perfil.role === 'ADMIN_TENANT' ? 'GESTOR' : 'OPERACAO';
+      const nextRole = perfil.role === 'GESTOR' || perfil.role === 'ADMIN_TENANT' ? 'GESTOR'
+        : perfil.role === 'REGULADOR' ? 'MEDICO'
+        : perfil.role === 'VIATURA' ? 'VIATURA' : 'TARM';
       setRole(nextRole);
       setIsAuthenticated(true);
       setIsAuthenticating(false);
-      setCurrentModule(nextRole === 'GESTOR' ? 'GESTOR' : 'IDLE');
+      setCurrentModule(nextRole === 'GESTOR' ? 'GESTOR' : nextRole === 'VIATURA' ? 'VIATURA' : 'IDLE');
       showToast(`Conectado ao backend Samais · ${perfil.matricula}`, 'success');
       return;
     }
     // Backend indisponível ou credencial não semeada: a demo nunca trava.
     setTimeout(() => {
       setConnected(false);
-      setOperatorName(role === 'GESTOR' ? 'Carlos M.' : 'Mariana S.');
-      setOperatorId(role === 'GESTOR' ? 'GESTOR-01' : 'TARM-04');
+      const demo = { TARM: ['Mariana S.', 'TARM-04'], MEDICO: ['Dr. Almeida', 'REG-02'], VIATURA: ['Equipe USA-01', 'USA-01'], GESTOR: ['Carlos M.', 'GESTOR-01'] }[role];
+      setOperatorName(demo[0]);
+      setOperatorId(demo[1]);
       setIsAuthenticated(true);
       setIsAuthenticating(false);
-      setCurrentModule(role === 'GESTOR' ? 'GESTOR' : 'IDLE');
+      setCurrentModule(role === 'GESTOR' ? 'GESTOR' : role === 'VIATURA' ? 'VIATURA' : 'IDLE');
       showToast('Modo demonstração — backend offline', 'info');
     }, 1200);
   };
@@ -658,6 +696,40 @@ export default function App() {
     })();
   }, [connected]);
 
+  // Snapshot de demonstração: permite "pular" para qualquer estágio do fluxo
+  // sem precisar atender uma chamada (navegação da demo, não do produto real).
+  const applyDemoSnapshot = () => {
+    const caller = MOCK_CALLERS[0];
+    setCurrentCaller(caller);
+    setAmlData(caller.aml);
+    setExtractedData({
+      patientName: 'João da Silva', age: '65 anos', gender: 'Masculino',
+      symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)'],
+      comorbidities: ['Hipertensão (HAS)', 'Diabetes (DM)'],
+      risk: 'RED', protocol: 'Suspeita de IAM (Infarto)', observations: '',
+      confidence: { patientName: 0.96, symptoms: 0.89, protocol: 0.92 },
+    });
+    setAiActive(false);
+    setTarmChat(prev => prev.length > 0 ? prev : MOCK_SCRIPTS[0].slice(0, 7).map(i => ({
+      speaker: i.speaker as any, text: i.text,
+      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    })));
+  };
+
+  // O sistema designa a viatura recomendada ao entrar na regulação (médico pode trocar).
+  useEffect(() => {
+    if (currentModule === 'REGULADOR' && !selectedVehicleId) {
+      setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
+    }
+  }, [currentModule, selectedVehicleId, recommendedVehicles]);
+
+  const jumpToStage = (stage: 'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA') => {
+    if (stage !== 'IDLE' && !currentCaller) applyDemoSnapshot();
+    if (stage === 'REGULADOR' && !selectedVehicleId) setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
+    setCurrentModule(stage);
+    setIsNavOpen(false);
+  };
+
   // Edição de 1 clique no planner do Gestor; persiste quando conectado.
   const setShift = (matricula: string, dia: string, turno: string | null) => {
     setRoster(prev => {
@@ -678,6 +750,13 @@ export default function App() {
 
   const acceptCall = () => {
     setIncomingCall(false);
+    if (role === 'MEDICO') {
+      applyDemoSnapshot();
+      setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
+      setCurrentModule('REGULADOR');
+      showToast('Handoff recebido do TARM-04', 'success');
+      return;
+    }
     showToast('Chamada conectada com sucesso', 'success');
     setCurrentModule('AML');
     
@@ -743,20 +822,21 @@ export default function App() {
             <div>
               <label className="lbl">Perfil de Acesso</label>
               <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => { setRole('OPERACAO'); setLoginMatricula('TARM-04'); }}
-                  className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === 'OPERACAO' ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
-                >
-                  <Icon name="headset" /> Operação
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setRole('GESTOR'); setLoginMatricula('GESTOR-01'); }}
-                  className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === 'GESTOR' ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
-                >
-                  <Icon name="chart-simple" /> Gestor
-                </button>
+                {([
+                  { r: 'TARM', label: 'TARM', icon: 'headset', mat: 'TARM-04' },
+                  { r: 'MEDICO', label: 'Médico', icon: 'user-doctor', mat: 'REG-02' },
+                  { r: 'VIATURA', label: 'Viatura', icon: 'truck-medical', mat: 'USA-01' },
+                  { r: 'GESTOR', label: 'Gestor', icon: 'chart-simple', mat: 'GESTOR-01' },
+                ] as const).map(o => (
+                  <button
+                    key={o.r}
+                    type="button"
+                    onClick={() => { setRole(o.r); setLoginMatricula(o.mat); }}
+                    className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === o.r ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
+                  >
+                    <Icon name={o.icon} /> {o.label}
+                  </button>
+                ))}
               </div>
             </div>
             <div>
@@ -864,17 +944,10 @@ export default function App() {
           <div className="hidden sm:block">
             <SamaisWordmark className="h-5 text-ink-primary" />
             <div className="text-[0.6rem] text-gold-500 uppercase tracking-widest font-mono">
-              {role === 'GESTOR' ? 'Central 192 — Gestão da Operação' : currentModule === 'IDLE' ? 'Central 192 — Dashboard' : 'Central 192 — Recepção AML'}
+              {role === 'GESTOR' ? 'Central 192 — Gestão da Operação' : role === 'MEDICO' ? 'Central 192 — Regulação Médica' : role === 'VIATURA' ? 'Central 192 — Unidade Embarcada' : currentModule === 'IDLE' ? 'Central 192 — Recepção' : 'Central 192 — Atendimento'}
             </div>
           </div>
-          {role === 'GESTOR' && (
-          <button
-            onClick={() => setCurrentModule('DASHBOARD')}
-            className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${currentModule === 'DASHBOARD' ? 'bg-gold-500/20 border border-gold-500 text-gold-500' : 'bg-elevated border border-border-subtle text-ink-primary hover:bg-surface'}`}
-          >
-            <Icon name="chart-pie" /> <span className="hidden sm:inline">Dashboard</span>
-          </button>
-          )}
+
         </div>
 
         <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
@@ -908,13 +981,15 @@ export default function App() {
             <Icon name="moon" />
           </button>
           <div className="h-7 w-px bg-hover"></div>
+          {(role === 'TARM' || role === 'MEDICO') && (
           <button
-            onClick={() => setCurrentModule('ESCALA')}
-            className={`px-3 h-9 rounded-lg flex items-center gap-2 text-xs font-bold transition-colors ${currentModule === 'ESCALA' ? 'bg-gold-500/20 border border-gold-500 text-gold-500' : 'bg-elevated border border-border-subtle text-ink-secondary hover:text-gold-500 hover:border-gold-500'}`}
+            onClick={() => setShowEscala(true)}
+            className="px-3 h-9 rounded-lg flex items-center gap-2 text-xs font-bold transition-colors bg-elevated border border-border-subtle text-ink-secondary hover:text-gold-500 hover:border-gold-500"
             title="Minha escala"
           >
             <Icon name="calendar" /> <span className="hidden md:inline">Escala</span>
           </button>
+          )}
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <div className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">{operatorName}</div>
@@ -934,7 +1009,17 @@ export default function App() {
       {/* MAIN CONTENT AREA */}
       <main className={`flex-1 flex flex-col relative overflow-hidden p-4 md:p-5`}>
         {/* Guardrails for empty states */}
-        {(currentModule === 'AML' || currentModule === 'TARM' || currentModule === 'REGULADOR' || currentModule === 'VIATURA') && !currentCaller && (
+        {currentModule === 'VIATURA' && !currentCaller && (
+          <div className="flex-1 relative fu min-h-0 -m-4 md:-m-5 overflow-hidden bg-elevated">
+            {IdleMapIframe}
+            <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-canvas/90 backdrop-blur-md border border-border-subtle px-5 py-2.5 rounded-xl shadow-2xl z-10 flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-ok animate-pulse"></span>
+              <span className="font-mono text-xs uppercase tracking-widest text-ink-secondary">{selectedVehicleId || 'USA-01'} · em prontidão · aguardando despacho</span>
+            </div>
+          </div>
+        )}
+        {(currentModule === 'AML' || currentModule === 'TARM' || currentModule === 'REGULADOR') && !currentCaller && (
           <div className="flex-1 flex flex-col items-center justify-center text-ink-secondary/50">
             <Icon name="headset" className="text-4xl mb-4 animate-pulse" />
             <p className="font-mono text-sm uppercase tracking-widest">Aguardando chamada entrante...</p>
@@ -1087,7 +1172,7 @@ export default function App() {
                   {currentCaller.hasHistory ? (
                     <span className="chip chip-ai text-[0.6rem]"><Icon name="bolt" /> CAD AUTO-FILL</span>
                   ) : (
-                    <span className="chip chip-warn text-[0.6rem]"><Icon name="keyboard" /> PREENCHIMENTO MANUAL</span>
+                    <span className="chip chip-warn text-[0.6rem]"><Icon name="bolt" /> SEM HISTÓRICO · TELA RÁPIDA</span>
                   )}
                 </div>
                 <div className="p-5 flex flex-col gap-4 overflow-y-auto max-h-[40vh] lg:max-h-none">
@@ -1104,21 +1189,13 @@ export default function App() {
                       />
                     </div>
                   ) : (
-                    <div className="fu">
-                      <span className="lbl">Nome do Solicitante</span>
-                      <input 
-                        type="text" 
-                        className="inp bg-surface border-border-subtle text-ink-primary focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all" 
-                        placeholder="Digite o nome do solicitante..."
-                        defaultValue=""
-                      />
-                      <div className="mt-2 p-3 bg-surface border border-border-subtle rounded-xl flex items-start gap-3">
-                        <Icon name="circle-info" className="text-ink-secondary mt-0.5 text-xs" />
-                        <div>
-                          <p className="text-[0.65rem] text-ink-secondary font-mono leading-relaxed">
-                            Sem lastro no CAD. Preencha manualmente ou aguarde a extração automática da IA no Módulo TARM.
-                          </p>
-                        </div>
+                    <div className="fu p-4 rounded-xl bg-elevated border border-border-subtle flex items-start gap-3">
+                      <Icon name="circle-info" className="text-warn mt-0.5" />
+                      <div>
+                        <p className="text-sm font-bold text-ink-primary">Número sem histórico na CRU</p>
+                        <p className="text-[0.7rem] text-ink-secondary font-mono leading-relaxed mt-1">
+                          Identificação e dados do paciente serão extraídos pela triagem por voz (IA) no próximo passo. Esta tela dura segundos — siga para a triagem.
+                        </p>
                       </div>
                     </div>
                   )}
@@ -1221,21 +1298,21 @@ export default function App() {
               <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
                   <Icon name="list-ol" className="text-gold-500 text-xs" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Fila de Espera</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Fila no PABX</span>
                 </div>
-                <span className="chip chip-warn text-[0.6rem]">{queue.length} na fila</span>
+                <span className="chip chip-warn text-[0.6rem]">{queue.length} aguardando</span>
               </div>
               <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
                 {queue.map(q => (
                   <div key={q.id} className="p-3 rounded-xl bg-surface border border-border-subtle flex flex-col gap-2 relative overflow-hidden">
                     {q.priority === 'high' && <div className="absolute top-0 left-0 w-1 h-full bg-danger"></div>}
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold text-ink-primary">{q.phone}</span>
+                      <span className="text-xs font-mono font-bold text-ink-primary">{`${q.phone.slice(0, 5)}•••••-${q.phone.slice(-4)}`}</span>
                       <span className={`text-[0.6rem] font-bold px-1.5 py-0.5 rounded font-mono ${q.priority === 'high' ? 'bg-danger/20 text-danger animate-pulse' : 'bg-elevated text-ink-secondary'}`}>
                         {`${String(Math.floor(q.seconds / 60)).padStart(2, '0')}:${String(q.seconds % 60).padStart(2, '0')}`}
                       </span>
                     </div>
-                    <div className="text-[0.6rem] text-ink-secondary uppercase tracking-widest">Aguardando TARM</div>
+                    <div className="text-[0.6rem] text-ink-secondary uppercase tracking-widest">Sinalização do PABX · nº revelado ao atender</div>
                   </div>
                 ))}
               </div>
@@ -1255,29 +1332,8 @@ export default function App() {
                 </div>
                 
                 <div className="p-5 flex flex-col gap-5 lg:overflow-y-auto">
-                  {/* Telemetry Panel */}
-                  <div className="p-3 rounded-xl border border-border-subtle bg-elevated/50 flex flex-col gap-2">
-                    <div className="text-[0.6rem] font-bold uppercase tracking-widest text-ink-secondary flex items-center gap-2 mb-1">
-                      <Icon name="server" className="text-gold-500" /> Telemetria do Sistema
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[0.65rem] font-mono">
-                      <div className="flex justify-between items-center">
-                        <span className="text-ink-secondary">STT Engine:</span>
-                        <span className="text-ai font-bold">Deepgram Nova-2</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-ink-secondary">Latência:</span>
-                        <span className="text-ok font-bold">~118ms</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-ink-secondary">LLM Engine:</span>
-                        <span className="text-gold-500 font-bold">Gemini 1.5 Flash</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-ink-secondary">Confiança:</span>
-                        <span className="text-ok font-bold">98.4%</span>
-                      </div>
-                    </div>
+                  <div className="text-[0.6rem] font-mono text-ink-tertiary flex items-center gap-2 flex-wrap">
+                    <Icon name="server" className="text-ink-tertiary" /> STT Deepgram Nova-2 · 118ms · LLM Gemini · confiança 98.4%
                   </div>
 
                   {/* Risk Classification */}
@@ -1483,6 +1539,39 @@ export default function App() {
           <div className="flex-1 flex flex-col lg:flex-row gap-4 fu min-h-0 overflow-y-auto lg:overflow-hidden pb-6 lg:pb-0">
             {/* Left Panel: Handoff Summary & Chat */}
             <div className="w-full lg:w-[300px] gp rounded-2xl flex flex-col overflow-hidden shrink-0">
+              {role === 'MEDICO' && (
+                <div className="border-b border-border-subtle bg-elevated/60 p-3 shrink-0">
+                  <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-2 flex items-center gap-1.5">
+                    <Icon name="list-ol" className="text-gold-500" /> Atendimentos em espera
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    {MEDICO_CASES.map(c => {
+                      const active = extractedData.protocol === c.data.protocol;
+                      return (
+                        <button
+                          key={c.num}
+                          onClick={() => {
+                            const caller = MOCK_CALLERS[c.caller];
+                            setCurrentCaller(caller);
+                            setAmlData(caller.aml);
+                            setExtractedData(c.data as any);
+                            setSelectedVehicleId(null);
+                            showToast(`Atendimento ${c.num} em foco`, 'info');
+                          }}
+                          className={`w-full p-2 rounded-lg border text-left flex items-center gap-2 transition-colors ${active ? 'bg-gold-500/10 border-gold-500' : 'bg-surface border-border-subtle hover:border-gold-500'}`}
+                        >
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${c.data.risk === 'RED' ? 'bg-danger' : 'bg-warn'}`}></span>
+                          <span className="min-w-0">
+                            <span className="block text-[0.7rem] font-bold text-ink-primary truncate">{c.num} · {c.label}</span>
+                            <span className="block text-[0.6rem] text-ink-tertiary truncate">{c.data.protocol}</span>
+                          </span>
+                          {active && <Icon name="chevron-right" className="ml-auto text-gold-500 shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
                   <Icon name="file-medical" className="text-gold-500 text-xs" />
@@ -1729,7 +1818,11 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Dispatch CTA */}
+              {/* Despacho designado pelo sistema após a regulação */}
+              <div className="p-3 rounded-xl bg-ai/5 border border-ai/30 text-[0.7rem] text-ink-secondary flex items-start gap-2 shrink-0">
+                <Icon name="robot" className="text-ai mt-0.5" />
+                <span><b className="text-ai">Designação automática:</b> concluída a regulação, o sistema aciona {recommendedVehicles[0]?.id || 'USA-01'} (melhor ETA × gravidade). Você pode alterar a viatura ao lado ou permanecer na linha com o solicitante.</span>
+              </div>
               <button 
                 onClick={() => {
                   setIsDispatching(true);
@@ -1746,7 +1839,7 @@ export default function App() {
                 {isDispatching ? (
                   <><Icon name="circle-notch" className="animate-spin text-lg" /> Acionando...</>
                 ) : (
-                  <><Icon name="truck-fast" className="text-lg" /> Acionar Viatura</>
+                  <><Icon name="truck-fast" className="text-lg" /> Confirmar Despacho · {selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01'}</>
                 )}
               </button>
             </div>
@@ -1834,14 +1927,30 @@ export default function App() {
                     <div className="text-sm font-bold text-ink-primary">{amlData?.address || 'Endereço não disponível'}, {amlData?.number}</div>
                     <div className="text-xs text-ink-secondary">{amlData?.neighborhood} - {amlData?.city}</div>
                   </div>
-                  <button onClick={() => { playSound('call', soundEnabledRef.current); showToast('Conectando à CRU — Regulação Médica', 'info'); }} className="py-4 min-h-[56px] bg-gold-500/15 border border-gold-500/40 rounded-xl text-sm font-bold text-gold-500 hover:bg-gold-500/25 transition-colors flex items-center justify-center gap-2">
-                    <Icon name="headset" /> Falar com a CRU · Apoio Médico
-                  </button>
+<div className="p-3 rounded-xl bg-elevated border border-border-subtle text-[0.7rem] text-ink-tertiary">
+                    Para apoio médico adicional, contate a CRU pelo rádio — o CoPilot acompanha de forma passiva.
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* BARRA DE MISSÃO — status de 1 toque, alvos grandes (luva), alimenta T0–T4 */}
+            {missionStatus === 'NO HOSPITAL' ? (
+              <div className="shrink-0 bg-canvas border-t border-border-subtle p-3 pb-14 md:pb-16">
+                <button
+                  onClick={() => {
+                    showToast('Atendimento encerrado · dados registrados', 'success');
+                    setCurrentCaller(null);
+                    setAmlData(null);
+                    setMissionStatus('A CAMINHO');
+                    if (role !== 'VIATURA') setCurrentModule('IDLE');
+                  }}
+                  className="w-full min-h-[60px] rounded-xl bg-ok/15 border border-ok/50 text-ok font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:bg-ok/25 transition-colors"
+                >
+                  <Icon name="check-double" /> Encerrar atendimento
+                </button>
+              </div>
+            ) : (
             <div className="shrink-0 bg-canvas border-t border-border-subtle p-3 pb-14 md:pb-16 grid grid-cols-4 gap-2">
               {MISSION_STEPS.map((step, i) => {
                 const stateIdx = MISSION_STEPS.indexOf(missionStatus);
@@ -1869,16 +1978,18 @@ export default function App() {
                 );
               })}
             </div>
+            )}
           </div>
         )}
-        {currentModule === 'ESCALA' && (() => {
+        {showEscala && (() => {
           const weekStart = addDays(startOfWeek(new Date()), myWeek * 7);
           const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
           const todayIso = isoDate(new Date());
           const own = roster[operatorId] || {};
           const plantoes = days.filter(d => { const t = own[isoDate(d)]; return t && t !== 'FOLGA'; }).length;
           return (
-          <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
+          <div className="fixed inset-0 z-[700] bg-canvas/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowEscala(false)}>
+          <div className="bg-surface border border-border-default rounded-xl shadow-2xl max-w-5xl w-full max-h-[88vh] overflow-y-auto p-6 flex flex-col gap-6 fu" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <div className="eyebrow mb-1">{operatorId} · {operatorName.toUpperCase()}{connected ? ' · BACKEND ATIVO' : ' · DEMO'}</div>
@@ -1923,7 +2034,9 @@ export default function App() {
             <div className="gp p-4 rounded-2xl flex flex-wrap items-center gap-4">
               <span className="chip chip-nude text-[0.65rem]">{plantoes} plantões na semana</span>
               <span className="text-[0.7rem] text-ink-tertiary">Trocas de plantão são solicitadas à coordenação e aparecem aqui após aprovação do Gestor.</span>
+              <button onClick={() => setShowEscala(false)} className="ml-auto px-4 py-2 rounded-md bg-elevated border border-border-default text-xs font-bold text-ink-primary hover:border-gold-500">Fechar</button>
             </div>
+          </div>
           </div>
           );
         })()}
@@ -1957,7 +2070,57 @@ export default function App() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Mapa geral da frota */}
+              <div className="gp rounded-2xl overflow-hidden lg:col-span-2 min-h-[320px] relative">
+                <div className="absolute top-3 left-3 z-10 bg-canvas/90 backdrop-blur px-3 py-1.5 rounded-lg border border-border-subtle text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary">Posicionamento da frota</div>
+                {IdleMapIframe}
+                <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
+                <div className="absolute top-1/3 left-1/4 z-10 flex flex-col items-center pointer-events-none">
+                  <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(67,160,71,0.7)] flex items-center justify-center">
+                    <Icon name="truck-medical" className="text-white text-[0.5rem] rotate-45" />
+                  </div>
+                  <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">USA-01</div>
+                </div>
+                <div className="absolute top-2/3 left-2/3 z-10 flex flex-col items-center pointer-events-none">
+                  <div className="w-6 h-6 bg-danger border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(229,57,53,0.7)] flex items-center justify-center">
+                    <Icon name="truck-medical" className="text-white text-[0.5rem] rotate-45" />
+                  </div>
+                  <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">USA-02</div>
+                </div>
+              </div>
+              {/* Acessos focados — uma tarefa por tela */}
+              <div className="flex flex-col gap-4">
+                {([
+                  { mod: 'DASHBOARD', icon: 'chart-simple', title: 'Dashboard', desc: 'Métricas, SLA e BI da operação' },
+                  { mod: 'FROTA', icon: 'truck-medical', title: 'Frota', desc: 'Status e manutenção das viaturas' },
+                  { mod: 'ESCALAS', icon: 'calendar', title: 'Escalas', desc: 'Equipe — até 1 mês à frente' },
+                ] as const).map(c => (
+                  <button key={c.mod} onClick={() => setCurrentModule(c.mod)} className="card-data p-5 text-left hover:border-gold-500 transition-colors flex items-center gap-4 flex-1">
+                    <div className="w-11 h-11 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-500 flex items-center justify-center text-xl shrink-0">
+                      <Icon name={c.icon} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-base font-disp font-bold text-ink-primary">{c.title}</div>
+                      <div className="text-xs text-ink-secondary">{c.desc}</div>
+                    </div>
+                    <Icon name="chevron-right" className="ml-auto text-ink-tertiary" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {currentModule === 'FROTA' && (
+          <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
+            <div>
+              <div className="eyebrow mb-1">CRU SÃO PAULO · GESTÃO</div>
+              <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
+                <Icon name="truck-medical" className="text-gold-500" /> Frota
+              </h2>
+              <p className="text-sm text-ink-secondary">Status e manutenção — alterações refletem em toda a operação</p>
+            </div>
+            <div className="max-w-3xl">
               {/* Frota: status editável + manutenção programada */}
               <div className="gp p-5 rounded-2xl">
                 <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -2004,7 +2167,18 @@ export default function App() {
                   ))}
                 </div>
               </div>
-
+            </div>
+          </div>
+        )}
+        {currentModule === 'ESCALAS' && (
+          <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
+            <div>
+              <div className="eyebrow mb-1">CRU SÃO PAULO · GESTÃO</div>
+              <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
+                <Icon name="calendar" className="text-gold-500" /> Escalas da equipe
+              </h2>
+              <p className="text-sm text-ink-secondary">Criação, conferência e alteração — semana atual até 1 mês à frente</p>
+            </div>
               {/* Planner de escalas — semana navegável, edição de 1 clique */}
               <div className="gp p-5 rounded-2xl xl:col-span-2">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
@@ -2082,7 +2256,6 @@ export default function App() {
                   ))}
                 </div>
               </div>
-            </div>
           </div>
         )}
         {currentModule === 'DASHBOARD' && (
@@ -2328,46 +2501,58 @@ export default function App() {
           }`}
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside nav
         >
-          {role === 'OPERACAO' && (<>
+          {(role === 'TARM' || role === 'MEDICO') && (<>
           <button 
-            onClick={() => { setCurrentModule('IDLE'); setIsNavOpen(false); }}
+            onClick={() => jumpToStage('IDLE')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'IDLE' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <Icon name="house-signal" /> Home
           </button>
           <button 
-            onClick={() => { setCurrentModule('AML'); setIsNavOpen(false); }}
+            onClick={() => jumpToStage('AML')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'AML' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <Icon name="location-crosshairs" /> Ligação
           </button>
           <button 
-            onClick={() => { setCurrentModule('TARM'); setIsNavOpen(false); }}
+            onClick={() => jumpToStage('TARM')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'TARM' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <Icon name="microphone-lines" /> TARM
           </button>
           <button 
-            onClick={() => { setCurrentModule('REGULADOR'); setIsNavOpen(false); }}
+            onClick={() => jumpToStage('REGULADOR')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'REGULADOR' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <Icon name="user-doctor" /> Médico
           </button>
           <button 
-            onClick={() => { setCurrentModule('VIATURA'); setIsNavOpen(false); }}
+            onClick={() => jumpToStage('VIATURA')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'VIATURA' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <Icon name="truck-medical" /> Viatura
           </button>
           </>)}
-          {role === 'GESTOR' && (
+          {role === 'GESTOR' && (<>
           <button
             onClick={() => { setCurrentModule('GESTOR'); setIsNavOpen(false); }}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'GESTOR' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
-            <Icon name="list-check" /> Gestão
+            <Icon name="house-signal" /> Início
           </button>
-          )}
+          <button
+            onClick={() => { setCurrentModule('FROTA'); setIsNavOpen(false); }}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'FROTA' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
+          >
+            <Icon name="truck-medical" /> Frota
+          </button>
+          <button
+            onClick={() => { setCurrentModule('ESCALAS'); setIsNavOpen(false); }}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'ESCALAS' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
+          >
+            <Icon name="calendar" /> Escalas
+          </button>
+          </>)}
           {role === 'GESTOR' && (
           <button
             onClick={() => { setCurrentModule('DASHBOARD'); setIsNavOpen(false); }}
