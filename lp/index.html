@@ -161,7 +161,7 @@ h2{font-size:clamp(28px,4vw,44px);font-weight:700;margin-bottom:18px}
 /* ── Cards ── */
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-@media(max-width:920px){.grid-3,.grid-2{grid-template-columns:1fr}}
+@media(max-width:920px){.grid-3,.grid-2{grid-template-columns:1fr !important}}
 .card{
   background:var(--surface);border:1px solid var(--border-subtle);
   border-radius:8px;padding:28px;
@@ -307,6 +307,16 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
       <a class="btn btn-primary" href="/">Entrar na demo ao vivo</a>
       <a class="btn btn-secondary" href="#demo">Como funciona</a>
     </div>
+    <div class="photo-band" style="margin-top:0;margin-bottom:40px">
+      <figure>
+        <img src="/lp/assets/viatura-close.jpg" alt="Viatura Samais em operação" loading="eager">
+        <figcaption>Operação Samais · fotografia documental</figcaption>
+      </figure>
+      <figure>
+        <img src="/lp/assets/TraseiraSAMU5.jpg" alt="Unidade SAMU pronta para despacho" loading="lazy">
+        <figcaption>Pronta para o despacho</figcaption>
+      </figure>
+    </div>
     <div class="stat-strip">
       <div class="stat-chip"><b>1m12s</b><span>T. médio de regulação</span></div>
       <div class="stat-chip"><b>29%</b><span>trotes filtrados</span></div>
@@ -367,7 +377,7 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
       <div class="card card-data" style="background:var(--elevated)">
         <span class="tag">Pilar 01</span>
         <h3>Triagem IA em tempo real</h3>
-        <p>A IA escuta a ligação em português e transforma fala em texto na hora: sintomas, doenças prévias e dados do paciente aparecem na tela enquanto a pessoa ainda fala. A gravidade é sugerida no padrão internacional Manchester (vermelho, amarelo, verde).</p>
+        <p>O CoPilot é <b>100% passivo</b>: não atende e não interfere na telefonia da central. A IA escuta a ligação em português e transforma fala em texto na hora — sintomas, doenças prévias e dados do paciente aparecem enquanto a pessoa ainda fala, com a gravidade sugerida no padrão Manchester.</p>
         <span class="metric">Alvo: <b>−45s no T. médio de regulação</b></span>
       </div>
       <div class="card card-data" style="background:var(--elevated)">
@@ -379,13 +389,13 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
       <div class="card card-data" style="background:var(--elevated)">
         <span class="tag">Pilar 03</span>
         <h3>Despacho otimizado</h3>
-        <p>O sistema recomenda qual ambulância enviar — a avançada (UTI móvel), a básica, ou apenas orientação por telefone — combinando gravidade e tempo de chegada. Cada decisão fica registrada com o porquê.</p>
+        <p>Concluída a regulação, o sistema <b>designa automaticamente</b> a ambulância certa — avançada, básica ou orientação — pela gravidade e tempo de chegada. O médico pode trocar a viatura ou permanecer na linha. Tudo registrado com o porquê.</p>
         <span class="metric">Alvo: <b>menos despachos USA evitáveis</b></span>
       </div>
       <div class="card card-data" style="background:var(--elevated)">
         <span class="tag">Pilar 04</span>
         <h3>Auditoria e BI</h3>
-        <p>O gestor enxerga a operação em números: tempo de resposta, chamadas atendidas, falsos chamados filtrados. Tudo com trilha completa para prestação de contas a tribunais e órgãos de controle.</p>
+        <p>O gestor enxerga a operação em números — geral e por base descentralizada (consórcios) — e exporta em PDF. Cada atendimento vira um registro no padrão internacional <b>FHIR R4</b> (base APH-BR), interoperável com o prontuário hospitalar. Trilha completa para tribunais e órgãos de controle.</p>
         <span class="metric">Entrega: <b>relatórios prontos para auditoria</b></span>
       </div>
     </div>
@@ -421,6 +431,37 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
     <div style="display:flex;justify-content:center;margin-top:36px">
       <!-- O app é servido na raiz do mesmo deploy; a LP vive em /lp. -->
       <a class="btn btn-primary" href="/">Entrar na demo interativa</a>
+    </div>
+  </div>
+</section>
+
+<!-- Perfis: um sistema, quatro telas -->
+<section id="perfis" style="padding-top:0">
+  <div class="wrap">
+    <p class="eyebrow">Um sistema, quatro telas</p>
+    <h2>Cada pessoa da operação vê só o que precisa</h2>
+    <p class="sub" style="margin-bottom:48px">Login por matrícula com perfil próprio — poucas funções, foco total na tarefa.</p>
+    <div class="grid-3" style="grid-template-columns:repeat(4,1fr)">
+      <div class="card">
+        <figure style="margin:-28px -28px 16px;border-radius:8px 8px 0 0;overflow:hidden"><img src="/lp/assets/socorrista2.jpg" alt="Atendente em operação" loading="lazy" style="width:100%;height:120px;object-fit:cover;display:block"></figure>
+        <h3 style="margin-top:0">TARM</h3>
+        <p>Recebe a ligação com a transcrição e a triagem da IA na tela. Sem retrabalho.</p>
+      </div>
+      <div class="card">
+        <figure style="margin:-28px -28px 16px;border-radius:8px 8px 0 0;overflow:hidden"><img src="/lp/assets/socorrista3.jpg" alt="Profissional de saúde" loading="lazy" style="width:100%;height:120px;object-fit:cover;display:block"></figure>
+        <h3 style="margin-top:0">Médico</h3>
+        <p>Recebe o handoff pronto, alterna entre atendimentos em espera e confirma o despacho designado.</p>
+      </div>
+      <div class="card">
+        <figure style="margin:-28px -28px 16px;border-radius:8px 8px 0 0;overflow:hidden"><img src="/lp/assets/Motolancia1.jpg" alt="Motolância Samais" loading="lazy" style="width:100%;height:120px;object-fit:cover;display:block"></figure>
+        <h3 style="margin-top:0">Viatura</h3>
+        <p>Tablet com rota, dados do paciente e status de 1 toque — do despacho ao hospital.</p>
+      </div>
+      <div class="card">
+        <figure style="margin:-28px -28px 16px;border-radius:8px 8px 0 0;overflow:hidden"><img src="/lp/assets/viaturas.jpg" alt="Frota Samais" loading="lazy" style="width:100%;height:120px;object-fit:cover;display:block"></figure>
+        <h3 style="margin-top:0">Gestor</h3>
+        <p>Entra, confere e sai: frota no mapa, escalas até 1 mês à frente e relatórios em PDF.</p>
+      </div>
     </div>
   </div>
 </section>
