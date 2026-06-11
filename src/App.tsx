@@ -377,6 +377,10 @@ export default function App() {
   const [userIds, setUserIds] = useState<Record<string, string>>({});
   const [myWeek, setMyWeek] = useState(0);
   const [showEscala, setShowEscala] = useState(false);
+  const [selectedBase, setSelectedBase] = useState('Consórcio (geral)');
+  const BASE_FACTOR: Record<string, number> = { 'Consórcio (geral)': 1, 'Base Central': 0.52, 'Base Leste': 0.29, 'Base Norte': 0.19 };
+  const bf = BASE_FACTOR[selectedBase] ?? 1;
+  const [fhirRecord, setFhirRecord] = useState<typeof MOCK_RECENT_CALLS[number] | null>(null);
   const [gWeek, setGWeek] = useState(0);
   const [queue, setQueue] = useState(() => MOCK_QUEUE.map(q => {
     const [m, sec] = q.waitTime.split(':').map(Number);
@@ -723,6 +727,31 @@ export default function App() {
     }
   }, [currentModule, selectedVehicleId, recommendedVehicles]);
 
+  // Simuladores de viatura sobre o mapa: ativas se deslocam, base fica fixa,
+  // em ocorrência pulsa em vermelho — mesmo padrão em todas as telas de espera.
+  const FleetMarkers = (
+    <>
+      {vehicles.slice(0, 4).map((v, i) => {
+        const moving = v.status === 'DISPONÍVEL' || v.status === 'RETORNO' || v.status === 'EM ATENDIMENTO';
+        const speed = v.status === 'EM ATENDIMENTO' ? 1200 : 2200 + i * 400;
+        const amp = moving ? 22 + i * 6 : 0;
+        const pos = [
+          { top: '30%', left: '24%' }, { top: '62%', left: '64%' },
+          { top: '44%', left: '44%' }, { top: '72%', left: '30%' },
+        ][i];
+        const color = v.status === 'EM ATENDIMENTO' ? 'bg-danger' : v.status === 'MANUTENÇÃO' ? 'bg-ink-tertiary' : v.status === 'RETORNO' ? 'bg-warn' : 'bg-ok';
+        return (
+          <div key={v.id} className="absolute z-10 flex flex-col items-center pointer-events-none transition-transform duration-[2000ms] ease-linear" style={{ ...pos, transform: `translate(${Math.sin(time.getTime() / speed + i) * amp}px, ${Math.cos(time.getTime() / speed + i) * amp}px)` }}>
+            <div className={`w-6 h-6 ${color} border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-lg flex items-center justify-center ${v.status === 'EM ATENDIMENTO' ? 'animate-pulse' : ''}`}>
+              <Icon name={v.type.includes('MOTOLÂNCIA') ? 'motorcycle' : 'truck-medical'} className="text-white text-[0.5rem] rotate-45" />
+            </div>
+            <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">{v.id}</div>
+          </div>
+        );
+      })}
+    </>
+  );
+
   const jumpToStage = (stage: 'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA') => {
     if (stage !== 'IDLE' && !currentCaller) applyDemoSnapshot();
     if (stage === 'REGULADOR' && !selectedVehicleId) setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
@@ -793,9 +822,9 @@ export default function App() {
           }
           setCurrentModule('REGULADOR');
         }}
-        className="w-full py-4 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_30px_rgba(191,154,61,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
+        className="w-full py-4 px-3 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-wider text-xs md:text-sm rounded-xl shadow-[0_0_30px_rgba(191,154,61,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
       >
-        <Icon name="user-doctor" className="text-lg" /> Handoff & Ir para Regulador
+        <Icon name="user-doctor" className="text-base shrink-0" /> <span className="truncate">Handoff & Ir p/ Regulador</span>
       </button>
     </>
   );
@@ -1012,6 +1041,7 @@ export default function App() {
         {currentModule === 'VIATURA' && !currentCaller && (
           <div className="flex-1 relative fu min-h-0 -m-4 md:-m-5 overflow-hidden bg-elevated">
             {IdleMapIframe}
+            {FleetMarkers}
             <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
             <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-canvas/90 backdrop-blur-md border border-border-subtle px-5 py-2.5 rounded-xl shadow-2xl z-10 flex items-center gap-3">
               <span className="w-2 h-2 rounded-full bg-ok animate-pulse"></span>
@@ -1095,20 +1125,7 @@ export default function App() {
                   {IdleMapIframe}
                   <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
                   
-                  {/* Simulated Moving Vehicles */}
-                  <div className="absolute top-1/3 left-1/4 z-10 flex flex-col items-center pointer-events-none transition-all duration-[3000ms] ease-linear" style={{ transform: `translate(${Math.sin(time.getTime() / 2000) * 20}px, ${Math.cos(time.getTime() / 2000) * 20}px)` }}>
-                    <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(67,160,71,0.7)] flex items-center justify-center">
-                      <Icon name="truck-medical" className="text-white text-[0.5rem] rotate-45" />
-                    </div>
-                    <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">USA-01</div>
-                  </div>
-
-                  <div className="absolute top-2/3 left-2/3 z-10 flex flex-col items-center pointer-events-none transition-all duration-[2000ms] ease-linear" style={{ transform: `translate(${Math.cos(time.getTime() / 1500) * 30}px, ${Math.sin(time.getTime() / 1500) * 30}px)` }}>
-                    <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(67,160,71,0.7)] flex items-center justify-center">
-                      <Icon name="motorcycle" className="text-white text-[0.5rem] rotate-45" />
-                    </div>
-                    <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">MOT-01</div>
-                  </div>
+                  {FleetMarkers}
                 </div>
               </div>
             </div>
@@ -1834,12 +1851,12 @@ export default function App() {
                   }, 800);
                 }}
                 disabled={isDispatching}
-                className="w-full py-4 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_30px_rgba(229,57,53,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-70 disabled:hover:scale-100"
+                className="w-full py-4 px-3 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-wider text-xs md:text-sm rounded-xl shadow-[0_0_30px_rgba(229,57,53,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-70 disabled:hover:scale-100"
               >
                 {isDispatching ? (
                   <><Icon name="circle-notch" className="animate-spin text-lg" /> Acionando...</>
                 ) : (
-                  <><Icon name="truck-fast" className="text-lg" /> Confirmar Despacho · {selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01'}</>
+                  <><Icon name="truck-fast" className="text-base shrink-0" /> <span className="truncate">Confirmar Despacho · {selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01'}</span></>
                 )}
               </button>
             </div>
@@ -1858,6 +1875,17 @@ export default function App() {
                 )}
                 <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
 
+                {/* Navegação no app de mapas do tablet */}
+                {amlData && (
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${amlData.lat},${amlData.lng}&travelmode=driving&dir_action=navigate`}
+                    target="_blank"
+                    rel="noopener"
+                    className="absolute top-4 right-4 z-10 px-4 py-3 min-h-[48px] rounded-xl bg-gold-500 text-ink-inverse text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(191,154,61,0.4)] hover:bg-gold-300 transition-colors whitespace-nowrap"
+                  >
+                    <Icon name="location-arrow" /> Iniciar navegação
+                  </a>
+                )}
                 {/* ETA gigante */}
                 <div className="absolute top-4 left-4 bg-canvas/90 backdrop-blur-md border border-border-subtle px-5 py-3 rounded-xl shadow-2xl z-10">
                   <div className="flex items-end gap-3">
@@ -2076,18 +2104,7 @@ export default function App() {
                 <div className="absolute top-3 left-3 z-10 bg-canvas/90 backdrop-blur px-3 py-1.5 rounded-lg border border-border-subtle text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary">Posicionamento da frota</div>
                 {IdleMapIframe}
                 <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
-                <div className="absolute top-1/3 left-1/4 z-10 flex flex-col items-center pointer-events-none">
-                  <div className="w-6 h-6 bg-ok border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(67,160,71,0.7)] flex items-center justify-center">
-                    <Icon name="truck-medical" className="text-white text-[0.5rem] rotate-45" />
-                  </div>
-                  <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">USA-01</div>
-                </div>
-                <div className="absolute top-2/3 left-2/3 z-10 flex flex-col items-center pointer-events-none">
-                  <div className="w-6 h-6 bg-danger border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_15px_rgba(229,57,53,0.7)] flex items-center justify-center">
-                    <Icon name="truck-medical" className="text-white text-[0.5rem] rotate-45" />
-                  </div>
-                  <div className="text-[0.5rem] font-bold text-white bg-canvas/80 px-1 rounded mt-1">USA-02</div>
-                </div>
+                {FleetMarkers}
               </div>
               {/* Acessos focados — uma tarefa por tela */}
               <div className="flex flex-col gap-4">
@@ -2282,7 +2299,7 @@ export default function App() {
                       <div className="p-3 border-b border-border-subtle bg-elevated">
                         <div className="text-xs font-bold text-ink-primary mb-2">Período</div>
                         <div className="grid grid-cols-2 gap-2">
-                          {['Hoje', '7 dias', '14 dias', '28 dias', '30 dias', '60 dias'].map(p => (
+                          {['7 dias', '14 dias', '21 dias', '28 dias', '30 dias', '60 dias', '90 dias', 'Personalizado'].map(p => (
                             <button 
                               key={p}
                               onClick={() => { setSelectedPeriod(p); setShowDatePicker(false); }}
@@ -2313,7 +2330,15 @@ export default function App() {
                     </div>
                   )}
                 </div>
-                <button className="px-4 py-2 rounded-lg bg-surface border border-border-subtle text-xs font-bold text-ink-primary hover:bg-elevated transition-colors flex items-center gap-2">
+                <select
+                  value={selectedBase}
+                  onChange={(e) => setSelectedBase(e.target.value)}
+                  className="inp !w-auto text-xs font-bold py-2"
+                  aria-label="Filtrar por base"
+                >
+                  {Object.keys(BASE_FACTOR).map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+                <button onClick={() => window.print()} className="px-4 py-2 rounded-lg bg-surface border border-border-subtle text-xs font-bold text-ink-primary hover:bg-elevated transition-colors flex items-center gap-2">
                   <Icon name="file-pdf" className="text-ink-secondary" /> Exportar PDF
                 </button>
               </div>
@@ -2338,12 +2363,12 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ink-secondary">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS RECEBIDAS</div>
-                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">1.432</div>
+                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">{Math.round(1432 * bf).toLocaleString('pt-BR')}</div>
                 <div className="text-xs text-ok"><Icon name="arrow-trend-up" /> +5% vs período anterior</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-gold-500 relative overflow-hidden">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
-                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">418</div>
+                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{Math.round(418 * bf)}</div>
                 <div className="text-xs text-gold-500/70">~29% do total</div>
                 <div className="absolute bottom-4 right-4 px-2 py-1 rounded bg-gold-500/10 border border-gold-500/30 text-xs font-mono font-bold text-gold-500">R$ 38k</div>
               </div>
@@ -2354,7 +2379,7 @@ export default function App() {
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-danger">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">DESPACHOS USA (VERMELHO)</div>
-                <div className="text-4xl font-disp font-bold text-danger mb-2">94</div>
+                <div className="text-4xl font-disp font-bold text-danger mb-2">{Math.round(94 * bf)}</div>
                 <div className="text-xs text-ink-secondary">Acurácia (Ground Truth): <span className="text-ok">96.8%</span></div>
               </div>
             </div>
@@ -2458,7 +2483,7 @@ export default function App() {
                   </thead>
                   <tbody>
                     {MOCK_RECENT_CALLS.map((call, idx) => (
-                      <tr key={idx} className="border-b border-border-subtle/50 hover:bg-elevated/50 transition-colors">
+                      <tr key={idx} onClick={() => setFhirRecord(call)} className="border-b border-border-subtle/50 hover:bg-elevated/50 transition-colors cursor-pointer" title="Abrir registro de atendimento (FHIR R4)">
                         <td className="py-3 text-[0.65rem] font-mono text-ink-secondary">#{call.id}</td>
                         <td className="py-3 text-sm font-mono font-bold text-ink-primary">{call.phone}</td>
                         <td className="py-3 text-xs text-ink-secondary">{call.time}</td>
@@ -2472,8 +2497,33 @@ export default function App() {
                     ))}
                   </tbody>
                 </table>
+                <div className="text-[0.6rem] font-mono text-ink-tertiary mt-2">Clique numa linha para abrir o registro de atendimento (FHIR R4 · base APH-BR · interoperável com o PEP OS)</div>
               </div>
             </div>
+            {fhirRecord && (
+              <div className="fixed inset-0 z-[700] bg-canvas/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setFhirRecord(null)}>
+                <div className="bg-surface border border-border-default rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
+                  <div>
+                    <div className="eyebrow mb-1">REGISTRO DE ATENDIMENTO · FHIR R4 · APH-BR</div>
+                    <h3 className="text-xl font-disp font-bold text-ink-primary">Ocorrência #{fhirRecord.id}</h3>
+                    <p className="text-xs text-ink-secondary">Estrutura interoperável — pronta para handoff ao PEP OS (continuidade do cuidado)</p>
+                  </div>
+                  <pre className="bg-elevated border border-border-subtle rounded-lg p-4 text-[0.65rem] font-mono text-ink-secondary overflow-x-auto leading-relaxed">{JSON.stringify({
+                    resourceType: 'Bundle', type: 'document', identifier: { system: 'urn:samais:aph-br', value: `OCC-${fhirRecord.id}` },
+                    entry: [
+                      { resource: { resourceType: 'Encounter', status: 'finished', class: { code: 'EMER', display: 'Emergência pré-hospitalar' }, period: { start: `2026-06-10T${fhirRecord.time}:00-03:00` }, serviceProvider: { display: 'CRU São Paulo · Base Central' } } },
+                      { resource: { resourceType: 'Patient', identifier: [{ system: 'urn:samais:telefone', value: fhirRecord.phone }], name: [{ text: 'Registrado na triagem' }] } },
+                      { resource: { resourceType: 'Condition', code: { text: fhirRecord.type }, clinicalStatus: { text: 'ativo no momento do despacho' } } },
+                      { resource: { resourceType: 'ServiceRequest', status: 'completed', intent: 'order', code: { text: fhirRecord.status }, performer: [{ display: 'SAMU 192' }] } },
+                    ],
+                  }, null, 2)}</pre>
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => window.print()} className="px-4 py-2 rounded-md bg-elevated border border-border-default text-xs font-bold text-ink-primary hover:border-gold-500">Exportar PDF</button>
+                    <button onClick={() => setFhirRecord(null)} className="px-4 py-2 rounded-md bg-gold-500 text-ink-inverse text-xs font-bold">Fechar</button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
