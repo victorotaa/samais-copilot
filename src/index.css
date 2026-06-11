@@ -1,29 +1,147 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────
+ * Tokens canônicos Samais — fonte: samais-pep/design/samais-pep-os-design-tokens.json (v1.0)
+ * Estrutura em duas camadas (docs/04-design-system.md):
+ *   Camada 1 — primitivos (literais, abaixo em @theme)
+ *   Camada 2 — semânticos por tema (vars em :root[data-theme], expostos via @theme inline)
+ * Componentes usam apenas a camada semântica.
+ * ──────────────────────────────────────────────────────────────────── */
 @theme {
-  --color-s-ivory: #FFF5E9;
-  --color-s-nude: #FCD7B8;
-  --color-s-terra: #A95F41;
-  --color-s-gold: #D3A05C;
-  --color-s-dark: #090A0F;
-  --color-s-surf: #141720;
-  --color-s-surf2: #1B202C;
-  --color-s-bdr: rgba(211,160,92,0.2);
-  --color-ai: #00d4a8;
-  --color-danger: #EF4444;
-  --color-ok: #10B981;
-  --color-warn: #F59E0B;
-  
-  --font-sans: "Inter", sans-serif;
+  /* Gold — escala da marca (300 e 500 são theme-aware, ver @theme inline) */
+  --color-gold-50: #FAF3DD;
+  --color-gold-100: #F5E8B8;
+  --color-gold-200: #EAD78E;
+  --color-gold-400: #D4B45E;
+  --color-gold-600: #A18230;
+  --color-gold-700: #7E6624;
+  --color-gold-800: #5C4A1A;
+  --color-gold-900: #3D3110;
+
+  /* Sinais dessaturados (UI administrativa, deltas, banners) */
+  --color-signal-success: #5C8F6E;
+  --color-signal-warning: #C9A84C;
+  --color-signal-danger: #B8554E;
+  --color-signal-info: #6E8AAA;
+
+  /* Manchester — uso protocolar (badges, pulseiras, classificação) */
+  --color-manchester-red: #E53935;
+  --color-manchester-orange: #FB8C00;
+  --color-manchester-yellow: #FDD835;
+  --color-manchester-green: #43A047;
+  --color-manchester-blue: #1E88E5;
+
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
   --font-disp: "Syne", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Camada semântica — dark é o padrão de produção (sala de central 24/7). */
+:root,
+:root[data-theme="dark"] {
+  --canvas: #070708;
+  --surface: #0E0E10;
+  --elevated: #161618;
+  --overlay: #1F1F22;
+  --hover: #22232A;
+  --pressed: #2A2B33;
+  --border-subtle: #1F1F22;
+  --border-default: #2A2B33;
+  --border-strong: #3A3B45;
+  --ink-primary: #F4F4F5;
+  --ink-secondary: #A8A8B0;
+  --ink-tertiary: #6E6E78;
+  --ink-disabled: #3A3B45;
+  --ink-inverse: #070708;
+  --gold-300: #EAC97A;
+  --gold-500: #BF9A3D;
+  /* Sinais operacionais do CoPilot (triagem vive em todo o produto) */
+  --ok: #43A047;
+  --warn: #FDD835;
+  --danger: #E53935;
+  --info: #1E88E5;
+  --ai: #00D4A8;
+  --scrim: rgba(7, 7, 8, 0.95);
+  color-scheme: dark;
+}
+
+/* Light — uso opcional do usuário (fadiga visual / preferência). */
+:root[data-theme="light"] {
+  --canvas: #FAFAF7;
+  --surface: #FFFFFF;
+  --elevated: #F1F1ED;
+  --overlay: #E6E6E1;
+  --hover: #ECECE7;
+  --pressed: #DFDFD9;
+  --border-subtle: #E4E4DE;
+  --border-default: #D1D1C9;
+  --border-strong: #B7B7AD;
+  --ink-primary: #1A1A17;
+  --ink-secondary: #52524C;
+  --ink-tertiary: #828279;
+  --ink-disabled: #B7B7AD;
+  --ink-inverse: #070708;
+  --gold-300: #8A6E28;
+  --gold-500: #A88230;
+  --ok: #2E7D32;
+  --warn: #B58A00;
+  --danger: #C62828;
+  --info: #1565C0;
+  --ai: #00875F;
+  --scrim: rgba(250, 250, 247, 0.95);
+  color-scheme: light;
+}
+
+/* Expõe os semânticos como utilities Tailwind theme-aware
+   (bg-canvas, text-ink-primary, border-border-subtle, text-gold-500, …). */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-overlay: var(--overlay);
+  --color-hover: var(--hover);
+  --color-pressed: var(--pressed);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+  --color-ink-primary: var(--ink-primary);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-tertiary: var(--ink-tertiary);
+  --color-ink-disabled: var(--ink-disabled);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-gold-300: var(--gold-300);
+  --color-gold-500: var(--gold-500);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-ai: var(--ai);
 }
 
 @layer base {
   body {
-    @apply bg-s-dark text-s-ivory font-sans antialiased overflow-hidden h-screen w-screen m-0 p-0;
+    background: var(--canvas);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    transition: background-color 240ms cubic-bezier(0.22, 1, 0.36, 1), color 240ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  
+
+  ::selection {
+    background: var(--gold-500);
+    color: var(--ink-inverse);
+  }
+
+  *:focus-visible {
+    outline: 3px solid var(--gold-500);
+    outline-offset: 2px;
+  }
+
   ::-webkit-scrollbar {
     width: 4px;
   }
@@ -31,20 +149,34 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(211, 160, 92, 0.3);
+    background: var(--border-default);
     border-radius: 10px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
 @layer components {
   .gp {
-    @apply bg-s-surf/95 border border-s-bdr shadow-[0_8px_32px_rgba(0,0,0,0.55)] backdrop-blur-md;
+    background: color-mix(in srgb, var(--surface) 95%, transparent);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(12px);
   }
   .inp {
-    @apply bg-s-surf2 border border-s-bdr text-s-ivory outline-none transition-all rounded-lg px-3.5 py-2.5 text-sm w-full focus:border-s-gold focus:shadow-[0_0_12px_rgba(211,160,92,0.18)];
+    @apply bg-elevated border border-border-subtle text-ink-primary outline-none transition-all rounded-md px-3.5 py-2.5 text-sm w-full focus:border-gold-500 focus:shadow-[0_0_0_3px_rgba(191,154,61,0.15)];
   }
   .lbl {
-    @apply text-[0.65rem] font-bold uppercase tracking-[0.1em] text-s-nude mb-1.5 block;
+    @apply text-[0.65rem] font-bold uppercase tracking-[0.1em] text-ink-secondary mb-1.5 block;
   }
   .chip {
     @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[0.65rem] font-bold font-mono tracking-wider;
@@ -53,9 +185,22 @@
   .chip-warn { @apply bg-warn/10 border border-warn/30 text-warn; }
   .chip-danger { @apply bg-danger/10 border border-danger/30 text-danger; }
   .chip-ai { @apply bg-ai/10 border border-ai/30 text-ai; }
-  .chip-nude { @apply bg-s-surf2 border border-s-bdr text-s-nude; }
-  
-  /* Animations */
+  .chip-nude { @apply bg-elevated border border-border-default text-ink-secondary; }
+
+  /* Eyebrow editorial Samais — sempre acima de títulos importantes */
+  .eyebrow {
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-gold-300;
+  }
+
+  /* Card de dados — assinatura Samais: top border ouro 2px */
+  .card-data {
+    background: var(--surface);
+    border: 1px solid var(--border-subtle);
+    border-top: 2px solid var(--gold-500);
+    border-radius: 8px;
+    transition: border-color 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   .fu {
     animation: fadeUp 0.4s ease forwards;
   }
@@ -63,5 +208,13 @@
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Exportar PDF (gestor): imprime só o conteúdo, fundo claro */
+@media print {
+  :root { color-scheme: light; }
+  body { overflow: visible !important; height: auto !important; background: #fff !important; color: #1A1A17 !important; }
+  header, .fixed { display: none !important; }
+  main { overflow: visible !important; }
 }

@@ -1,15 +1,44 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>SAMAIS | SAMU CoPilot OS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="theme-color" content="#070708" />
+    <meta name="description" content="Samais CoPilot OS — sistema operacional de despacho APH com IA assistencial para centrais 192. Triagem NLP, regulação médica e auditoria LGPD." />
+    <meta name="application-name" content="Samais CoPilot OS" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Samais CoPilot OS · Despacho APH com IA" />
+    <meta property="og:description" content="Sistema operacional de missão crítica para centrais 192 e regulação APH." />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Samais" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Samais CoPilot OS · Despacho APH com IA" />
+    <meta name="twitter:description" content="Sistema operacional de missão crítica para centrais 192 e regulação APH." />
+
+    <link rel="icon" type="image/svg+xml" href="/brand/samais-monograma-gold.svg" />
+
+    <title>SAMAIS · CoPilot OS</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script>
+      // Theme bootstrap — runs before React hydrates to avoid FOUC.
+      (function () {
+        try {
+          var stored = localStorage.getItem('samais.theme');
+          var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          var theme = stored || (prefersLight ? 'light' : 'dark');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) { /* localStorage may be blocked */ }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
