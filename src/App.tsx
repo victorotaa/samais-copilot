@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useTheme } from './lib/theme';
 import { Icon } from './ui/Icon';
 import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
@@ -194,6 +194,26 @@ const TEAM_STATUS_COLOR: Record<string, string> = {
   'ATESTADO': 'warn',
 };
 
+// Série horária de demonstração (volume de chamadas e tempo de resposta em min).
+const HOURLY_STATS = [
+  { time: '06h', volume: 45, resposta: 6 },
+  { time: '08h', volume: 80, resposta: 8 },
+  { time: '10h', volume: 110, resposta: 12 },
+  { time: '12h', volume: 95, resposta: 10 },
+  { time: '14h', volume: 105, resposta: 9 },
+  { time: '16h', volume: 130, resposta: 14 },
+  { time: '18h', volume: 150, resposta: 15 },
+  { time: '20h', volume: 120, resposta: 11 },
+];
+
+// Distribuição por classificação — cores de protocolo Manchester (status, com rótulo direto).
+const MANCHESTER_DIST = [
+  { name: 'Vermelho', value: 94, color: '#E53935' },
+  { name: 'Amarelo', value: 150, color: '#FDD835' },
+  { name: 'Verde', value: 250, color: '#43A047' },
+  { name: 'Azul', value: 120, color: '#1E88E5' },
+];
+
 const MOCK_RECENT_CALLS = [
   { id: '1042', phone: '(11) 98765-4321', time: '08:12', type: 'Parada Cardiorrespiratória', status: 'Despachada (USA)', statusColor: 'danger' },
   { id: '1041', phone: '(11) 91234-5678', time: '08:05', type: 'Crise Convulsiva', status: 'Despachada (USB)', statusColor: 'warn' },
@@ -313,8 +333,8 @@ const playSound = (type: 'call' | 'vehicle' | 'alert', enabled: boolean) => {
 export default function App() {
   const { theme, toggleTheme } = useTheme();
   const chartTheme = theme === 'dark'
-    ? { grid: '#2A2B33', axis: '#6E6E78', tooltipBg: '#161618', tooltipBorder: '#3A3B45', tooltipText: '#F4F4F5' }
-    : { grid: '#D1D1C9', axis: '#828279', tooltipBg: '#FFFFFF', tooltipBorder: '#D1D1C9', tooltipText: '#1A1A17' };
+    ? { grid: '#2A2B33', axis: '#6E6E78', tooltipBg: '#161618', tooltipBorder: '#3A3B45', tooltipText: '#F4F4F5', serieGold: '#BF9A3D', serieInfo: '#6E8AAA' }
+    : { grid: '#D1D1C9', axis: '#828279', tooltipBg: '#FFFFFF', tooltipBorder: '#D1D1C9', tooltipText: '#1A1A17', serieGold: '#A88230', serieInfo: '#1565C0' };
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -377,6 +397,12 @@ export default function App() {
   const [userIds, setUserIds] = useState<Record<string, string>>({});
   const [myWeek, setMyWeek] = useState(0);
   const [showEscala, setShowEscala] = useState(false);
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [vehicleIds, setVehicleIds] = useState<Record<string, string>>({});
+  const [occId, setOccId] = useState<string | null>(null);
+  const [dispatchId, setDispatchId] = useState<string | null>(null);
+  const [realStats, setRealStats] = useState<{ chamadas: number; tRespostaSeg: number | null } | null>(null);
+  const [mountTs] = useState(() => Date.now());
   const [selectedBase, setSelectedBase] = useState('Consórcio (geral)');
   const BASE_FACTOR: Record<string, number> = { 'Consórcio (geral)': 1, 'Base Central': 0.52, 'Base Leste': 0.29, 'Base Norte': 0.19 };
   const bf = BASE_FACTOR[selectedBase] ?? 1;
@@ -533,6 +559,8 @@ export default function App() {
       setAiActive(true);
       setActiveScriptIndex(Math.floor(Math.random() * MOCK_SCRIPTS.length));
       setMissionStatus('A CAMINHO');
+      setOccId(null);
+      setDispatchId(null);
 
       timer = setTimeout(() => {
         const randomCaller = MOCK_CALLERS[Math.floor(Math.random() * MOCK_CALLERS.length)];
@@ -660,7 +688,8 @@ export default function App() {
     if (!connected) return;
     let active = true;
     const load = async () => {
-      const { data } = await supabase.from('viaturas').select('codigo, tipo, status, manutencao_prevista');
+      const { data } = await supabase.from('viaturas').select('id, codigo, tipo, status, manutencao_prevista');
+      if (data) setVehicleIds(Object.fromEntries(data.map(r => [r.codigo, r.id])));
       if (!active || !data || data.length === 0) return;
       setVehicles(data.map(r => mapDbVehicle(r, VEHICLE_STATUS_COLOR)) as typeof MOCK_VEHICLES);
       const maint: Record<string, string> = {};
@@ -668,6 +697,7 @@ export default function App() {
       setMaintSchedule(maint);
     };
     load();
+    supabase.auth.getUser().then(({ data: u }) => { if (u.user) setAuthUserId(u.user.id); });
     const channel = supabase
       .channel('viaturas-live')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'viaturas' }, load)
@@ -752,12 +782,55 @@ export default function App() {
     </>
   );
 
+  // Ciclo da ocorrência persistido (quando conectado) + trilha de auditoria (SEC-05).
+  const audit = (acao: string, alvo: Record<string, unknown> = {}) => {
+    if (!connected) return;
+    supabase.from('auditoria').insert({ tenant_id: TENANT_ID, usuario_id: authUserId, acao, alvo }).then();
+  };
+
+  const abrirOcorrencia = (caller: (typeof MOCK_CALLERS)[number]) => {
+    if (!connected) return;
+    supabase.from('ocorrencias')
+      .insert({ tenant_id: TENANT_ID, telefone: caller.phone, aml: caller.aml, tarm_id: role === 'TARM' ? authUserId : null })
+      .select('id').single()
+      .then(({ data }) => { if (data) setOccId(data.id); });
+    audit('CHAMADA_ATENDIDA', { telefone: caller.phone });
+  };
+
+  const encerrarAtendimento = (desfecho: string) => {
+    if (connected && occId) {
+      supabase.from('ocorrencias').update({ encerrada_at: new Date().toISOString() }).eq('id', occId).then();
+      audit('OCORRENCIA_ENCERRADA', { desfecho, viatura: selectedVehicleId });
+    }
+    showToast(`Atendimento encerrado · ${desfecho}`, 'success');
+    setCurrentCaller(null);
+    setAmlData(null);
+    setMissionStatus('A CAMINHO');
+    setOccId(null);
+    setDispatchId(null);
+    if (role !== 'VIATURA') setCurrentModule('IDLE');
+  };
+
   const jumpToStage = (stage: 'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA') => {
     if (stage !== 'IDLE' && !currentCaller) applyDemoSnapshot();
     if (stage === 'REGULADOR' && !selectedVehicleId) setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
     setCurrentModule(stage);
     setIsNavOpen(false);
   };
+
+  // Métricas reais do backend no Dashboard (ocorrências + tempos T0→T2).
+  useEffect(() => {
+    if (!connected || currentModule !== 'DASHBOARD') return;
+    (async () => {
+      const { count } = await supabase.from('ocorrencias').select('id', { count: 'exact', head: true });
+      const { data: ds } = await supabase.from('despachos').select('t0_despacho, t2_no_local').not('t2_no_local', 'is', null).limit(200);
+      let t: number | null = null;
+      if (ds && ds.length) {
+        t = Math.round(ds.reduce((acc, d) => acc + (new Date(d.t2_no_local as string).getTime() - new Date(d.t0_despacho as string).getTime()) / 1000, 0) / ds.length);
+      }
+      if (count && count > 0) setRealStats({ chamadas: count, tRespostaSeg: t });
+    })();
+  }, [connected, currentModule]);
 
   // Edição de 1 clique no planner do Gestor; persiste quando conectado.
   const setShift = (matricula: string, dia: string, turno: string | null) => {
@@ -779,6 +852,7 @@ export default function App() {
 
   const acceptCall = () => {
     setIncomingCall(false);
+    if (currentCaller) abrirOcorrencia(currentCaller);
     if (role === 'MEDICO') {
       applyDemoSnapshot();
       setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
@@ -819,6 +893,15 @@ export default function App() {
         onClick={() => {
           if (!selectedVehicleId) {
             setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
+          }
+          if (connected && occId) {
+            supabase.from('ocorrencias').update({
+              transcricao: tarmChat,
+              extracao: extractedData,
+              risco_sugerido: extractedData.risk === 'PENDING' ? null : extractedData.risk,
+              fatores_ia: { sintomas: extractedData.symptoms, comorbidades: extractedData.comorbidities, confianca: extractedData.confidence },
+            }).eq('id', occId).then();
+            audit('HANDOFF_REGULACAO', { risco: extractedData.risk });
           }
           setCurrentModule('REGULADOR');
         }}
@@ -1562,7 +1645,8 @@ export default function App() {
                     <Icon name="list-ol" className="text-gold-500" /> Atendimentos em espera
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    {MEDICO_CASES.map(c => {
+                    {[...MEDICO_CASES].sort((a, b) => (a.data.risk === 'RED' ? 0 : 1) - (b.data.risk === 'RED' ? 0 : 1)).map((c, qi) => {
+                      const espera = [512, 341, 129][qi] + Math.floor((time.getTime() - mountTs) / 1000);
                       const active = extractedData.protocol === c.data.protocol;
                       return (
                         <button
@@ -1582,7 +1666,7 @@ export default function App() {
                             <span className="block text-[0.7rem] font-bold text-ink-primary truncate">{c.num} · {c.label}</span>
                             <span className="block text-[0.6rem] text-ink-tertiary truncate">{c.data.protocol}</span>
                           </span>
-                          {active && <Icon name="chevron-right" className="ml-auto text-gold-500 shrink-0" />}
+                          <span className={`ml-auto font-mono text-[0.6rem] shrink-0 ${c.data.risk === 'RED' ? 'text-danger font-bold' : 'text-ink-tertiary'}`}>{String(Math.floor(espera / 60)).padStart(2, '0')}:{String(espera % 60).padStart(2, '0')}</span>
                         </button>
                       );
                     })}
@@ -1843,6 +1927,21 @@ export default function App() {
               <button 
                 onClick={() => {
                   setIsDispatching(true);
+                  const codigo = selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01';
+                  if (connected && occId) {
+                    supabase.from('ocorrencias').update({
+                      risco_final: extractedData.risk === 'PENDING' ? 'YELLOW' : extractedData.risk,
+                      regulador_id: role === 'MEDICO' ? authUserId : null,
+                    }).eq('id', occId).then();
+                    const vid = vehicleIds[codigo];
+                    if (vid) {
+                      supabase.from('despachos')
+                        .insert({ tenant_id: TENANT_ID, ocorrencia_id: occId, viatura_id: vid })
+                        .select('id').single()
+                        .then(({ data }) => { if (data) setDispatchId(data.id); });
+                    }
+                    audit('DESPACHO_CONFIRMADO', { viatura: codigo, risco: extractedData.risk });
+                  }
                   setTimeout(() => {
                     setIsDispatching(false);
                     setIncomingCall(false);
@@ -1965,18 +2064,23 @@ export default function App() {
             {/* BARRA DE MISSÃO — status de 1 toque, alvos grandes (luva), alimenta T0–T4 */}
             {missionStatus === 'NO HOSPITAL' ? (
               <div className="shrink-0 bg-canvas border-t border-border-subtle p-3 pb-14 md:pb-16">
-                <button
-                  onClick={() => {
-                    showToast('Atendimento encerrado · dados registrados', 'success');
-                    setCurrentCaller(null);
-                    setAmlData(null);
-                    setMissionStatus('A CAMINHO');
-                    if (role !== 'VIATURA') setCurrentModule('IDLE');
-                  }}
-                  className="w-full min-h-[60px] rounded-xl bg-ok/15 border border-ok/50 text-ok font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:bg-ok/25 transition-colors"
-                >
-                  <Icon name="check-double" /> Encerrar atendimento
-                </button>
+                <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-2 text-center">Desfecho do atendimento · 1 toque encerra e registra</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {([
+                    { d: 'TRANSPORTADO', cls: 'bg-ok/15 border-ok/50 text-ok hover:bg-ok/25' },
+                    { d: 'ORIENTAÇÃO', cls: 'bg-info/10 border-info/40 text-info hover:bg-info/20' },
+                    { d: 'RECUSA', cls: 'bg-warn/10 border-warn/40 text-warn hover:bg-warn/20' },
+                    { d: 'ÓBITO NO LOCAL', cls: 'bg-danger/10 border-danger/40 text-danger hover:bg-danger/20' },
+                  ] as const).map(o => (
+                    <button
+                      key={o.d}
+                      onClick={() => encerrarAtendimento(o.d)}
+                      className={`min-h-[60px] rounded-xl border font-bold uppercase tracking-wider text-[0.65rem] md:text-xs flex items-center justify-center gap-2 transition-colors px-2 ${o.cls}`}
+                    >
+                      <Icon name="check-double" /> <span className="truncate">{o.d}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
             <div className="shrink-0 bg-canvas border-t border-border-subtle p-3 pb-14 md:pb-16 grid grid-cols-4 gap-2">
@@ -1989,6 +2093,9 @@ export default function App() {
                     key={step}
                     onClick={() => {
                       setMissionStatus(step);
+                      const col = ({ 'A CAMINHO': 't1_a_caminho', 'NO LOCAL': 't2_no_local', 'TRANSPORTANDO': 't3_transportando', 'NO HOSPITAL': 't4_no_hospital' } as Record<string, string>)[step];
+                      if (connected && dispatchId && col) supabase.from('despachos').update({ [col]: new Date().toISOString() }).eq('id', dispatchId).then();
+                      audit(`MISSAO_${step.replace(/ /g, '_')}`, { viatura: selectedVehicleId });
                       playSound('vehicle', soundEnabledRef.current);
                       showToast(`${selectedVehicleId || 'USA-01'} → ${step} · ${new Date().toLocaleTimeString('pt-BR')}`, 'success');
                     }}
@@ -2277,6 +2384,11 @@ export default function App() {
         )}
         {currentModule === 'DASHBOARD' && (
           <div className="flex-1 flex flex-col gap-6 fu overflow-y-auto pb-6 pr-2 -mr-2 lg:pr-0 lg:mr-0">
+            {/* Cabeçalho só na impressão — subsídio ao relatório semestral do MS */}
+            <div className="hidden print:block">
+              <div className="text-xl font-bold">Samais CoPilot OS — Relatório de Indicadores Operacionais</div>
+              <div className="text-xs mt-1">Subsídio ao relatório semestral de indicadores (Portaria GM/MS nº 1.010/2012) · {selectedBase} · período: {selectedPeriod} · emitido em {new Date().toLocaleDateString('pt-BR')}</div>
+            </div>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-disp font-bold text-ink-primary flex items-center gap-3">
@@ -2363,13 +2475,13 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ink-secondary">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS RECEBIDAS</div>
-                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">{Math.round(1432 * bf).toLocaleString('pt-BR')}</div>
-                <div className="text-xs text-ok"><Icon name="arrow-trend-up" /> +5% vs período anterior</div>
+                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">{(realStats?.chamadas ?? Math.round(1432 * bf)).toLocaleString('pt-BR')}</div>
+                <div className="text-xs text-ok"><Icon name="arrow-trend-up" /> {realStats ? 'dados reais do backend' : '+5% vs período anterior'}</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-gold-500 relative overflow-hidden">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
-                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{Math.round(418 * bf)}</div>
-                <div className="text-xs text-gold-500/70">~29% do total</div>
+                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{Math.round(118 * bf)}</div>
+                <div className="text-xs text-gold-500/70">8,2% do total · faixa nacional 5,8–9,7%</div>
                 <div className="absolute bottom-4 right-4 px-2 py-1 rounded bg-gold-500/10 border border-gold-500/30 text-xs font-mono font-bold text-gold-500">R$ 38k</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ok">
@@ -2384,88 +2496,98 @@ export default function App() {
               </div>
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-[400px]">
-              {/* Left Chart */}
-              <div className="gp p-5 rounded-2xl flex flex-col min-h-[300px]">
-                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-6">VOLUME VS TEMPO DE RESPOSTA</div>
+            {/* Indicadores operacionais de CRU */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="card-data p-5">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">T. RESPOSTA MÉDIO (T0→T2)</div>
+                <div className="text-4xl font-mono font-medium text-ink-primary mb-1">
+                  {realStats?.tRespostaSeg
+                    ? `${Math.floor(realStats.tRespostaSeg / 60)}m ${String(realStats.tRespostaSeg % 60).padStart(2, '0')}s`
+                    : '14m 06s'}
+                </div>
+                <div className="text-xs text-ink-tertiary">do despacho à chegada à cena{realStats?.tRespostaSeg ? ' · real' : ' · demonstração'}</div>
+              </div>
+              <div className="card-data p-5">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">OCUPAÇÃO DA FROTA</div>
+                <div className="text-4xl font-mono font-medium text-gold-500 mb-1">
+                  {vehicles.length ? Math.round((vehicles.filter(v => v.status === 'EM ATENDIMENTO').length / vehicles.length) * 100) : 0}%
+                </div>
+                <div className="text-xs text-ink-tertiary">viaturas em missão agora · ao vivo</div>
+              </div>
+              <div className="card-data p-5">
+                <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS ABANDONADAS</div>
+                <div className="text-4xl font-mono font-medium text-warn mb-1">4,1%</div>
+                <div className="text-xs text-ink-tertiary">desligaram antes do atendimento · sinalização do PABX</div>
+              </div>
+            </div>
+
+            {/* Charts — um eixo por gráfico; série única nomeada no título (dataviz: nunca dual-axis) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 min-h-[320px]">
+              <div className="gp p-5 rounded-2xl flex flex-col min-h-[280px]">
+                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest">VOLUME DE CHAMADAS</div>
+                <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">por faixa horária · hoje</div>
                 <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={[
-                      { time: '06h', volume: 45, responseTime: 6 },
-                      { time: '08h', volume: 80, responseTime: 8 },
-                      { time: '10h', volume: 110, responseTime: 12 },
-                      { time: '12h', volume: 95, responseTime: 10 },
-                      { time: '14h', volume: 105, responseTime: 9 },
-                      { time: '16h', volume: 130, responseTime: 14 },
-                      { time: '18h', volume: 150, responseTime: 15 },
-                      { time: '20h', volume: 120, responseTime: 11 },
-                    ]}>
+                    <BarChart data={HOURLY_STATS.map(h => ({ ...h, volume: Math.round(h.volume * bf) }))}>
                       <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
                       <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="left" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="right" orientation="right" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
-                      <Tooltip 
+                      <YAxis stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} width={30} />
+                      <Tooltip
+                        cursor={{ fill: chartTheme.grid, opacity: 0.35 }}
                         contentStyle={{ backgroundColor: chartTheme.tooltipBg, borderColor: chartTheme.tooltipBorder, borderRadius: '8px' }}
                         itemStyle={{ fontSize: '12px', color: chartTheme.tooltipText }}
                         labelStyle={{ fontSize: '12px', color: chartTheme.axis, marginBottom: '4px' }}
                       />
-                      <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
-                      <Bar yAxisId="left" dataKey="volume" name="Volume Ocorrências" fill="#6E8AAA" radius={[4, 4, 0, 0]} barSize={40} />
-                      <Line yAxisId="right" type="monotone" dataKey="responseTime" name="T. Médio Resposta (min)" stroke="#BF9A3D" strokeWidth={2} dot={{ r: 4, fill: '#BF9A3D' }} />
-                    </ComposedChart>
+                      <Bar dataKey="volume" name="Chamadas" fill={chartTheme.serieGold} radius={[4, 4, 0, 0]} barSize={18} />
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              {/* Right Chart */}
-              <div className="gp p-5 rounded-2xl flex flex-col min-h-[300px]">
-                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-6">CLASSIFICAÇÃO DE DESPACHOS</div>
-                <div className="flex-1 w-full h-full flex items-center justify-center">
+              <div className="gp p-5 rounded-2xl flex flex-col min-h-[280px]">
+                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest">TEMPO MÉDIO DE RESPOSTA</div>
+                <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">minutos · por faixa horária</div>
+                <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Vermelho (USA)', value: 94, color: '#E53935' },
-                          { name: 'Amarelo (USA/USB)', value: 150, color: '#FDD835' },
-                          { name: 'Verde (USB)', value: 250, color: '#43A047' },
-                          { name: 'Azul (Orientações)', value: 120, color: '#1E88E5' },
-                        ]}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius="60%"
-                        outerRadius="85%"
-                        paddingAngle={2}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {[
-                          { name: 'Vermelho (USA)', value: 94, color: '#E53935' },
-                          { name: 'Amarelo (USA/USB)', value: 150, color: '#FDD835' },
-                          { name: 'Verde (USB)', value: 250, color: '#43A047' },
-                          { name: 'Azul (Orientações)', value: 120, color: '#1E88E5' },
-                        ].map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
+                    <LineChart data={HOURLY_STATS}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
+                      <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} width={30} unit="m" />
+                      <Tooltip
                         contentStyle={{ backgroundColor: chartTheme.tooltipBg, borderColor: chartTheme.tooltipBorder, borderRadius: '8px' }}
                         itemStyle={{ fontSize: '12px', color: chartTheme.tooltipText }}
+                        labelStyle={{ fontSize: '12px', color: chartTheme.axis, marginBottom: '4px' }}
                       />
-                      <Legend 
-                        layout="horizontal" 
-                        verticalAlign="bottom" 
-                        align="center"
-                        wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }}
-                        iconType="circle"
+                      <Line type="monotone" dataKey="resposta" name="T. resposta (min)" stroke={chartTheme.serieInfo} strokeWidth={2} dot={{ r: 3, fill: chartTheme.serieInfo }} activeDot={{ r: 5 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="gp p-5 rounded-2xl flex flex-col min-h-[280px]">
+                <div className="text-xs font-bold text-ink-primary uppercase tracking-widest">CLASSIFICAÇÃO DE DESPACHOS</div>
+                <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">protocolo Manchester · rótulo direto</div>
+                <div className="flex-1 w-full h-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart layout="vertical" data={MANCHESTER_DIST.map(d => ({ ...d, value: Math.round(d.value * bf) }))} margin={{ left: 4, right: 40 }}>
+                      <XAxis type="number" hide />
+                      <YAxis type="category" dataKey="name" stroke={chartTheme.axis} fontSize={11} tickLine={false} axisLine={false} width={68} />
+                      <Tooltip
+                        cursor={{ fill: chartTheme.grid, opacity: 0.35 }}
+                        contentStyle={{ backgroundColor: chartTheme.tooltipBg, borderColor: chartTheme.tooltipBorder, borderRadius: '8px' }}
+                        itemStyle={{ fontSize: '12px', color: chartTheme.tooltipText }}
+                        labelStyle={{ fontSize: '12px', color: chartTheme.axis, marginBottom: '4px' }}
                       />
-                    </PieChart>
+                      <Bar dataKey="value" name="Despachos" radius={[0, 4, 4, 0]} barSize={18}>
+                        {MANCHESTER_DIST.map(e => <Cell key={e.name} fill={e.color} />)}
+                        <LabelList dataKey="value" position="right" fill={chartTheme.axis} fontSize={11} fontFamily="'JetBrains Mono', monospace" />
+                      </Bar>
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
             </div>
 
-            {/* Recent Calls History */}
             <div className="gp p-5 rounded-2xl flex flex-col">
               <div className="text-xs font-bold text-ink-primary uppercase tracking-widest mb-4 flex items-center gap-2">
                 <Icon name="clock-rotate-left" className="text-gold-500" /> Histórico de Chamadas Recentes
