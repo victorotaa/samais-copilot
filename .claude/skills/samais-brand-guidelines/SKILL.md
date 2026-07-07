@@ -1,6 +1,6 @@
 ---
 name: samais-brand-guidelines
-description: Aplica a identidade visual institucional da Samais Gestão em Saúde (dark-luxury, Syne/Inter/JetBrains Mono, navy-black e dourado) a qualquer artefato visual — dossiês HTML, apresentações, PDFs, documentos, teasers, propostas, slides, gráficos e peças de marketing. Use SEMPRE que o entregável for da Samais ou mencionar Samais, SAMU, dossiê, estudo municipal, proposta comercial, teaser, apresentação institucional, ou quando Ota pedir "padrão Samais", "identidade Samais" ou "dark-luxury". Também vale para revisar/corrigir peças existentes fora do padrão.
+description: Aplica a identidade visual institucional da Samais Gestão em Saúde (dark-luxury, Syne/Plus Jakarta Sans/JetBrains Mono, navy-black e dourado) a qualquer artefato visual — dossiês HTML, apresentações, PDFs, documentos, teasers, propostas, slides, gráficos e peças de marketing. Use SEMPRE que o entregável for da Samais ou mencionar Samais, SAMU, dossiê, estudo municipal, proposta comercial, teaser, apresentação institucional, ou quando Ota pedir "padrão Samais", "identidade Samais" ou "dark-luxury". Também vale para revisar/corrigir peças existentes fora do padrão.
 license: MIT (fork de anthropics/skills brand-guidelines, adaptado para Samais)
 ---
 
@@ -95,3 +95,18 @@ proposta, teaser, estudo municipal, apresentação, branding saúde.
 - Usar brasões municipais em peças de vídeo/institucionais.
 - Gradientes coloridos, neon, glassmorphism genérico de template.
 - Emojis em documentos institucionais.
+
+
+---
+
+## Adendo v2 — Raio-X das interações (jun–jul/2026)
+
+Decisões acumuladas no fluxo de branding desde o início; **prevalecem sobre o texto acima em caso de conflito**:
+
+1. **Fonte única de tokens:** `samais-pep/design/samais-pep-os-design-tokens.json` (v1.0). Gold canônico **#BF9A3D** (dark) / #A88230 (light). Canvas #070708.
+2. **Tipografia:** Syne (display) · **Plus Jakarta Sans** (corpo — *Inter foi descontinuada em toda a família*) · JetBrains Mono (dados/eyebrows).
+3. **Regra de contraste do logotipo (obrigatória):** nunca cor fixa em UI — variantes currentColor herdando token semântico; wordmark branca no escuro / preta no claro; monograma SA+ sempre gold-500 semântico; contraste ≥3:1 (WCAG 1.4.11); em `<img>` currentColor NÃO funciona — inline o SVG.
+4. **Dataviz Samais:** nunca dual-axis; nunca pizza >3 fatias; golds tonais NÃO formam paleta categórica (reprovam CVD) — usar série única por gráfico ou cores de status/Manchester com rótulo direto; validar paleta por script antes de publicar.
+5. **Voz e claims:** linha-mestra "cada segundo conta"; postura do CoPilot é **100% passiva** (escuta, não interfere); **nenhum claim sem lastro** — ex.: taxa de trote real nacional é 5,8–9,7% (nunca usar 29%); métricas de demo sempre rotuladas.
+6. **Assinatura visual:** top border ouro 2px em cards de dados; eyebrow mono uppercase gold-300; easing editorial 240ms cubic-bezier(0.22,1,0.36,1); ouro é sinal, não decoração (bordas neutras).
+7. **Fotografia:** somente banco documental Samais (Drive → Samais 2026/Banco de Imagens) — zero stock.

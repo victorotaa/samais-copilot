@@ -275,7 +275,24 @@ dialog input,dialog select{
 dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500);box-shadow:0 0 0 3px rgba(var(--gold-rgb),.15)}
 .modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:8px}
 
+/* ── Motion editorial (Awwwards-grade, sóbrio) ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 700ms var(--ease),transform 700ms var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.reveal-d1{transition-delay:90ms}.reveal-d2{transition-delay:180ms}.reveal-d3{transition-delay:270ms}
+.photo-band figure{transform:translateZ(0)}
+.photo-band img{transition:transform 6s var(--ease)}
+.photo-band figure:hover img{transform:scale(1.06)}
+.hero .photo-band img{animation:kenburns 18s var(--ease) infinite alternate}
+@keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.07)}}
+.card{transition:border-color 240ms var(--ease),transform 240ms var(--ease),box-shadow 240ms var(--ease)}
+.card:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.topnav a.link{position:relative}
+.topnav a.link::after{content:'';position:absolute;left:12px;right:12px;bottom:4px;height:1px;background:var(--gold-500);transform:scaleX(0);transform-origin:left;transition:transform 240ms var(--ease)}
+.topnav a.link:hover::after{transform:scaleX(1)}
 @media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none}
+  .hero .photo-band img{animation:none}
+
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
 </style>
@@ -319,7 +336,7 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
     </div>
     <div class="stat-strip">
       <div class="stat-chip"><b>1m12s</b><span>T. médio de regulação</span></div>
-      <div class="stat-chip"><b>29%</b><span>trotes filtrados</span></div>
+      <div class="stat-chip"><b data-count="8.2" data-suffix="%">8,2%</b><span>trotes filtrados · faixa nacional</span></div>
       <div class="stat-chip"><b>96.8%</b><span>acurácia Manchester</span></div>
       <span class="stat-note">Métricas do ambiente de demonstração</span>
     </div>
@@ -434,6 +451,14 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
     </div>
   </div>
 </section>
+
+<!-- Referências mundiais -->
+<div class="proof" style="border-top:none">
+  <div class="wrap" style="padding-top:28px;padding-bottom:28px">
+    <p style="max-width:100%"><span class="stamp" style="display:block;margin-bottom:8px">No mundo, cada segundo já conta assim</span>
+    Localização automática de emergência (AML) na Europa, triagem por protocolo nos despachos 911 dos EUA e IA ouvindo chamadas de parada cardíaca na Dinamarca — o CoPilot traz essa classe de tecnologia para o 192 brasileiro, adaptada ao SAMU, ao Manchester e à LGPD.</p>
+  </div>
+</div>
 
 <!-- Perfis: um sistema, quatro telas -->
 <section id="perfis" style="padding-top:0">
@@ -597,6 +622,20 @@ dialog input:focus,dialog select:focus{outline:none;border-color:var(--gold-500)
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Reveal on scroll — leve, sem framework
+  var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (!mq.matches && 'IntersectionObserver' in window) {
+    document.querySelectorAll('section .wrap > *, .proof .wrap > *').forEach(function (el, i) {
+      el.classList.add('reveal');
+      if (i % 3 === 1) el.classList.add('reveal-d1');
+      if (i % 3 === 2) el.classList.add('reveal-d2');
+    });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -60px 0px', threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+  }
 
   // Toggle de tema — dark é o padrão da marca; light é opção do usuário.
   var toggle = document.getElementById('themeToggle');
