@@ -6,7 +6,7 @@
 <title>Master Plan ROTA · Samais Gestão em Saúde</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 /* ── Reset & Base ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -14,26 +14,26 @@ html{scroll-behavior:smooth;font-size:16px}
 
 /* ── Tokens ── */
 :root{
-  --bg:#070708;
-  --bg2:#0E0E10;
-  --bg3:#161618;
-  --border:#1F1F22;
-  --border2:#2A2B33;
-  --gold:#BF9A3D;
-  --gold2:#A18230;
-  --gold-rgb:191,154,61;
-  --text:#F4F4F5;
-  --sub:#A8A8B0;
-  --muted:#6E6E78;
-  --green:#5C8F6E;
-  --red:#B8554E;
-  --cyan:#0891B2;
-  --cyan-rgb:8,145,178;
+  --bg:#04060C;
+  --bg2:#0A0E18;
+  --bg3:#0D1220;
+  --border:#171C28;
+  --border2:#28303F;
+  --gold:#D4A857;
+  --gold2:#B8913F;
+  --gold-rgb:212,168,87;
+  --text:#EDEAE2;
+  --sub:#B0AEA5;
+  --muted:#9A968C;
+  --green:#5F8C6A;
+  --red:#C20D2F;
+  --amber:#DD8D0C;
+  --amber-rgb:221,141,12;
   --nav:260px;
   --r:6px;
 }
 
-body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
 /* ── Layout ── */
 .wrap{display:flex;min-height:100vh}
@@ -200,7 +200,7 @@ em{font-style:italic;color:var(--sub)}
   content:'';position:absolute;inset:0;
   background:
     radial-gradient(ellipse 70% 60% at 50% 35%,rgba(var(--gold-rgb),.07) 0%,transparent 70%),
-    radial-gradient(ellipse 30% 40% at 85% 80%,rgba(var(--cyan-rgb),.04) 0%,transparent 60%);
+    radial-gradient(ellipse 30% 40% at 85% 80%,rgba(var(--gold-rgb),.035) 0%,transparent 60%);
   pointer-events:none;
 }
 
@@ -245,7 +245,7 @@ em{font-style:italic;color:var(--sub)}
 }
 
 .hero-sub{
-  font-family:'Plus Jakarta Sans',sans-serif;
+  font-family:'Inter',sans-serif;
   font-size:18px;color:var(--sub);
   max-width:580px;line-height:1.65;
   margin-bottom:64px;
@@ -319,10 +319,10 @@ em{font-style:italic;color:var(--sub)}
   border:1px solid rgba(var(--gold-rgb),.2);
   border-left:3px solid var(--gold);
 }
-.box-cyan{
-  background:rgba(var(--cyan-rgb),.06);
-  border:1px solid rgba(var(--cyan-rgb),.2);
-  border-left:3px solid var(--cyan);
+.box-amber{
+  background:rgba(var(--amber-rgb),.06);
+  border:1px solid rgba(var(--amber-rgb),.2);
+  border-left:3px solid var(--amber);
 }
 .box-label{
   font-family:'JetBrains Mono',monospace;
@@ -330,35 +330,37 @@ em{font-style:italic;color:var(--sub)}
   margin-bottom:9px;
 }
 .box-gold .box-label{color:var(--gold)}
-.box-cyan .box-label{color:var(--cyan)}
+.box-amber .box-label{color:var(--amber)}
 .box p{font-size:15.5px;margin:0;line-height:1.7}
 
 /* ═══════════════════════════════════════
    TABLES
 ═══════════════════════════════════════ */
-.tw{overflow-x:auto;margin:32px 0}
-table{width:100%;border-collapse:collapse;font-size:14px}
+.tw{margin:32px 0}
+table{width:100%;max-width:100%;border-collapse:collapse;font-size:14px;table-layout:auto}
 thead tr{border-bottom:1px solid var(--border2)}
 th{
   font-family:'JetBrains Mono',monospace;
   font-size:9.5px;text-transform:uppercase;letter-spacing:.14em;
-  color:var(--muted);padding:11px 16px;text-align:left;white-space:nowrap;
+  color:var(--muted);padding:11px 14px;text-align:left;
+  white-space:normal;line-height:1.4;overflow-wrap:break-word;
 }
 td{
-  padding:13px 16px;
-  border-bottom:1px solid rgba(28,28,32,.8);
+  padding:13px 14px;
+  border-bottom:1px solid var(--border);
   color:var(--sub);line-height:1.5;vertical-align:top;
-  font-size:14px;
+  font-size:14px;overflow-wrap:break-word;
 }
 tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:rgba(255,255,255,.015)}
 td strong{color:var(--text);font-weight:600}
-.tg{color:var(--gold)!important;font-family:'Syne',sans-serif;font-weight:700}
+.tg{color:var(--gold)!important;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px;letter-spacing:-.01em}
 .tr-hl td{
   border-top:1px solid rgba(var(--gold-rgb),.35);
   background:rgba(var(--gold-rgb),.05);
   color:var(--gold)!important;font-weight:700;
 }
+.tr-hl td:not(:first-child) strong{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px}
 .tr-hl td strong{color:var(--gold)}
 
 /* ═══════════════════════════════════════
@@ -409,7 +411,7 @@ td strong{color:var(--text);font-weight:600}
 .pc-desc{font-size:13px;color:var(--muted);line-height:1.65;flex:1}
 .pc-gate{
   font-family:'JetBrains Mono',monospace;font-size:10px;
-  color:var(--cyan);letter-spacing:.09em;
+  color:var(--amber);letter-spacing:.09em;
   padding-top:12px;border-top:1px solid var(--border);
   line-height:1.5;
 }
@@ -494,7 +496,7 @@ td strong{color:var(--text);font-weight:600}
 .hc-code{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:var(--gold);letter-spacing:-.02em;line-height:1}
 .hc-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:6px;line-height:1.3}
 .hc-desc{font-size:13px;color:var(--muted);line-height:1.6;margin:0}
-.hc-val-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--cyan);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.hc-val-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--amber);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
 .hc-val{font-size:13px;color:var(--muted);line-height:1.6;margin:0}
 
 /* ═══════════════════════════════════════
@@ -621,6 +623,62 @@ td strong{color:var(--text);font-weight:600}
   .footer{padding:40px 24px}
   .footer-in{flex-direction:column;align-items:flex-start}
   .footer-meta{text-align:left}
+
+  /* ── Tabelas: empilhamento em cartões (sem scroll horizontal) ── */
+  table{display:block;table-layout:auto}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{
+    display:block;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:var(--r);
+    margin-bottom:12px;
+    overflow:hidden;
+  }
+  tbody tr:last-child{margin-bottom:0}
+  tbody tr:hover td{background:transparent}
+  td{
+    display:flex;align-items:baseline;justify-content:space-between;gap:18px;
+    padding:11px 16px;
+    border-bottom:1px solid var(--border);
+    text-align:right;
+  }
+  tr:last-child td{border-bottom:1px solid var(--border)}
+  tr td:last-child{border-bottom:none}
+  td::before{
+    content:attr(data-label);
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--muted);text-align:left;line-height:1.5;
+    flex:0 0 42%;
+  }
+  .tr-hl{
+    border-color:rgba(var(--gold-rgb),.35);
+    background:rgba(var(--gold-rgb),.05);
+  }
+  .tr-hl td{border-top:none;background:transparent}
+
+  /* ── Cronograma: eixo vertical em telas estreitas ── */
+  .tl-wrap{overflow-x:visible}
+  .tl{min-width:0}
+  .tl-track{flex-direction:column;gap:22px}
+  .tl-track::before{
+    top:6px;bottom:6px;left:6px;right:auto;
+    width:1px;height:auto;
+    background:linear-gradient(180deg,transparent,var(--border2) 8%,var(--border2) 92%,transparent);
+  }
+  .tl-node{
+    flex-direction:row;flex-wrap:wrap;align-items:center;
+    gap:0 12px;width:100%;
+  }
+  .tl-dot{margin-bottom:0;flex-shrink:0}
+  .tl-q{margin-bottom:0}
+  .tl-period{margin-bottom:0}
+  .tl-card{
+    flex:0 0 calc(100% - 30px);max-width:none;text-align:left;
+    margin:10px 0 0 30px;padding:12px 14px;
+  }
 }
 @media(max-width:480px){
   .dc-grid{grid-template-columns:1fr}
@@ -835,9 +893,9 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Horizonte</th><th>Período</th><th>Receita ROTA anual</th><th>Contratos ativos</th><th>Estados</th></tr></thead>
         <tbody>
-          <tr><td><strong>H1</strong></td><td>Mês 1 ao 12</td><td class="tg">R$ 2 – 4 mi</td><td>1 a 2 (âncora)</td><td>1 a 2</td></tr>
-          <tr><td><strong>H2</strong></td><td>Mês 13 ao 36</td><td class="tg">R$ 25 – 45 mi</td><td>8 a 15</td><td>4 a 6</td></tr>
-          <tr><td><strong>H3</strong></td><td>Mês 37 ao 60</td><td class="tg">R$ 100 – 180 mi</td><td>25 a 40</td><td>10 a 14</td></tr>
+          <tr><td data-label="Horizonte"><strong>H1</strong></td><td data-label="Período">Mês 1 ao 12</td><td class="tg" data-label="Receita ROTA anual">R$ 2 – 4 mi</td><td data-label="Contratos ativos">1 a 2 (âncora)</td><td data-label="Estados">1 a 2</td></tr>
+          <tr><td data-label="Horizonte"><strong>H2</strong></td><td data-label="Período">Mês 13 ao 36</td><td class="tg" data-label="Receita ROTA anual">R$ 25 – 45 mi</td><td data-label="Contratos ativos">8 a 15</td><td data-label="Estados">4 a 6</td></tr>
+          <tr><td data-label="Horizonte"><strong>H3</strong></td><td data-label="Período">Mês 37 ao 60</td><td class="tg" data-label="Receita ROTA anual">R$ 100 – 180 mi</td><td data-label="Contratos ativos">25 a 40</td><td data-label="Estados">10 a 14</td></tr>
         </tbody>
       </table>
     </div>
@@ -954,7 +1012,7 @@ td strong{color:var(--text);font-weight:600}
       </div>
     </div>
 
-    <div class="box box-cyan" style="margin-top:48px">
+    <div class="box box-amber" style="margin-top:48px">
       <div class="box-label">Estratégia de Portfólio</div>
       <p>ROTA Hemodiálise é a porta de entrada de menor atrito político. ROTA Cidade é o produto-padrão. ROTA Consórcio é o multiplicador de receita por contrato. A decisão estratégica: entrar via Hemodiálise em municípios resistentes e via Cidade em municípios com relacionamento Samais maduro.</p>
     </div>
@@ -973,10 +1031,10 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Componente</th><th>Mensal</th><th>Anual</th><th>48 meses</th></tr></thead>
         <tbody>
-          <tr><td>Receita contratual</td><td class="tg">R$ 195.000</td><td>R$ 2.340.000</td><td>R$ 9.360.000</td></tr>
-          <tr><td>Custo direto operacional (CDO)</td><td>R$ 154.000</td><td>R$ 1.848.000</td><td>R$ 7.392.000</td></tr>
-          <tr><td>Resultado contratual (BDI 25%)</td><td>R$ 41.000</td><td>R$ 492.000</td><td>R$ 1.968.000</td></tr>
-          <tr class="tr-hl"><td><strong>Margem líquida pós-impostos</strong></td><td><strong>R$ 23–29 mil</strong></td><td><strong>R$ 280–350 mil</strong></td><td><strong>R$ 1,12–1,40 mi</strong></td></tr>
+          <tr><td data-label="Componente">Receita contratual</td><td class="tg" data-label="Mensal">R$ 195.000</td><td data-label="Anual">R$ 2.340.000</td><td data-label="48 meses">R$ 9.360.000</td></tr>
+          <tr><td data-label="Componente">Custo direto operacional (CDO)</td><td data-label="Mensal">R$ 154.000</td><td data-label="Anual">R$ 1.848.000</td><td data-label="48 meses">R$ 7.392.000</td></tr>
+          <tr><td data-label="Componente">Resultado contratual (BDI 25%)</td><td data-label="Mensal">R$ 41.000</td><td data-label="Anual">R$ 492.000</td><td data-label="48 meses">R$ 1.968.000</td></tr>
+          <tr class="tr-hl"><td data-label="Componente"><strong>Margem líquida pós-impostos</strong></td><td data-label="Mensal"><strong>R$ 23–29 mil</strong></td><td data-label="Anual"><strong>R$ 280–350 mil</strong></td><td data-label="48 meses"><strong>R$ 1,12–1,40 mi</strong></td></tr>
         </tbody>
       </table>
     </div>
@@ -986,8 +1044,8 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Cenário</th><th>CDO mensal</th><th>Receita possível</th><th>Margem mantida</th></tr></thead>
         <tbody>
-          <tr><td>Sem frota cedida</td><td>R$ 154.000</td><td>R$ 195.000</td><td>12–15%</td></tr>
-          <tr><td><strong>Com frota cedida (PAC Saúde)</strong></td><td>R$ 105–115 mil</td><td class="tg">R$ 155–175 mil</td><td><strong>14–17%</strong></td></tr>
+          <tr><td data-label="Cenário">Sem frota cedida</td><td data-label="CDO mensal">R$ 154.000</td><td data-label="Receita possível">R$ 195.000</td><td data-label="Margem mantida">12–15%</td></tr>
+          <tr><td data-label="Cenário"><strong>Com frota cedida (PAC Saúde)</strong></td><td data-label="CDO mensal">R$ 105–115 mil</td><td class="tg" data-label="Receita possível">R$ 155–175 mil</td><td data-label="Margem mantida"><strong>14–17%</strong></td></tr>
         </tbody>
       </table>
     </div>
@@ -1162,9 +1220,9 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Horizonte</th><th>Receita</th><th>Operação</th><th>Marca</th></tr></thead>
         <tbody>
-          <tr><td><strong>H1</strong></td><td>1–2 contratos âncora</td><td>SLA ≥ 90% pontualidade</td><td>1 caso publicado</td></tr>
-          <tr><td><strong>H2</strong></td><td>R$ 25–45 mi/ano</td><td>NPS paciente ≥ 65</td><td>3 eventos CONASEMS/CONASS</td></tr>
-          <tr><td><strong>H3</strong></td><td>R$ 100–180 mi + R$ 5–15 mi SaaS</td><td>NPS gestor ≥ 70</td><td>Player nacional reconhecido</td></tr>
+          <tr><td data-label="Horizonte"><strong>H1</strong></td><td data-label="Receita">1–2 contratos âncora</td><td data-label="Operação">SLA ≥ 90% pontualidade</td><td data-label="Marca">1 caso publicado</td></tr>
+          <tr><td data-label="Horizonte"><strong>H2</strong></td><td data-label="Receita">R$ 25–45 mi/ano</td><td data-label="Operação">NPS paciente ≥ 65</td><td data-label="Marca">3 eventos CONASEMS/CONASS</td></tr>
+          <tr><td data-label="Horizonte"><strong>H3</strong></td><td data-label="Receita">R$ 100–180 mi + R$ 5–15 mi SaaS</td><td data-label="Operação">NPS gestor ≥ 70</td><td data-label="Marca">Player nacional reconhecido</td></tr>
         </tbody>
       </table>
     </div>
@@ -1260,12 +1318,12 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Categoria</th><th>Faixa de Investimento</th></tr></thead>
         <tbody>
-          <tr><td>Desenvolvimento TMS + integração SISREG</td><td class="tg">R$ 250.000 – 450.000</td></tr>
-          <tr><td>Time comercial dedicado ROTA (3 pessoas)</td><td class="tg">R$ 360.000 – 540.000</td></tr>
-          <tr><td>Marca, conteúdo, white paper, peças visuais</td><td class="tg">R$ 80.000 – 150.000</td></tr>
-          <tr><td>Estrutura jurídica, regulatória, certificações</td><td class="tg">R$ 40.000 – 80.000</td></tr>
-          <tr><td>Reserva operacional para implantação do contrato âncora</td><td class="tg">R$ 200.000 – 400.000</td></tr>
-          <tr class="tr-hl"><td><strong>Total H1</strong></td><td><strong>R$ 930.000 – 1.620.000</strong></td></tr>
+          <tr><td data-label="Categoria">Desenvolvimento TMS + integração SISREG</td><td class="tg" data-label="Faixa de Investimento">R$ 250.000 – 450.000</td></tr>
+          <tr><td data-label="Categoria">Time comercial dedicado ROTA (3 pessoas)</td><td class="tg" data-label="Faixa de Investimento">R$ 360.000 – 540.000</td></tr>
+          <tr><td data-label="Categoria">Marca, conteúdo, white paper, peças visuais</td><td class="tg" data-label="Faixa de Investimento">R$ 80.000 – 150.000</td></tr>
+          <tr><td data-label="Categoria">Estrutura jurídica, regulatória, certificações</td><td class="tg" data-label="Faixa de Investimento">R$ 40.000 – 80.000</td></tr>
+          <tr><td data-label="Categoria">Reserva operacional para implantação do contrato âncora</td><td class="tg" data-label="Faixa de Investimento">R$ 200.000 – 400.000</td></tr>
+          <tr class="tr-hl"><td data-label="Categoria"><strong>Total H1</strong></td><td data-label="Faixa de Investimento"><strong>R$ 930.000 – 1.620.000</strong></td></tr>
         </tbody>
       </table>
     </div>
@@ -1275,9 +1333,9 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Cenário</th><th>Contratos H1</th><th>Payback estimado</th></tr></thead>
         <tbody>
-          <tr><td>Conservador</td><td>1 contrato âncora</td><td>36–48 meses</td></tr>
-          <tr><td><strong>Base (meta)</strong></td><td><strong>2 contratos âncora</strong></td><td class="tg"><strong>18–24 meses</strong></td></tr>
-          <tr><td>Otimista</td><td>2 âncora + 1 consorcial em H2</td><td>12–18 meses</td></tr>
+          <tr><td data-label="Cenário">Conservador</td><td data-label="Contratos H1">1 contrato âncora</td><td data-label="Payback estimado">36–48 meses</td></tr>
+          <tr><td data-label="Cenário"><strong>Base (meta)</strong></td><td data-label="Contratos H1"><strong>2 contratos âncora</strong></td><td class="tg" data-label="Payback estimado"><strong>18–24 meses</strong></td></tr>
+          <tr><td data-label="Cenário">Otimista</td><td data-label="Contratos H1">2 âncora + 1 consorcial em H2</td><td data-label="Payback estimado">12–18 meses</td></tr>
         </tbody>
       </table>
     </div>
@@ -1344,12 +1402,12 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Capacidade Samais Existente</th><th>Aplicação Direta no ROTA</th></tr></thead>
         <tbody>
-          <tr><td><strong>Central de Regulação 24/7 (SAMU)</strong></td><td>Central de Regulação ROTA com simplificação operacional</td></tr>
-          <tr><td><strong>Gestão de frota e telemetria</strong></td><td>Gestão de frota leve ROTA</td></tr>
-          <tr><td><strong>Relacionamento com 130+ municípios</strong></td><td>Pipeline comercial pré-qualificado</td></tr>
-          <tr><td><strong>Equipe jurídico-regulatória</strong></td><td>Adaptação para contratos ROTA</td></tr>
-          <tr><td><strong>Estrutura financeira e garantia contratual</strong></td><td>Aplicação imediata</td></tr>
-          <tr><td><strong>Identidade de marca consolidada</strong></td><td>Extensão para sub-marca ROTA</td></tr>
+          <tr><td data-label="Capacidade Samais Existente"><strong>Central de Regulação 24/7 (SAMU)</strong></td><td data-label="Aplicação Direta no ROTA">Central de Regulação ROTA com simplificação operacional</td></tr>
+          <tr><td data-label="Capacidade Samais Existente"><strong>Gestão de frota e telemetria</strong></td><td data-label="Aplicação Direta no ROTA">Gestão de frota leve ROTA</td></tr>
+          <tr><td data-label="Capacidade Samais Existente"><strong>Relacionamento com 130+ municípios</strong></td><td data-label="Aplicação Direta no ROTA">Pipeline comercial pré-qualificado</td></tr>
+          <tr><td data-label="Capacidade Samais Existente"><strong>Equipe jurídico-regulatória</strong></td><td data-label="Aplicação Direta no ROTA">Adaptação para contratos ROTA</td></tr>
+          <tr><td data-label="Capacidade Samais Existente"><strong>Estrutura financeira e garantia contratual</strong></td><td data-label="Aplicação Direta no ROTA">Aplicação imediata</td></tr>
+          <tr><td data-label="Capacidade Samais Existente"><strong>Identidade de marca consolidada</strong></td><td data-label="Aplicação Direta no ROTA">Extensão para sub-marca ROTA</td></tr>
         </tbody>
       </table>
     </div>
@@ -1422,7 +1480,7 @@ td strong{color:var(--text);font-weight:600}
       </div>
     </div>
 
-    <div class="box box-cyan" style="margin-top:52px">
+    <div class="box box-amber" style="margin-top:52px">
       <div class="box-label">Encerramento Institucional</div>
       <p>O ROTA chega no momento mais favorável da história do transporte sanitário no Brasil. A janela competitiva é estimada em <strong>24 meses</strong>. Quem ler o cenário e mover agora define a posição de mercado pelos próximos 10 anos. Quem ler em 36 meses chega como entrante tardio.</p>
     </div>
