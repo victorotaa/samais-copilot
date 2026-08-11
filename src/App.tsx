@@ -2481,12 +2481,11 @@ export default function App() {
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
                 <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{Math.round(118 * bf)}</div>
                 <div className="text-xs text-gold-500/70">8,2% do total · faixa nacional 5,8–9,7%</div>
-                <div className="absolute bottom-4 right-4 px-2 py-1 rounded bg-gold-500/10 border border-gold-500/30 text-xs font-mono font-bold text-gold-500">R$ 38k</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ok">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">T. MÉDIO REGULAÇÃO</div>
                 <div className="text-4xl font-disp font-bold text-ok mb-2">1m 12s</div>
-                <div className="text-xs text-ok/70"><Icon name="arrow-trend-down" /> -45s vs Média Nac.</div>
+                <div className="text-xs text-ok/70">da chamada atendida à decisão do regulador · demonstração</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-danger">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">DESPACHOS USA (VERMELHO)</div>
