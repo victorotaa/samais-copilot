@@ -72,6 +72,7 @@ Princípio da Realidade proíbe número sem lastro. A saída aplicada na peça:
 
 Reescrita em **dobras** no padrão da LP e do ROTA (decisão do Ota, 11/08): uma ideia por
 dobra, banda de imagem com parallax, revelação ao rolar, nav fixa com seção ativa.
+O ritmo alterna escuro · alt · **ouro** · escuro · alt · **creme** · escuro · alt · **creme** · escuro · alt.
 
 | # | Dobra | Âncora visual |
 |---|---|---|
@@ -94,7 +95,10 @@ dobra, banda de imagem com parallax, revelação ao rolar, nav fixa com seção 
 | **Moeda em real** | Pedido do Ota (11/08). Câmbio declarado em referência própria (nº 6) — os fornecedores cobram em dólar e o valor varia com o câmbio; omitir a taxa tornaria o número não auditável. |
 | **Linguagem simplificada** | Pedido do Ota (11/08): a audiência é de gestão, não de engenharia. "Modo degradado" virou "dá para desligar a IA"; "espelhamento" virou "recebe uma cópia do áudio"; "multi-inquilino" virou "cada central com seus dados separados". |
 | **Imagens abstratas geradas, nunca cena operacional** | Foto de operação que a Samais não pode comprovar é o mesmo risco que a peça passa a sessão evitando. As três bandas são grafismo abstrato (onda→dado, registro disperso, rede) e **não afirmam fato nenhum**. As fotos existentes do repo foram descartadas: uma mostra viatura de Santa Catarina (não há frente lá) e outra tem pessoa identificável. |
-| **Refração desligada nos gráficos** | O `url(#glassDistort)` entorta linha reta e texto. O vidro (blur, borda, brilho) permanece; a refração sai só nas superfícies de dado — mesma lógica pela qual ela já sai no mobile. |
+| **Refração só em imagem** | Correção do Ota (11/08): a primeira versão tratou como exceção dos gráficos o que é regra geral. `url(#glassDistort)` ondula qualquer texto — nos blocos de princípio estava visivelmente feio. Agora o vidro **nunca** refrata; a refração vive numa classe própria (`.refrata`), aplicada só a `<img>`. |
+| **Ritmo por dobras invertidas** | Pedido do Ota (11/08): peça toda escura cansa. Adotado o par do ROTA — `.fold-light` (creme `#F4F1EA`) nas duas dobras de tabela e `.fold-gold` (gradiente dourado) na virada. Na impressão o ouro vira filete, não fundo: chapado desperdiça tinta. |
+| **Capa animada, sem laço** | A onda de voz vira malha de dados uma vez, ao carregar, e para. É a tese da peça em movimento. Laço em documento institucional lê como propaganda. |
+| **Seis bandas de imagem** | Pedido do Ota (11/08). Todas grafismo abstrato gerado; nenhuma afirma operação. |
 | **Fontes embutidas (woff2, subset latin)** | A peça é aberta em sala de reunião. Sem rede, a identidade inteira cairia para Arial. Agora o arquivo **não faz nenhuma requisição externa**. |
 | **Faixa desenhada como faixa** | O gráfico de custos mostra cada componente do mínimo ao máximo, não uma barra a partir de zero — encoding honesto para um intervalo. |
 
