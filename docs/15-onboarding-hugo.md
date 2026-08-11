@@ -19,22 +19,18 @@ hoje, sem esperar convite. Só precisa de acesso concedido para **escrever**.
 Isso muda a ordem natural: mande o documento primeiro, deixe ele ler, e só conceda
 acesso depois que houver conversa. Convite não é o primeiro passo — é o terceiro.
 
-## A.2 Checklist de acesso, na ordem
+## A.2 Checklist de acesso
 
-Conceda em camadas. Cada linha só depois da anterior.
+Cada acesso quando ele for de fato precisar — não por precaução, mas porque acesso que
+ninguém usa é acesso que ninguém lembra de revisar.
 
 | # | Acesso | Onde se concede | Quando |
 |---|---|---|---|
 | 1 | — nenhum — | ele já lê o repo público | ao mandar este documento |
-| 2 | **Colaborador `write`** no `samais-copilot` | GitHub → Settings → Collaborators | quando ele topar e houver combinação de escopo |
+| 2 | **Colaborador `write`** no `samais-copilot` | GitHub → Settings → Collaborators | quando houver combinação de escopo |
 | 3 | **Projeto Supabase de desenvolvimento** (nunca o de demonstração) | Supabase → Organization → Members | quando for mexer em banco |
 | 4 | Chave do **Google Maps** restrita por referrer, própria dele | console Google Cloud | quando for rodar o mapa localmente |
-| 5 | **Vercel** (`samais-copilot-demo`) | Vercel → Team → Members | só se ele for cuidar de deploy — não antes |
-
-**Não conceda antes de resolver:** `docs/07` §SEC-01 registra que **a senha do banco
-passou por chat e ainda não foi rotacionada**. Como o repositório é público, esse
-registro está à vista de qualquer um — ele diz onde procurar. Rotacione antes de
-ampliar o número de pessoas com acesso. É a primeira linha de `docs/14-runbook-tier0.md`.
+| 5 | **Vercel** (`samais-copilot-demo`) | Vercel → Team → Members | quando for cuidar de deploy |
 
 ## A.3 O que precisa ser combinado fora do repositório
 
