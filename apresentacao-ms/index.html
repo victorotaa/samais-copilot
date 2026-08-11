@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Samais CoPilot OS · Apresentação Institucional</title>
+<meta name="description" content="Samais CoPilot OS — tecnologia de apoio à decisão na regulação médica das urgências. Documento institucional.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   Tokens copiados de samais-os/doutrina/samais.css — NÃO recalibrar.
+   Peça single-file: os tokens são embutidos porque não há build aqui.
+   Se a doutrina mudar, este bloco é atualizado a partir dela.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#0A0A0A; --s1:#131313; --s2:#1A1A1A; --divider:#262626;
+  --gold:#B8954E; --gold-soft:#D4B373; --gold-deep:#8E7238;
+  --green:#1E7A4B; --amber:#B8804E; --red:#A33044;
+  --text:#F4F1EA; --text-2:#D9D2C5; --muted:#9C9489; --dim:#615C53;
+  --display:'Syne','Arial Black','Helvetica Neue',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --glass-bg:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.025));
+  --glass-border:1px solid rgba(255,255,255,.12);
+  --glass-blur:blur(22px) saturate(150%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.22), 0 18px 50px rgba(0,0,0,.5);
+  --glass-radius:18px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--body);font-weight:300;line-height:1.65;
+  letter-spacing:.005em;-webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(55% 45% at 82% 6%, rgba(184,149,78,.13), transparent 62%),
+    radial-gradient(48% 42% at 8% 80%, rgba(30,122,75,.07), transparent 62%),
+    radial-gradient(42% 38% at 50% 52%, rgba(212,179,115,.05), transparent 72%);
+}
+.glass{
+  background:var(--glass-bg);
+  -webkit-backdrop-filter:var(--glass-blur);
+  backdrop-filter:var(--glass-blur);
+  backdrop-filter:var(--glass-blur) url(#glassDistort);
+  border:var(--glass-border);border-radius:var(--glass-radius);
+  box-shadow:var(--glass-shadow);overflow:hidden;
+}
+@media (max-width:720px){
+  .glass{border-radius:12px;-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%)}
+}
+@media (prefers-reduced-transparency:reduce){
+  .glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--s1)}
+}
+
+h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.02em;line-height:1.1;margin:0}
+h1{font-weight:700}
+h2,h3,h4{font-weight:600}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+.dado{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted)}
+
+/* ── Marca (SVG oficial, doutrina/marca — nunca tipografia imitando) ── */
+.marca{display:inline-flex;align-items:center;gap:.7em;text-decoration:none;line-height:1}
+.marca .wordmark{height:26px;width:auto;display:block}
+.marca .monograma{display:none;height:30px;width:auto}
+.marca .sep{color:var(--gold-deep);font-size:18px;font-weight:400}
+.marca .desc{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:600px){
+  .marca .wordmark,.marca .sep,.marca .desc{display:none}
+  .marca .monograma{display:block}
+}
+
+/* ── Barra fixa ── */
+.topbar{
+  position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:12px clamp(16px,4vw,40px);
+  background:rgba(20,20,22,.42);
+  -webkit-backdrop-filter:blur(28px) saturate(175%);backdrop-filter:blur(28px) saturate(175%);
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.topbar .ref{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+
+/* ── Layout ── */
+.wrap{max-width:940px;margin:0 auto;padding:0 clamp(18px,5vw,40px)}
+section{padding:clamp(48px,7vw,86px) 0;border-bottom:1px solid var(--divider)}
+section:last-of-type{border-bottom:0}
+.lead{font-size:clamp(16px,2.1vw,19px);color:var(--text-2);max-width:64ch;margin:18px 0 0}
+p{margin:16px 0;max-width:70ch}
+strong{font-weight:500;color:var(--text)}
+
+/* ── Capa ── */
+.capa{padding:clamp(64px,11vw,132px) 0 clamp(48px,7vw,80px);border-bottom:1px solid var(--divider)}
+.capa h1{font-size:clamp(38px,7.2vw,76px);margin-bottom:8px}
+.capa .sub{font-family:var(--display);font-weight:600;font-size:clamp(17px,2.6vw,25px);color:var(--gold-soft);letter-spacing:-.01em;line-height:1.25;max-width:24ch}
+.capa .meta{margin-top:36px;padding-top:22px;border-top:1px solid var(--divider);font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ── Grades ── */
+.grid{display:grid;gap:16px;margin-top:30px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.card{padding:24px}
+.card h3{font-size:16px;margin-bottom:9px;color:var(--text)}
+.card p{font-size:14.5px;color:var(--text-2);margin:0;max-width:none}
+.card .num{font-family:var(--mono);font-size:11px;color:var(--gold-deep);letter-spacing:.16em;display:block;margin-bottom:11px}
+
+/* ── Fluxo ── */
+.fluxo{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:30px}
+.etapa{padding:20px 18px;position:relative}
+.etapa .papel{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:9px}
+.etapa h4{font-size:14.5px;margin-bottom:7px}
+.etapa p{font-size:13px;color:var(--muted);margin:0;max-width:none;line-height:1.55}
+.etapa .t{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:10px;color:var(--gold-deep);letter-spacing:.08em}
+
+/* ── Tabelas ── */
+.rolavel{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:26px}
+table{width:100%;border-collapse:collapse;min-width:520px}
+caption{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);padding-bottom:14px}
+th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 16px 12px 0;border-bottom:1px solid var(--divider);white-space:nowrap}
+td{padding:14px 16px 14px 0;border-bottom:1px solid rgba(255,255,255,.055);font-size:14px;color:var(--text-2);vertical-align:top}
+td:first-child{color:var(--text);font-weight:400}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text)}
+tr:last-child td{border-bottom:0}
+
+/* ── Destaque ── */
+.marco{padding:26px 28px;margin-top:30px;border-left:2px solid var(--gold);background:linear-gradient(90deg,rgba(184,149,78,.07),transparent 70%)}
+.marco p{margin:0;font-size:15.5px;color:var(--text-2)}
+.marco p + p{margin-top:12px}
+
+/* ── Lista de princípios ── */
+ul.limpa{list-style:none;padding:0;margin:24px 0 0}
+ul.limpa li{padding:15px 0 15px 26px;border-bottom:1px solid rgba(255,255,255,.055);position:relative;font-size:14.5px;color:var(--text-2);max-width:74ch}
+ul.limpa li::before{content:"";position:absolute;left:2px;top:23px;width:7px;height:1px;background:var(--gold)}
+ul.limpa li:last-child{border-bottom:0}
+ul.limpa b{font-weight:500;color:var(--text)}
+
+/* ── Fases ── */
+.fase{padding:22px 24px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start}
+.fase .id{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.1em;padding-top:2px}
+.fase h4{font-size:15px;margin-bottom:6px}
+.fase p{font-size:13.5px;color:var(--muted);margin:0;max-width:none}
+.fase .gate{display:block;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text-2);letter-spacing:.03em}
+.fase .gate b{color:var(--gold-soft);font-weight:500}
+
+/* ── Referências ── */
+.refs{margin-top:34px;padding-top:20px;border-top:1px solid var(--divider)}
+.refs h4{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.refs ol{margin:0;padding-left:20px}
+.refs li{font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--muted);letter-spacing:.01em}
+
+/* ── Rodapé ── */
+footer{padding:44px 0 60px}
+footer .linha{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+footer .nota{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim)}
+
+/* Impressão: versão light da identidade (fundo claro, ouro canônico, wordmark
+   oficial). O canvas escuro mora no html e o brilho ambiente no body::before —
+   zerar só o body faz sair retângulo preto no PDF. */
+@media print{
+  body::before{display:none}
+  html,body{background:#FAF9F5;color:#141413}
+  .topbar{display:none}
+  .glass{background:#FAF9F5;border:1px solid #DCD6C9;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+  section{page-break-inside:avoid;border-bottom:1px solid #DCD6C9}
+  h1,h2,h3,h4{color:#141413}
+  p,td,li,.lead,.card p,.etapa p,.fase p,.refs li{color:#3D3A34}
+  .eyebrow,.marca .sep,.fase .id,.card .num,.etapa .papel{color:#8E7238}
+  th,.mono,footer .nota{color:#615C53}
+}
+</style>
+</head>
+<body>
+
+<!-- Filtro de refração do liquid glass — snippet canônico de doutrina/glass-filter.html -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none">
+  <filter id="glassDistort" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.009 0.013" numOctaves="2" seed="7" result="n"/>
+    <feGaussianBlur in="n" stdDeviation="1.1" result="nb"/>
+    <feDisplacementMap in="SourceGraphic" in2="nb" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div class="topbar">
+  <span class="marca">
+    <!-- Logotipo oficial Samais (doutrina/marca/samais-logo-gold.svg) · Desenho: Victor Ota -->
+    <svg class="wordmark" viewBox="0 0 595.3 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="#B8954E" d="M44,106.6l4.9-4.9c6.3,3.6,18.2,8.8,33.8,8.8s25.5-3.2,25.5-11.1-14.2-9.6-24.4-9.8c-16.2-.2-35.4-2.8-35.4-14.1s17.3-16.4,32.7-16.4,27,3.2,34.1,6.5l-4.4,4.9c-6.8-3.1-17.2-6-28.9-6s-22.8,1.7-22.8,9.6,17,7.7,24.8,7.9c15.9.2,35.4,3.2,35.4,16.9s-20.1,17.1-35.9,17.1-31.6-5.3-39.4-9.4ZM411.7,60.6h4.7c4.4,0,8.6,2.1,11.3,5.6l36.8,48.2h-11.7l-41-53.7ZM476.6,106.6l4.9-4.9c6.3,3.6,18.2,8.8,33.8,8.8s25.5-3.2,25.5-11.1-14.2-9.6-24.4-9.8c-16.2-.2-35.4-2.8-35.4-14.1s17.3-16.4,32.7-16.4,27,3.2,34.1,6.5l-4.4,4.9c-6.8-3.1-17.2-6-28.9-6s-22.8,1.7-22.8,9.6,17,7.7,24.8,7.9c15.9.2,35.4,3.2,35.4,16.9s-20.1,17.1-35.9,17.1-31.6-5.3-39.4-9.4ZM184.3,60.6h-12.4s24.4,33.7,24.4,33.7h-42.4c-3.2,0-6.3,1.5-8.2,4.2l-11.7,15.9h7.6l7.9-10.7c1.9-2.6,5-4.2,8.2-4.2h42.3s10.8,14.9,10.8,14.9h13.1l-39.6-53.7ZM372.1,60.6h-12.4l24.4,33.7h-42.4c-3.2,0-6.3,1.5-8.2,4.2l-11.7,15.9h7.6l7.9-10.7c1.9-2.6,5-4.2,8.2-4.2h42.3l10.8,14.9h13.1l-39.6-53.7ZM287.2,65.9l-23.3,32.3-23.9-32.4c-2.4-3.2-6.2-5.2-10.2-5.2h-6l33.5,46.6h7.2l27.8-37.7v44.8h11.7v-53.7h-6.6c-4.1,0-7.9,2-10.3,5.3Z"/></svg>
+    <!-- Monograma SA+ (mobile) -->
+    <svg class="monograma" viewBox="0 0 271 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="#B8954E" d="M44.8,106.6l4.9-4.9c6.3,3.6,18.1,8.8,33.7,8.8s25.4-3.2,25.4-11.1-14.2-9.6-24.3-9.8c-16.2-.2-35.3-2.8-35.3-14.1s17.3-16.3,32.6-16.3,27,3.2,34,6.5l-4.4,4.9c-6.7-3.1-17.1-6-28.8-6s-22.8,1.7-22.8,9.6,17,7.7,24.7,7.9c15.9.2,35.3,3.2,35.3,16.9s-20.1,17.1-35.8,17.1-31.5-5.3-39.3-9.4ZM168.7,60.7h-13.1l25,33.6h-42.3c-3.2,0-6.3,1.5-8.2,4.1l-11.7,15.8h7.5l7.9-10.7c1.9-2.6,5-4.1,8.2-4.1h42.2l10.8,14.8h13.1l-39.5-53.6ZM226.2,60.7h-10.4v-10.4h-10v10.4h-10.4v10h10.4v10.4h10v-10.4h10.4v-10Z"/></svg>
+    <span class="sep">·</span>
+    <span class="desc">Gestão em Saúde</span>
+  </span>
+  <span class="ref">Documento institucional</span>
+</div>
+
+<div class="wrap">
+
+<!-- ══ CAPA ══ -->
+<div class="capa">
+  <p class="eyebrow">Tecnologia própria · Urgência pré-hospitalar</p>
+  <h1>CoPilot OS</h1>
+  <p class="sub">Apoio à decisão na regulação médica das urgências</p>
+  <p class="lead">Uma camada de inteligência sobre a operação da Central de Regulação
+  de Urgências: transcreve a chamada, estrutura o dado clínico, apoia a classificação
+  de risco e registra cada tempo do atendimento — sem substituir a decisão do médico
+  regulador e sem interferir no fluxo da ligação.</p>
+  <p class="meta">Apresentação ao Ministério da Saúde · Agosto de 2026</p>
+</div>
+
+<!-- ══ 1. O PROBLEMA ══ -->
+<section>
+  <p class="eyebrow">01 · O problema</p>
+  <h2>O dado da urgência nasce e se perde no mesmo lugar</h2>
+  <p class="lead">A regulação médica das urgências é, por norma, o centro do sistema —
+  toda chamada ao 192 passa por ela.<sup>1</sup> Na prática cotidiana, a informação que
+  ela produz é registrada à mão, em paralelo ao atendimento, e só volta como estatística
+  semanas depois.</p>
+
+  <div class="grid g2">
+    <div class="glass card">
+      <span class="num">01</span>
+      <h3>O registro disputa a atenção da chamada</h3>
+      <p>O técnico de regulação digita enquanto escuta. O que se ganha em velocidade de
+      atendimento se perde em qualidade de registro — e vice-versa.</p>
+    </div>
+    <div class="glass card">
+      <span class="num">02</span>
+      <h3>Os tempos dependem de anotação manual</h3>
+      <p>Saída, chegada ao local, saída da cena e entrega no hospital são falados por
+      rádio e transcritos depois. O tempo-resposta, principal indicador de qualidade do
+      atendimento pré-hospitalar,<sup>2</sup> é reconstruído, não medido.</p>
+    </div>
+    <div class="glass card">
+      <span class="num">03</span>
+      <h3>A passagem de caso é verbal</h3>
+      <p>Entre o técnico, o médico regulador e a equipe embarcada, o contexto clínico
+      viaja por voz. É onde o detalhe se perde.</p>
+    </div>
+    <div class="glass card">
+      <span class="num">04</span>
+      <h3>O indicador chega tarde para gerir</h3>
+      <p>O relatório semestral de indicadores é condição do incentivo federal
+      qualificado.<sup>3</sup> Quando ele é montado a posteriori, serve para prestar
+      contas — não para corrigir a operação enquanto ela acontece.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 2. O PRODUTO E A PREMISSA ══ -->
+<section>
+  <p class="eyebrow">02 · O produto e a premissa</p>
+  <h2>Copiloto, não piloto</h2>
+  <p class="lead">O CoPilot OS é um sistema de apoio à operação da Central de Regulação.
+  Ele escuta, estrutura e registra. Não atende a ligação, não classifica sozinho e não
+  despacha viatura.</p>
+
+  <ul class="limpa">
+    <li><b>A autoridade é do médico regulador.</b> A classificação de risco sugerida
+    pelo sistema é uma proposta com os fatores que a sustentam à vista. Quando o médico
+    decide diferente, a divergência é registrada com justificativa — e é essa divergência
+    que ensina o sistema, mantendo a regulação como fonte da verdade clínica.<sup>4</sup></li>
+    <li><b>A escuta é passiva.</b> O sistema recebe uma cópia do áudio por espelhamento
+    padrão da própria telefonia da central. Não entra no caminho da chamada: se ele
+    parar, o 192 continua atendendo exatamente como antes.</li>
+    <li><b>A operação nunca depende da inteligência artificial.</b> Há um controle
+    explícito para desligá-la, e todo campo volta a ser preenchido manualmente. Modo
+    degradado é requisito de projeto, não plano de contingência.</li>
+    <li><b>O gestor vê a operação sem ver o paciente.</b> O painel de gestão é
+    construído sobre dados agregados — não há caminho técnico do perfil de gestão até a
+    informação pessoal, por desenho do banco e não por filtro de tela.</li>
+    <li><b>Todo passo deixa rastro.</b> Cada decisão clínica, despacho e acesso é
+    gravado em trilha de auditoria própria, vinculada à matrícula do operador.</li>
+  </ul>
+</section>
+
+<!-- ══ 3. COMO FUNCIONA ══ -->
+<section>
+  <p class="eyebrow">03 · Como funciona</p>
+  <h2>O ciclo da ocorrência, do 192 ao hospital</h2>
+  <p class="lead">O sistema espelha o fluxo normativo da regulação de urgência.<sup>1</sup>
+  A cada passagem de responsabilidade, o contexto viaja como dado estruturado em vez de
+  resumo falado.</p>
+
+  <div class="fluxo">
+    <div class="glass etapa">
+      <p class="papel">Técnico</p>
+      <h4>Recepção e triagem</h4>
+      <p>A chamada é transcrita ao vivo. Queixa, sinais, idade e comorbidades saem do
+      diálogo como campos preenchidos, revisáveis a qualquer momento.</p>
+    </div>
+    <div class="glass etapa">
+      <span class="t">T0</span>
+      <p class="papel">Médico regulador</p>
+      <h4>Regulação</h4>
+      <p>Recebe o caso já estruturado, valida o protocolo, escolhe o recurso e confirma
+      o despacho — que marca o tempo inicial do atendimento.</p>
+    </div>
+    <div class="glass etapa">
+      <span class="t">T1–T4</span>
+      <p class="papel">Equipe embarcada</p>
+      <h4>Atendimento</h4>
+      <p>No tablet da viatura: quatro toques marcam saída, chegada ao local, início do
+      transporte e entrega no hospital. Sem digitação, sem rádio para registro.</p>
+    </div>
+    <div class="glass etapa">
+      <p class="papel">Encerramento</p>
+      <h4>Desfecho</h4>
+      <p>Transportado, orientação, recusa ou óbito no local — um toque fecha o ciclo e
+      completa o registro da ocorrência.</p>
+    </div>
+    <div class="glass etapa">
+      <p class="papel">Gestão</p>
+      <h4>Indicadores</h4>
+      <p>Os tempos viram indicador no mesmo instante em que são marcados, e o relatório
+      de indicadores sai do próprio sistema.</p>
+    </div>
+  </div>
+
+  <div class="marco">
+    <p>O tempo-resposta deixa de ser reconstruído e passa a ser <strong>medido na
+    origem</strong>: T2 menos T0, com marcação feita por quem está na cena, no momento
+    em que o fato acontece.</p>
+  </div>
+</section>
+
+<!-- ══ 4. RELEVÂNCIA ══ -->
+<section>
+  <p class="eyebrow">04 · Relevância para a política pública</p>
+  <h2>Indicador padronizado, no mesmo dia</h2>
+  <p class="lead">O sistema instrumenta exatamente os indicadores que o próprio
+  Ministério usa como referência para avaliar uma central de regulação — e os produz em
+  tempo real, no mesmo formato, em qualquer central onde estiver instalado.</p>
+
+  <div class="rolavel">
+    <table>
+      <caption>Indicadores instrumentados</caption>
+      <thead>
+        <tr><th>Indicador</th><th>Referencial</th><th>Como o sistema mede</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tempo-resposta urbano</td>
+          <td class="n">≤ 8 min</td>
+          <td>Intervalo entre a confirmação do despacho e a chegada à cena, marcado no tablet</td>
+        </tr>
+        <tr>
+          <td>Despacho em menos de 4 minutos</td>
+          <td class="n">≥ 90%</td>
+          <td>Intervalo entre o atendimento da ligação e a confirmação do despacho</td>
+        </tr>
+        <tr>
+          <td>Regulação médica das chamadas</td>
+          <td class="n">100%</td>
+          <td>Toda ocorrência carrega a matrícula do médico que a regulou</td>
+        </tr>
+        <tr>
+          <td>Tempo em cena e ciclo total</td>
+          <td class="n">T3−T2 · T4−T0</td>
+          <td>Derivados das mesmas marcações, sem registro adicional</td>
+        </tr>
+        <tr>
+          <td>Desfecho do atendimento</td>
+          <td class="n">4 categorias</td>
+          <td>Registrado pela equipe no encerramento, na cena</td>
+        </tr>
+        <tr>
+          <td>Concordância entre sugestão e regulação</td>
+          <td class="n">auditável</td>
+          <td>Toda divergência do médico é registrada com justificativa</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid g3">
+    <div class="glass card">
+      <h3>Comparabilidade entre centrais</h3>
+      <p>O mesmo dicionário de métricas em toda central instalada — indicador de uma
+      central passa a ser comparável com o de outra sem trabalho de conciliação.</p>
+    </div>
+    <div class="glass card">
+      <h3>Prestação de contas na origem</h3>
+      <p>O relatório de indicadores<sup>3</sup> é emitido a partir do registro
+      operacional, não de planilha reconstruída depois.</p>
+    </div>
+    <div class="glass card">
+      <h3>Alinhado ao ecossistema SUS</h3>
+      <p>O registro é estruturado para dialogar com os sistemas de informação do SUS —
+      formato e caminho de integração a detalhar em agenda técnica com o DATASUS.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 5. INOVAÇÃO ══ -->
+<section>
+  <p class="eyebrow">05 · Por que é inovador</p>
+  <h2>Uma classe de tecnologia madura, aplicada ao 192</h2>
+  <p class="lead">Centrais de emergência no mundo já operam com localização automática
+  do chamador, protocolo estruturado de despacho e apoio computacional à triagem
+  telefônica. O que não existe é essa camada desenhada para a realidade brasileira:
+  português falado sob estresse, protocolo de classificação de risco adotado na rede
+  nacional e a arquitetura normativa da regulação médica das urgências.</p>
+
+  <div class="grid g3">
+    <div class="glass card">
+      <span class="num">Explicabilidade</span>
+      <h3>A sugestão mostra por quê</h3>
+      <p>Os fatores que levaram a cada classificação ficam visíveis ao médico. Apoio à
+      decisão que não se explica não é auditável — e o que não é auditável não deveria
+      operar em serviço público de urgência.</p>
+    </div>
+    <div class="glass card">
+      <span class="num">Aprendizado</span>
+      <h3>A divergência é o ativo</h3>
+      <p>Cada vez que o regulador decide diferente da sugestão, o sistema registra o
+      motivo. É supervisão clínica contínua produzida pela própria operação, sem
+      rotulagem externa.</p>
+    </div>
+    <div class="glass card">
+      <span class="num">Instrumentação</span>
+      <h3>Dado nasce estruturado</h3>
+      <p>O indicador não é extraído da operação depois; ele é subproduto dela. É o que
+      torna possível medir política pública de urgência com granularidade de ocorrência.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 6. DESDOBRAMENTOS ══ -->
+<section>
+  <p class="eyebrow">06 · Desdobramentos</p>
+  <h2>O caminho até a operação, com critérios de liberação</h2>
+  <p class="lead">O produto existe hoje como sistema navegável completo, com o ciclo da
+  ocorrência e o painel de gestão implantados sobre banco multi-inquilino. As etapas
+  seguintes têm critério objetivo de liberação — cada uma só avança quando a anterior é
+  demonstrada.</p>
+
+  <div class="grid">
+    <div class="glass fase">
+      <span class="id">F0</span>
+      <div>
+        <h4>Fundação de segurança e conformidade</h4>
+        <p>Segundo fator de autenticação, isolamento entre centrais testado
+        automaticamente, encadeamento criptográfico da trilha de auditoria, backup com
+        restauração testada e residência de dados em território nacional.</p>
+        <span class="gate"><b>Liberação:</b> controles verificados antes de qualquer
+        dado real de paciente.</span>
+      </div>
+    </div>
+    <div class="glass fase">
+      <span class="id">F1</span>
+      <div>
+        <h4>Transcrição e apoio clínico em operação real</h4>
+        <p>Transcrição contínua em português, extração clínica estruturada e sugestão de
+        classificação de risco, com modo degradado obrigatório.</p>
+        <span class="gate"><b>Liberação:</b> <span class="dado">≥ 90%</span> de
+        concordância com a regulação médica em teste retrospectivo sobre no mínimo
+        <span class="dado">1.000</span> chamadas anonimizadas, revisado por
+        responsável técnico médico.</span>
+      </div>
+    </div>
+    <div class="glass fase">
+      <span class="id">F2</span>
+      <div>
+        <h4>Operação acompanhada em central</h4>
+        <p>Espelhamento do áudio pela telefonia existente, tablets embarcados e sistema
+        em acompanhamento: a equipe opera como sempre e o CoPilot registra em paralelo,
+        permitindo comparar a operação com e sem a camada de apoio.</p>
+        <span class="gate"><b>Liberação:</b> período mínimo de acompanhamento com
+        métricas, avaliação de impacto à proteção de dados aprovada, teste de intrusão
+        por terceiro e aceite do responsável técnico.</span>
+      </div>
+    </div>
+    <div class="glass fase">
+      <span class="id">F3</span>
+      <div>
+        <h4>Operação plena e integração</h4>
+        <p>Apoio ativo à regulação, exportação no formato dos sistemas de informação do
+        SUS, integração com a regulação de leitos conforme a arquitetura de cada estado
+        e instrumentação completa dos indicadores contratados.</p>
+        <span class="gate"><b>Liberação:</b> central operando com relatório de
+        indicadores emitido do próprio sistema.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 7. GANHOS ESPERADOS ══ -->
+<section>
+  <p class="eyebrow">07 · Ganhos esperados</p>
+  <h2>O que se propõe medir</h2>
+  <p class="lead">Os ganhos abaixo são <strong>metas de projeto com método de aferição
+  declarado</strong>, a serem verificadas no acompanhamento em central real. A proposta
+  da Samais é justamente que sejam medidos com rigor, e não afirmados.</p>
+
+  <div class="rolavel">
+    <table>
+      <caption>Metas e método de aferição</caption>
+      <thead>
+        <tr><th>Meta de projeto</th><th>Referência</th><th>Método de aferição</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Reduzir o tempo entre atendimento da ligação e despacho</td>
+          <td class="n">≥ 90% em &lt; 4 min</td>
+          <td>Comparação do mesmo indicador na mesma central, em períodos com e sem a camada de apoio</td>
+        </tr>
+        <tr>
+          <td>Eliminar o registro manual dos tempos de missão</td>
+          <td class="n">100% marcados</td>
+          <td>Proporção de ocorrências com T1 a T4 registrados na origem</td>
+        </tr>
+        <tr>
+          <td>Completude do registro clínico da ocorrência</td>
+          <td class="n">campos-chave</td>
+          <td>Proporção de ocorrências com queixa, classificação e desfecho preenchidos</td>
+        </tr>
+        <tr>
+          <td>Concordância clínica da sugestão</td>
+          <td class="n">≥ 90%</td>
+          <td>Classificação sugerida × classificação final do médico regulador</td>
+        </tr>
+        <tr>
+          <td>Disponibilidade do apoio sem afetar a chamada</td>
+          <td class="n">falha isolada</td>
+          <td>Registro de indisponibilidade da camada de apoio × continuidade do atendimento</td>
+        </tr>
+        <tr>
+          <td>Tempo de emissão do relatório de indicadores</td>
+          <td class="n">imediato</td>
+          <td>Intervalo entre a solicitação e a emissão do relatório</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ 8. CUSTOS ══ -->
+<section>
+  <p class="eyebrow">08 · Custos operacionais esperados</p>
+  <h2>A tecnologia escala barato; o investimento é institucional</h2>
+  <p class="lead">Projeção para uma central de referência atendendo cerca de 300 mil
+  habitantes, com volume da ordem de 3 a 4,5 mil chamadas mensais e duração média
+  tratada de três minutos. Valores conforme as tabelas públicas dos fornecedores em
+  agosto de 2026.<sup>5</sup></p>
+
+  <div class="rolavel">
+    <table>
+      <caption>Custo recorrente de plataforma · por central, ao mês</caption>
+      <thead>
+        <tr><th>Componente</th><th>Base de cálculo</th><th>Ordem de grandeza</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Transcrição contínua</td>
+          <td>9.000 a 13.500 minutos de áudio</td>
+          <td class="n">US$ 45 – 80</td>
+        </tr>
+        <tr>
+          <td>Extração clínica assistida</td>
+          <td>volume proporcional às chamadas</td>
+          <td class="n">US$ 25 – 90</td>
+        </tr>
+        <tr>
+          <td>Banco de dados, autenticação e tempo real</td>
+          <td>plataforma gerenciada, região nacional</td>
+          <td class="n">US$ 25 – 600</td>
+        </tr>
+        <tr>
+          <td>Guarda do áudio e observabilidade</td>
+          <td>retenção conforme política contratual</td>
+          <td class="n">dezenas de dólares</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="marco">
+    <p>O custo variável de processamento por atendimento é da ordem de
+    <strong>centavos de dólar</strong>. A camada de inteligência não é o item caro da
+    conta.</p>
+    <p>O investimento relevante é <strong>institucional e de implantação</strong>:
+    equipamento embarcado e conectividade por viatura, integração com a telefonia da
+    central, capacitação continuada das equipes, conformidade em proteção de dados
+    (encarregado, avaliação de impacto, testes de intrusão) e engenharia de sustentação.
+    São esses os itens dimensionados caso a caso, no diagnóstico de cada central.</p>
+  </div>
+</section>
+
+<!-- ══ 9. PROPOSTA ══ -->
+<section>
+  <p class="eyebrow">09 · Proposta de caminho</p>
+  <h2>Medir antes de afirmar</h2>
+  <p class="lead">A Samais é operadora de serviços de urgência pré-hospitalar e
+  desenvolveu o CoPilot OS internamente, a partir da própria operação. A proposta ao
+  Ministério da Saúde é de colaboração técnica, em três frentes.</p>
+
+  <div class="grid g3">
+    <div class="glass card">
+      <span class="num">01</span>
+      <h3>Acompanhamento de uma implantação</h3>
+      <p>Protocolo de avaliação definido em conjunto, sobre os indicadores de referência
+      do próprio Ministério, com a operação acompanhada em paralelo e relatório aberto
+      ao Ministério — inclusive dos resultados que não confirmarem as metas.</p>
+    </div>
+    <div class="glass card">
+      <span class="num">02</span>
+      <h3>Agenda técnica com o DATASUS</h3>
+      <p>Alinhamento do formato de registro e do caminho de integração com os sistemas
+      de informação do SUS, para que o dado nasça compatível em vez de ser convertido
+      depois.</p>
+    </div>
+    <div class="glass card">
+      <span class="num">03</span>
+      <h3>Contribuição à agenda de inovação</h3>
+      <p>Disponibilidade para contribuir com a discussão de padrões de indicadores,
+      explicabilidade e governança de dados no atendimento pré-hospitalar.</p>
+    </div>
+  </div>
+
+  <div class="refs">
+    <h4>Referências</h4>
+    <ol>
+      <li>Portaria GM/MS nº 2.048/2002 — Regulamento Técnico dos Sistemas Estaduais de Urgência e Emergência.</li>
+      <li>Política Nacional de Atenção às Urgências — Portaria GM/MS nº 1.600/2011; literatura nacional sobre tempo-resposta como indicador de qualidade do atendimento pré-hospitalar.</li>
+      <li>Portaria GM/MS nº 1.010/2012 — indicadores e relatório analítico semestral do SAMU 192.</li>
+      <li>Resolução CFM nº 2.077/2014 — atuação do médico regulador; Resolução COFEN nº 0375/2011 — enfermagem em unidade de suporte avançado.</li>
+      <li>Tabelas públicas de preço dos fornecedores de plataforma consultadas em 11 de agosto de 2026.</li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <div class="linha">
+    <span class="marca">
+      <svg class="wordmark" viewBox="0 0 595.3 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="#B8954E" d="M44,106.6l4.9-4.9c6.3,3.6,18.2,8.8,33.8,8.8s25.5-3.2,25.5-11.1-14.2-9.6-24.4-9.8c-16.2-.2-35.4-2.8-35.4-14.1s17.3-16.4,32.7-16.4,27,3.2,34.1,6.5l-4.4,4.9c-6.8-3.1-17.2-6-28.9-6s-22.8,1.7-22.8,9.6,17,7.7,24.8,7.9c15.9.2,35.4,3.2,35.4,16.9s-20.1,17.1-35.9,17.1-31.6-5.3-39.4-9.4ZM411.7,60.6h4.7c4.4,0,8.6,2.1,11.3,5.6l36.8,48.2h-11.7l-41-53.7ZM476.6,106.6l4.9-4.9c6.3,3.6,18.2,8.8,33.8,8.8s25.5-3.2,25.5-11.1-14.2-9.6-24.4-9.8c-16.2-.2-35.4-2.8-35.4-14.1s17.3-16.4,32.7-16.4,27,3.2,34.1,6.5l-4.4,4.9c-6.8-3.1-17.2-6-28.9-6s-22.8,1.7-22.8,9.6,17,7.7,24.8,7.9c15.9.2,35.4,3.2,35.4,16.9s-20.1,17.1-35.9,17.1-31.6-5.3-39.4-9.4ZM184.3,60.6h-12.4s24.4,33.7,24.4,33.7h-42.4c-3.2,0-6.3,1.5-8.2,4.2l-11.7,15.9h7.6l7.9-10.7c1.9-2.6,5-4.2,8.2-4.2h42.3s10.8,14.9,10.8,14.9h13.1l-39.6-53.7ZM372.1,60.6h-12.4l24.4,33.7h-42.4c-3.2,0-6.3,1.5-8.2,4.2l-11.7,15.9h7.6l7.9-10.7c1.9-2.6,5-4.2,8.2-4.2h42.3l10.8,14.9h13.1l-39.6-53.7ZM287.2,65.9l-23.3,32.3-23.9-32.4c-2.4-3.2-6.2-5.2-10.2-5.2h-6l33.5,46.6h7.2l27.8-37.7v44.8h11.7v-53.7h-6.6c-4.1,0-7.9,2-10.3,5.3Z"/></svg>
+      <svg class="monograma" viewBox="0 0 271 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="#B8954E" d="M44.8,106.6l4.9-4.9c6.3,3.6,18.1,8.8,33.7,8.8s25.4-3.2,25.4-11.1-14.2-9.6-24.3-9.8c-16.2-.2-35.3-2.8-35.3-14.1s17.3-16.3,32.6-16.3,27,3.2,34,6.5l-4.4,4.9c-6.7-3.1-17.1-6-28.8-6s-22.8,1.7-22.8,9.6,17,7.7,24.7,7.9c15.9.2,35.3,3.2,35.3,16.9s-20.1,17.1-35.8,17.1-31.5-5.3-39.3-9.4ZM168.7,60.7h-13.1l25,33.6h-42.3c-3.2,0-6.3,1.5-8.2,4.1l-11.7,15.8h7.5l7.9-10.7c1.9-2.6,5-4.1,8.2-4.1h42.2l10.8,14.8h13.1l-39.5-53.6ZM226.2,60.7h-10.4v-10.4h-10v10.4h-10.4v10h10.4v10.4h10v-10.4h10.4v-10Z"/></svg>
+    </span>
+    <span class="nota">Documento institucional · Agosto de 2026 · v1</span>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
