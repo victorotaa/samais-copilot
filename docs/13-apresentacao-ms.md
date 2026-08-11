@@ -68,20 +68,35 @@ Princípio da Realidade proíbe número sem lastro. A saída aplicada na peça:
    sejam *medidos*, inclusive quando não confirmarem as metas. Diante de órgão de
    controle, isso é mais forte do que qualquer percentual afirmado.
 
-## 6. Estrutura (9 seções)
+## 6. Estrutura — v2, em dobras (11 dobras)
 
-1. **Capa** — o que é, em uma frase.
-2. **O problema** — quatro dores do registro da urgência, com fonte normativa.
-3. **O produto e a premissa** — copiloto e não piloto; escuta passiva; modo degradado;
-   gestor sem dado pessoal; trilha de auditoria.
-4. **Como funciona** — ciclo da ocorrência com T0–T4 e desfecho.
-5. **Relevância** — tabela de indicadores instrumentados contra os referenciais do MS.
-6. **Por que é inovador** — explicabilidade, divergência como ativo, dado estruturado
-   na origem (sem citar concorrente).
-7. **Desdobramentos** — fases F0–F3 com critério objetivo de liberação.
-8. **Ganhos esperados** — metas com método de aferição.
-9. **Custos operacionais esperados** e **proposta de caminho** — acompanhamento de uma
-   implantação, agenda técnica com o DATASUS, contribuição à agenda de inovação.
+Reescrita em **dobras** no padrão da LP e do ROTA (decisão do Ota, 11/08): uma ideia por
+dobra, banda de imagem com parallax, revelação ao rolar, nav fixa com seção ativa.
+
+| # | Dobra | Âncora visual |
+|---|---|---|
+| 00 | **Capa** — o que é, em uma frase | banda (voz→dado) + 3 números |
+| 01 | **O problema** — quatro dores, com fonte normativa | banda (registro manual) + 4 cartões |
+| — | **Virada** — "reconstruído × medido" | tipografia grande |
+| 02 | **Copiloto, não piloto** — cinco regras | 5 blocos de vidro com ícone |
+| 03 | **Como funciona** — o ciclo, do 192 ao hospital | **linha do tempo T0–T4 em SVG** |
+| 04 | **Indicadores** — o que o sistema mede | tabela + 3 cartões |
+| 05 | **Por que é inovador** | 3 cartões |
+| 06 | **Fases F0–F3** — critério objetivo de liberação | trilha com "para liberar" |
+| 07 | **Metas** — o que se propõe medir | tabela |
+| 08 | **Custos** — em reais | **gráfico de faixas em SVG** + 3 números |
+| 09 | **Proposta** — três frentes de colaboração | banda (rede) + 3 cartões |
+
+### Decisões de v2
+
+| Decisão | Razão |
+|---|---|
+| **Moeda em real** | Pedido do Ota (11/08). Câmbio declarado em referência própria (nº 6) — os fornecedores cobram em dólar e o valor varia com o câmbio; omitir a taxa tornaria o número não auditável. |
+| **Linguagem simplificada** | Pedido do Ota (11/08): a audiência é de gestão, não de engenharia. "Modo degradado" virou "dá para desligar a IA"; "espelhamento" virou "recebe uma cópia do áudio"; "multi-inquilino" virou "cada central com seus dados separados". |
+| **Imagens abstratas geradas, nunca cena operacional** | Foto de operação que a Samais não pode comprovar é o mesmo risco que a peça passa a sessão evitando. As três bandas são grafismo abstrato (onda→dado, registro disperso, rede) e **não afirmam fato nenhum**. As fotos existentes do repo foram descartadas: uma mostra viatura de Santa Catarina (não há frente lá) e outra tem pessoa identificável. |
+| **Refração desligada nos gráficos** | O `url(#glassDistort)` entorta linha reta e texto. O vidro (blur, borda, brilho) permanece; a refração sai só nas superfícies de dado — mesma lógica pela qual ela já sai no mobile. |
+| **Fontes embutidas (woff2, subset latin)** | A peça é aberta em sala de reunião. Sem rede, a identidade inteira cairia para Arial. Agora o arquivo **não faz nenhuma requisição externa**. |
+| **Faixa desenhada como faixa** | O gráfico de custos mostra cada componente do mínimo ao máximo, não uma barra a partir de zero — encoding honesto para um intervalo. |
 
 ## 7. Verificação executada
 
@@ -89,8 +104,15 @@ Princípio da Realidade proíbe número sem lastro. A saída aplicada na peça:
   "comprovado") → zero.
 - `grep` de hex fora da paleta canônica → só tokens de `samais.css` (e a paleta light
   documentada, no bloco de impressão).
-- Emoji → zero. Dependências externas → apenas Google Fonts.
+- Emoji → zero. **Dependências externas → zero** (fontes e imagens embutidas em base64).
 - Estrutura HTML balanceada; abre por `file://` sem servidor.
+- Renderizada em navegador real (1440 e 390 px): sem transbordo horizontal, sem erro de
+  console, 30/30 elementos de revelação disparando.
+- Geometria dos gráficos conferida contra os números do texto (a v1 tinha barra de
+  R$ 230–410 desenhada com largura de ~R$ 181).
+- Impressão conferida em PDF: fundo branco, sem retângulo preto, texto legível — os
+  tokens são sobrescritos na raiz, e não seletor a seletor.
+- Citações ↔ referências: 6 usadas, 6 listadas, nenhuma órfã dos dois lados.
 
 ## 8. Pendências e condicionais
 
@@ -101,4 +123,5 @@ Princípio da Realidade proíbe número sem lastro. A saída aplicada na peça:
 | Publicar ou não a peça (hoje **não** entra no deploy — o build só copia `lp/`) | Ota/André |
 | Produzir a versão em slides após validação do documento | próxima rodada |
 | Citar ou não a carteira de contratos como lastro operacional | Ota (hoje omitido por decisão) |
-| Converter os custos para reais com câmbio da data | Ota, na apresentação |
+| ~~Converter os custos para reais~~ | **feito na v2** (câmbio declarado na referência nº 6) |
+| Revalidar o câmbio se a apresentação for muito depois de 11/08/2026 | Ota |
