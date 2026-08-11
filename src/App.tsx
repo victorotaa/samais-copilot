@@ -392,7 +392,7 @@ export default function App() {
   const [operatorName, setOperatorName] = useState('Mariana S.');
   const [operatorId, setOperatorId] = useState('TARM-04');
   const [loginMatricula, setLoginMatricula] = useState('TARM-04');
-  const [loginPassword, setLoginPassword] = useState('SamaisDemo2026');
+  const [loginPassword, setLoginPassword] = useState('');
   const [roster, setRoster] = useState<Record<string, Record<string, string>>>(buildInitialRoster);
   const [userIds, setUserIds] = useState<Record<string, string>>({});
   const [myWeek, setMyWeek] = useState(0);
@@ -477,10 +477,9 @@ export default function App() {
     return vehicles.filter(v => v.type.includes('USA') || v.type.includes('USB')).sort((a, b) => a.eta - b.eta);
   }, [vehicles]);
 
-  // Maps Demo Key — strictly for prototyping (Maps Embed API, restrita por
-  // referrer no Google Cloud). Sobrescrevível por env em produção.
-  const MAPS_DEMO_KEY = 'AIzaSyCoGU5ALKohNGruaHB6ch2VWVTdi2WG_HA';
-  const GMAPS_KEY = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) || MAPS_DEMO_KEY;
+  // Chave do Maps só por env (SEC-01). Sem a variável, os mapas caem no embed
+  // público keyless — nenhuma credencial vive no código-fonte.
+  const GMAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
   const mapFilter = theme === 'dark' ? 'invert(90%) hue-rotate(180deg) contrast(110%)' : 'none';
 
   const MapIframe = useMemo(() => {
@@ -970,8 +969,8 @@ export default function App() {
             <div className="p-4 bg-elevated border border-border-subtle rounded-xl mt-2 flex items-start gap-3">
               <Icon name="fingerprint" className="text-ai text-xl mt-0.5" />
               <div>
-                <p className="text-xs font-bold text-ink-primary">Verificação Biométrica MFA</p>
-                <p className="text-[0.65rem] text-ink-secondary font-mono mt-1">Requisito LGPD para acesso a dados sensíveis (PII).</p>
+                <p className="text-xs font-bold text-ink-primary">MFA (TOTP) — habilitação em produção</p>
+                <p className="text-[0.65rem] text-ink-secondary font-mono mt-1">Segundo fator obrigatório para perfis com acesso a dados pessoais.</p>
               </div>
             </div>
 
@@ -1433,7 +1432,7 @@ export default function App() {
                 
                 <div className="p-5 flex flex-col gap-5 lg:overflow-y-auto">
                   <div className="text-[0.6rem] font-mono text-ink-tertiary flex items-center gap-2 flex-wrap">
-                    <Icon name="server" className="text-ink-tertiary" /> STT Deepgram Nova-2 · 118ms · LLM Gemini · confiança 98.4%
+                    <Icon name="server" className="text-ink-tertiary" /> Triagem assistida em simulação · roteiro de demonstração (sem transcrição real)
                   </div>
 
                   {/* Risk Classification */}
@@ -2462,12 +2461,12 @@ export default function App() {
                 <Icon name="lock" className="text-ok text-lg" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-ok uppercase tracking-widest mb-1">AES-256 · CONFORMIDADE LGPD (LEI 13.709/2018)</div>
-                <div className="text-[0.65rem] text-ok/70 truncate">Dados deste painel são estritamente estatísticos e anonimizados. Trânsito via túnel criptografado. Cadeia de custódia imutável com hash SHA-256 em cada registro.</div>
+                <div className="text-xs font-bold text-ok uppercase tracking-widest mb-1">DESENHO LGPD-FIRST (LEI 13.709/2018)</div>
+                <div className="text-[0.65rem] text-ok/70 truncate">Este painel exibe apenas dados agregados, sem informação pessoal do paciente. Trilha de auditoria append-only por usuário; encadeamento criptográfico dos registros em homologação.</div>
               </div>
               <div className="shrink-0 text-right">
-                <div className="px-2 py-1 rounded border border-ok/30 text-[0.65rem] font-bold text-ok mb-1">Auditável</div>
-                <div className="text-[0.55rem] text-ok/50 uppercase tracking-widest">TCU · MP · ANPD</div>
+                <div className="px-2 py-1 rounded border border-ok/30 text-[0.65rem] font-bold text-ok mb-1">Rastreável</div>
+                <div className="text-[0.55rem] text-ok/50 uppercase tracking-widest">AUDITORIA · PERFIS · RLS</div>
               </div>
             </div>
 
@@ -2482,17 +2481,16 @@ export default function App() {
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
                 <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{Math.round(118 * bf)}</div>
                 <div className="text-xs text-gold-500/70">8,2% do total · faixa nacional 5,8–9,7%</div>
-                <div className="absolute bottom-4 right-4 px-2 py-1 rounded bg-gold-500/10 border border-gold-500/30 text-xs font-mono font-bold text-gold-500">R$ 38k</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ok">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">T. MÉDIO REGULAÇÃO</div>
                 <div className="text-4xl font-disp font-bold text-ok mb-2">1m 12s</div>
-                <div className="text-xs text-ok/70"><Icon name="arrow-trend-down" /> -45s vs Média Nac.</div>
+                <div className="text-xs text-ok/70">da chamada atendida à decisão do regulador · demonstração</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-danger">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">DESPACHOS USA (VERMELHO)</div>
                 <div className="text-4xl font-disp font-bold text-danger mb-2">{Math.round(94 * bf)}</div>
-                <div className="text-xs text-ink-secondary">Acurácia (Ground Truth): <span className="text-ok">96.8%</span></div>
+                <div className="text-xs text-ink-secondary">Meta de acurácia da classificação: <span className="text-ok">&ge;90%</span> · critério de go-live</div>
               </div>
             </div>
 
@@ -2619,16 +2617,16 @@ export default function App() {
                     ))}
                   </tbody>
                 </table>
-                <div className="text-[0.6rem] font-mono text-ink-tertiary mt-2">Clique numa linha para abrir o registro de atendimento (FHIR R4 · base APH-BR · interoperável com o PEP OS)</div>
+                <div className="text-[0.6rem] font-mono text-ink-tertiary mt-2">Clique numa linha para abrir o registro de atendimento em estrutura FHIR R4 (pré-visualização de formato)</div>
               </div>
             </div>
             {fhirRecord && (
               <div className="fixed inset-0 z-[700] bg-canvas/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setFhirRecord(null)}>
                 <div className="bg-surface border border-border-default rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
                   <div>
-                    <div className="eyebrow mb-1">REGISTRO DE ATENDIMENTO · FHIR R4 · APH-BR</div>
+                    <div className="eyebrow mb-1">REGISTRO DE ATENDIMENTO · ESTRUTURA FHIR R4</div>
                     <h3 className="text-xl font-disp font-bold text-ink-primary">Ocorrência #{fhirRecord.id}</h3>
-                    <p className="text-xs text-ink-secondary">Estrutura interoperável — pronta para handoff ao PEP OS (continuidade do cuidado)</p>
+                    <p className="text-xs text-ink-secondary">Pré-visualização do formato de saída — a interoperabilidade com sistemas externos é etapa de roadmap</p>
                   </div>
                   <pre className="bg-elevated border border-border-subtle rounded-lg p-4 text-[0.65rem] font-mono text-ink-secondary overflow-x-auto leading-relaxed">{JSON.stringify({
                     resourceType: 'Bundle', type: 'document', identifier: { system: 'urn:samais:aph-br', value: `OCC-${fhirRecord.id}` },

@@ -1,7 +1,11 @@
 -- ═══════════════════════════════════════════════════════════════════
 -- Samais CoPilot OS — Seed do tenant demo (CRU São Paulo)
 -- Rodar DEPOIS do schema.sql, no SQL Editor do Supabase.
--- Cria usuários de login real:  tarm-04 / gestor-01  · senha: SamaisDemo2026
+-- Cria os 4 logins operacionais: tarm-04 / reg-02 / usa-01 / gestor-01
+-- ⚠️ ANTES DE RODAR: substitua TROQUE_ESTA_SENHA pela senha do ambiente de
+--    demonstração (nunca comitar a senha real neste arquivo).
+-- ⚠️ Ambiente com dado real: NÃO usar este seed — criar usuários pelo painel
+--    com senha individual e MFA/TOTP obrigatório (SEC-03).
 -- ═══════════════════════════════════════════════════════════════════
 
 -- Tenant e unidades
@@ -20,23 +24,34 @@ insert into auth.users (instance_id, id, aud, role, email, encrypted_password, e
 values
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-3333-3333-333333333301',
    'authenticated', 'authenticated', 'tarm-04@cru-sao-paulo.samais.app',
-   crypt('SamaisDemo2026', gen_salt('bf')), now(),
+   crypt('TROQUE_ESTA_SENHA', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-3333-3333-333333333302',
    'authenticated', 'authenticated', 'gestor-01@cru-sao-paulo.samais.app',
-   crypt('SamaisDemo2026', gen_salt('bf')), now(),
+   crypt('TROQUE_ESTA_SENHA', gen_salt('bf')), now(),
+   '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '33333333-3333-3333-3333-333333333303',
+   'authenticated', 'authenticated', 'reg-02@cru-sao-paulo.samais.app',
+   crypt('TROQUE_ESTA_SENHA', gen_salt('bf')), now(),
+   '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '33333333-3333-3333-3333-333333333304',
+   'authenticated', 'authenticated', 'usa-01@cru-sao-paulo.samais.app',
+   crypt('TROQUE_ESTA_SENHA', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', '');
 
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 select gen_random_uuid(), u.id, u.id::text,
        jsonb_build_object('sub', u.id::text, 'email', u.email), 'email', now(), now(), now()
 from auth.users u
-where u.email in ('tarm-04@cru-sao-paulo.samais.app', 'gestor-01@cru-sao-paulo.samais.app');
+where u.email in ('tarm-04@cru-sao-paulo.samais.app', 'gestor-01@cru-sao-paulo.samais.app',
+                  'reg-02@cru-sao-paulo.samais.app', 'usa-01@cru-sao-paulo.samais.app');
 
--- Vínculo operacional
+-- Vínculo operacional (os 4 papéis da demo)
 insert into usuarios (id, tenant_id, matricula, name, role) values
   ('33333333-3333-3333-3333-333333333301', '11111111-1111-1111-1111-111111111111', 'TARM-04', 'Mariana S.', 'TARM'),
-  ('33333333-3333-3333-3333-333333333302', '11111111-1111-1111-1111-111111111111', 'GESTOR-01', 'Carlos M.', 'GESTOR');
+  ('33333333-3333-3333-3333-333333333302', '11111111-1111-1111-1111-111111111111', 'GESTOR-01', 'Carlos M.', 'GESTOR'),
+  ('33333333-3333-3333-3333-333333333303', '11111111-1111-1111-1111-111111111111', 'REG-02', 'Dr. Paulo R.', 'REGULADOR'),
+  ('33333333-3333-3333-3333-333333333304', '11111111-1111-1111-1111-111111111111', 'USA-01', 'Equipe USA-01', 'VIATURA');
 
 -- Frota (espelha o mock atual da demo)
 insert into viaturas (tenant_id, codigo, tipo, base_id, status, manutencao_prevista) values

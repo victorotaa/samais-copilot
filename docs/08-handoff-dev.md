@@ -18,9 +18,9 @@ Protótipo navegável de alta fidelidade + backend inicial no Supabase. **~15–
 | Frota, escalas (planner do gestor) | ✅ persistem no banco + realtime | — |
 | **Triagem por IA (STT + NLP + Manchester)** | ❌ | **`MOCK_SCRIPTS` determinístico** — sem Deepgram, sem LLM |
 | Integração com PABX da CRU | ❌ | Não existe (arquitetura SIPREC em `docs/05` §3) |
-| Ocorrências ponta a ponta (chamada→despacho→T0–T4) | ❌ | Não persistem ainda — **próximo grande item** |
-| FHIR R4 / APH-BR | ❌ | `JSON.stringify` de mock no Dashboard, não pipeline |
-| Compliance (AES/SHA/audit) | ❌ | Claims declarativos — ver `SECURITY.md` e SEC-20 |
+| Ocorrências ponta a ponta (chamada→despacho→T0–T4) | ✅ persistem desde ago/2026 | inclui desfecho na auditoria; coluna própria é a migration 0002 |
+| FHIR R4 / APH-BR | ❌ | `JSON.stringify` de mock no Dashboard, não pipeline (a UI já rotula como pré-visualização de formato) |
+| Compliance (AES/SHA/audit) | ⚠️ parcial | trilha append-only real; hash-chain **escrito e não aplicado**. Claims da UI higienizados em ago/2026 (SEC-20) — ver `SECURITY.md` e `docs/10` §5 |
 
 ## Rodando localmente
 ```
@@ -33,7 +33,7 @@ Variáveis (`.env`, ver `.env.example`): `VITE_GOOGLE_MAPS_API_KEY`, `VITE_SUPAB
 
 ## Banco
 - `supabase/schema.sql` — tenants, unidades, usuários (por matrícula), viaturas, escalas, ocorrências (com explicabilidade + divergência), despachos (T0–T4), `auditoria` append-only, view `metricas_gestor` (sem PII).
-- `supabase/seed.sql` — tenant demo `cru-sao-paulo`, logins `TARM-04`/`REG-02`/`USA-01`/`GESTOR-01` (senha `SamaisDemo2026`).
+- `supabase/seed.sql` — tenant demo `cru-sao-paulo`, logins `TARM-04`/`REG-02`/`USA-01`/`GESTOR-01`. ⚠️ Substituir `TROQUE_ESTA_SENHA` antes de rodar; a senha não vive no repositório (SEC-01) e o seed precisa ser reaplicado para os 4 papéis existirem no projeto.
 - `supabase/migrations/0001_audit_hash_chain.sql` — **revisar e aplicar**: implementa o hash-chain da auditoria (hoje a coluna existe mas nada a computa — SEC-05).
 
 ## Onde mexer primeiro (ordem sugerida)
