@@ -5,11 +5,17 @@ fotografia, e nenhuma retrata operação, equipe, viatura ou central da Samais.*
 
 | Arquivo | O que é | Onde aparece |
 |---|---|---|
-| `dobra-capa.jpg` | onda de voz que se resolve em malha de dados | banda da capa |
-| `dobra-problema.jpg` | registro manual disperso × malha ordenada | banda da dobra 01 |
-| `dobra-rede.jpg` | rede de pontos conectados | banda da dobra 09 |
+| `dobra-problema.jpg` | registro manual disperso × malha ordenada | dobra 01 · problema |
+| `dobra-copiloto.jpg` | dois caminhos paralelos que nunca se cruzam | dobra 02 · produto |
+| `dobra-capa.jpg` | onda de voz que se resolve em malha de dados | dobra 03 · ciclo |
+| `dobra-prisma.jpg` | feixe atravessando prisma, raios rastreáveis à origem | dobra 05 · inovação |
+| `dobra-fases.jpg` | quatro portais em sequência, cada um mais estreito | dobra 06 · fases |
+| `dobra-rede.jpg` | rede de pontos conectados | dobra 09 · proposta |
 
-Geradas em 11/08/2026 (Higgsfield · nano-banana-pro), com prompt que **excluiu
+A **capa não usa imagem**: é um SVG animado que desenha a onda de voz virando malha de
+dados, uma vez, e descansa. Laço em documento institucional lê como propaganda.
+
+Geradas em 11/08/2026 (Higgsfield · nano-banana-pro), em duas rodadas, com prompt que **excluiu
 explicitamente** pessoas, viaturas, texto, bandeiras e logotipos — justamente para que
 não carreguem afirmação de fato.
 
