@@ -175,6 +175,8 @@ a{color:var(--gold-soft);text-decoration:none}
 /* ---------- SVG DATAVIZ ---------- */
 .viz{padding:32px 26px;margin-bottom:22px}
 .viz svg{width:100%;height:auto;display:block;overflow:visible}
+/* Gráfico não rola na horizontal: no mobile ele muda de forma, não de tamanho. */
+.viz-tall{display:none}
 .viz-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:22px}
 .vt-lbl{font-family:var(--mono);font-size:12px;fill:var(--muted)}
 .vt-n{font-family:var(--mono);font-size:13px;font-weight:500;fill:var(--gold-soft)}
@@ -300,8 +302,8 @@ sup.r{font-family:var(--mono);font-size:9.5px;color:var(--gold);vertical-align:s
   .tbl td:first-child{font-weight:500;font-size:15px;margin-bottom:5px}
   .viz{padding:22px 16px}
   .viz svg{min-width:0}
-  .viz-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .viz-scroll svg{min-width:620px}
+  .viz-wide{display:none}
+  .viz-tall{display:block}
 }
 
 /* ---------- IMPRESSÃO (versão light) ---------- */
@@ -521,7 +523,7 @@ sup.r{font-family:var(--mono);font-size:9.5px;color:var(--gold);vertical-align:s
 
     <div class="glass viz reveal">
       <div class="viz-cap">Linha do tempo da ocorrência</div>
-      <div class="viz-scroll">
+      <div class="viz-wide">
       <svg viewBox="0 0 1000 272" role="img" aria-label="Linha do tempo da ocorrência: T0 despacho confirmado, T1 saída da base, T2 chegada ao local, T3 saída da cena, T4 entrega no hospital. Tempo-resposta é T2 menos T0; ciclo total é T4 menos T0.">
         <line class="ln" x1="60" y1="104" x2="940" y2="104" stroke="#B8954E" stroke-width="2" stroke-linecap="round"/>
         <circle class="dot d1" cx="60"  cy="104" r="7" fill="#0A0A0A" stroke="#B8954E" stroke-width="2.5"/>
@@ -553,7 +555,19 @@ sup.r{font-family:var(--mono);font-size:9.5px;color:var(--gold);vertical-align:s
         <path d="M60,232 L60,242 L940,242 L940,232" fill="none" stroke="#2a2a2a" stroke-width="1"/>
         <text class="vt-s" x="500" y="261" text-anchor="middle">ciclo total · T4 − T0</text>
       </svg>
-      </div>
+    </div>
+    <div class="viz-tall">
+      <svg viewBox="0 0 320 448" role="img" aria-label="Linha do tempo da ocorrência: T0 despacho confirmado na central; T1 saída da base; T2 chegada ao local; T3 saída da cena; T4 entrega no hospital. Tempo-resposta é T2 menos T0; ciclo total é T4 menos T0.">
+        <text class="vt-s" x="0" y="14">T0 · NA CENTRAL</text>
+        <text class="vt-s" x="0" y="32">T1 A T4 · NA CENA, POR TOQUE NO TABLET</text>
+        <line class="ln" x1="46" y1="70" x2="46" y2="350" stroke="#B8954E" stroke-width="2" stroke-linecap="round"/>
+        <circle class="dot d1" cx="46" cy="70" r="6.5" fill="#0A0A0A" stroke="#B8954E" stroke-width="2.5"/><text class="vt-t" x="70" y="75">T0</text><text class="vt-d" x="112" y="75">despacho confirmado</text><circle class="dot d2" cx="46" cy="140" r="6.5" fill="#0A0A0A" stroke="#B8954E" stroke-width="2.5"/><text class="vt-t" x="70" y="145">T1</text><text class="vt-d" x="112" y="145">saída da base</text><circle class="dot d3" cx="46" cy="210" r="6.5" fill="#0A0A0A" stroke="#B8954E" stroke-width="2.5"/><text class="vt-t" x="70" y="215">T2</text><text class="vt-d" x="112" y="215">chegada ao local</text><circle class="dot d4" cx="46" cy="280" r="6.5" fill="#0A0A0A" stroke="#B8954E" stroke-width="2.5"/><text class="vt-t" x="70" y="285">T3</text><text class="vt-d" x="112" y="285">saída da cena</text><circle class="dot d5" cx="46" cy="350" r="6.5" fill="#0A0A0A" stroke="#B8954E" stroke-width="2.5"/><text class="vt-t" x="70" y="355">T4</text><text class="vt-d" x="112" y="355">entrega no hospital</text>
+        <line x1="0" y1="382" x2="320" y2="382" stroke="#262626" stroke-width="1"/>
+        <text class="vt-n" x="0" y="406">tempo-resposta · T2 − T0</text>
+        <text class="vt-s" x="0" y="426">em cena · T3 − T2</text>
+        <text class="vt-s" x="0" y="443">ciclo total · T4 − T0</text>
+      </svg>
+    </div>
     </div>
 
     <div class="g3" style="margin-top:26px">
@@ -766,9 +780,7 @@ sup.r{font-family:var(--mono);font-size:9.5px;color:var(--gold);vertical-align:s
 
     <div class="glass viz reveal">
       <div class="viz-cap">Custo mensal de plataforma · por central · em reais</div>
-      <div class="viz-scroll">
-      <!-- escala: R$ 0 em x=300 · R$ 3.200 em x=960 · k = 660/3200 = 0,20625 px por real.
-           Cada barra é a FAIXA (do mínimo ao máximo), não uma barra a partir de zero. -->
+      <div class="viz-wide">
       <svg viewBox="0 0 1000 250" role="img" aria-label="Custo mensal por central, em reais: transcrição da chamada de 230 a 410; inteligência artificial de 130 a 460; banco, login e tempo real de 130 a 3.070; guarda do áudio de 100 a 500.">
         <text class="vt-s" x="300" y="22" text-anchor="middle">R$ 0</text>
         <text class="vt-s" x="506" y="22" text-anchor="middle">1.000</text>
@@ -799,7 +811,17 @@ sup.r{font-family:var(--mono);font-size:9.5px;color:var(--gold);vertical-align:s
         <rect x="300" y="204" width="660" height="16" rx="3" fill="#151515"/>
         <rect class="bar b4" x="320.6" y="204" width="82.5" height="16" rx="3" fill="#B8954E" opacity=".7"/>
       </svg>
-      </div>
+    </div>
+    <div class="viz-tall">
+      <svg viewBox="0 0 320 400" role="img" aria-label="Custo mensal por central, em reais: transcrição da chamada de 230 a 410; inteligência artificial de 130 a 460; banco, login e tempo real de 130 a 3.070; guarda do áudio de 100 a 500.">
+        <text class="vt-s" x="0" y="12">R$ 0</text>
+        <text class="vt-s" x="100" y="12" text-anchor="middle">1.000</text>
+        <text class="vt-s" x="200" y="12" text-anchor="middle">2.000</text>
+        <text class="vt-s" x="300" y="12" text-anchor="middle">3.000</text>
+        <line x1="0" y1="20" x2="320" y2="20" stroke="#1c1c1c" stroke-width="1"/><line x1="100" y1="20" x2="100" y2="382" stroke="#1c1c1c" stroke-width="1"/><line x1="200" y1="20" x2="200" y2="382" stroke="#1c1c1c" stroke-width="1"/><line x1="300" y1="20" x2="300" y2="382" stroke="#1c1c1c" stroke-width="1"/>
+        <text class="vt-lbl" x="0" y="54">Transcrição da chamada</text><text class="vt-n" x="0" y="73">R$ 230 – 410</text><rect x="0" y="83" width="320" height="15" rx="3" fill="#151515"/><rect class="bar b1" x="23.0" y="83" width="18.0" height="15" rx="3" fill="#B8954E"/><text class="vt-lbl" x="0" y="140">Inteligência artificial</text><text class="vt-n" x="0" y="159">R$ 130 – 460</text><rect x="0" y="169" width="320" height="15" rx="3" fill="#151515"/><rect class="bar b2" x="13.0" y="169" width="33.0" height="15" rx="3" fill="#B8954E"/><text class="vt-lbl" x="0" y="226">Banco, login e tempo real</text><text class="vt-n" x="0" y="245">R$ 130 – 3.070</text><rect x="0" y="255" width="320" height="15" rx="3" fill="#151515"/><rect class="bar b3" x="13.0" y="255" width="294.0" height="15" rx="3" fill="#B8954E"/><text class="vt-lbl" x="0" y="312">Guarda do áudio</text><text class="vt-n" x="0" y="331">R$ 100 – 500</text><rect x="0" y="341" width="320" height="15" rx="3" fill="#151515"/><rect class="bar b4" x="10.0" y="341" width="40.0" height="15" rx="3" fill="#B8954E"/>
+      </svg>
+    </div>
     </div>
 
     <div class="stats" style="margin-top:8px">
