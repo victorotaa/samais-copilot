@@ -1,5 +1,10 @@
 # Análise do Estado Atual — Samais CoPilot OS
 
+> ⚠️ **Registro histórico (pré-backend).** Este documento retrata o repositório antes do
+> Supabase, da persistência do ciclo da ocorrência e da higienização de claims. Mantido
+> como memória da evolução. **O retrato vigente é
+> [`docs/10-analise-maturidade.md`](./10-analise-maturidade.md).**
+
 > Snapshot técnico e de produto do repositório `victorotaa/samais-copilot` na branch `claude/nice-thompson-biqdli`.
 
 ## 1. Stack e configuração
