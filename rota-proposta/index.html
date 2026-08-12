@@ -8,20 +8,41 @@
 <title>ROTA · Samais Transporte Sanitário</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;font-size:16px}
 :root{
-  --bg:#04060C;--bg2:#0A0E18;--bg3:#0D1220;
-  --border:#171C28;--border2:#28303F;
-  --gold:#D4A857;--gold2:#B8913F;--gold-rgb:212,168,87;
-  --text:#EDEAE2;--sub:#B0AEA5;--muted:#9A968C;
-  --green:#5F8C6A;--green-rgb:95,140,106;
-  --amber:#DD8D0C;--amber-rgb:221,141,12;
-  --nav:270px;--r:6px;
+  /* ── Sistema canônico Samais · espelha lp/index.html ── */
+  --canvas:#070708; --surface:#0E0E10; --elevated:#161618;
+  --border-subtle:#1F1F22; --border-default:#2A2B33; --border-strong:#3A3B45;
+  --ink:#F4F4F5; --ink-2:#A8A8B0; --ink-3:#6E6E78; --on-gold:#070708;
+  --gold-300:#EAC97A; --gold-500:#BF9A3D; --gold-600:#A18230; --gold-rgb:191,154,61;
+  --ok:#43A047; --warn:#FDD835; --danger:#E53935; --info:#1E88E5; --ai:#00D4A8;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+  color-scheme:dark;
+
+  /* ── Aliases internos deste documento ── */
+  --bg:var(--canvas); --bg2:var(--surface); --bg3:var(--elevated);
+  --border:var(--border-subtle); --border2:var(--border-default);
+  --gold:var(--gold-500); --gold2:var(--gold-600);
+  --text:var(--ink); --sub:var(--ink-2); --muted:var(--ink-3);
+  --green:var(--ok); --green-rgb:67,160,71;
+  --red:var(--danger);
+  --amber:var(--warn); --amber-rgb:253,216,53;
+  --nav:270px; --r:6px;
 }
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+:root[data-theme="light"]{
+  --canvas:#FAFAF7; --surface:#FFFFFF; --elevated:#F1F1ED;
+  --border-subtle:#E4E4DE; --border-default:#D1D1C9; --border-strong:#B7B7AD;
+  --ink:#1A1A17; --ink-2:#52524C; --ink-3:#828279; --on-gold:#070708;
+  --gold-300:#8A6E28; --gold-500:#A88230; --gold-600:#7E6624;
+  --ok:#2E7D32; --warn:#B58A00; --danger:#C62828; --info:#1565C0; --ai:#00875F;
+  color-scheme:light;
+}
+::selection{background:var(--gold-500);color:var(--on-gold)}
+:focus-visible{outline:3px solid var(--gold-500);outline-offset:2px;border-radius:6px}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 .wrap{display:flex;min-height:100vh}
 .nav{width:var(--nav);position:fixed;top:0;left:0;bottom:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .nav::-webkit-scrollbar{width:2px}
@@ -45,7 +66,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-
 .sec{padding:100px 80px;border-bottom:1px solid var(--border)}
 .ct{max-width:1100px;margin:0 auto}
 .ew{display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
-.ew::before{content:'';width:28px;height:1px;background:var(--gold);opacity:.5}
+.ew::before{content:'';width:28px;height:1px;background:var(--gold-500);opacity:.6}
 .t1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(38px,4vw,54px);line-height:1.08;letter-spacing:-.025em;color:var(--text);margin-bottom:18px}
 .t2{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;color:var(--text);letter-spacing:-.01em;margin:44px 0 14px;line-height:1.2}
 .lead{font-size:17px;color:var(--sub);max-width:660px;line-height:1.75;margin-bottom:52px}

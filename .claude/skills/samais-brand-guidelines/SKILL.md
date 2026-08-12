@@ -20,36 +20,68 @@ proposta, teaser, estudo municipal, apresentação, branding saúde.
 
 ## Tokens de cor
 
-**Base (fundos):**
-- Fundo primário: `#04060C` (navy-black profundo) — variável CSS `--bg`
-- Fundo elevado/cards: `#0A0E18` a `#0D1220`
-- Bordas sutis: `rgba(212,168,87,.14)` ou `rgba(255,255,255,.06)`
+> **Referência viva:** `lp/index.html` no repositório `samais-copilot`.
+> Em caso de divergência entre este arquivo e a LP, **a LP vence** — ela é
+> o que foi efetivamente publicado. Sincronize este documento, não o
+> contrário.
 
-**Acento (autoridade):**
-- Dourado Samais: `#D4A857` — variável CSS `--gold` — títulos-chave,
-  números de destaque, linhas divisórias, ícones
-- Dourado atenuado: `rgba(212,168,87,.55)` para labels e kickers
+O sistema é de **escalas nomeadas**, não de cores avulsas. Copie o bloco
+inteiro; não invente variações intermediárias.
 
-**Texto:**
-- Primário sobre escuro: `#EDEAE2` (off-white quente)
-- Secundário: `#9A968C` a `#B0AEA5`
-- Nunca branco puro `#FFFFFF` em blocos longos de texto
+```css
+:root{
+  --canvas:#070708; --surface:#0E0E10; --elevated:#161618;
+  --border-subtle:#1F1F22; --border-default:#2A2B33; --border-strong:#3A3B45;
+  --ink:#F4F4F5; --ink-2:#A8A8B0; --ink-3:#6E6E78; --on-gold:#070708;
+  --gold-300:#EAC97A; --gold-500:#BF9A3D; --gold-600:#A18230; --gold-rgb:191,154,61;
+  --ok:#43A047; --warn:#FDD835; --danger:#E53935; --info:#1E88E5; --ai:#00D4A8;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --canvas:#FAFAF7; --surface:#FFFFFF; --elevated:#F1F1ED;
+  --border-subtle:#E4E4DE; --border-default:#D1D1C9; --border-strong:#B7B7AD;
+  --ink:#1A1A17; --ink-2:#52524C; --ink-3:#828279; --on-gold:#070708;
+  --gold-300:#8A6E28; --gold-500:#A88230; --gold-600:#7E6624;
+  --ok:#2E7D32; --warn:#B58A00; --danger:#C62828; --info:#1565C0; --ai:#00875F;
+  color-scheme:light;
+}
+```
 
-**Semânticas (usar com parcimônia):**
-- Alerta/risco: âmbar `#DD8D0C` (fundo `rgba(221,141,12,.12)`)
-- Crítico: `#C20D2F`
-- Positivo/validado: verde sóbrio `#5F8C6A`
+**Como usar cada escala:**
+- `--canvas` é o fundo da página; `--surface` são cards e blocos;
+  `--elevated` é o estado de hover ou o segundo nível de elevação
+- `--gold-500` é o ouro de assinatura — bordas, ícones, números-chave.
+  `--gold-300` é o ouro claro, para eyebrows e labels sobre escuro.
+  `--gold-600` fecha gradientes e estados pressionados
+- `--ink` / `--ink-2` / `--ink-3` são texto primário, secundário e
+  terciário. Nunca `#FFFFFF` puro em bloco longo
+- `--ai:#00D4A8` marca superfícies de IA e CoPilot OS — é o único acento
+  não-dourado do sistema, e não deve aparecer em peça sem componente de IA
+
+**Detalhes que fazem a peça parecer nossa:**
+```css
+::selection{background:var(--gold-500);color:var(--on-gold)}
+:focus-visible{outline:3px solid var(--gold-500);outline-offset:2px;border-radius:6px}
+.eyebrow{color:var(--gold-300)}
+.eyebrow::before{content:'';width:28px;height:1px;background:var(--gold-500);opacity:.6}
+```
 
 ## Tipografia
 
 - **Display/Títulos**: Syne (600–800) — headlines, números de seção,
   dados de impacto. Fallback: Arial Black.
-- **Corpo**: Inter (400/500) — parágrafos, tabelas, UI. Fallback: Arial.
+- **Corpo**: Plus Jakarta Sans (400/500/600) — parágrafos, tabelas, UI.
+  Fallback: `system-ui, sans-serif`. **Não usar Inter** — foi uma iteração
+  descartada e destoa das peças publicadas.
 - **Dados/Labels técnicos**: JetBrains Mono (400/500) — valores
   monetários, métricas, códigos de lei, IDs, eixos de gráfico.
   Fallback: Courier New.
-- Import padrão (HTML):
-  `https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap`
+- Import padrão (HTML) — o mesmo da LP:
+  `https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap`
+- Em **Artifact** da claude.ai o CSP bloqueia CDN de fonte: baixar os WOFF2
+  (subsets `latin` e `latin-ext`) e embutir como `@font-face` data URI,
+  senão a peça cai silenciosamente para Arial.
 
 ## Regras de aplicação
 
