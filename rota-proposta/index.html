@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <meta name="description" content="ROTA · Samais Transporte Sanitário — proposta técnica e comercial para municípios e consórcios">
 <title>ROTA · Samais Transporte Sanitário</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -168,8 +169,8 @@ td strong{color:var(--text);font-weight:600}
 </head>
 <body>
 
-<div class="overlay" id="ov" onclick="closeNav()"></div>
-<button class="ham" id="ham" onclick="toggleNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+<div class="overlay" id="ov"></div>
+<button class="ham" id="ham" aria-label="Menu"><span></span><span></span><span></span></button>
 
 <div class="wrap">
 
@@ -655,6 +656,8 @@ td strong{color:var(--text);font-weight:600}
 <script>
 function toggleNav(){document.getElementById('nav').classList.toggle('open');document.getElementById('ov').classList.toggle('on')}
 function closeNav(){document.getElementById('nav').classList.remove('open');document.getElementById('ov').classList.remove('on')}
+document.getElementById('ham').addEventListener('click',toggleNav);
+document.getElementById('ov').addEventListener('click',closeNav);
 document.querySelectorAll('.nav-item a').forEach(a=>{a.addEventListener('click',()=>{if(window.innerWidth<=768)closeNav()})});
 window.addEventListener('scroll',()=>{const h=document.documentElement;const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;document.getElementById('npb').style.width=Math.min(pct,100)+'%'});
 const secs=document.querySelectorAll('section[id]');
