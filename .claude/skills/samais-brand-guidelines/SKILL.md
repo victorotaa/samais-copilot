@@ -20,10 +20,14 @@ proposta, teaser, estudo municipal, apresentação, branding saúde.
 
 ## Tokens de cor
 
-> **Referência viva:** `lp/index.html` no repositório `samais-copilot`.
-> Em caso de divergência entre este arquivo e a LP, **a LP vence** — ela é
-> o que foi efetivamente publicado. Sincronize este documento, não o
-> contrário.
+> **Fonte única de tokens:** `samais-pep/design/samais-pep-os-design-tokens.json`
+> (v1.0). Implementação de referência publicada: `lp/index.html` em
+> `samais-copilot`. Em divergência, vence o JSON; depois a LP; este
+> documento por último. **Sincronize este arquivo, nunca o contrário.**
+>
+> ⚠ Este arquivo existe em duas cópias — a sincronizada na conta
+> (`~/.claude/skills/synced/`) e a do repositório. **A carregada é a
+> sincronizada.** Toda correção precisa chegar nela, ou não vale.
 
 O sistema é de **escalas nomeadas**, não de cores avulsas. Copie o bloco
 inteiro; não invente variações intermediárias.
@@ -86,7 +90,8 @@ inteiro; não invente variações intermediárias.
 ## Regras de aplicação
 
 1. **Hierarquia**: kicker em caps pequenas douradas → título Syne grande
-   → deck/parágrafo de abertura em Inter com line-height generoso (1.6+).
+   → deck/parágrafo de abertura em Plus Jakarta Sans com line-height
+   generoso (1.6+).
 2. **Dados sempre em JetBrains Mono** — valores em R$, percentuais, BDI,
    populações, frotas. Nunca dados em Syne.
 3. **Dourado é escasso**: no máximo ~10% da superfície visual. Se tudo é
@@ -104,7 +109,7 @@ inteiro; não invente variações intermediárias.
 7. **Cenários**: Mínimo / Base / Amplo, sempre nesta ordem, em cards ou
    colunas comparáveis.
 8. **Gráficos** (Chart.js/Recharts): fundo transparente, grid
-   `rgba(255,255,255,.05)`, série principal em `#D4A857`, séries
+   `rgba(255,255,255,.05)`, série principal em `var(--gold-500)`, séries
    secundárias em tons de cinza-quente; labels em JetBrains Mono.
 
 ## Aplicação por tipo de artefato
@@ -112,12 +117,12 @@ inteiro; não invente variações intermediárias.
 - **HTML single-file (dossiês/estudos)**: dark mode obrigatório,
   navegação lateral fixa em desktop, seções numeradas (00, 01, 02...),
   responsivo até 380px.
-- **Slides/PPTX**: fundo `#04060C`, um conceito por slide, número de
+- **Slides/PPTX**: fundo `var(--canvas)` `#070708`, um conceito por slide, número de
   destaque em Syne + dourado, corpo mínimo.
 - **PDF/impresso**: manter dark-luxury em capas e divisórias; miolo pode
   invertido (fundo claro `#FAF9F5`, texto `#141413`, acentos dourados)
   para legibilidade de impressão.
-- **Docs Word/relatórios FRIO**: sóbrio, tipografia Inter, dourado apenas
+- **Docs Word/relatórios FRIO**: sóbrio, tipografia Plus Jakarta Sans, dourado apenas
   em elementos estruturais (linhas, numeração).
 
 ## O que NUNCA fazer
@@ -131,14 +136,14 @@ inteiro; não invente variações intermediárias.
 
 ---
 
-## Adendo v2 — Raio-X das interações (jun–jul/2026)
+## Regras acumuladas (jun–jul/2026)
 
-Decisões acumuladas no fluxo de branding desde o início; **prevalecem sobre o texto acima em caso de conflito**:
+Itens 1 e 2 do antigo Adendo v2 foram absorvidos nas seções de Tokens e
+Tipografia acima — não há mais conflito a resolver. O que segue são as
+regras que não têm seção própria:
 
-1. **Fonte única de tokens:** `samais-pep/design/samais-pep-os-design-tokens.json` (v1.0). Gold canônico **#BF9A3D** (dark) / #A88230 (light). Canvas #070708.
-2. **Tipografia:** Syne (display) · **Plus Jakarta Sans** (corpo — *Inter foi descontinuada em toda a família*) · JetBrains Mono (dados/eyebrows).
-3. **Regra de contraste do logotipo (obrigatória):** nunca cor fixa em UI — variantes currentColor herdando token semântico; wordmark branca no escuro / preta no claro; monograma SA+ sempre gold-500 semântico; contraste ≥3:1 (WCAG 1.4.11); em `<img>` currentColor NÃO funciona — inline o SVG.
-4. **Dataviz Samais:** nunca dual-axis; nunca pizza >3 fatias; golds tonais NÃO formam paleta categórica (reprovam CVD) — usar série única por gráfico ou cores de status/Manchester com rótulo direto; validar paleta por script antes de publicar.
-5. **Voz e claims:** linha-mestra "cada segundo conta"; postura do CoPilot é **100% passiva** (escuta, não interfere); **nenhum claim sem lastro** — ex.: taxa de trote real nacional é 5,8–9,7% (nunca usar 29%); métricas de demo sempre rotuladas.
-6. **Assinatura visual:** top border ouro 2px em cards de dados; eyebrow mono uppercase gold-300; easing editorial 240ms cubic-bezier(0.22,1,0.36,1); ouro é sinal, não decoração (bordas neutras).
-7. **Fotografia:** somente banco documental Samais (Drive → Samais 2026/Banco de Imagens) — zero stock.
+1. **Regra de contraste do logotipo (obrigatória):** nunca cor fixa em UI — variantes currentColor herdando token semântico; wordmark branca no escuro / preta no claro; monograma SA+ sempre gold-500 semântico; contraste ≥3:1 (WCAG 1.4.11); em `<img>` currentColor NÃO funciona — inline o SVG.
+2. **Dataviz Samais:** nunca dual-axis; nunca pizza >3 fatias; golds tonais NÃO formam paleta categórica (reprovam CVD) — usar série única por gráfico ou cores de status/Manchester com rótulo direto; validar paleta por script antes de publicar.
+3. **Voz e claims:** linha-mestra "cada segundo conta"; postura do CoPilot é **100% passiva** (escuta, não interfere); **nenhum claim sem lastro** — ex.: taxa de trote real nacional é 5,8–9,7% (nunca usar 29%); métricas de demo sempre rotuladas.
+4. **Assinatura visual:** top border ouro 2px em cards de dados; eyebrow mono uppercase gold-300; easing editorial 240ms cubic-bezier(0.22,1,0.36,1); ouro é sinal, não decoração (bordas neutras).
+5. **Fotografia:** somente banco documental Samais (Drive → Samais 2026/Banco de Imagens) — zero stock.
