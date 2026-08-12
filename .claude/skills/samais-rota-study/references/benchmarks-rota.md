@@ -17,7 +17,8 @@ Fonte primária. Atualizar quando sair novo censo.
 
 | Parâmetro | Valor | Fonte |
 |---|---|---|
-| Prevalência de diálise | **812 pmp** | Censo Brasileiro de Diálise 2024 · SBN |
+| Prevalência de diálise · média nacional | **812 pmp** | Censo Brasileiro de Diálise 2024 · SBN |
+| Prevalência · dispersão estadual conhecida | **431 – 806 pmp** | Censo SBN 2024 · Maranhão e Pernambuco |
 | Incidência de diálise | 249 pmp | Censo Brasileiro de Diálise 2024 · SBN |
 | Fração em modalidade de centro (HD + HDF) | **94,4%** | SBN 2024 · 87,3% HD + 7,1% HDF |
 | Fração em diálise peritoneal (domiciliar, sem transporte) | 5,6% | SBN 2024 |
@@ -37,17 +38,36 @@ Fonte primária. Atualizar quando sair novo censo.
 ### Fórmulas de dimensionamento
 
 ```
-Pacientes em diálise de centro = População × 812/1e6 × 0,944
+# Diálise — usar a taxa ESTADUAL quando disponível.
+# Na ausência dela, calcular os dois extremos e apresentar banda.
+prev_centro    = prev_estadual_pmp × 0,944        # se conhecida
+prev_teto      = 812 × 0,944 = 766 pmp            # média nacional
+prev_piso      = 431 × 0,944 = 407 pmp            # menor estado conhecido
+
+Pacientes em diálise de centro = População × prev_centro/1e6
 Viagens HD (ida e volta)/ano   = Pacientes × 156
 
+# Oncologia — taxa nacional, ainda sem ajuste regional apurado.
 Casos oncológicos novos/ano    = População × 2.427/1e6
 Pacientes em radioterapia/ano  = Casos × 0,50
 Viagens RT (ida e volta)/ano   = Pacientes RT × 25
 ```
 
 **Benchmark consolidado:** as duas linhas cofinanciadas somam
-**≈ 0,15 viagem por habitante por ano**. Use como verificação rápida —
-se a modelagem de um município divergir muito disso, há erro de conta.
+**0,09 a 0,15 viagem por habitante por ano**. Use como verificação rápida —
+se a modelagem divergir muito dessa faixa, há erro de conta.
+
+> ⚠ **Nunca aplique os 812 pmp nacionais a carteira do Norte ou Nordeste
+> sem ajuste.** O censo registra prevalência menor nessas regiões, com
+> dispersão grande entre estados — Pernambuco em 806 pmp contra Maranhão
+> em 431. Aplicar a média nacional **superestima** a demanda transportável
+> em até 88%. Na ausência da taxa estadual, apresentar **banda**: teto pela
+> média nacional, piso pela proporção do estado de menor prevalência
+> conhecido na carteira. Nunca um número pontual.
+>
+> A prevalência menor reflete **menos acesso**, não menos doença — e para
+> transporte isso é a métrica certa, porque só se transporta paciente já
+> inscrito em programa.
 
 > Transporte eletivo geral (consultas, exames, cirurgias, TFD) **não tem
 > parâmetro confiável** e não está neste benchmark. Historicamente supera

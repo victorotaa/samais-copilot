@@ -373,7 +373,7 @@ td strong{color:var(--text);font-weight:600}
     <h2 class="t1">O essencial<br>em números.</h2>
     <p class="lead">Resultado da modelagem antes do detalhamento.</p>
 
-    <p>A carteira de 21 municípios soma <strong>1.274.963 habitantes</strong> distribuídos por seis estados. A modelagem de demanda, ancorada na prevalência real de terapia renal substitutiva e na incidência de câncer, projeta cerca de <strong>191 mil viagens de ida e volta por ano</strong> apenas nas duas linhas cofinanciadas pelo marco federal de maio de 2026.</p>
+    <p>A carteira de 21 municípios soma <strong>1.274.963 habitantes</strong> distribuídos por seis estados. A modelagem de demanda, ancorada na prevalência real de terapia renal substitutiva e na incidência de câncer, projeta entre <strong>120 e 191 mil viagens de ida e volta por ano</strong> apenas nas duas linhas cofinanciadas pelo marco federal de maio de 2026. A amplitude não é imprecisão de método — é a dispersão real da prevalência de diálise entre os estados da carteira, tratada na Parte 03.</p>
     <p>A precificação per capita varia por faixa de distância ao polo de referência, de <strong>R$ 0,68 a R$ 2,03 por habitante ao mês</strong>. Mas o determinante de viabilidade não é o preço per capita — é o <strong>piso de custo fixo</strong>. Central de regulação, roteirização e coordenação custam o mesmo para 6 mil ou 300 mil habitantes, e é isso que elimina cinco municípios da carteira.</p>
 
     <div class="dc-grid">
@@ -383,12 +383,12 @@ td strong{color:var(--text);font-weight:600}
         <div class="dc-sub">IBGE 2025 · 21 municípios</div>
       </div>
       <div class="dc">
-        <div class="dc-num">977</div>
+        <div class="dc-num">520–977</div>
         <div class="dc-label">Pacientes em Diálise</div>
-        <div class="dc-sub">Prevalência SBN 2024 aplicada</div>
+        <div class="dc-sub">Banda regional · ver Parte 03</div>
       </div>
       <div class="dc">
-        <div class="dc-num">191<span class="u">mil</span></div>
+        <div class="dc-num">120–191<span class="u">mil</span></div>
         <div class="dc-label">Viagens Ida e Volta / Ano</div>
         <div class="dc-sub">Hemodiálise + radioterapia</div>
       </div>
@@ -431,7 +431,8 @@ td strong{color:var(--text);font-weight:600}
         <thead><tr><th>Parâmetro</th><th>Valor</th><th>Fonte</th></tr></thead>
         <tbody>
           <tr><td data-label="Parâmetro">População dos 21 municípios</td><td class="tg" data-label="Valor">1.274.963</td><td data-label="Fonte">IBGE · Estimativa de 1º/jul/2025, publicada no DOU</td></tr>
-          <tr><td data-label="Parâmetro">Prevalência de diálise</td><td class="tg" data-label="Valor">812 pmp</td><td data-label="Fonte">Censo Brasileiro de Diálise 2024 · SBN</td></tr>
+          <tr><td data-label="Parâmetro">Prevalência de diálise · média nacional</td><td class="tg" data-label="Valor">812 pmp</td><td data-label="Fonte">Censo Brasileiro de Diálise 2024 · SBN</td></tr>
+          <tr><td data-label="Parâmetro">Prevalência de diálise · dispersão estadual conhecida</td><td class="tg" data-label="Valor">431 – 806 pmp</td><td data-label="Fonte">Censo SBN 2024 · Maranhão e Pernambuco</td></tr>
           <tr><td data-label="Parâmetro">Incidência de diálise</td><td class="tg" data-label="Valor">249 pmp</td><td data-label="Fonte">Censo Brasileiro de Diálise 2024 · SBN</td></tr>
           <tr><td data-label="Parâmetro">Modalidade em centro (HD + HDF)</td><td class="tg" data-label="Valor">94,4%</td><td data-label="Fonte">Censo SBN 2024 · 87,3% HD + 7,1% HDF</td></tr>
           <tr><td data-label="Parâmetro">Incidência de câncer no Brasil</td><td class="tg" data-label="Valor">781 mil/ano</td><td data-label="Fonte">INCA · Estimativa 2026–2028</td></tr>
@@ -476,19 +477,26 @@ td strong{color:var(--text);font-weight:600}
     <p>O transporte sanitário eletivo tem uma característica que o distingue da urgência: a demanda é <strong>previsível e repetitiva</strong>. Um paciente em hemodiálise faz o mesmo trajeto três vezes por semana, indefinidamente. Um paciente em radioterapia faz o mesmo trajeto por 25 dias consecutivos. Isso permite dimensionar frota e rota com precisão que a operação de urgência nunca alcança — e é a razão pela qual o modelo suporta contrato de preço fixo.</p>
 
     <h3 class="t2">Terapia renal substitutiva</h3>
-    <p>O Censo Brasileiro de Diálise de 2024 estimou <strong>172.585 pacientes em diálise</strong> no país em 1º de julho daquele ano, com prevalência de <strong>812 por milhão de habitantes</strong> — curva ascendente contínua desde 2014, quando era de 552 pmp. Descontada a diálise peritoneal, que é domiciliar e não gera transporte, restam 94,4% em modalidade de centro.</p>
+    <p>O Censo Brasileiro de Diálise de 2024 estimou <strong>172.585 pacientes em diálise</strong> no país em 1º de julho daquele ano, com prevalência nacional de <strong>812 por milhão de habitantes</strong> — curva ascendente contínua desde 2014, quando era de 552 pmp. Descontada a diálise peritoneal, que é domiciliar e não gera transporte, restam 94,4% em modalidade de centro.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">Por que aqui a resposta é uma banda, e não um número</div>
+      <p>A média nacional <strong>não se aplica a esta carteira</strong>. O próprio censo registra prevalência menor no Nordeste, com dispersão grande entre estados: <strong>Pernambuco em 806 pmp e Maranhão em 431 pmp</strong> — quase metade. Timon e Coelho Neto somam 225 mil habitantes no Maranhão. Não foi possível obter a taxa de Ceará, Rio Grande do Norte, Piauí e Bahia, de modo que a carteira é apresentada em <strong>banda</strong>: o teto usa a média nacional, o piso usa a proporção observada no estado de menor prevalência.</p>
+    </div>
 
     <div class="tw">
       <table>
-        <thead><tr><th>Cálculo</th><th>Fórmula</th><th>Resultado</th></tr></thead>
+        <thead><tr><th>Cálculo</th><th>Piso</th><th>Teto</th></tr></thead>
         <tbody>
-          <tr><td data-label="Cálculo">Pacientes em diálise na carteira</td><td data-label="Fórmula">1.274.963 × 812 / 1.000.000</td><td class="tg" data-label="Resultado">1.035 pacientes</td></tr>
-          <tr><td data-label="Cálculo">Em modalidade de centro</td><td data-label="Fórmula">1.035 × 94,4%</td><td class="tg" data-label="Resultado">977 pacientes</td></tr>
-          <tr><td data-label="Cálculo">Viagens ida e volta por ano</td><td data-label="Fórmula">977 × 156 sessões</td><td class="tg" data-label="Resultado">152.412 viagens</td></tr>
-          <tr class="tr-hl"><td data-label="Cálculo"><strong>Viagens por dia útil</strong></td><td data-label="Fórmula"><strong>152.412 / 300</strong></td><td data-label="Resultado"><strong>508 viagens/dia</strong></td></tr>
+          <tr><td data-label="Cálculo">Prevalência aplicada · modalidade de centro</td><td class="tn" data-label="Piso">408 pmp</td><td class="tn" data-label="Teto">766 pmp</td></tr>
+          <tr><td data-label="Cálculo">Pacientes em diálise na carteira</td><td class="tg" data-label="Piso">520</td><td class="tg" data-label="Teto">977</td></tr>
+          <tr><td data-label="Cálculo">Viagens ida e volta por ano · 156 sessões</td><td class="tg" data-label="Piso">81.120</td><td class="tg" data-label="Teto">152.412</td></tr>
+          <tr class="tr-hl"><td data-label="Cálculo"><strong>Viagens por dia útil</strong></td><td data-label="Piso"><strong>270</strong></td><td data-label="Teto"><strong>508</strong></td></tr>
         </tbody>
       </table>
     </div>
+
+    <p class="fine">A prevalência observada menor no Nordeste reflete <strong>menos acesso ao diagnóstico e ao tratamento</strong>, não menos doença renal. Para dimensionar transporte isso funciona a favor da precisão: só se transporta paciente já inscrito em programa de diálise, de modo que a taxa regional observada — e não a demanda epidemiológica latente — é a métrica correta. Fechar a banda exige a tabela de prevalência por estado do censo, e é a primeira verificação a fazer antes de qualquer proposta.</p>
 
     <h3 class="t2">Radioterapia</h3>
     <p>O INCA projeta <strong>781 mil novos casos de câncer por ano</strong> no Brasil entre 2026 e 2028, ou aproximadamente 518 mil excluídos os tumores de pele não melanoma — alta incidência, baixa letalidade e sem indicação radioterápica na maioria dos casos. Aplicada à população brasileira de 213,4 milhões, a taxa é de 2.427 casos por milhão.</p>
@@ -498,7 +506,7 @@ td strong{color:var(--text);font-weight:600}
         <thead><tr><th>Cálculo</th><th>Fórmula</th><th>Resultado</th></tr></thead>
         <tbody>
           <tr><td data-label="Cálculo">Casos novos na carteira</td><td data-label="Fórmula">1.274.963 × 2.427 / 1.000.000</td><td class="tg" data-label="Resultado">3.095 casos/ano</td></tr>
-          <tr><td data-label="Cálculo">Com indicação de radioterapia <span class="dm">premissa 50%</span></td><td data-label="Fórmula">3.095 × 50%</td><td class="tg" data-label="Resultado">1.547 pacientes/ano</td></tr>
+          <tr><td data-label="Cálculo">Com indicação de radioterapia <span class="dm">premissa 50% · taxa nacional, sem ajuste regional</span></td><td data-label="Fórmula">3.095 × 50%</td><td class="tg" data-label="Resultado">1.547 pacientes/ano</td></tr>
           <tr><td data-label="Cálculo">Viagens ida e volta por ano</td><td data-label="Fórmula">1.547 × 25 sessões</td><td class="tg" data-label="Resultado">38.675 viagens</td></tr>
           <tr class="tr-hl"><td data-label="Cálculo"><strong>Viagens por dia útil</strong></td><td data-label="Fórmula"><strong>38.675 / 300</strong></td><td data-label="Resultado"><strong>129 viagens/dia</strong></td></tr>
         </tbody>
@@ -507,7 +515,7 @@ td strong{color:var(--text);font-weight:600}
 
     <div class="box box-gold">
       <div class="box-label">Volume consolidado das duas linhas cofinanciadas</div>
-      <p><strong>191.087 viagens de ida e volta por ano</strong>, ou cerca de <strong>637 por dia útil</strong>, apenas em hemodiálise e radioterapia. Este é o volume que a Portaria 11.179/2026 tornou elegível a custeio federal — e é o piso da operação, não o teto. Consultas especializadas, exames de imagem, cirurgias eletivas e TFD geral somam volume adicional que este estudo não modela por ausência de parâmetro confiável, mas que historicamente supera o volume de TRS e oncologia somados.</p>
+      <p>Entre <strong>119.795 e 191.087 viagens de ida e volta por ano</strong>, ou de <strong>399 a 637 por dia útil</strong>, apenas em hemodiálise e radioterapia. Este é o volume que a Portaria 11.179/2026 tornou elegível a custeio federal — e mesmo o teto da banda é o piso da operação, não o seu limite. Consultas especializadas, exames de imagem, cirurgias eletivas e TFD geral somam volume adicional que este estudo não modela por ausência de parâmetro confiável, mas que historicamente supera o volume de TRS e oncologia somados.</p>
     </div>
 
     <p class="fine">A conversão de viagens em frota depende da geometria de cada rota — quantos pacientes compartilham origem, destino e horário. Um veículo de 15 lugares que atende um turno de hemodiálise transporta até 15 pacientes na mesma viagem, e é por isso que o custo por paciente cai drasticamente quando há massa. Municípios com um ou dois pacientes por turno não permitem consolidação e carregam custo de viagem quase individual.</p>

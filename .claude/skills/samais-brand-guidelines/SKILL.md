@@ -20,14 +20,20 @@ proposta, teaser, estudo municipal, apresentação, branding saúde.
 
 ## Tokens de cor
 
-> **Fonte única de tokens:** `samais-pep/design/samais-pep-os-design-tokens.json`
-> (v1.0). Implementação de referência publicada: `lp/index.html` em
-> `samais-copilot`. Em divergência, vence o JSON; depois a LP; este
-> documento por último. **Sincronize este arquivo, nunca o contrário.**
+> **Hub:** `samais-os` agrega todos os projetos, inclusive os PEP.
 >
-> ⚠ Este arquivo existe em duas cópias — a sincronizada na conta
-> (`~/.claude/skills/synced/`) e a do repositório. **A carregada é a
-> sincronizada.** Toda correção precisa chegar nela, ou não vale.
+> **Fonte única de tokens:** `samais-pep/design/samais-pep-os-design-tokens.json`
+> (v1.0), sob o hub. Implementação de referência publicada:
+> `lp/index.html` em `samais-copilot`. Em divergência, vence o JSON;
+> depois a LP; este documento por último.
+>
+> ⚠ **Onde esta skill deve viver:** apenas no nível de conta
+> (`~/.claude/skills/`), nunca copiada por repositório. Os repos são
+> vários — `samais-os`, `samais-pep`, `samais-copilot` e os futuros — e
+> uma cópia em cada significa uma correção por repo, o que já produziu
+> divergência real: a cópia sincronizada ficou sem o Adendo v2 enquanto a
+> do repositório o tinha, e **é a sincronizada que o carregador
+> entrega**. Correção que não chega nela não vale.
 
 O sistema é de **escalas nomeadas**, não de cores avulsas. Copie o bloco
 inteiro; não invente variações intermediárias.
