@@ -364,6 +364,28 @@ td strong{color:var(--text);font-weight:600}
 .tr-hl td strong{color:var(--gold)}
 
 /* ═══════════════════════════════════════
+   SCORE CHIPS · DADO AUSENTE
+═══════════════════════════════════════ */
+.sc{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+  padding:2px 8px;border-radius:3px;display:inline-block;letter-spacing:.02em;
+}
+.sc-hi{color:var(--gold);background:rgba(var(--gold-rgb),.1);border:1px solid rgba(var(--gold-rgb),.3)}
+.sc-md{color:var(--sub);background:rgba(255,255,255,.04);border:1px solid var(--border2)}
+.sc-lo{color:var(--muted);background:transparent;border:1px solid var(--border)}
+.dm{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--amber);opacity:.8;letter-spacing:.02em;
+}
+.dm::before{content:'◇ '}
+.uf{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--muted);letter-spacing:.1em;margin-left:5px;
+}
+.no-trigger{color:var(--muted)}
+.yes-trigger{color:var(--gold)}
+
+/* ═══════════════════════════════════════
    HORIZON BLOCKS
 ═══════════════════════════════════════ */
 .hb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
@@ -721,10 +743,12 @@ td strong{color:var(--text);font-weight:600}
     <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Diferenciação</a></li>
     <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Sinergia Samais</a></li>
     <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Próximos Movimentos</a></li>
-    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Síntese Estratégica</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Carteira Nordeste</a></li>
+    <li class="nav-item"><a href="#s17"><span class="nav-num">17</span>Modelagem e Priorização</a></li>
+    <li class="nav-item"><a href="#s18"><span class="nav-num">18</span>Síntese Estratégica</a></li>
   </ul>
   <div class="nav-foot">
-    <span>v1 · Maio 2026</span>
+    <span>v2 · Agosto 2026</span>
     <span class="conf">Confidencial · Distribuição restrita</span>
   </div>
 </aside>
@@ -748,7 +772,7 @@ td strong{color:var(--text);font-weight:600}
     <div class="hero-meta">
       <div class="hero-meta-item">
         <span class="hm-label">Versão</span>
-        <span class="hm-val">v1 · Maio 2026</span>
+        <span class="hm-val">v2 · Agosto 2026</span>
       </div>
       <div class="hero-meta-item">
         <span class="hm-label">Classificação</span>
@@ -1459,9 +1483,304 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 16 Síntese ── -->
+<!-- ── 16 Carteira Nordeste ── -->
 <section class="sec" id="s16">
   <div class="ct">
     <div class="ew">Parte 16</div>
+    <h2 class="t1">Onde a tese<br>encontra o mapa.</h2>
+    <p class="lead">Triagem de 21 municípios em seis estados sob os critérios do ROTA. Qual deles é contrato, qual é consórcio, e qual não fecha conta.</p>
+
+    <p>Esta parte aplica a tese das Partes 02 a 06 a uma carteira concreta de prospecção. O exercício não é de porte populacional — é de <strong>geometria de fluxo</strong>. O que define a receita do ROTA não é quantos habitantes um município tem, e sim quantos pacientes ele precisa deslocar, para onde, e a que distância. Um município de 300 mil habitantes que já é polo de hemodiálise e radioterapia gera menos receita de transporte intermunicipal que um município de 30 mil situado a 160 km do polo mais próximo.</p>
+
+    <div class="dc-grid">
+      <div class="dc">
+        <div class="dc-num">21</div>
+        <div class="dc-label">Municípios Analisados</div>
+        <div class="dc-sub">CE · RN · PI · MA · BA · RJ</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">1,27<span class="u">mi</span></div>
+        <div class="dc-label">População Agregada</div>
+        <div class="dc-sub">Base IBGE 2025 e informada</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">4</div>
+        <div class="dc-label">Blocos Contratáveis</div>
+        <div class="dc-sub">16 dos 21 municípios</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">66<span class="u">%</span></div>
+        <div class="dc-label">População em 4 Municípios</div>
+        <div class="dc-sub">Juazeiro, Sobral, Timon, Crato</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">5</div>
+        <div class="dc-label">Abaixo do Piso de Viabilidade</div>
+        <div class="dc-sub">Sul do Piauí e isolados</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">R$&thinsp;7,5–10,4<span class="u">mi</span></div>
+        <div class="dc-label">Receita Anual Modelada</div>
+        <div class="dc-sub">Carteira contratável em regime pleno</div>
+      </div>
+    </div>
+
+    <h3 class="t2">O gatilho regulatório, com precisão</h3>
+    <p>A Parte 02 tratou a Portaria GM/MS nº 11.164/2026 em termos gerais. Para triagem de municípios, os parâmetros exatos importam — e eles são restritivos. O marco é composto por três atos publicados em 11 de maio de 2026: a <strong>11.164</strong>, que altera a Portaria 8.516/2025 e regulamenta o transporte sanitário na forma dos arts. 2º-A e 2º-B da Lei nº 12.732/2012; a <strong>11.165</strong>, sobre deslocamento de pacientes; e a <strong>11.179</strong>, que dispõe especificamente sobre o transporte de pacientes em radioterapia e em Terapia Renal Substitutiva na modalidade hemodiálise.</p>
+
+    <div class="box box-gold">
+      <div class="box-label">Parâmetros que definem a triagem</div>
+      <p><strong>Radioterapia:</strong> financiamento em âmbito interestadual e intermunicipal quando o deslocamento for superior a <strong>50 km</strong>. <strong>Hemodiálise:</strong> financiamento em âmbito estadual quando o deslocamento intermunicipal for superior a <strong>50 km</strong> — ou seja, hemodiálise não cobre fluxo interestadual. Ambos com atendimento assegurado em <strong>raio máximo de 500 km</strong> entre os municípios. Impacto financeiro anual estimado pelo Ministério da Saúde em <strong>R$ 26.047.440</strong> para 2026, sendo R$ 17.364.960 a partir de maio.</p>
+    </div>
+
+    <p>Três consequências diretas para a carteira. Primeira: o piso de 50 km <strong>elimina conurbações</strong> — Timon–Teresina são 7 km, o Cariri é contíguo, São Miguel está a 42 km de Pau dos Ferros. Segunda: o teto de 500 km <strong>elimina o extremo sul do Piauí</strong> no fluxo para a capital. Terceira: a restrição estadual da hemodiálise <strong>penaliza Timon</strong>, cujo fluxo natural atravessa a divisa para Teresina.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">Correções de cadastro na lista original</div>
+      <p><strong>Coelho Neto</strong> é do Maranhão, não do Piauí — 42.841 habitantes (IBGE 2025), a 385 km de São Luís. <strong>Macau-RN</strong> (grafado "Macal") tem 28.350 habitantes. <strong>Santana do Matos-RN</strong> (grafado "Santana do Mato") tem 12.722. <strong>Barbalha-CE</strong> aparecia como "Barabalha" e <strong>Curimatá-PI</strong> como "Curimata". <strong>Cambuci</strong> é do Rio de Janeiro e não integra o Nordeste — foi mantido na análise como caso isolado.</p>
+    </div>
+
+    <h3 class="t2">Tabela-mestra da carteira</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Município</th><th>População</th><th>Polo de referência HD / RT</th><th>Distância</th><th>Gatilho &gt;50 km</th><th>Score</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Município"><strong>Juazeiro do Norte</strong><span class="uf">CE</span></td><td class="tg" data-label="População">305.531</td><td data-label="Polo de referência HD / RT">Polo próprio · Hospital Regional do Cariri</td><td data-label="Distância">—</td><td class="no-trigger" data-label="Gatilho &gt;50 km">Não</td><td data-label="Score"><span class="sc sc-hi">8,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Sobral</strong><span class="uf">CE</span></td><td class="tg" data-label="População">~218.000</td><td data-label="Polo de referência HD / RT">Polo próprio · Santa Casa (diálise e transplante renal), Hospital Regional Norte</td><td data-label="Distância">—</td><td class="no-trigger" data-label="Gatilho &gt;50 km">Não</td><td data-label="Score"><span class="sc sc-hi">8,0</span></td></tr>
+          <tr><td data-label="Município"><strong>Crato</strong><span class="uf">CE</span></td><td class="tg" data-label="População">~140.000</td><td data-label="Polo de referência HD / RT">Barbalha / Juazeiro · conurbação</td><td data-label="Distância">~12 km</td><td class="no-trigger" data-label="Gatilho &gt;50 km">Não</td><td data-label="Score"><span class="sc sc-hi">7,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Barbalha</strong><span class="uf">CE</span></td><td class="tg" data-label="População">~81.000</td><td data-label="Polo de referência HD / RT">Polo de radioterapia · HMSVP, referência de 45 municípios e 1,5 mi hab</td><td data-label="Distância">destino</td><td class="no-trigger" data-label="Gatilho &gt;50 km">Não</td><td data-label="Score"><span class="sc sc-hi">7,0</span></td></tr>
+          <tr><td data-label="Município"><strong>Guaraciaba do Norte</strong><span class="uf">CE</span></td><td class="tg" data-label="População">~44.000</td><td data-label="Polo de referência HD / RT">Tianguá / Sobral</td><td data-label="Distância">63 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Sim</td><td data-label="Score"><span class="sc sc-hi">7,0</span></td></tr>
+          <tr><td data-label="Município"><strong>Timon</strong><span class="uf">MA</span></td><td class="tg" data-label="População">~174.000</td><td data-label="Polo de referência HD / RT">Teresina-PI · fluxo interestadual</td><td data-label="Distância">7 km</td><td class="no-trigger" data-label="Gatilho &gt;50 km">Não</td><td data-label="Score"><span class="sc sc-md">6,5</span></td></tr>
+          <tr><td data-label="Município"><strong>São Benedito</strong><span class="uf">CE</span></td><td class="tg" data-label="População">~50.000</td><td data-label="Polo de referência HD / RT">Tianguá / Sobral</td><td data-label="Distância"><span class="dm">a confirmar</span></td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Parcial</td><td data-label="Score"><span class="sc sc-md">6,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Batalha</strong><span class="uf">PI</span></td><td class="tg" data-label="População">~28.000</td><td data-label="Polo de referência HD / RT">Teresina</td><td data-label="Distância">161 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Sim</td><td data-label="Score"><span class="sc sc-md">6,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Macau</strong><span class="uf">RN</span></td><td class="tg" data-label="População">28.350</td><td data-label="Polo de referência HD / RT">Mossoró / Natal</td><td data-label="Distância">&gt;100 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Sim</td><td data-label="Score"><span class="sc sc-md">6,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Coelho Neto</strong><span class="uf">MA</span></td><td class="tg" data-label="População">42.841</td><td data-label="Polo de referência HD / RT">Caxias · Hospital Macrorregional / Teresina</td><td data-label="Distância"><span class="dm">a confirmar</span></td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Provável</td><td data-label="Score"><span class="sc sc-md">6,0</span></td></tr>
+          <tr><td data-label="Município"><strong>Angicos</strong><span class="uf">RN</span></td><td class="tg" data-label="População">~12.000</td><td data-label="Polo de referência HD / RT">Assú · centro de diálise / Natal 173 km</td><td data-label="Distância">&gt;50 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Sim</td><td data-label="Score"><span class="sc sc-md">5,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Areia Branca</strong><span class="uf">RN</span></td><td class="tg" data-label="População">~24.000</td><td data-label="Polo de referência HD / RT">Mossoró</td><td data-label="Distância">50 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Limítrofe</td><td data-label="Score"><span class="sc sc-md">5,0</span></td></tr>
+          <tr><td data-label="Município"><strong>Umarizal</strong><span class="uf">RN</span></td><td class="tg" data-label="População">~11.000</td><td data-label="Polo de referência HD / RT">Pau dos Ferros · clínica de diálise + Hospital Regional</td><td data-label="Distância">68 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Sim</td><td data-label="Score"><span class="sc sc-md">5,0</span></td></tr>
+          <tr><td data-label="Município"><strong>Rio de Contas</strong><span class="uf">BA</span></td><td class="tg" data-label="População">~14.000</td><td data-label="Polo de referência HD / RT">Brumado / Vitória da Conquista 217 km</td><td data-label="Distância">80 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Sim</td><td data-label="Score"><span class="sc sc-md">5,0</span></td></tr>
+          <tr><td data-label="Município"><strong>São Miguel</strong><span class="uf">RN</span></td><td class="tg" data-label="População">~25.000</td><td data-label="Polo de referência HD / RT">Pau dos Ferros</td><td data-label="Distância">42 km</td><td class="no-trigger" data-label="Gatilho &gt;50 km">Não</td><td data-label="Score"><span class="sc sc-lo">4,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Santana do Matos</strong><span class="uf">RN</span></td><td class="tg" data-label="População">12.722</td><td data-label="Polo de referência HD / RT">Currais Novos / Caicó</td><td data-label="Distância"><span class="dm">a confirmar</span></td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Provável</td><td data-label="Score"><span class="sc sc-lo">4,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Patu</strong><span class="uf">RN</span></td><td class="tg" data-label="População">~12.000</td><td data-label="Polo de referência HD / RT">Pau dos Ferros</td><td data-label="Distância"><span class="dm">a confirmar</span></td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Provável</td><td data-label="Score"><span class="sc sc-lo">4,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Cambuci</strong><span class="uf">RJ</span></td><td class="tg" data-label="População">~15.000</td><td data-label="Polo de referência HD / RT">Itaperuna / Campos dos Goytacazes</td><td data-label="Distância">80 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Sim</td><td data-label="Score"><span class="sc sc-lo">4,5</span></td></tr>
+          <tr><td data-label="Município"><strong>Baixa Grande do Ribeiro</strong><span class="uf">PI</span></td><td class="tg" data-label="População">~14.000</td><td data-label="Polo de referência HD / RT">Floriano</td><td data-label="Distância">356 km</td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Sim</td><td data-label="Score"><span class="sc sc-lo">4,0</span></td></tr>
+          <tr><td data-label="Município"><strong>Curimatá</strong><span class="uf">PI</span></td><td class="tg" data-label="População">~12.000</td><td data-label="Polo de referência HD / RT">Corrente · hemodiálise implantada</td><td data-label="Distância"><span class="dm">a confirmar</span></td><td class="yes-trigger" data-label="Gatilho &gt;50 km">Provável</td><td data-label="Score"><span class="sc sc-lo">4,0</span></td></tr>
+          <tr><td data-label="Município"><strong>Ribeiro Gonçalves</strong><span class="uf">PI</span></td><td class="tg" data-label="População">~7.000</td><td data-label="Polo de referência HD / RT">Teresina 581 km / Floriano</td><td data-label="Distância">581 km</td><td class="no-trigger" data-label="Gatilho &gt;50 km">Acima do teto</td><td data-label="Score"><span class="sc sc-lo">3,0</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:13px;color:var(--muted)">Populações marcadas com <span class="tg" style="font-size:12px">valor exato</span> foram confirmadas na estimativa IBGE 2025. As demais reproduzem os números informados e ainda não passaram por verificação independente. Distâncias marcadas com <span class="dm">a confirmar</span> exigem checagem em base rodoviária oficial antes de qualquer manifestação formal. O score é composto por escala populacional (25%), gatilho da portaria (30%), densidade de cluster (20%), distância do <em>footprint</em> Samais (15%) e posição no fluxo — origem ou destino (10%).</p>
+
+    <h3 class="t2">Seis blocos geográficos</h3>
+    <div class="hb-grid">
+      <div class="hb">
+        <div class="hb-tag">Bloco A</div>
+        <div class="hb-period">Cariri · Ceará</div>
+        <div class="hb-title">Conurbação de 530 mil</div>
+        <div class="hb-desc">Juazeiro do Norte, Crato e Barbalha formam um tecido urbano contínuo com hospital regional próprio e centro de radioterapia que é referência para 45 municípios e 1,5 milhão de habitantes. O fluxo é de entrada, não de saída — a receita aqui vem de transporte eletivo intramunicipal e de TFD para Fortaleza, não do gatilho da portaria.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">3</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">530 mil</span></div>
+          <div class="hb-row"><span class="hb-k">Regime</span><span class="hb-v">ROTA Cidade ×3</span></div>
+        </div>
+      </div>
+      <div class="hb">
+        <div class="hb-tag">Bloco B</div>
+        <div class="hb-period">Norte do Ceará</div>
+        <div class="hb-title">Sobral e a Ibiapaba</div>
+        <div class="hb-desc">Sobral concentra diálise, transplante renal e o Hospital Regional Norte. São Benedito e Guaraciaba do Norte estão na serra da Ibiapaba, a 23 km um do outro e a 63 km de Tianguá — origem clara de fluxo, com massa suficiente para um consórcio serrano que vá além dos dois.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">3</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">312 mil</span></div>
+          <div class="hb-row"><span class="hb-k">Regime</span><span class="hb-v">Cidade + Consórcio</span></div>
+        </div>
+      </div>
+      <div class="hb">
+        <div class="hb-tag">Bloco C</div>
+        <div class="hb-period">Eixo Teresina–Timon</div>
+        <div class="hb-title">A anomalia interestadual</div>
+        <div class="hb-desc">Timon está a 7 km de Teresina, em outro estado. Nenhum dos dois gatilhos da portaria se aplica: a distância é curta demais para radioterapia e a hemodiálise não cobre fluxo interestadual. Batalha (161 km) e Coelho Neto qualificam. O bloco vale por escala municipal, não por cofinanciamento.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">3</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">244 mil</span></div>
+          <div class="hb-row"><span class="hb-k">Regime</span><span class="hb-v">Cidade + Consórcio</span></div>
+        </div>
+      </div>
+      <div class="hb">
+        <div class="hb-tag">Bloco D</div>
+        <div class="hb-period">Rio Grande do Norte</div>
+        <div class="hb-title">Sete municípios, três polos</div>
+        <div class="hb-desc">Areia Branca e Macau orbitam Mossoró; São Miguel, Umarizal e Patu orbitam Pau dos Ferros; Angicos e Santana do Matos ficam no eixo central. Nenhum sustenta contrato isolado, mas o conjunto tem massa consorciável — e a região passa por crise real de diálise desde a interdição da clínica de Mossoró.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">7</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">123 mil</span></div>
+          <div class="hb-row"><span class="hb-k">Regime</span><span class="hb-v">Consórcio único</span></div>
+        </div>
+      </div>
+      <div class="hb">
+        <div class="hb-tag">Bloco E</div>
+        <div class="hb-period">Sul do Piauí · MATOPIBA</div>
+        <div class="hb-title">Distância que quebra o modelo</div>
+        <div class="hb-desc">Ribeiro Gonçalves está a 581 km de Teresina — acima do teto de 500 km da portaria. Baixa Grande do Ribeiro está a 356 km de Floriano. Os três somam 33 mil habitantes dispersos em centenas de quilômetros. O custo por quilômetro rodado inviabiliza qualquer configuração de frota conhecida.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">3</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">33 mil</span></div>
+          <div class="hb-row"><span class="hb-k">Regime</span><span class="hb-v">Não contratável</span></div>
+        </div>
+      </div>
+      <div class="hb">
+        <div class="hb-tag">Bloco F</div>
+        <div class="hb-period">Isolados · BA e RJ</div>
+        <div class="hb-title">Sem adjacência</div>
+        <div class="hb-desc">Rio de Contas (Chapada Diamantina) e Cambuci (Noroeste Fluminense) qualificam individualmente no gatilho de 50 km, mas estão a mais de mil quilômetros de qualquer outro município da carteira. Sem bloco vizinho, não há diluição de custo de central de regulação.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">2</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">29 mil</span></div>
+          <div class="hb-row"><span class="hb-k">Regime</span><span class="hb-v">Não contratável</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-gold" style="margin-top:52px">
+      <div class="box-label">O achado central da triagem</div>
+      <p>Quatro municípios — Juazeiro do Norte, Sobral, Timon e Crato — concentram <strong>841 mil dos 1,27 milhão de habitantes</strong>, ou 66% da carteira. Os outros dezessete somam 430 mil habitantes distribuídos por cinco estados. A carteira não é uma lista de 21 oportunidades equivalentes: é <strong>quatro contratos de porte e um problema de consolidação regional</strong>. Tratá-la como pipeline homogêneo produziria 21 aproximações comerciais e nenhum contrato.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 17 Modelagem e Priorização ── -->
+<section class="sec" id="s17">
+  <div class="ct">
+    <div class="ew">Parte 17</div>
+    <h2 class="t1">O que fecha conta<br>e o que não fecha.</h2>
+    <p class="lead">Modelagem de receita em dois regimes, piso de viabilidade e sequenciamento de abordagem.</p>
+
+    <h3 class="t2">Por que o modelo per capita linear falha</h3>
+    <p>A Parte 06 estabeleceu o contrato de referência ROTA Cidade: 300 mil habitantes, receita mensal de R$ 195.000 — equivalente a R$ 0,65 por habitante ao mês. Aplicar esse mesmo coeficiente a um município de 7 mil habitantes produziria uma receita de R$ 4.550 mensais, valor que não cobre o salário de um único motorista com encargos. O erro está em tratar como variável um custo que é fixo.</p>
+    <p>Central de regulação, sistema de roteirização, coordenação operacional e estrutura de contrato têm <strong>custo mínimo indivisível</strong>. Abaixo de uma certa massa contratada, esse custo consome a totalidade da receita. Por isso a modelagem opera em dois regimes distintos, com um piso explícito de viabilidade.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Regime</th><th>Aplicabilidade</th><th>Coeficiente</th><th>Piso de viabilidade</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Regime"><strong>ROTA Cidade</strong></td><td data-label="Aplicabilidade">Município isolado com 140 mil habitantes ou mais</td><td class="tg" data-label="Coeficiente">R$ 0,55 – 0,75 / hab / mês</td><td class="tg" data-label="Piso de viabilidade">R$ 77 mil / mês</td></tr>
+          <tr><td data-label="Regime"><strong>ROTA Consórcio</strong></td><td data-label="Aplicabilidade">Bloco contíguo de municípios abaixo de 60 mil habitantes</td><td class="tg" data-label="Coeficiente">R$ 0,42 – 0,58 / hab / mês</td><td class="tg" data-label="Piso de viabilidade">R$ 45 mil / mês</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13px;color:var(--muted)">O coeficiente de consórcio é inferior ao de cidade porque a dispersão geográfica eleva o custo por quilômetro rodado, ainda que a central compartilhada dilua o overhead. O piso de viabilidade representa a receita mensal mínima abaixo da qual a estrutura fixa não se paga — não é meta comercial, é limiar de recusa.</p>
+
+    <h3 class="t2">Receita modelada por bloco</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Bloco</th><th>Municípios</th><th>População</th><th>Receita mensal</th><th>Receita anual</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Bloco"><strong>A · Cariri (CE)</strong></td><td data-label="Municípios">3</td><td data-label="População">530 mil</td><td class="tg" data-label="Receita mensal">R$ 292 – 398 mil</td><td class="tg" data-label="Receita anual">R$ 3,5 – 4,8 mi</td></tr>
+          <tr><td data-label="Bloco"><strong>B · Norte do Ceará</strong></td><td data-label="Municípios">3</td><td data-label="População">312 mil</td><td class="tg" data-label="Receita mensal">R$ 159 – 218 mil</td><td class="tg" data-label="Receita anual">R$ 1,9 – 2,6 mi</td></tr>
+          <tr><td data-label="Bloco"><strong>C · Teresina–Timon</strong></td><td data-label="Municípios">3</td><td data-label="População">244 mil</td><td class="tg" data-label="Receita mensal">R$ 125 – 171 mil</td><td class="tg" data-label="Receita anual">R$ 1,5 – 2,1 mi</td></tr>
+          <tr><td data-label="Bloco"><strong>D · Rio Grande do Norte</strong></td><td data-label="Municípios">7</td><td data-label="População">123 mil</td><td class="tg" data-label="Receita mensal">R$ 52 – 71 mil</td><td class="tg" data-label="Receita anual">R$ 0,6 – 0,9 mi</td></tr>
+          <tr><td data-label="Bloco">E · Sul do Piauí</td><td data-label="Municípios">3</td><td data-label="População">33 mil</td><td data-label="Receita mensal">abaixo do piso</td><td data-label="Receita anual">—</td></tr>
+          <tr><td data-label="Bloco">F · Isolados (BA / RJ)</td><td data-label="Municípios">2</td><td data-label="População">29 mil</td><td data-label="Receita mensal">abaixo do piso</td><td data-label="Receita anual">—</td></tr>
+          <tr class="tr-hl"><td data-label="Bloco"><strong>Carteira contratável</strong></td><td data-label="Municípios"><strong>16</strong></td><td data-label="População"><strong>1,21 mi</strong></td><td data-label="Receita mensal"><strong>R$ 628 – 858 mil</strong></td><td data-label="Receita anual"><strong>R$ 7,5 – 10,3 mi</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Em regime pleno, a carteira contratável entrega entre <strong>R$ 7,5 e R$ 10,3 milhões anuais</strong> — o que a posiciona como ponte entre o Horizonte 1 (R$ 2 a 4 milhões) e o Horizonte 2 (R$ 25 a 45 milhões) definidos na Parte 07. Quatro blocos não constroem o H2 sozinhos, mas constroem a prova de replicabilidade que o H2 exige.</p>
+
+    <h3 class="t2">Sequenciamento de abordagem</h3>
+    <div class="mv-grid">
+      <div class="mv">
+        <div class="mv-n">01</div>
+        <div>
+          <div class="mv-week">Primeira onda</div>
+          <div class="mv-title">Cariri como âncora</div>
+          <p class="mv-desc">Maior massa, menor dispersão, três prefeituras em tecido urbano contínuo e um centro de radioterapia que já organiza fluxo de 45 municípios. É o único bloco da carteira que sustenta contrato âncora nos termos da Parte 07. Entrada por Juazeiro do Norte.</p>
+        </div>
+      </div>
+      <div class="mv">
+        <div class="mv-n">02</div>
+        <div>
+          <div class="mv-week">Segunda onda</div>
+          <div class="mv-title">Sobral e a serra</div>
+          <p class="mv-desc">Sobral como contrato de porte, Ibiapaba como primeiro consórcio real. A serra tem mais municípios que os dois listados — Tianguá, Ibiapina, Ubajara, Croatá e Carnaubal ampliam o bloco sem ampliar a central. Testar aqui a tese consorcial antes do RN.</p>
+        </div>
+      </div>
+      <div class="mv">
+        <div class="mv-n">03</div>
+        <div>
+          <div class="mv-week">Terceira onda</div>
+          <div class="mv-title">Rio Grande do Norte</div>
+          <p class="mv-desc">O bloco mais fragmentado e o de maior urgência factual: a interdição do centro de diálise de Mossoró, com dois óbitos, deslocou mais de 130 pacientes do Vale do Açu para Assú e Caicó. A dor é pública, documentada e recente. Entrada por pauta de emergência, não por licitação ordinária.</p>
+        </div>
+      </div>
+      <div class="mv">
+        <div class="mv-n">04</div>
+        <div>
+          <div class="mv-week">Quarta onda</div>
+          <div class="mv-title">Eixo Teresina–Timon</div>
+          <p class="mv-desc">Timon exige pactuação bi-estadual MA–PI, que já está em curso na regional de saúde para atendimentos no HUT. É o bloco de maior complexidade institucional e menor alavanca de cofinanciamento — deve ser o último, não o primeiro.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="t2">Riscos específicos desta carteira</h3>
+    <div class="rm-grid">
+      <div class="rm">
+        <div class="rm-code">C1</div>
+        <div class="rm-title">Geografia fora do footprint Samais</div>
+        <div class="rm-desc">A Parte 14 sustenta o cross-sell sobre 130+ municípios com SAMU Samais. A operação de referência citada no próprio documento é o CISNORPI, no Paraná. A julgar pela geografia, é improvável que algum dos 21 integre essa base — e sem sobreposição, o argumento de "mesmo decisor, mesmo orçamento" não se aplica.</div>
+        <div class="rm-mit">Cruzar a lista com a base de contratos vigentes antes de sustentar o cross-sell. Na ausência de sobreposição, tratar como expansão geográfica nova, com custo de aquisição comercial maior.</div>
+      </div>
+      <div class="rm">
+        <div class="rm-code">C2</div>
+        <div class="rm-title">Dependência de dado não verificado</div>
+        <div class="rm-desc">Cinco distâncias e quinze populações da tabela-mestra reproduzem valores informados ou estimados. Score e receita modelada herdam essa incerteza. Um erro de faixa de distância muda a qualificação no gatilho de 50 km.</div>
+        <div class="rm-mit">Fechar a verificação em base IBGE, CNES e malha rodoviária oficial antes de qualquer manifestação formal a ente público.</div>
+      </div>
+      <div class="rm">
+        <div class="rm-code">C3</div>
+        <div class="rm-title">Polos absorvem a receita</div>
+        <div class="rm-desc">Juazeiro, Barbalha e Sobral são destino de fluxo, não origem. O cofinanciamento da portaria remunera o deslocamento do município de origem — ou seja, é capturado pelos municípios vizinhos, não pelos três maiores da carteira.</div>
+        <div class="rm-mit">Nesses três, vender ROTA Cidade pelo transporte eletivo intramunicipal e pelo TFD de saída para Fortaleza, sem apoiar a proposta no gatilho da portaria.</div>
+      </div>
+      <div class="rm">
+        <div class="rm-code">C4</div>
+        <div class="rm-title">Consórcio ainda não existe</div>
+        <div class="rm-desc">O regime consorcial responde por 3 dos 4 blocos, mas os sete municípios do RN e os da Ibiapaba não têm consórcio de transporte sanitário constituído. Formar um consórcio leva de 12 a 18 meses e depende de lei em cada câmara municipal.</div>
+        <div class="rm-mit">Iniciar pela adesão a consórcios de saúde já existentes na região antes de propor constituição nova; mapear os CIS ativos no CE e no RN como primeiro passo da segunda onda.</div>
+      </div>
+      <div class="rm">
+        <div class="rm-code">C5</div>
+        <div class="rm-title">Teto de 500 km não negociável</div>
+        <div class="rm-desc">Ribeiro Gonçalves está a 581 km de Teresina. Não há configuração de frota, preço ou argumento comercial que traga esse deslocamento para dentro do cofinanciamento federal — o limite é normativo.</div>
+        <div class="rm-mit">Descartar formalmente. Reavaliar apenas se surgir polo de hemodiálise ou radioterapia em Floriano, Uruçuí ou Bom Jesus que reduza a distância efetiva.</div>
+      </div>
+      <div class="rm">
+        <div class="rm-code">C6</div>
+        <div class="rm-title">Hemodiálise não cruza divisa estadual</div>
+        <div class="rm-desc">A portaria restringe o financiamento de transporte para hemodiálise ao âmbito estadual. Timon e Coelho Neto, ambos no Maranhão com gravitação sobre Teresina, ficam fora dessa linha de custeio mesmo quando a distância qualifica.</div>
+        <div class="rm-mit">Nesses casos, ancorar a proposta em radioterapia — que admite fluxo interestadual acima de 50 km — e em transporte eletivo municipal custeado com recurso próprio.</div>
+      </div>
+    </div>
+
+    <div class="box box-amber" style="margin-top:52px">
+      <div class="box-label">Recomendação de recorte</div>
+      <p>Retirar da carteira <strong>Ribeiro Gonçalves, Baixa Grande do Ribeiro, Curimatá, Rio de Contas e Cambuci</strong> — cinco municípios, 62 mil habitantes, nenhum com adjacência que permita diluição de custo fixo. Concentrar os dezesseis restantes em quatro blocos e quatro aproximações comerciais. Uma carteira de 21 nomes trabalhada em paralelo consome o time comercial da Parte 12 inteiro sem produzir contrato.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="s18">
+  <div class="ct">
+    <div class="ew">Parte 18</div>
     <h2 class="t1">Três camadas<br>e uma decisão.</h2>
     <p class="lead">O essencial do Master Plan em uma frase final.</p>
 
@@ -1498,10 +1817,10 @@ td strong{color:var(--text);font-weight:600}
   <div class="footer-in">
     <div>
       <div class="footer-brand">Samais <em>·</em> Gestão em Saúde</div>
-      <p style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5;font-family:'JetBrains Mono',monospace;letter-spacing:.06em">Master Plan ROTA · Documento Institucional v1</p>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5;font-family:'JetBrains Mono',monospace;letter-spacing:.06em">Master Plan ROTA · Documento Institucional v2</p>
     </div>
     <div class="footer-meta">
-      <span>Maio · 2026</span>
+      <span>Agosto · 2026</span>
       <span class="footer-conf">Confidencial · Distribuição restrita</span>
     </div>
   </div>

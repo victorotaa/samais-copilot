@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Estudo de viabilidade, demanda, retorno e precificação per capita do ROTA em 21 municípios · Samais Gestão em Saúde">
+<title>Estudo de Viabilidade ROTA · 21 Municípios · Samais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+
+:root{
+  --bg:#04060C;
+  --bg2:#0A0E18;
+  --bg3:#0D1220;
+  --border:#171C28;
+  --border2:#28303F;
+  --gold:#D4A857;
+  --gold2:#B8913F;
+  --gold-rgb:212,168,87;
+  --text:#EDEAE2;
+  --sub:#B0AEA5;
+  --muted:#9A968C;
+  --green:#5F8C6A;
+  --green-rgb:95,140,106;
+  --red:#C20D2F;
+  --amber:#DD8D0C;
+  --amber-rgb:221,141,12;
+  --nav:270px;
+  --r:6px;
+}
+
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.wrap{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.nav{
+  width:var(--nav);position:fixed;top:0;left:0;bottom:0;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:200;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+.nav::-webkit-scrollbar{width:2px}
+.nav::-webkit-scrollbar-thumb{background:var(--border2)}
+.nav-progress{height:2px;background:var(--border);position:sticky;top:0;z-index:10;flex-shrink:0}
+.nav-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .1s}
+.nav-brand{padding:28px 24px 22px;border-bottom:1px solid var(--border);flex-shrink:0}
+.nav-brand .nw{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:var(--text)}
+.nav-brand .ns{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+.nav-brand .nr{
+  display:inline-flex;align-items:center;gap:6px;margin-top:14px;
+  background:rgba(var(--gold-rgb),.07);border:1px solid rgba(var(--gold-rgb),.2);
+  border-radius:3px;padding:5px 12px;font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;letter-spacing:.12em;color:var(--gold);font-weight:500;
+}
+.nr-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.nav-list{list-style:none;padding:12px 0 24px;flex:1}
+.nav-item a{
+  display:flex;align-items:center;gap:10px;padding:7px 24px;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.3;
+  color:var(--muted);text-decoration:none;letter-spacing:.04em;
+  border-left:2px solid transparent;transition:all .18s;
+}
+.nav-item a:hover{color:var(--sub);background:rgba(255,255,255,.02)}
+.nav-item a.active{color:var(--gold);border-left-color:var(--gold);background:rgba(var(--gold-rgb),.06)}
+.nav-num{font-size:9px;color:var(--border2);min-width:18px;letter-spacing:.06em}
+.nav-item a.active .nav-num{color:rgba(var(--gold-rgb),.6)}
+.nav-foot{padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8}
+.nav-foot .conf{color:var(--red);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;display:block}
+
+/* ── MAIN ── */
+.main{margin-left:var(--nav);flex:1;min-width:0}
+.sec{padding:100px 80px;border-bottom:1px solid var(--border)}
+.ct{max-width:1100px;margin:0 auto}
+.ew{
+  display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:22px;
+}
+.ew::before{content:'';width:28px;height:1px;background:var(--gold);opacity:.5}
+.t1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(38px,4vw,54px);line-height:1.08;letter-spacing:-.025em;color:var(--text);margin-bottom:18px}
+.t1 em{font-style:normal;color:var(--gold)}
+.t2{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;color:var(--text);letter-spacing:-.01em;margin:44px 0 14px;line-height:1.2}
+.lead{font-size:17px;color:var(--sub);max-width:660px;line-height:1.75;margin-bottom:52px}
+p{color:var(--sub);line-height:1.75;margin-bottom:16px;font-size:15.5px}
+p:last-child{margin-bottom:0}
+strong{color:var(--text);font-weight:600}
+.fine{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(var(--gold-rgb),.05) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--gold-rgb),.05) 1px,transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,black 30%,transparent 100%);
+}
+.hero::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 60% at 50% 35%,rgba(var(--gold-rgb),.07) 0%,transparent 70%);
+}
+.hero-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:80px 80px 72px;width:100%}
+.hero-ew{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:52px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hero-ew span{color:var(--gold)}
+.hero-ew::before{content:'';width:32px;height:1px;background:var(--gold);opacity:.4}
+.hero-title{font-family:'Syne',sans-serif;font-weight:800;line-height:.95;letter-spacing:-.03em;margin-bottom:28px}
+.hero-title .line1{display:block;font-size:clamp(40px,5vw,66px);color:var(--muted);font-weight:600;letter-spacing:-.02em}
+.hero-title .line2{
+  display:block;font-size:clamp(64px,9vw,116px);color:var(--text);
+  background:linear-gradient(135deg,var(--text) 20%,rgba(var(--gold-rgb),.6) 60%,var(--gold) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{font-size:18px;color:var(--sub);max-width:620px;line-height:1.65;margin-bottom:64px}
+.hero-meta{display:flex;align-items:center;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:32px}
+.hero-meta-item{display:flex;flex-direction:column;gap:4px;padding:0 32px 0 0;margin-right:32px;border-right:1px solid var(--border)}
+.hero-meta-item:last-child{border-right:none;margin-right:0}
+.hm-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.hm-val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);font-weight:500;letter-spacing:.06em}
+
+/* ── DATA CARDS ── */
+.dc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:48px}
+.dc{background:var(--bg2);padding:28px 26px 24px;position:relative;transition:background .18s}
+.dc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.dc:hover{background:var(--bg3)}
+.dc-num{font-family:'Syne',sans-serif;font-weight:800;font-size:46px;line-height:1;letter-spacing:-.03em;color:var(--text);margin-bottom:10px}
+.dc-num .u{font-size:19px;color:var(--muted);font-weight:500;letter-spacing:0}
+.dc-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);line-height:1.5}
+.dc-sub{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.4}
+
+/* ── BOXES ── */
+.box{border-radius:var(--r);padding:26px 30px;margin:40px 0}
+.box-gold{background:rgba(var(--gold-rgb),.06);border:1px solid rgba(var(--gold-rgb),.2);border-left:3px solid var(--gold)}
+.box-amber{background:rgba(var(--amber-rgb),.06);border:1px solid rgba(var(--amber-rgb),.2);border-left:3px solid var(--amber)}
+.box-green{background:rgba(var(--green-rgb),.07);border:1px solid rgba(var(--green-rgb),.25);border-left:3px solid var(--green)}
+.box-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:9px}
+.box-gold .box-label{color:var(--gold)}
+.box-amber .box-label{color:var(--amber)}
+.box-green .box-label{color:var(--green)}
+.box p{font-size:15.5px;margin:0;line-height:1.7}
+
+/* ── TABLES (sem scroll horizontal) ── */
+.tw{margin:32px 0}
+table{width:100%;max-width:100%;border-collapse:collapse;font-size:14px;table-layout:auto}
+thead tr{border-bottom:1px solid var(--border2)}
+th{font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);padding:11px 14px;text-align:left;white-space:normal;line-height:1.4;overflow-wrap:break-word}
+td{padding:13px 14px;border-bottom:1px solid var(--border);color:var(--sub);line-height:1.5;vertical-align:top;font-size:14px;overflow-wrap:break-word}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.015)}
+td strong{color:var(--text);font-weight:600}
+.tg{color:var(--gold)!important;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px;letter-spacing:-.01em}
+.tn{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:-.01em}
+.tr-hl td{border-top:1px solid rgba(var(--gold-rgb),.35);background:rgba(var(--gold-rgb),.05);color:var(--gold)!important;font-weight:700}
+.tr-hl td strong{color:var(--gold)}
+.tr-hl td:not(:first-child) strong{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px}
+.uf{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;margin-left:5px}
+
+/* ── CHIPS ── */
+.ok{color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em}
+.ok::before{content:'✓ '}
+.warn{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em}
+.warn::before{content:'△ '}
+.no{color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em}
+.no::before{content:'✕ '}
+.vd{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;padding:3px 9px;border-radius:3px;display:inline-block;letter-spacing:.04em;white-space:nowrap}
+.vd-a{color:var(--gold);background:rgba(var(--gold-rgb),.1);border:1px solid rgba(var(--gold-rgb),.3)}
+.vd-b{color:var(--sub);background:rgba(255,255,255,.04);border:1px solid var(--border2)}
+.vd-c{color:var(--muted);background:transparent;border:1px solid var(--border)}
+.dm{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);opacity:.85}
+.dm::before{content:'◇ '}
+
+/* ── BLOCOS ── */
+.hb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:44px}
+.hb{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:30px 26px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.hb::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold) 0%,rgba(var(--gold-rgb),.3) 60%,transparent 100%)}
+.hb.dead::before{background:linear-gradient(90deg,var(--border2) 0%,transparent 70%)}
+.hb-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+.hb.dead .hb-tag{color:var(--muted)}
+.hb-period{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:18px}
+.hb-title{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--text);margin-bottom:12px;line-height:1.15}
+.hb-desc{font-size:13.5px;color:var(--muted);line-height:1.65;flex:1}
+.hb-divider{height:1px;background:var(--border);margin:20px 0}
+.hb-kv{display:flex;flex-direction:column;gap:9px}
+.hb-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.hb-k{font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.hb-v{font-size:13px;color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;text-align:right}
+
+/* ── SÍNTESE ── */
+.syn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+.syn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:30px 24px}
+.syn-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+.syn-text{font-size:14.5px;color:var(--muted);line-height:1.7;margin:0}
+.syn-text strong{color:var(--text)}
+
+/* ── FOOTER ── */
+.footer{background:var(--bg2);border-top:1px solid var(--border);padding:52px 80px}
+.footer-in{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:32px}
+.footer-brand{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--text)}
+.footer-brand em{font-style:normal;color:var(--gold)}
+.footer-meta{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.8;text-align:right}
+.footer-conf{color:var(--red);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;display:block}
+
+/* ── MOBILE ── */
+.ham{display:none;position:fixed;top:16px;left:16px;z-index:300;background:var(--bg2);border:1px solid var(--border2);border-radius:5px;padding:10px 12px;cursor:pointer;flex-direction:column;gap:5px}
+.ham span{display:block;width:20px;height:1.5px;background:var(--text)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:150}
+.overlay.on{display:block}
+
+@media(max-width:1100px){
+  .dc-grid{grid-template-columns:repeat(2,1fr)}
+  .syn-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  :root{--nav:0px}
+  .nav{transform:translateX(-100%);width:270px;transition:transform .28s cubic-bezier(.4,0,.2,1)}
+  .nav.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .ham{display:flex}
+  .sec{padding:64px 24px}
+  .hero-inner{padding:80px 24px 56px}
+  .hb-grid{grid-template-columns:1fr}
+  .dc-grid{grid-template-columns:1fr}
+  .footer{padding:40px 24px}
+  .footer-in{flex-direction:column;align-items:flex-start}
+  .footer-meta{text-align:left}
+  .hero-meta-item{border-right:none;margin-right:0;padding-right:0;margin-bottom:16px;flex:1 0 45%}
+
+  /* Tabelas viram cartões — sem scroll horizontal */
+  table{display:block;table-layout:auto}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{display:block;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+  tbody tr:last-child{margin-bottom:0}
+  tbody tr:hover td{background:transparent}
+  td{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding:11px 16px;border-bottom:1px solid var(--border);text-align:right}
+  tr:last-child td{border-bottom:1px solid var(--border)}
+  tr td:last-child{border-bottom:none}
+  td::before{content:attr(data-label);font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);text-align:left;line-height:1.5;flex:0 0 42%}
+  .tr-hl{border-color:rgba(var(--gold-rgb),.35);background:rgba(var(--gold-rgb),.05)}
+  .tr-hl td{border-top:none;background:transparent}
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="ov" onclick="closeNav()"></div>
+<button class="ham" id="ham" onclick="toggleNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+
+<div class="wrap">
+
+<aside class="nav" id="nav">
+  <div class="nav-progress"><div class="nav-progress-bar" id="npb"></div></div>
+  <div class="nav-brand">
+    <div class="nw">Samais</div>
+    <div class="ns">Gestão em Saúde</div>
+    <div class="nr"><span class="nr-dot"></span>Viabilidade ROTA</div>
+  </div>
+  <ul class="nav-list">
+    <li class="nav-item"><a href="#hero"><span class="nav-num">—</span>Capa</a></li>
+    <li class="nav-item"><a href="#s00"><span class="nav-num">00</span>Atestado de Cadastro</a></li>
+    <li class="nav-item"><a href="#s01"><span class="nav-num">01</span>Sumário Executivo</a></li>
+    <li class="nav-item"><a href="#s02"><span class="nav-num">02</span>Metodologia e Premissas</a></li>
+    <li class="nav-item"><a href="#s03"><span class="nav-num">03</span>Demanda Modelada</a></li>
+    <li class="nav-item"><a href="#s04"><span class="nav-num">04</span>Geometria de Fluxo</a></li>
+    <li class="nav-item"><a href="#s05"><span class="nav-num">05</span>Precificação Per Capita</a></li>
+    <li class="nav-item"><a href="#s06"><span class="nav-num">06</span>Viabilidade por Município</a></li>
+    <li class="nav-item"><a href="#s07"><span class="nav-num">07</span>Blocos Contratáveis</a></li>
+    <li class="nav-item"><a href="#s08"><span class="nav-num">08</span>Retorno e Payback</a></li>
+    <li class="nav-item"><a href="#s09"><span class="nav-num">09</span>Veredito</a></li>
+  </ul>
+  <div class="nav-foot">
+    <span>v1 · Agosto 2026</span>
+    <span class="conf">Confidencial · Uso interno</span>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- ── HERO ── -->
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-ew">Estudo de Viabilidade <span>·</span> Demanda, Retorno e Precificação <span>·</span> 2026</div>
+    <h1 class="hero-title">
+      <span class="line1">21 municípios,</span>
+      <span class="line2">uma conta.</span>
+    </h1>
+    <p class="hero-sub">Viabilidade do ROTA em 21 municípios de seis estados: demanda modelada a partir de prevalência real, precificação per capita por faixa de distância, e a linha abaixo da qual um contrato não se paga.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hm-label">Municípios</span>
+        <span class="hm-val">21 · 6 estados</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hm-label">População</span>
+        <span class="hm-val">1.274.963</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hm-label">Base</span>
+        <span class="hm-val">IBGE 2025</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hm-label">Versão</span>
+        <span class="hm-val">v1 · Agosto 2026</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 00 ATESTADO ── -->
+<section class="sec" id="s00">
+  <div class="ct">
+    <div class="ew">00</div>
+    <h2 class="t1">Atestado de<br>cadastro.</h2>
+    <p class="lead">Conferência município a município contra a estimativa IBGE de 1º de julho de 2025, antes de qualquer modelagem.</p>
+
+    <p>Toda a modelagem deste estudo depende de duas variáveis de cadastro: a <strong>unidade federativa correta</strong> — que determina se o deslocamento é intraestadual ou interestadual, e portanto se a linha de custeio de hemodiálise se aplica — e a <strong>população</strong>, que é o denominador de toda a precificação per capita. As duas foram verificadas antes de qualquer cálculo.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">Divergências encontradas</div>
+      <p><strong>Uma UF incorreta:</strong> Coelho Neto foi informado como Piauí, mas é do <strong>Maranhão</strong> — o que muda a análise, porque o município gravita sobre Teresina-PI e passa a ser fluxo interestadual. <strong>Quatro grafias:</strong> "Barabalha" → Barbalha, "Macal" → Macau, "Santana do Mato" → Santana do Matos, "Curimata" → Curimatá. <strong>Um município fora do Nordeste:</strong> Cambuci é do Rio de Janeiro. As populações informadas foram precisas no agregado — a soma da lista fechou em 1,271 milhão contra 1,275 milhão do IBGE, diferença de 0,3%.</p>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Município</th><th>UF informada</th><th>UF correta</th><th>Pop. informada</th><th>IBGE 2025</th><th>Cadastro</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Município"><strong>Juazeiro do Norte</strong></td><td data-label="UF informada">CE</td><td data-label="UF correta">CE</td><td class="tn" data-label="Pop. informada">309.000</td><td class="tg" data-label="IBGE 2025">305.531</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Sobral</strong></td><td data-label="UF informada">CE</td><td data-label="UF correta">CE</td><td class="tn" data-label="Pop. informada">218.000</td><td class="tg" data-label="IBGE 2025">216.519</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Timon</strong></td><td data-label="UF informada">MA</td><td data-label="UF correta">MA</td><td class="tn" data-label="Pop. informada">174.000</td><td class="tg" data-label="IBGE 2025">182.711</td><td data-label="Cadastro"><span class="warn">pop. −4,8%</span></td></tr>
+          <tr><td data-label="Município"><strong>Crato</strong></td><td data-label="UF informada">CE</td><td data-label="UF correta">CE</td><td class="tn" data-label="Pop. informada">140.000</td><td class="tg" data-label="IBGE 2025">139.027</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Barbalha</strong> <span class="dm">grafado "Barabalha"</span></td><td data-label="UF informada">CE</td><td data-label="UF correta">CE</td><td class="tn" data-label="Pop. informada">81.000</td><td class="tg" data-label="IBGE 2025">81.441</td><td data-label="Cadastro"><span class="warn">grafia</span></td></tr>
+          <tr><td data-label="Município"><strong>São Benedito</strong></td><td data-label="UF informada">CE</td><td data-label="UF correta">CE</td><td class="tn" data-label="Pop. informada">50.000</td><td class="tg" data-label="IBGE 2025">50.058</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Guaraciaba do Norte</strong></td><td data-label="UF informada">CE</td><td data-label="UF correta">CE</td><td class="tn" data-label="Pop. informada">44.000</td><td class="tg" data-label="IBGE 2025">44.565</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Coelho Neto</strong></td><td data-label="UF informada">PI</td><td data-label="UF correta"><strong>MA</strong></td><td class="tn" data-label="Pop. informada">42.000</td><td class="tg" data-label="IBGE 2025">42.841</td><td data-label="Cadastro"><span class="no">UF incorreta</span></td></tr>
+          <tr><td data-label="Município"><strong>Macau</strong> <span class="dm">grafado "Macal"</span></td><td data-label="UF informada">RN</td><td data-label="UF correta">RN</td><td class="tn" data-label="Pop. informada">27.000</td><td class="tg" data-label="IBGE 2025">28.350</td><td data-label="Cadastro"><span class="warn">grafia</span></td></tr>
+          <tr><td data-label="Município"><strong>Batalha</strong></td><td data-label="UF informada">PI</td><td data-label="UF correta">PI</td><td class="tn" data-label="Pop. informada">28.000</td><td class="tg" data-label="IBGE 2025">27.129</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Areia Branca</strong></td><td data-label="UF informada">RN</td><td data-label="UF correta">RN</td><td class="tn" data-label="Pop. informada">24.000</td><td class="tg" data-label="IBGE 2025">27.115</td><td data-label="Cadastro"><span class="warn">pop. +13%</span></td></tr>
+          <tr><td data-label="Município"><strong>São Miguel</strong></td><td data-label="UF informada">RN</td><td data-label="UF correta">RN</td><td class="tn" data-label="Pop. informada">25.000</td><td class="tg" data-label="IBGE 2025">23.100</td><td data-label="Cadastro"><span class="warn">pop. −7,6%</span></td></tr>
+          <tr><td data-label="Município"><strong>Cambuci</strong></td><td data-label="UF informada">RJ</td><td data-label="UF correta">RJ</td><td class="tn" data-label="Pop. informada">15.000</td><td class="tg" data-label="IBGE 2025">15.069</td><td data-label="Cadastro"><span class="warn">fora do NE</span></td></tr>
+          <tr><td data-label="Município"><strong>Baixa Grande do Ribeiro</strong></td><td data-label="UF informada">PI</td><td data-label="UF correta">PI</td><td class="tn" data-label="Pop. informada">14.000</td><td class="tg" data-label="IBGE 2025">13.983</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Rio de Contas</strong></td><td data-label="UF informada">BA</td><td data-label="UF correta">BA</td><td class="tn" data-label="Pop. informada">14.000</td><td class="tg" data-label="IBGE 2025">13.184</td><td data-label="Cadastro"><span class="warn">censo 2022</span></td></tr>
+          <tr><td data-label="Município"><strong>Santana do Matos</strong> <span class="dm">grafado "Santana do Mato"</span></td><td data-label="UF informada">RN</td><td data-label="UF correta">RN</td><td class="tn" data-label="Pop. informada">12.000</td><td class="tg" data-label="IBGE 2025">12.722</td><td data-label="Cadastro"><span class="warn">grafia</span></td></tr>
+          <tr><td data-label="Município"><strong>Angicos</strong></td><td data-label="UF informada">RN</td><td data-label="UF correta">RN</td><td class="tn" data-label="Pop. informada">12.000</td><td class="tg" data-label="IBGE 2025">11.985</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Curimatá</strong> <span class="dm">grafado "Curimata"</span></td><td data-label="UF informada">PI</td><td data-label="UF correta">PI</td><td class="tn" data-label="Pop. informada">12.000</td><td class="tg" data-label="IBGE 2025">11.581</td><td data-label="Cadastro"><span class="warn">grafia</span></td></tr>
+          <tr><td data-label="Município"><strong>Patu</strong></td><td data-label="UF informada">RN</td><td data-label="UF correta">RN</td><td class="tn" data-label="Pop. informada">12.000</td><td class="tg" data-label="IBGE 2025">11.215</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Umarizal</strong></td><td data-label="UF informada">RN</td><td data-label="UF correta">RN</td><td class="tn" data-label="Pop. informada">11.000</td><td class="tg" data-label="IBGE 2025">10.655</td><td data-label="Cadastro"><span class="ok">confere</span></td></tr>
+          <tr><td data-label="Município"><strong>Ribeiro Gonçalves</strong></td><td data-label="UF informada">PI</td><td data-label="UF correta">PI</td><td class="tn" data-label="Pop. informada">7.000</td><td class="tg" data-label="IBGE 2025">6.182</td><td data-label="Cadastro"><span class="warn">pop. −11,7%</span></td></tr>
+          <tr class="tr-hl"><td data-label="Município"><strong>Total</strong></td><td data-label="UF informada">—</td><td data-label="UF correta"><strong>6 UFs</strong></td><td data-label="Pop. informada"><strong>1.271.000</strong></td><td data-label="IBGE 2025"><strong>1.274.963</strong></td><td data-label="Cadastro"><strong>+0,3%</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Rio de Contas-BA não teve estimativa 2025 localizada; o valor apresentado é o Censo 2022 e está sinalizado como tal. Todos os demais correspondem à estimativa IBGE com data de referência de 1º de julho de 2025, publicada no Diário Oficial da União.</p>
+  </div>
+</section>
+
+<!-- ── 01 SUMÁRIO ── -->
+<section class="sec" id="s01">
+  <div class="ct">
+    <div class="ew">Parte 01</div>
+    <h2 class="t1">O essencial<br>em números.</h2>
+    <p class="lead">Resultado da modelagem antes do detalhamento.</p>
+
+    <p>A carteira de 21 municípios soma <strong>1.274.963 habitantes</strong> distribuídos por seis estados. A modelagem de demanda, ancorada na prevalência real de terapia renal substitutiva e na incidência de câncer, projeta cerca de <strong>191 mil viagens de ida e volta por ano</strong> apenas nas duas linhas cofinanciadas pelo marco federal de maio de 2026.</p>
+    <p>A precificação per capita varia por faixa de distância ao polo de referência, de <strong>R$ 0,68 a R$ 2,03 por habitante ao mês</strong>. Mas o determinante de viabilidade não é o preço per capita — é o <strong>piso de custo fixo</strong>. Central de regulação, roteirização e coordenação custam o mesmo para 6 mil ou 300 mil habitantes, e é isso que elimina cinco municípios da carteira.</p>
+
+    <div class="dc-grid">
+      <div class="dc">
+        <div class="dc-num">1,27<span class="u">mi</span></div>
+        <div class="dc-label">População Verificada</div>
+        <div class="dc-sub">IBGE 2025 · 21 municípios</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">977</div>
+        <div class="dc-label">Pacientes em Diálise</div>
+        <div class="dc-sub">Prevalência SBN 2024 aplicada</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">191<span class="u">mil</span></div>
+        <div class="dc-label">Viagens Ida e Volta / Ano</div>
+        <div class="dc-sub">Hemodiálise + radioterapia</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">R$&thinsp;0,72</div>
+        <div class="dc-label">Preço Médio Per Capita / Mês</div>
+        <div class="dc-sub">Carteira contratável · BDI 35%</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">R$&thinsp;10,5<span class="u">mi</span></div>
+        <div class="dc-label">Receita Anual em Regime Pleno</div>
+        <div class="dc-sub">16 municípios · 4 blocos</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">6–14<span class="u">meses</span></div>
+        <div class="dc-label">Payback com Frota Cedida</div>
+        <div class="dc-sub">25–36 meses com frota própria</div>
+      </div>
+    </div>
+
+    <div class="box box-gold">
+      <div class="box-label">A conclusão em uma frase</div>
+      <p>Dezesseis dos 21 municípios são contratáveis em quatro blocos, gerando <strong>R$ 10,5 milhões anuais</strong> a um preço médio de <strong>R$ 0,72 por habitante ao mês</strong>. Cinco municípios — Ribeiro Gonçalves, Baixa Grande do Ribeiro, Curimatá, Rio de Contas e Cambuci — não fecham conta em nenhuma configuração testada, e o motivo não é preço: é ausência de município adjacente com quem dividir o custo fixo de operação.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 02 METODOLOGIA ── -->
+<section class="sec" id="s02">
+  <div class="ct">
+    <div class="ew">Parte 02</div>
+    <h2 class="t1">Como esta conta<br>foi feita.</h2>
+    <p class="lead">Premissas declaradas, fontes citadas e o que ainda precisa de calibração de campo.</p>
+
+    <p>Um estudo de viabilidade só vale pela honestidade das premissas. Este separa explicitamente o que vem de fonte primária verificável do que é parâmetro declarado, sujeito a calibração no primeiro contrato.</p>
+
+    <h3 class="t2">Parâmetros de fonte primária</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Parâmetro</th><th>Valor</th><th>Fonte</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Parâmetro">População dos 21 municípios</td><td class="tg" data-label="Valor">1.274.963</td><td data-label="Fonte">IBGE · Estimativa de 1º/jul/2025, publicada no DOU</td></tr>
+          <tr><td data-label="Parâmetro">Prevalência de diálise</td><td class="tg" data-label="Valor">812 pmp</td><td data-label="Fonte">Censo Brasileiro de Diálise 2024 · SBN</td></tr>
+          <tr><td data-label="Parâmetro">Incidência de diálise</td><td class="tg" data-label="Valor">249 pmp</td><td data-label="Fonte">Censo Brasileiro de Diálise 2024 · SBN</td></tr>
+          <tr><td data-label="Parâmetro">Modalidade em centro (HD + HDF)</td><td class="tg" data-label="Valor">94,4%</td><td data-label="Fonte">Censo SBN 2024 · 87,3% HD + 7,1% HDF</td></tr>
+          <tr><td data-label="Parâmetro">Incidência de câncer no Brasil</td><td class="tg" data-label="Valor">781 mil/ano</td><td data-label="Fonte">INCA · Estimativa 2026–2028</td></tr>
+          <tr><td data-label="Parâmetro">Idem, exceto pele não melanoma</td><td class="tg" data-label="Valor">518 mil/ano</td><td data-label="Fonte">INCA · Estimativa 2026–2028</td></tr>
+          <tr><td data-label="Parâmetro">Piso de distância para custeio</td><td class="tg" data-label="Valor">50 km</td><td data-label="Fonte">Portarias GM/MS 11.164, 11.165 e 11.179 de 11/05/2026</td></tr>
+          <tr><td data-label="Parâmetro">Teto de raio para custeio</td><td class="tg" data-label="Valor">500 km</td><td data-label="Fonte">Portaria GM/MS 11.164/2026</td></tr>
+          <tr><td data-label="Parâmetro">Impacto fiscal federal · radioterapia</td><td class="tg" data-label="Valor">R$ 26.047.440/ano</td><td data-label="Fonte">Ministério da Saúde · estimativa 2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="t2">Parâmetros declarados</h3>
+    <p>Os valores abaixo não vêm de fonte primária citável. São premissas operacionais assumidas para tornar a conta possível, e cada uma está marcada no documento onde é usada. <strong>Todas devem ser recalibradas no primeiro contrato.</strong></p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Premissa</th><th>Valor adotado</th><th>Base do arbítrio</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Premissa">Fração de pacientes oncológicos que recebem radioterapia</td><td class="tg" data-label="Valor adotado">50%</td><td data-label="Base do arbítrio">Faixa usual de literatura internacional (50–60%); adotado o piso</td></tr>
+          <tr><td data-label="Premissa">Sessões por tratamento radioterápico</td><td class="tg" data-label="Valor adotado">25</td><td data-label="Base do arbítrio">Fracionamento convencional; varia por protocolo</td></tr>
+          <tr><td data-label="Premissa">Sessões de hemodiálise por paciente</td><td class="tg" data-label="Valor adotado">156/ano</td><td data-label="Base do arbítrio">Três sessões semanais · 52 semanas</td></tr>
+          <tr><td data-label="Premissa">Piso de viabilidade · contrato isolado</td><td class="tg" data-label="Valor adotado">R$ 77 mil/mês</td><td data-label="Base do arbítrio">Custo fixo mínimo de central própria e coordenação dedicada</td></tr>
+          <tr><td data-label="Premissa">Piso de viabilidade · bloco consorciado</td><td class="tg" data-label="Valor adotado">R$ 45 mil/mês</td><td data-label="Base do arbítrio">Custo fixo mínimo com central compartilhada</td></tr>
+          <tr><td data-label="Premissa">BDI sobre custo direto operacional</td><td class="tg" data-label="Valor adotado">35%</td><td data-label="Base do arbítrio">Piso Samais aplicado a todas as linhas de serviço · decomposto na Parte 08</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-amber">
+      <div class="box-label">Limite deste estudo</div>
+      <p>Este documento modela <strong>demanda potencial</strong>, não demanda contratada. Não substitui levantamento de campo em CNES, SIOPS e nas centrais de regulação estaduais, nem análise de editais vigentes. Cinco distâncias rodoviárias da carteira ainda dependem de confirmação em base oficial. Nenhum número aqui deve ser levado a ente público sem essa verificação.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 03 DEMANDA ── -->
+<section class="sec" id="s03">
+  <div class="ct">
+    <div class="ew">Parte 03</div>
+    <h2 class="t1">Quantos pacientes,<br>quantas viagens.</h2>
+    <p class="lead">Demanda modelada a partir de prevalência epidemiológica real aplicada à população verificada.</p>
+
+    <p>O transporte sanitário eletivo tem uma característica que o distingue da urgência: a demanda é <strong>previsível e repetitiva</strong>. Um paciente em hemodiálise faz o mesmo trajeto três vezes por semana, indefinidamente. Um paciente em radioterapia faz o mesmo trajeto por 25 dias consecutivos. Isso permite dimensionar frota e rota com precisão que a operação de urgência nunca alcança — e é a razão pela qual o modelo suporta contrato de preço fixo.</p>
+
+    <h3 class="t2">Terapia renal substitutiva</h3>
+    <p>O Censo Brasileiro de Diálise de 2024 estimou <strong>172.585 pacientes em diálise</strong> no país em 1º de julho daquele ano, com prevalência de <strong>812 por milhão de habitantes</strong> — curva ascendente contínua desde 2014, quando era de 552 pmp. Descontada a diálise peritoneal, que é domiciliar e não gera transporte, restam 94,4% em modalidade de centro.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Cálculo</th><th>Fórmula</th><th>Resultado</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cálculo">Pacientes em diálise na carteira</td><td data-label="Fórmula">1.274.963 × 812 / 1.000.000</td><td class="tg" data-label="Resultado">1.035 pacientes</td></tr>
+          <tr><td data-label="Cálculo">Em modalidade de centro</td><td data-label="Fórmula">1.035 × 94,4%</td><td class="tg" data-label="Resultado">977 pacientes</td></tr>
+          <tr><td data-label="Cálculo">Viagens ida e volta por ano</td><td data-label="Fórmula">977 × 156 sessões</td><td class="tg" data-label="Resultado">152.412 viagens</td></tr>
+          <tr class="tr-hl"><td data-label="Cálculo"><strong>Viagens por dia útil</strong></td><td data-label="Fórmula"><strong>152.412 / 300</strong></td><td data-label="Resultado"><strong>508 viagens/dia</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="t2">Radioterapia</h3>
+    <p>O INCA projeta <strong>781 mil novos casos de câncer por ano</strong> no Brasil entre 2026 e 2028, ou aproximadamente 518 mil excluídos os tumores de pele não melanoma — alta incidência, baixa letalidade e sem indicação radioterápica na maioria dos casos. Aplicada à população brasileira de 213,4 milhões, a taxa é de 2.427 casos por milhão.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Cálculo</th><th>Fórmula</th><th>Resultado</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cálculo">Casos novos na carteira</td><td data-label="Fórmula">1.274.963 × 2.427 / 1.000.000</td><td class="tg" data-label="Resultado">3.095 casos/ano</td></tr>
+          <tr><td data-label="Cálculo">Com indicação de radioterapia <span class="dm">premissa 50%</span></td><td data-label="Fórmula">3.095 × 50%</td><td class="tg" data-label="Resultado">1.547 pacientes/ano</td></tr>
+          <tr><td data-label="Cálculo">Viagens ida e volta por ano</td><td data-label="Fórmula">1.547 × 25 sessões</td><td class="tg" data-label="Resultado">38.675 viagens</td></tr>
+          <tr class="tr-hl"><td data-label="Cálculo"><strong>Viagens por dia útil</strong></td><td data-label="Fórmula"><strong>38.675 / 300</strong></td><td data-label="Resultado"><strong>129 viagens/dia</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-gold">
+      <div class="box-label">Volume consolidado das duas linhas cofinanciadas</div>
+      <p><strong>191.087 viagens de ida e volta por ano</strong>, ou cerca de <strong>637 por dia útil</strong>, apenas em hemodiálise e radioterapia. Este é o volume que a Portaria 11.179/2026 tornou elegível a custeio federal — e é o piso da operação, não o teto. Consultas especializadas, exames de imagem, cirurgias eletivas e TFD geral somam volume adicional que este estudo não modela por ausência de parâmetro confiável, mas que historicamente supera o volume de TRS e oncologia somados.</p>
+    </div>
+
+    <p class="fine">A conversão de viagens em frota depende da geometria de cada rota — quantos pacientes compartilham origem, destino e horário. Um veículo de 15 lugares que atende um turno de hemodiálise transporta até 15 pacientes na mesma viagem, e é por isso que o custo por paciente cai drasticamente quando há massa. Municípios com um ou dois pacientes por turno não permitem consolidação e carregam custo de viagem quase individual.</p>
+  </div>
+</section>
+
+<!-- ── 04 GEOMETRIA ── -->
+<section class="sec" id="s04">
+  <div class="ct">
+    <div class="ew">Parte 04</div>
+    <h2 class="t1">Origem, destino<br>e os 50 km.</h2>
+    <p class="lead">O que determina a receita não é a população — é a posição do município no fluxo e a distância até o polo.</p>
+
+    <p>O marco de 11 de maio de 2026 é composto por três portarias: a <strong>11.164</strong>, que altera a Portaria 8.516/2025 e regulamenta o transporte sanitário na forma dos arts. 2º-A e 2º-B da Lei nº 12.732/2012; a <strong>11.165</strong>, sobre deslocamento de pacientes; e a <strong>11.179</strong>, específica sobre transporte em radioterapia e terapia renal substitutiva. Os parâmetros são restritivos e definem quem entra na carteira.</p>
+
+    <div class="box box-gold">
+      <div class="box-label">Regras que filtram a carteira</div>
+      <p><strong>Radioterapia:</strong> custeio em âmbito interestadual e intermunicipal quando o deslocamento superar <strong>50 km</strong>. <strong>Hemodiálise:</strong> custeio em âmbito <strong>estadual</strong> quando o deslocamento intermunicipal superar 50 km — não cobre fluxo que cruza divisa de estado. Ambos limitados a <strong>raio máximo de 500 km</strong>.</p>
+    </div>
+
+    <h3 class="t2">Três consequências diretas</h3>
+    <p><strong>O piso de 50 km elimina conurbações.</strong> Timon está a 7 km de Teresina. O Cariri é tecido urbano contínuo. São Miguel está a 42 km de Pau dos Ferros. Nesses casos não há custeio federal de transporte — o que não significa que não haja contrato, significa que o contrato precisa se sustentar em recurso municipal próprio.</p>
+    <p><strong>O teto de 500 km elimina o extremo sul do Piauí.</strong> Ribeiro Gonçalves está a 581 km de Teresina. Não existe preço, frota ou argumento comercial que traga esse deslocamento para dentro do custeio — o limite é normativo.</p>
+    <p><strong>A restrição estadual da hemodiálise penaliza o Maranhão.</strong> Timon e Coelho Neto gravitam sobre Teresina, no Piauí. Para radioterapia o fluxo interestadual é admitido acima de 50 km; para hemodiálise, não.</p>
+
+    <h3 class="t2">Polos que são destino, não origem</h3>
+    <p>Três municípios da carteira concentram serviço em vez de exportar paciente. <strong>Barbalha</strong> abriga o Centro de Oncologia do HMSVP, referência para 45 municípios e 1,5 milhão de habitantes, com acelerador linear recém-instalado. <strong>Sobral</strong> tem unidade de diálise e transplante renal na Santa Casa, além do Hospital Regional Norte. <strong>Juazeiro do Norte</strong> sedia o Hospital Regional do Cariri.</p>
+    <p>Isso inverte a lógica comercial nesses três: o cofinanciamento federal remunera o deslocamento a partir do município de origem, ou seja, é capturado pelos vizinhos que enviam pacientes — não por eles. A proposta nesses casos deve se apoiar em <strong>transporte eletivo intramunicipal</strong> e em TFD de saída para Fortaleza, não no gatilho da portaria.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Faixa</th><th>Definição</th><th>Municípios da carteira</th><th>Custeio federal</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Faixa"><strong>Faixa A</strong></td><td data-label="Definição">Polo ou fluxo interno abaixo de 50 km</td><td data-label="Municípios da carteira">Juazeiro do Norte, Sobral, Timon, Crato, Barbalha, São Miguel</td><td data-label="Custeio federal"><span class="no">não elegível</span></td></tr>
+          <tr><td data-label="Faixa"><strong>Faixa B</strong></td><td data-label="Definição">Origem entre 50 e 150 km do polo</td><td data-label="Municípios da carteira">São Benedito, Guaraciaba do Norte, Coelho Neto, Macau, Areia Branca, Angicos, Santana do Matos, Patu, Umarizal, Cambuci, Rio de Contas</td><td data-label="Custeio federal"><span class="ok">elegível</span></td></tr>
+          <tr><td data-label="Faixa"><strong>Faixa C</strong></td><td data-label="Definição">Origem entre 150 e 350 km</td><td data-label="Municípios da carteira">Batalha, Curimatá</td><td data-label="Custeio federal"><span class="ok">elegível</span></td></tr>
+          <tr><td data-label="Faixa"><strong>Faixa D</strong></td><td data-label="Definição">Origem entre 350 e 500 km</td><td data-label="Municípios da carteira">Baixa Grande do Ribeiro</td><td data-label="Custeio federal"><span class="ok">elegível</span></td></tr>
+          <tr><td data-label="Faixa"><strong>Fora</strong></td><td data-label="Definição">Acima do teto de 500 km</td><td data-label="Municípios da carteira">Ribeiro Gonçalves</td><td data-label="Custeio federal"><span class="no">excluído por norma</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Distâncias confirmadas: Areia Branca–Mossoró 50 km · São Miguel–Pau dos Ferros 42 km · Umarizal–Pau dos Ferros 68 km · Guaraciaba do Norte–Tianguá 63 km · Angicos–Natal 173 km · Batalha–Teresina 161 km · Baixa Grande do Ribeiro–Floriano 356 km · Ribeiro Gonçalves–Teresina 581 km · Rio de Contas–Brumado 80 km · Cambuci–Itaperuna 80 km · Timon–Teresina 7 km. Pendentes de confirmação em base rodoviária oficial: São Benedito, Coelho Neto, Santana do Matos, Patu e Curimatá.</p>
+  </div>
+</section>
+
+<!-- ── 05 PRECIFICAÇÃO ── -->
+<section class="sec" id="s05">
+  <div class="ct">
+    <div class="ew">Parte 05</div>
+    <h2 class="t1">Preço por habitante,<br>por faixa.</h2>
+    <p class="lead">A precificação per capita cresce com a distância, mas quem decide a viabilidade é o custo fixo.</p>
+
+    <p>O contrato de referência do Master Plan ROTA — 300 mil habitantes, custo direto operacional de R$ 154 mil ao mês — equivale a <strong>R$ 0,513 por habitante ao mês</strong> em custo, ou R$ 0,69 em preço com o BDI Samais de 35%. Esse valor serve de âncora, mas não pode ser aplicado uniformemente: um município que envia pacientes a 356 km consome muito mais quilômetro rodado por habitante que um polo urbano compacto.</p>
+
+    <h3 class="t2">Bandas de preço por faixa de distância</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Faixa</th><th>Distância ao polo</th><th>Custo/hab/mês</th><th>Preço/hab/mês</th><th>Adotado no estudo</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Faixa"><strong>A</strong></td><td data-label="Distância ao polo">Polo ou menos de 50 km</td><td class="tn" data-label="Custo/hab/mês">R$ 0,45 – 0,55</td><td class="tn" data-label="Preço/hab/mês">R$ 0,61 – 0,74</td><td class="tg" data-label="Adotado no estudo">R$ 0,68</td></tr>
+          <tr><td data-label="Faixa"><strong>B</strong></td><td data-label="Distância ao polo">50 a 150 km</td><td class="tn" data-label="Custo/hab/mês">R$ 0,55 – 0,70</td><td class="tn" data-label="Preço/hab/mês">R$ 0,74 – 0,94</td><td class="tg" data-label="Adotado no estudo">R$ 0,84</td></tr>
+          <tr><td data-label="Faixa"><strong>C</strong></td><td data-label="Distância ao polo">150 a 350 km</td><td class="tn" data-label="Custo/hab/mês">R$ 0,75 – 1,05</td><td class="tn" data-label="Preço/hab/mês">R$ 1,01 – 1,42</td><td class="tg" data-label="Adotado no estudo">R$ 1,22</td></tr>
+          <tr><td data-label="Faixa"><strong>D</strong></td><td data-label="Distância ao polo">350 a 500 km</td><td class="tn" data-label="Custo/hab/mês">R$ 1,20 – 1,80</td><td class="tn" data-label="Preço/hab/mês">R$ 1,62 – 2,43</td><td class="tg" data-label="Adotado no estudo">R$ 2,03</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Preço = custo direto operacional × 1,35, conforme o BDI Samais de 35%. O valor adotado é o ponto médio de cada banda, refletindo a premissa de que a operação inicial não terá ainda o ganho de escala de roteirização consolidada.</p>
+
+    <h3 class="t2">Por que o preço per capita não decide sozinho</h3>
+    <p>Aplicar R$ 2,03 por habitante ao mês a Ribeiro Gonçalves, o município mais distante da carteira, produz uma receita mensal de <strong>R$ 12.549</strong>. Esse valor não cobre uma central de regulação, um coordenador operacional e um contrato administrado. Aplicar R$ 0,68 a Juazeiro do Norte produz <strong>R$ 207.761</strong> ao mês, com a mesma estrutura fixa diluída em cinquenta vezes mais habitantes.</p>
+    <p>É por isso que o estudo trabalha com dois pisos. O <strong>piso de contrato isolado</strong>, de R$ 77 mil mensais, cobre central própria e coordenação dedicada. O <strong>piso de bloco consorciado</strong>, de R$ 45 mil, pressupõe central compartilhada entre municípios contíguos — a estrutura que o Master Plan chama de ROTA Consórcio.</p>
+
+    <div class="box box-green">
+      <div class="box-label">O que a frota cedida muda</div>
+      <p>O programa Caminhos da Saúde está distribuindo 3.300 veículos a estados e municípios. Quando o veículo é cedido, sai da conta a depreciação — cerca de R$ 3.500 por veículo ao mês — e o custo por quilômetro cai de aproximadamente R$ 3,06 para R$ 2,36, uma redução de <strong>23%</strong>. Isso permite ofertar preço mais competitivo em edital <em>e</em> preservar margem, simultaneamente. Nenhuma outra variável do modelo tem esse efeito duplo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06 VIABILIDADE ── -->
+<section class="sec" id="s06">
+  <div class="ct">
+    <div class="ew">Parte 06</div>
+    <h2 class="t1">Município<br>a município.</h2>
+    <p class="lead">Receita projetada de cada um contra o piso de viabilidade correspondente.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Município</th><th>População</th><th>Faixa</th><th>Preço/hab/mês</th><th>Receita mensal</th><th>Situação</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Município"><strong>Juazeiro do Norte</strong><span class="uf">CE</span></td><td class="tn" data-label="População">305.531</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tg" data-label="Receita mensal">R$ 207.761</td><td data-label="Situação"><span class="vd vd-a">isolado</span></td></tr>
+          <tr><td data-label="Município"><strong>Sobral</strong><span class="uf">CE</span></td><td class="tn" data-label="População">216.519</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tg" data-label="Receita mensal">R$ 147.233</td><td data-label="Situação"><span class="vd vd-a">isolado</span></td></tr>
+          <tr><td data-label="Município"><strong>Timon</strong><span class="uf">MA</span></td><td class="tn" data-label="População">182.711</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tg" data-label="Receita mensal">R$ 124.243</td><td data-label="Situação"><span class="vd vd-a">isolado</span></td></tr>
+          <tr><td data-label="Município"><strong>Crato</strong><span class="uf">CE</span></td><td class="tn" data-label="População">139.027</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tg" data-label="Receita mensal">R$ 94.538</td><td data-label="Situação"><span class="vd vd-a">isolado</span></td></tr>
+          <tr><td data-label="Município"><strong>Barbalha</strong><span class="uf">CE</span></td><td class="tn" data-label="População">81.441</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tn" data-label="Receita mensal">R$ 55.380</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>São Benedito</strong><span class="uf">CE</span></td><td class="tn" data-label="População">50.058</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 42.049</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Guaraciaba do Norte</strong><span class="uf">CE</span></td><td class="tn" data-label="População">44.565</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 37.435</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Coelho Neto</strong><span class="uf">MA</span></td><td class="tn" data-label="População">42.841</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 35.986</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Batalha</strong><span class="uf">PI</span></td><td class="tn" data-label="População">27.129</td><td data-label="Faixa">C</td><td class="tn" data-label="Preço/hab/mês">R$ 1,22</td><td class="tn" data-label="Receita mensal">R$ 33.097</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Macau</strong><span class="uf">RN</span></td><td class="tn" data-label="População">28.350</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 23.814</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Areia Branca</strong><span class="uf">RN</span></td><td class="tn" data-label="População">27.115</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 22.777</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>São Miguel</strong><span class="uf">RN</span></td><td class="tn" data-label="População">23.100</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tn" data-label="Receita mensal">R$ 15.708</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Santana do Matos</strong><span class="uf">RN</span></td><td class="tn" data-label="População">12.722</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 10.686</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Angicos</strong><span class="uf">RN</span></td><td class="tn" data-label="População">11.985</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 10.067</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Patu</strong><span class="uf">RN</span></td><td class="tn" data-label="População">11.215</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 9.421</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Umarizal</strong><span class="uf">RN</span></td><td class="tn" data-label="População">10.655</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 8.950</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
+          <tr><td data-label="Município"><strong>Baixa Grande do Ribeiro</strong><span class="uf">PI</span></td><td class="tn" data-label="População">13.983</td><td data-label="Faixa">D</td><td class="tn" data-label="Preço/hab/mês">R$ 2,03</td><td class="tn" data-label="Receita mensal">R$ 28.385</td><td data-label="Situação"><span class="vd vd-c">sem bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Curimatá</strong><span class="uf">PI</span></td><td class="tn" data-label="População">11.581</td><td data-label="Faixa">C</td><td class="tn" data-label="Preço/hab/mês">R$ 1,22</td><td class="tn" data-label="Receita mensal">R$ 14.129</td><td data-label="Situação"><span class="vd vd-c">sem bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Cambuci</strong><span class="uf">RJ</span></td><td class="tn" data-label="População">15.069</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 12.658</td><td data-label="Situação"><span class="vd vd-c">sem bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Rio de Contas</strong><span class="uf">BA</span></td><td class="tn" data-label="População">13.184</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 11.075</td><td data-label="Situação"><span class="vd vd-c">sem bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Ribeiro Gonçalves</strong><span class="uf">PI</span></td><td class="tn" data-label="População">6.182</td><td data-label="Faixa">Fora</td><td class="tn" data-label="Preço/hab/mês">R$ 2,03</td><td class="tn" data-label="Receita mensal">R$ 12.549</td><td data-label="Situação"><span class="vd vd-c">descartar</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Isolado</strong> significa receita acima de R$ 77 mil ao mês — sustenta contrato próprio com central dedicada. <strong>Consorciado</strong> significa abaixo desse piso, mas com município adjacente na carteira ou na região com quem dividir a central. <strong>Sem bloco</strong> significa que o município qualifica no gatilho da portaria mas não tem vizinho na carteira, e sozinho fica abaixo dos R$ 45 mil.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">O caso Ribeiro Gonçalves</div>
+      <p>Mesmo aplicando a banda de preço mais alta do estudo, o município gera R$ 12.549 mensais — e está a 581 km do polo, acima do teto normativo de 500 km. É o único da carteira que falha nos dois critérios simultaneamente: escala e elegibilidade. Recomenda-se descarte formal, com reavaliação apenas se surgir serviço de hemodiálise ou radioterapia em Floriano, Uruçuí ou Bom Jesus que reduza a distância efetiva.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 07 BLOCOS ── -->
+<section class="sec" id="s07">
+  <div class="ct">
+    <div class="ew">Parte 07</div>
+    <h2 class="t1">Quatro blocos<br>contratáveis.</h2>
+    <p class="lead">Reagrupamento dos 16 municípios viáveis em unidades de contratação com central compartilhada.</p>
+
+    <div class="hb-grid">
+      <div class="hb">
+        <div class="hb-tag">Bloco A</div>
+        <div class="hb-period">Cariri · Ceará</div>
+        <div class="hb-title">Conurbação de 526 mil</div>
+        <div class="hb-desc">Juazeiro do Norte, Crato e Barbalha em tecido urbano contínuo, com hospital regional e centro de radioterapia próprios. Três contratos municipais com uma única central. É o único bloco que sustenta contrato âncora nos termos do Master Plan.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">3</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">525.999</span></div>
+          <div class="hb-row"><span class="hb-k">Receita mensal</span><span class="hb-v">R$ 357.679</span></div>
+          <div class="hb-row"><span class="hb-k">Receita anual</span><span class="hb-v">R$ 4,29 mi</span></div>
+        </div>
+      </div>
+      <div class="hb">
+        <div class="hb-tag">Bloco B</div>
+        <div class="hb-period">Norte do Ceará</div>
+        <div class="hb-title">Sobral e a Ibiapaba</div>
+        <div class="hb-desc">Sobral como contrato isolado; São Benedito e Guaraciaba do Norte, a 23 km um do outro na serra, como primeiro consórcio. A Ibiapaba tem mais municípios que os dois listados — Tianguá, Ibiapina, Ubajara, Croatá e Carnaubal ampliam o bloco sem ampliar a central.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">3</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">311.142</span></div>
+          <div class="hb-row"><span class="hb-k">Receita mensal</span><span class="hb-v">R$ 226.717</span></div>
+          <div class="hb-row"><span class="hb-k">Receita anual</span><span class="hb-v">R$ 2,72 mi</span></div>
+        </div>
+      </div>
+      <div class="hb">
+        <div class="hb-tag">Bloco C</div>
+        <div class="hb-period">Eixo Teresina–Timon</div>
+        <div class="hb-title">Escala sem cofinanciamento</div>
+        <div class="hb-desc">Timon isolado, mais Coelho Neto e Batalha consorciados. O bloco tem a segunda maior massa da carteira, mas a menor alavanca federal: Timon está a 7 km de Teresina, e o fluxo maranhense para o Piauí não é coberto na linha de hemodiálise. Exige pactuação bi-estadual.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">3</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">252.681</span></div>
+          <div class="hb-row"><span class="hb-k">Receita mensal</span><span class="hb-v">R$ 193.326</span></div>
+          <div class="hb-row"><span class="hb-k">Receita anual</span><span class="hb-v">R$ 2,32 mi</span></div>
+        </div>
+      </div>
+      <div class="hb">
+        <div class="hb-tag">Bloco D</div>
+        <div class="hb-period">Rio Grande do Norte</div>
+        <div class="hb-title">Sete municípios, três polos</div>
+        <div class="hb-desc">Areia Branca e Macau orbitam Mossoró; São Miguel, Umarizal e Patu orbitam Pau dos Ferros; Angicos e Santana do Matos ficam no eixo central. Nenhum sustenta contrato isolado, mas juntos ultrapassam o piso consorcial com folga. É o bloco de maior urgência factual da carteira.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">7</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">125.142</span></div>
+          <div class="hb-row"><span class="hb-k">Receita mensal</span><span class="hb-v">R$ 101.423</span></div>
+          <div class="hb-row"><span class="hb-k">Receita anual</span><span class="hb-v">R$ 1,22 mi</span></div>
+        </div>
+      </div>
+      <div class="hb dead">
+        <div class="hb-tag">Fora</div>
+        <div class="hb-period">Sul do Piauí e isolados</div>
+        <div class="hb-title">Cinco sem adjacência</div>
+        <div class="hb-desc">Ribeiro Gonçalves, Baixa Grande do Ribeiro e Curimatá no sul do Piauí; Rio de Contas na Chapada Diamantina; Cambuci no Noroeste Fluminense. Quatro deles qualificam no gatilho de 50 km, mas nenhum tem vizinho na carteira com quem dividir central. Somados, ficariam acima do piso — só que estão espalhados por quatro estados.</div>
+        <div class="hb-divider"></div>
+        <div class="hb-kv">
+          <div class="hb-row"><span class="hb-k">Municípios</span><span class="hb-v">5</span></div>
+          <div class="hb-row"><span class="hb-k">População</span><span class="hb-v">59.999</span></div>
+          <div class="hb-row"><span class="hb-k">Receita mensal</span><span class="hb-v">não contratável</span></div>
+          <div class="hb-row"><span class="hb-k">Receita anual</span><span class="hb-v">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-amber">
+      <div class="box-label">Alerta de porte estrutural</div>
+      <p>O parâmetro comercial da Samais recomenda verificar se a operação justifica a estrutura administrativa em contratos abaixo de <strong>R$ 300 mil mensais</strong>. Dos quatro blocos, <strong>apenas o Cariri ultrapassa esse limiar</strong> — Norte do Ceará, Teresina–Timon e Rio Grande do Norte ficam abaixo. Isso não os inviabiliza, mas condiciona: os três dependem de central de regulação genuinamente compartilhada e de rateio de coordenação entre blocos, não de estrutura replicada. Se cada bloco montar sua própria estrutura administrativa, três dos quatro deixam de fechar conta.</p>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Bloco</th><th>Municípios</th><th>População</th><th>Receita mensal</th><th>Receita anual</th><th>Per capita/mês</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Bloco"><strong>A · Cariri</strong></td><td class="tn" data-label="Municípios">3</td><td class="tn" data-label="População">525.999</td><td class="tg" data-label="Receita mensal">R$ 357.679</td><td class="tg" data-label="Receita anual">R$ 4,29 mi</td><td class="tn" data-label="Per capita/mês">R$ 0,68</td></tr>
+          <tr><td data-label="Bloco"><strong>B · Norte do Ceará</strong></td><td class="tn" data-label="Municípios">3</td><td class="tn" data-label="População">311.142</td><td class="tg" data-label="Receita mensal">R$ 226.717</td><td class="tg" data-label="Receita anual">R$ 2,72 mi</td><td class="tn" data-label="Per capita/mês">R$ 0,73</td></tr>
+          <tr><td data-label="Bloco"><strong>C · Teresina–Timon</strong></td><td class="tn" data-label="Municípios">3</td><td class="tn" data-label="População">252.681</td><td class="tg" data-label="Receita mensal">R$ 193.326</td><td class="tg" data-label="Receita anual">R$ 2,32 mi</td><td class="tn" data-label="Per capita/mês">R$ 0,77</td></tr>
+          <tr><td data-label="Bloco"><strong>D · Rio Grande do Norte</strong></td><td class="tn" data-label="Municípios">7</td><td class="tn" data-label="População">125.142</td><td class="tg" data-label="Receita mensal">R$ 101.423</td><td class="tg" data-label="Receita anual">R$ 1,22 mi</td><td class="tn" data-label="Per capita/mês">R$ 0,81</td></tr>
+          <tr><td data-label="Bloco">Fora da carteira</td><td class="tn" data-label="Municípios">5</td><td class="tn" data-label="População">59.999</td><td data-label="Receita mensal">—</td><td data-label="Receita anual">—</td><td data-label="Per capita/mês">—</td></tr>
+          <tr class="tr-hl"><td data-label="Bloco"><strong>Carteira contratável</strong></td><td data-label="Municípios"><strong>16</strong></td><td data-label="População"><strong>1.214.964</strong></td><td data-label="Receita mensal"><strong>R$ 879.145</strong></td><td data-label="Receita anual"><strong>R$ 10,55 mi</strong></td><td data-label="Per capita/mês"><strong>R$ 0,72</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── 08 RETORNO ── -->
+<section class="sec" id="s08">
+  <div class="ct">
+    <div class="ew">Parte 08</div>
+    <h2 class="t1">Retorno<br>e payback.</h2>
+    <p class="lead">O que a carteira devolve, em quanto tempo, e a única variável que muda a resposta.</p>
+
+    <h3 class="t2">Resultado em regime pleno</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Linha</th><th>Mensal</th><th>Anual</th><th>48 meses</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Linha">Receita contratual</td><td class="tg" data-label="Mensal">R$ 879.145</td><td class="tg" data-label="Anual">R$ 10.549.740</td><td class="tg" data-label="48 meses">R$ 42.198.960</td></tr>
+          <tr><td data-label="Linha">Custo direto operacional</td><td class="tn" data-label="Mensal">R$ 651.219</td><td class="tn" data-label="Anual">R$ 7.814.628</td><td class="tn" data-label="48 meses">R$ 31.258.512</td></tr>
+          <tr><td data-label="Linha">Composição do valor contratual · 35% sobre CDO</td><td class="tn" data-label="Mensal">R$ 227.926</td><td class="tn" data-label="Anual">R$ 2.735.112</td><td class="tn" data-label="48 meses">R$ 10.940.448</td></tr>
+          <tr class="tr-hl"><td data-label="Linha"><strong>Resultado líquido pós-impostos</strong></td><td data-label="Mensal"><strong>R$ 105–132 mil</strong></td><td data-label="Anual"><strong>R$ 1,27–1,58 mi</strong></td><td data-label="48 meses"><strong>R$ 5,06–6,33 mi</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Resultado líquido calculado na faixa de 12% a 15% sobre receita. A composição de 35% sobre o custo direto operacional é decomposta por rubrica na tabela seguinte e <strong>nunca é apresentada ao ente público como valor único</strong> — a decomposição é tecnicamente correta, juridicamente defensável na Lei 14.133/2021 e comercialmente necessária.</p>
+
+    <h3 class="t2">Composição do valor contratual</h3>
+    <p>A composição de 35% sobre o custo direto operacional não é margem — é o conjunto de encargos, provisões e estrutura que viabiliza o contrato. Apresentada decomposta por rubrica, é tecnicamente correta e juridicamente defensável na Lei 14.133/2021. <strong>As palavras "lucro", "margem" e "lucratividade" não aparecem em nenhuma superfície da proposta</strong> — capa, sumário, slide, e-mail ou reunião.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Rubrica</th><th>% sobre CDO</th><th>Valor mensal</th><th>Natureza</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Rubrica">Tributos sobre faturamento · PIS, COFINS, ISS, provisão IR/CSLL</td><td class="tn" data-label="% sobre CDO">13,5%</td><td class="tg" data-label="Valor mensal">R$ 87.915</td><td data-label="Natureza">Obrigatório</td></tr>
+          <tr><td data-label="Rubrica">Despesas administrativas e de gestão corporativa</td><td class="tn" data-label="% sobre CDO">8,0%</td><td class="tg" data-label="Valor mensal">R$ 52.098</td><td data-label="Natureza">Estrutural</td></tr>
+          <tr><td data-label="Rubrica">Tecnologia, sistemas e roteirização</td><td class="tn" data-label="% sobre CDO">5,0%</td><td class="tg" data-label="Valor mensal">R$ 32.561</td><td data-label="Natureza">Diferencial</td></tr>
+          <tr><td data-label="Rubrica">Reserva técnica operacional · frota, equipamentos, contingências</td><td class="tn" data-label="% sobre CDO">3,0%</td><td class="tg" data-label="Valor mensal">R$ 19.537</td><td data-label="Natureza">Prudencial</td></tr>
+          <tr><td data-label="Rubrica">Capacitação continuada e desenvolvimento técnico</td><td class="tn" data-label="% sobre CDO">2,0%</td><td class="tg" data-label="Valor mensal">R$ 13.024</td><td data-label="Natureza">Diferencial</td></tr>
+          <tr><td data-label="Rubrica">Contingências, seguros e garantias contratuais</td><td class="tn" data-label="% sobre CDO">2,5%</td><td class="tg" data-label="Valor mensal">R$ 16.280</td><td data-label="Natureza">Prudencial</td></tr>
+          <tr><td data-label="Rubrica">Remuneração empresarial</td><td class="tn" data-label="% sobre CDO">4,0%</td><td class="tg" data-label="Valor mensal">R$ 26.049</td><td data-label="Natureza">Resultado</td></tr>
+          <tr class="tr-hl"><td data-label="Rubrica"><strong>Decomposição de referência</strong></td><td data-label="% sobre CDO"><strong>38,0%</strong></td><td data-label="Valor mensal"><strong>R$ 247.463</strong></td><td data-label="Natureza"><strong>Piso de negociação 37,5%</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-amber">
+      <div class="box-label">Divergência a resolver antes da proposta</div>
+      <p>A referência canônica de composição de preço soma <strong>38,0%</strong> por rubrica, com piso de negociação em 37,5%. A fórmula de aplicação, porém, é <strong>CDO × 1,35</strong>. Esta modelagem adotou o multiplicador de 35% por ser o que aparece tanto na fórmula quanto nos benchmarks operacionais — mas a diferença de três pontos vale <strong>R$ 234.447 por ano</strong> nesta carteira. A rubrica de reserva técnica, de 3,0%, é exatamente o tamanho da lacuna. Definir qual dos dois prevalece é decisão de diretoria e deve anteceder qualquer planilha aberta em edital.</p>
+    </div>
+
+    <h3 class="t2">Investimento de implantação</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Rubrica</th><th>Faixa</th><th>Observação</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Rubrica">Centrais de regulação regionais · 2 unidades</td><td class="tg" data-label="Faixa">R$ 180 – 320 mil</td><td data-label="Observação">Uma no Ceará, uma cobrindo RN, PI e MA</td></tr>
+          <tr><td data-label="Rubrica">Estruturação comercial, jurídica e habilitação</td><td class="tg" data-label="Faixa">R$ 250 – 420 mil</td><td data-label="Observação">Quatro blocos, seis estados, dois consórcios a constituir</td></tr>
+          <tr><td data-label="Rubrica">Capital de giro e implantação</td><td class="tg" data-label="Faixa">R$ 400 – 700 mil</td><td data-label="Observação">Ciclo de faturamento público de 60 a 90 dias</td></tr>
+          <tr><td data-label="Rubrica">Frota própria · cenário sem cessão</td><td class="tn" data-label="Faixa">R$ 2,4 mi</td><td data-label="Observação">Eliminado no cenário com frota do Caminhos da Saúde</td></tr>
+          <tr class="tr-hl"><td data-label="Rubrica"><strong>Total com frota cedida</strong></td><td data-label="Faixa"><strong>R$ 830 mil – 1,44 mi</strong></td><td data-label="Observação"><strong>Cenário-base</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="t2">A variável que decide</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Cenário</th><th>Investimento</th><th>Margem anual</th><th>Payback</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cenário"><strong>Frota cedida via Caminhos da Saúde</strong></td><td class="tn" data-label="Investimento">R$ 0,83 – 1,44 mi</td><td class="tn" data-label="Margem anual">R$ 1,27 – 1,58 mi</td><td class="tg" data-label="Payback">6 – 14 meses</td></tr>
+          <tr><td data-label="Cenário">Frota própria</td><td class="tn" data-label="Investimento">R$ 3,23 – 3,84 mi</td><td class="tn" data-label="Margem anual">R$ 1,27 – 1,58 mi</td><td class="tn" data-label="Payback">25 – 36 meses</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-green">
+      <div class="box-label">A conclusão financeira do estudo</div>
+      <p>A diferença entre um payback de <strong>6 a 14 meses</strong> e um de <strong>25 a 36 meses</strong> não está no preço praticado, na margem negociada ou no tamanho da carteira. Está em <strong>quem compra o veículo</strong>. O programa federal já colocou 3.300 veículos em distribuição a estados e municípios; a estratégia de entrada deve condicionar a proposta à cessão da frota sempre que o município for beneficiário do programa — e tratar o cenário de frota própria como exceção, não como padrão.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 09 VEREDITO ── -->
+<section class="sec" id="s09">
+  <div class="ct">
+    <div class="ew">Parte 09</div>
+    <h2 class="t1">Veredito.</h2>
+    <p class="lead">O que fazer com esta carteira, em ordem.</p>
+
+    <div class="syn-grid">
+      <div class="syn">
+        <div class="syn-label">Viabilidade</div>
+        <p class="syn-text"><strong>16 dos 21 municípios</strong> são contratáveis em quatro blocos, somando 1,21 milhão de habitantes e <strong>R$ 10,55 milhões anuais</strong> em regime pleno.</p>
+      </div>
+      <div class="syn">
+        <div class="syn-label">Precificação</div>
+        <p class="syn-text">Preço médio de <strong>R$ 0,72 por habitante ao mês</strong>, variando de R$ 0,68 nos polos a R$ 2,03 nas origens acima de 350 km.</p>
+      </div>
+      <div class="syn">
+        <div class="syn-label">Retorno</div>
+        <p class="syn-text">Resultado líquido de <strong>R$ 1,27 a 1,58 milhão ao ano</strong>, com payback entre 6 e 14 meses quando a frota é cedida pelo programa federal.</p>
+      </div>
+    </div>
+
+    <h3 class="t2">Sequência recomendada</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Ordem</th><th>Bloco</th><th>Razão</th><th>Porta de entrada</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Ordem"><strong>1ª</strong></td><td data-label="Bloco">Cariri · CE</td><td data-label="Razão">Maior massa, menor dispersão, três prefeituras em tecido contínuo. Único bloco com escala de contrato âncora.</td><td data-label="Porta de entrada">Juazeiro do Norte · transporte eletivo municipal</td></tr>
+          <tr><td data-label="Ordem"><strong>2ª</strong></td><td data-label="Bloco">Norte do Ceará</td><td data-label="Razão">Sobral dá o contrato de porte; a Ibiapaba testa a tese consorcial em terreno geograficamente compacto.</td><td data-label="Porta de entrada">Sobral, depois consórcio serrano ampliado</td></tr>
+          <tr><td data-label="Ordem"><strong>3ª</strong></td><td data-label="Bloco">Rio Grande do Norte</td><td data-label="Razão">Dor pública documentada: a interdição do centro de diálise de Mossoró deslocou mais de 130 pacientes do Vale do Açu para Assú e Caicó.</td><td data-label="Porta de entrada">Pauta de emergência junto à SESAP, não licitação ordinária</td></tr>
+          <tr><td data-label="Ordem"><strong>4ª</strong></td><td data-label="Bloco">Teresina–Timon</td><td data-label="Razão">Maior complexidade institucional e menor alavanca de cofinanciamento. Exige pactuação bi-estadual MA–PI.</td><td data-label="Porta de entrada">Regional de saúde de Timon · pactuação em curso</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-amber">
+      <div class="box-label">Antes de qualquer manifestação formal</div>
+      <p>Confirmar em base rodoviária oficial as cinco distâncias pendentes — São Benedito, Coelho Neto, Santana do Matos, Patu e Curimatá — porque delas depende a qualificação no gatilho de 50 km. Levantar em CNES a rede de diálise e radioterapia efetivamente habilitada em cada polo. Cruzar a carteira com a base de contratos SAMU vigentes: a operação de referência da Samais é o CISNORPI, no Paraná, e sem sobreposição o argumento de <em>cross-sell</em> não se aplica a esta geografia.</p>
+    </div>
+
+    <div style="margin-top:64px;padding-top:44px;border-top:1px solid var(--border)">
+      <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px">Recomendação do estudo</p>
+      <p style="font-family:'Syne',sans-serif;font-size:clamp(32px,4vw,50px);font-weight:800;color:var(--text);letter-spacing:-.02em;margin-bottom:16px;line-height:1.05">Quatro blocos,<br>não vinte e um nomes.</p>
+      <p style="max-width:620px;color:var(--sub);font-size:15.5px;line-height:1.7;margin:0">Trabalhar a carteira como lista de 21 prospects consome o time comercial inteiro e não produz contrato. Trabalhá-la como quatro aproximações regionais, cada uma com uma central compartilhada e um interlocutor institucional único, entrega os mesmos R$ 10,55 milhões com um quarto do esforço de captura.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-in">
+    <div>
+      <div class="footer-brand">Samais <em>·</em> Gestão em Saúde</div>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5;font-family:'JetBrains Mono',monospace;letter-spacing:.06em">Estudo de Viabilidade ROTA · 21 Municípios · v1</p>
+    </div>
+    <div class="footer-meta">
+      <span>Agosto · 2026</span>
+      <span class="footer-conf">Confidencial · Uso interno</span>
+    </div>
+  </div>
+</footer>
+
+</main>
+</div>
+
+<script>
+function toggleNav(){
+  document.getElementById('nav').classList.toggle('open');
+  document.getElementById('ov').classList.toggle('on');
+}
+function closeNav(){
+  document.getElementById('nav').classList.remove('open');
+  document.getElementById('ov').classList.remove('on');
+}
+document.querySelectorAll('.nav-item a').forEach(a=>{
+  a.addEventListener('click',()=>{if(window.innerWidth<=768)closeNav()});
+});
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('npb').style.width=Math.min(pct,100)+'%';
+});
+const secs=document.querySelectorAll('section[id]');
+const links=document.querySelectorAll('.nav-item a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('active'));
+      const a=document.querySelector(`.nav-item a[href="#${e.target.id}"]`);
+      if(a){a.classList.add('active');a.scrollIntoView({block:'nearest',behavior:'smooth'});}
+    }
+  });
+},{rootMargin:'-15% 0px -75% 0px',threshold:0});
+secs.forEach(s=>obs.observe(s));
+</script>
+
+</body>
+</html>
