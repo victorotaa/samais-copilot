@@ -124,8 +124,8 @@ O ritmo alterna escuro · alt · **ouro** · escuro · alt · **creme** · escur
 |---|---|
 | Preencher quem/canal/data do contato com o MS (§1) | Ota |
 | Substituir as vinhetas de interface por capturas reais da demo, se desejado | Ota |
-| Publicar ou não a peça (hoje **não** entra no deploy — o build só copia `lp/`) | Ota/André |
-| Produzir a versão em slides após validação do documento | próxima rodada |
+| ~~Publicar ou não a peça~~ | **publicada** em 13/08/2026 — o `build` copia `apresentacao-ms/` para `dist/`, servida em `/apresentacao-ms/` sob CSP própria (`vercel.json`) |
+| Produzir a versão em slides | **adiada por decisão do Ota em 16/08/2026.** O documento longo está validado e no ar; os slides saem quando a agenda com o MS for marcada, e é ele quem aciona. Não é pendência técnica — é sequência. |
 | Citar ou não a carteira de contratos como lastro operacional | Ota (hoje omitido por decisão) |
 | ~~Converter os custos para reais~~ | **feito na v2** (câmbio declarado na referência nº 6) |
 | Revalidar o câmbio se a apresentação for muito depois de 11/08/2026 | Ota |

@@ -19,6 +19,29 @@ CTA principal: **"Agendar demonstração da central"**. CTA secundário: **"Baix
 
 Paridade com PEP OS concluída (Sprint 1). A LP usa os tokens canônicos da marca (`docs/04-design-system.md`, fonte: PEP OS v1.0) — dark como padrão, light disponível em toggle no topo. Implementada em `lp/index.html` (opção B, deploy standalone).
 
+### 3.1 Fotografia — ressalva registrada, decisão tomada
+
+As fotos de `lp/assets/` **ficam como estão** por decisão do Ota em 16/08/2026. A ressalva
+abaixo está registrada aqui para não voltar como pergunta a cada revisão da LP — quem
+reabrir o assunto encontra a decisão, não o susto.
+
+Duas delas têm procedência frágil sob o Princípio da Realidade:
+
+- **`viatura-close.jpg`** — a viatura traz marcação de **Santa Catarina**, onde a Samais não
+  tem frente. Aparece duas vezes com `alt="Viatura Samais em operação"`, o que afirma o que
+  a foto não sustenta.
+- **`socorrista2.jpg`** — traz **pessoa identificável**, sem autorização de uso de imagem
+  registrada em arquivo algum deste repositório.
+
+A alternativa avaliada e recusada por ora foi trocá-las por grafismo abstrato gerado, no
+mesmo padrão dos seis de `docs/img/` — que existem justamente porque a apresentação ao
+Ministério da Saúde não podia correr esse risco (`docs/13` §6, decisões de v2). **A régua
+é a audiência:** a peça institucional ao MS não admite foto sem procedência; a LP comercial
+segue com as que já estavam.
+
+Se a decisão for reaberta, o caminho já está mapeado: gerar as substitutas no padrão de
+`docs/img/`, e ajustar o `alt` para descrever a cena, não para afirmar de quem ela é.
+
 ## 4. Estrutura (top → bottom)
 
 ### 4.1 Hero — "Cada minuto importa, e cada minuto está no Samais"
