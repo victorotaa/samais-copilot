@@ -248,7 +248,11 @@ td strong{color:var(--text);font-weight:600}
   td{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding:11px 16px;border-bottom:1px solid var(--border);text-align:right}
   tr:last-child td{border-bottom:1px solid var(--border)}
   tr td:last-child{border-bottom:none}
-  td::before{content:attr(data-label);font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);text-align:left;line-height:1.5;flex:0 0 42%}
+  td::before{content:attr(data-label);font-family:'JetBrains Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;line-height:1.45;flex:0 0 38%}
+  /* Preço é o dado procurado: no mobile cresce e ganha contraste */
+  td.tg,td.tn{font-size:15px}
+  td.tg{color:var(--gold-300)!important;font-weight:500}
+  tbody tr td.tg{background:rgba(var(--gold-rgb),.05)}
   .tr-hl{border-color:rgba(var(--gold-rgb),.35);background:rgba(var(--gold-rgb),.05)}
   .tr-hl td{border-top:none;background:transparent}
 }
@@ -417,7 +421,7 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 02 METODOLOGIA ── -->
-<section class="sec" id="s02">
+<section class="sec gold" id="s02">
   <div class="ct">
     <div class="ew">Parte 02</div>
     <h2 class="t1">Como esta conta<br>foi feita.</h2>
@@ -470,6 +474,8 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 03 DEMANDA ── -->
+<hr class="sweep">
+
 <section class="sec" id="s03">
   <div class="ct">
     <div class="ew">Parte 03</div>
@@ -525,7 +531,7 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 04 GEOMETRIA ── -->
-<section class="sec" id="s04">
+<section class="sec lift" id="s04">
   <div class="ct">
     <div class="ew">Parte 04</div>
     <h2 class="t1">Origem, destino<br>e os 50 km.</h2>
@@ -564,7 +570,7 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 05 PRECIFICAÇÃO ── -->
-<section class="sec" id="s05">
+<section class="sec deep" id="s05">
   <div class="ct">
     <div class="ew">Parte 05</div>
     <h2 class="t1">Preço por habitante,<br>por faixa.</h2>
@@ -645,7 +651,7 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 06 VIABILIDADE ── -->
-<section class="sec" id="s06">
+<section class="sec gold" id="s06">
   <div class="ct">
     <div class="ew">Parte 06</div>
     <h2 class="t1">Município<br>a município.</h2>
@@ -690,6 +696,8 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 07 BLOCOS ── -->
+<hr class="sweep">
+
 <section class="sec" id="s07">
   <div class="ct">
     <div class="ew">Parte 07</div>
@@ -787,7 +795,7 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 08 RETORNO ── -->
-<section class="sec" id="s08">
+<section class="sec deep" id="s08">
   <div class="ct">
     <div class="ew">Parte 08</div>
     <h2 class="t1">Retorno<br>e payback.</h2>
@@ -863,7 +871,7 @@ td strong{color:var(--text);font-weight:600}
 </section>
 
 <!-- ── 09 VEREDITO ── -->
-<section class="sec" id="s09">
+<section class="sec lift" id="s09">
   <div class="ct">
     <div class="ew">Parte 09</div>
     <h2 class="t1">Veredito.</h2>

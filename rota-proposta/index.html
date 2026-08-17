@@ -96,7 +96,11 @@ a{color:inherit;text-decoration:none}
 /* ── Dobras: ritmo por gradiente, não por troca de fundo ── */
 .fold{position:relative;z-index:1;scroll-margin-top:80px;padding:104px 0;border-top:1px solid var(--border-subtle)}
 .fold:first-of-type{border-top:0}
-.fold-alt{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 1.4%,transparent),transparent 70%)}
+.fold-alt{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 1.6%,transparent),transparent 72%)}
+.fold-deep{background:var(--surface)}
+.fold-gold{background:linear-gradient(180deg,rgba(var(--gold-rgb),.055),transparent 68%)}
+/* Varredura dourada entre grupos temáticos */
+.sweep{height:1px;border:0;margin:0;background:linear-gradient(90deg,transparent,rgba(var(--gold-rgb),.32) 50%,transparent)}
 
 /* ── Tipografia ── */
 h1,h2,h3{font-family:'Syne',sans-serif;line-height:1.08;letter-spacing:-.02em;color:var(--ink)}
@@ -261,7 +265,11 @@ td strong{color:var(--ink);font-weight:600}
   td{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding:11px 16px;border-bottom:1px solid var(--border-subtle);text-align:right}
   tr:last-child td{border-bottom:1px solid var(--border-subtle)}
   tr td:last-child{border-bottom:none}
-  td::before{content:attr(data-label);font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);text-align:left;line-height:1.5;flex:0 0 42%}
+  td::before{content:attr(data-label);font-family:'JetBrains Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);text-align:left;line-height:1.45;flex:0 0 38%}
+  /* Preço é o dado que o gestor procura: no mobile ele cresce e ganha contraste */
+  td.tg,td.tn{font-size:15px}
+  td.tg{color:var(--gold-300)!important;font-weight:500}
+  tbody tr td.tg{background:rgba(var(--gold-rgb),.05)}
   td.rich{flex-direction:column;align-items:flex-start;text-align:left;gap:6px}
   td.rich::before{flex:0 0 auto}
   .tr-hl{border-color:rgba(var(--gold-rgb),.35)}
@@ -360,7 +368,7 @@ td strong{color:var(--ink);font-weight:600}
   </div>
 </section>
 
-<section class="fold fold-alt" id="s02">
+<section class="fold fold-gold" id="s02">
   <div class="wrap">
     <div class="ew">02</div>
     <h2 class="t1">O momento é<br>agora — e é raro.</h2>
@@ -386,6 +394,8 @@ td strong{color:var(--ink);font-weight:600}
       </div>
     </div>
 </section>
+
+<hr class="sweep">
 
 <section class="fold" id="s03">
   <div class="wrap">
@@ -428,7 +438,7 @@ td strong{color:var(--ink);font-weight:600}
   </div>
 </section>
 
-<section class="fold" id="s04">
+<section class="fold fold-alt" id="s04">
   <div class="wrap">
     <div class="ew">04</div>
     <h2 class="t1">Quantos pacientes<br>estão nessa rota.</h2>
@@ -472,7 +482,7 @@ td strong{color:var(--ink);font-weight:600}
   </div>
 </section>
 
-<section class="fold fold-alt" id="s05">
+<section class="fold fold-deep" id="s05">
   <div class="wrap">
     <div class="ew">05</div>
     <h2 class="t1">O que a Samais<br>entrega.</h2>
@@ -532,7 +542,7 @@ td strong{color:var(--ink);font-weight:600}
   </div>
 </section>
 
-<section class="fold" id="s06">
+<section class="fold fold-gold" id="s06">
   <div class="wrap">
     <div class="ew">06</div>
     <h2 class="t1">O financiamento<br>que viabiliza.</h2>
@@ -562,6 +572,8 @@ td strong{color:var(--ink);font-weight:600}
   </div>
 </section>
 
+<hr class="sweep">
+
 <section class="fold" id="s07">
   <div class="wrap">
     <div class="ew">07</div>
@@ -590,7 +602,7 @@ td strong{color:var(--ink);font-weight:600}
   </div>
 </section>
 
-<section class="fold fold-alt" id="s08">
+<section class="fold fold-deep" id="s08">
   <div class="wrap">
     <div class="ew">08</div>
     <h2 class="t1">O custo por<br>habitante.</h2>
@@ -651,7 +663,7 @@ td strong{color:var(--ink);font-weight:600}
   </div>
 </section>
 
-<section class="fold" id="s09">
+<section class="fold fold-alt" id="s09">
   <div class="wrap">
     <div class="ew">09</div>
     <h2 class="t1">Por que<br>a Samais.</h2>
@@ -687,7 +699,9 @@ td strong{color:var(--ink);font-weight:600}
   </div>
 </section>
 
-<section class="fold fold-alt" id="s10">
+<hr class="sweep">
+
+<section class="fold fold-gold" id="s10">
   <div class="wrap">
     <div class="ew">10</div>
     <h2 class="t1">Próximos<br>passos.</h2>
