@@ -152,4 +152,32 @@ regras que não têm seção própria:
 2. **Dataviz Samais:** nunca dual-axis; nunca pizza >3 fatias; golds tonais NÃO formam paleta categórica (reprovam CVD) — usar série única por gráfico ou cores de status/Manchester com rótulo direto; validar paleta por script antes de publicar.
 3. **Voz e claims:** linha-mestra "cada segundo conta"; postura do CoPilot é **100% passiva** (escuta, não interfere); **nenhum claim sem lastro** — ex.: taxa de trote real nacional é 5,8–9,7% (nunca usar 29%); métricas de demo sempre rotuladas.
 4. **Assinatura visual:** top border ouro 2px em cards de dados; eyebrow mono uppercase gold-300; easing editorial 240ms cubic-bezier(0.22,1,0.36,1); ouro é sinal, não decoração (bordas neutras).
-5. **Fotografia:** somente banco documental Samais (Drive → Samais 2026/Banco de Imagens) — zero stock.
+5. **Fotografia:** prioridade absoluta ao banco documental Samais
+   (Drive → Samais 2026/Banco de Imagens). **Zero stock.** Quando o banco
+   cobre o assunto, ele vence qualquer imagem gerada — foto do ativo real
+   *prova* o argumento; imagem gerada apenas o ilustra.
+
+6. **Imagem gerada (Higgsfield):** permitida para preencher lacuna do
+   banco, sob três condições.
+
+   **a) Selo obrigatório.** Toda imagem gerada leva `IMAGEM ILUSTRATIVA`
+   na `figcaption` — mesmo componente da legenda documental, mono 10px
+   uppercase sobre gradiente. Discreto por construção, não por
+   encolhimento: selo que ninguém lê não cumpre a função, e em peça que
+   circula em ente público um disclaimer aparentemente escondido é pior
+   que a ausência da imagem.
+
+   **b) O selo resolve enquadramento, não conteúdo.** Nunca gerar imagem
+   que represente **instalação, equipe, frota ou paciente da Samais** —
+   central de regulação, colaborador uniformizado, embarque de paciente.
+   Isso faz a peça documentar operação que pode não existir no município
+   destinatário, e contraria a regra 3 (nenhum claim sem lastro). Legenda
+   nenhuma corrige esse enquadramento.
+
+   **c) Escopo permitido:** atmosfera e contexto — estrada, território,
+   movimento, geografia, textura urbana. Sem rosto identificável e sem
+   marca Samais aplicada ao objeto gerado.
+
+7. **Referência antes de gerar:** buscar imagem de referência real do
+   assunto antes de compor, para orientar direção criativa. Gerar sem
+   referência produz o genérico que denuncia origem sintética.
