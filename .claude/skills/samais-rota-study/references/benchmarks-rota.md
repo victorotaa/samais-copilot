@@ -76,77 +76,87 @@ se a modelagem divergir muito dessa faixa, há erro de conta.
 
 ---
 
-## 2 · Custo operacional de referência
+## 2 · Modelo de precificação em duas partes
 
-### Por veículo (van / micro-ônibus sanitário, ~5.000 km/mês)
-
-| Componente | Frota própria | Frota cedida (PAC) |
-|---|---|---|
-| Motorista com encargos | R$ 4.200/mês | R$ 4.200/mês |
-| Depreciação ou locação do veículo | R$ 3.500/mês | **R$ 0** |
-| Seguro e rastreamento | R$ 600/mês | R$ 600/mês |
-| Combustível | R$ 0,95/km | R$ 0,95/km |
-| Manutenção e pneus | R$ 0,45/km | R$ 0,45/km |
-| **Custo por km a 5.000 km/mês** | **R$ 3,06** | **R$ 2,36** |
-
-A cessão de frota via **Caminhos da Saúde / Novo PAC** derruba o custo por
-quilômetro em **23%**. É a única variável do modelo com efeito duplo:
-permite ofertar preço mais competitivo em edital **e** preservar margem.
-Sempre condicionar a proposta à cessão quando o município for beneficiário.
-
-### Central de regulação e coordenação
-
-| Configuração | Custo/mês |
-|---|---|
-| Central própria dedicada | R$ 45.000 – 60.000 |
-| Central compartilhada entre municípios contíguos | R$ 12.000 – 20.000 por bloco |
-| Coordenação operacional dedicada | R$ 18.000 – 25.000 |
-
----
-
-## 3 · Precificação per capita por faixa de distância
-
-Bandas de **custo direto operacional**. Preço = custo × 1,35 (BDI Samais).
-Valor adotado = ponto médio da banda de custo × 1,35.
-
-| Faixa | Distância ao polo | Custo/hab/mês | Preço/hab/mês | Adotado |
-|---|---|---|---|---|
-| **A** | Polo ou < 50 km | R$ 0,45 – 0,55 | R$ 0,61 – 0,74 | **R$ 0,68** |
-| **B** | 50 a 150 km | R$ 0,55 – 0,70 | R$ 0,74 – 0,94 | **R$ 0,84** |
-| **C** | 150 a 350 km | R$ 0,75 – 1,05 | R$ 1,01 – 1,42 | **R$ 1,22** |
-| **D** | 350 a 500 km | R$ 1,20 – 1,80 | R$ 1,62 – 2,43 | **R$ 2,03** |
-
-Âncora de calibração: contrato de referência de 300 mil habitantes com CDO
-de R$ 154.000/mês = **R$ 0,513/hab/mês** em custo.
-
----
-
-## 4 · Pisos de viabilidade
-
-**A variável que decide viabilidade não é o preço per capita — é o custo
-fixo.** Central, roteirização e coordenação custam o mesmo para 6 mil ou
-300 mil habitantes.
-
-| Piso | Valor | Significa |
-|---|---|---|
-| **Contrato isolado** | R$ 77.000/mês | Sustenta central própria e coordenação dedicada |
-| **Bloco consorciado** | R$ 45.000/mês | Exige central compartilhada entre municípios contíguos |
-| **Alerta de porte estrutural** | R$ 300.000/mês | Abaixo disso, verificar se a operação justifica a estrutura administrativa (parâmetro Samais comum a todas as linhas) |
-
-### Regra de triagem rápida
+**Custo direto operacional não é proporcional à população.** Ele tem um
+bloco fixo que não escala e um bloco variável que acompanha frota e
+quilometragem. **O per capita é resultado, nunca entrada.**
 
 ```
-Receita = População × Preço da faixa
-
-Receita ≥ R$ 77k  → contrato isolado viável
-Receita ≥ R$ 45k  → só consorciado, precisa de vizinho na carteira
-Receita <  R$ 45k → só entra somado a bloco adjacente
-Sem vizinho contíguo → descartar, independentemente do preço
+CDO      = custo fixo do regime + (veículos × custo por veículo)
+veículos = viagens/dia útil ÷ 8 pacientes consolidados ÷ 2,5 viagens/veículo
+Preço    = CDO × 1,35
 ```
+
+### Bloco fixo mensal
+
+| Componente | Contrato isolado | Bloco consorciado |
+|---|---|---|
+| Coordenação operacional | R$ 11.050 | R$ 10.200 |
+| Supervisão de frota | R$ 6.800 | compartilhada |
+| Central de regulação | R$ 11.220 · 3 op. | R$ 7.480 · 2 op. |
+| Administrativo e faturamento | R$ 4.250 | R$ 4.250 |
+| Triagem e acolhimento | R$ 7.650 | compartilhada |
+| Sede, sistemas, utilidades, EPI | R$ 11.000 | R$ 7.000 |
+| **Custo fixo** | **R$ 51.970** | **R$ 28.930** |
+
+Salários com **encargos de 70%** — INSS, FGTS, férias, 13º e provisões.
+
+### Bloco variável · por veículo/mês, a 5.000 km
+
+| Item | Frota própria | Frota cedida |
+|---|---|---|
+| Motorista com cobertura · 1,2 FTE | R$ 4.896 | R$ 4.896 |
+| Combustível e manutenção · R$ 1,40/km | R$ 7.000 | R$ 7.000 |
+| Depreciação ou locação | R$ 3.500 | **R$ 0** |
+| Seguro e rastreamento | R$ 600 | R$ 600 |
+| **Total** | **R$ 15.996** | **R$ 12.496** |
+
+> A cessão de frota **não muda o payback** — muda o preço. A depreciação
+> está no custo e é repassada, então a cessão reduz o valor do contrato em
+> ~13% com resultado proporcional preservado. O ganho é **competitivo**:
+> entrar em edital com preço menor sem comprimir a composição.
 
 ---
 
-## 5 · Marco regulatório e cofinanciamento
+## 3 · Piso Operacional Mínimo
+
+Sem histórico próprio, o piso não sai de expectativa de resultado — sai
+**do que quebra a operação**. Três testes cumulativos; o contrato só entra
+se passar nos três.
+
+| Teste | Critério | Por quê |
+|---|---|---|
+| **1 · Participação do fixo** | ≤ 55% do CDO | Acima disso não sobra variável para cortar quando o volume frustra, e toda queda de demanda vira prejuízo direto |
+| **2 · Frota mínima** | 2 veículos + reserva | Com um único veículo, uma quebra para a operação inteira e o SLA cai no primeiro mês |
+| **3 · Cobertura no piso da banda** | demanda mínima | A banda de pacientes é de quase 2×; dimensionar e precificar pelo teto é apostar que a demanda alta se confirma |
+
+| Regime | Piso de preço | População equivalente | Per capita no piso |
+|---|---|---|---|
+| **Contrato isolado** | **R$ 127.563/mês** | ~131 mil hab | R$ 0,98 |
+| **Bloco consorciado** | **R$ 89.805/mês** | ~98 mil hab | R$ 0,91 |
+
+**Município sem bloco adjacente teria de sustentar sozinho o piso
+consorciado.** Para 6 mil habitantes isso são R$ 14,53 por habitante ao
+mês — inviável em qualquer cenário. É o teste que descarta, não o preço.
+
+### Rateio dentro do bloco
+
+O valor de cada município é o **rateio populacional do bloco**. É assim que
+consórcio cobra, e explica por que municípios do mesmo bloco pagam per
+capita diferente: todos carregam o mesmo fixo, diluído em populações
+distintas.
+
+### Contrato de preço fixo é perigoso em operação nova
+
+Com banda de demanda de quase 2×, valor global mensal joga todo o risco de
+volume para a Samais. No primeiro contrato, propor **base fixa mais faixa
+variável por viagem**, ou preço fixo com cláusula de revisão atrelada a
+volume apurado.
+
+---
+
+## 4 · Marco regulatório e cofinanciamento
 
 Três portarias publicadas em **11 de maio de 2026**:
 
@@ -182,7 +192,7 @@ Para polos, ancorar a proposta em **transporte eletivo intramunicipal** e
 
 ---
 
-## 6 · Alertas comerciais
+## 5 · Alertas comerciais
 
 1. **Confirmar distância em base rodoviária oficial antes de qualquer
    manifestação formal.** Um erro de faixa muda a qualificação nos 50 km e

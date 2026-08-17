@@ -374,7 +374,7 @@ td strong{color:var(--text);font-weight:600}
     <p class="lead">Resultado da modelagem antes do detalhamento.</p>
 
     <p>A carteira de 21 municípios soma <strong>1.274.963 habitantes</strong> distribuídos por seis estados. A modelagem de demanda, ancorada na prevalência real de terapia renal substitutiva e na incidência de câncer, projeta entre <strong>120 e 191 mil viagens de ida e volta por ano</strong> apenas nas duas linhas cofinanciadas pelo marco federal de maio de 2026. A amplitude não é imprecisão de método — é a dispersão real da prevalência de diálise entre os estados da carteira, tratada na Parte 03.</p>
-    <p>A precificação per capita varia por faixa de distância ao polo de referência, de <strong>R$ 0,68 a R$ 2,03 por habitante ao mês</strong>. Mas o determinante de viabilidade não é o preço per capita — é o <strong>piso de custo fixo</strong>. Central de regulação, roteirização e coordenação custam o mesmo para 6 mil ou 300 mil habitantes, e é isso que elimina cinco municípios da carteira.</p>
+    <p>A precificação sai de um modelo em duas partes — bloco fixo de equipe e estrutura, mais bloco variável de frota — e o per capita resultante varia de <strong>R$ 0,58 a R$ 1,28 por habitante ao mês</strong> conforme o porte dilua ou não o custo fixo. Mas o determinante de viabilidade não é o preço per capita — é o <strong>piso de custo fixo</strong>. Central de regulação, roteirização e coordenação custam o mesmo para 6 mil ou 300 mil habitantes, e é isso que elimina cinco municípios da carteira.</p>
 
     <div class="dc-grid">
       <div class="dc">
@@ -393,25 +393,25 @@ td strong{color:var(--text);font-weight:600}
         <div class="dc-sub">Hemodiálise + radioterapia</div>
       </div>
       <div class="dc">
-        <div class="dc-num">R$&thinsp;0,72</div>
+        <div class="dc-num">R$&thinsp;0,75</div>
         <div class="dc-label">Preço Médio Per Capita / Mês</div>
-        <div class="dc-sub">Carteira contratável · BDI 35%</div>
+        <div class="dc-sub">Média ponderada · varia 0,58 a 1,28</div>
       </div>
       <div class="dc">
-        <div class="dc-num">R$&thinsp;10,5<span class="u">mi</span></div>
+        <div class="dc-num">R$&thinsp;10,96<span class="u">mi</span></div>
         <div class="dc-label">Receita Anual em Regime Pleno</div>
         <div class="dc-sub">16 municípios · 4 blocos</div>
       </div>
       <div class="dc">
-        <div class="dc-num">6–14<span class="u">meses</span></div>
+        <div class="dc-num">6–13<span class="u">meses</span></div>
         <div class="dc-label">Payback com Frota Cedida</div>
-        <div class="dc-sub">25–36 meses com frota própria</div>
+        <div class="dc-sub">Frota cedida derruba o preço em 13%</div>
       </div>
     </div>
 
     <div class="box box-gold">
       <div class="box-label">A conclusão em uma frase</div>
-      <p>Dezesseis dos 21 municípios são contratáveis em quatro blocos, gerando <strong>R$ 10,5 milhões anuais</strong> a um preço médio de <strong>R$ 0,72 por habitante ao mês</strong>. Cinco municípios — Ribeiro Gonçalves, Baixa Grande do Ribeiro, Curimatá, Rio de Contas e Cambuci — não fecham conta em nenhuma configuração testada, e o motivo não é preço: é ausência de município adjacente com quem dividir o custo fixo de operação.</p>
+      <p>Dezesseis dos 21 municípios são contratáveis em quatro blocos, gerando <strong>R$ 10,96 milhões anuais</strong> a um preço médio ponderado de <strong>R$ 0,75 por habitante ao mês</strong>. Cinco municípios — Ribeiro Gonçalves, Baixa Grande do Ribeiro, Curimatá, Rio de Contas e Cambuci — não fecham conta em nenhuma configuração testada, e o motivo não é preço: é ausência de município adjacente com quem dividir o custo fixo de operação.</p>
     </div>
   </div>
 </section>
@@ -456,6 +456,8 @@ td strong{color:var(--text);font-weight:600}
           <tr><td data-label="Premissa">Piso de viabilidade · contrato isolado</td><td class="tg" data-label="Valor adotado">R$ 77 mil/mês</td><td data-label="Base do arbítrio">Custo fixo mínimo de central própria e coordenação dedicada</td></tr>
           <tr><td data-label="Premissa">Piso de viabilidade · bloco consorciado</td><td class="tg" data-label="Valor adotado">R$ 45 mil/mês</td><td data-label="Base do arbítrio">Custo fixo mínimo com central compartilhada</td></tr>
           <tr><td data-label="Premissa">BDI sobre custo direto operacional</td><td class="tg" data-label="Valor adotado">35%</td><td data-label="Base do arbítrio">Piso Samais aplicado a todas as linhas de serviço · decomposto na Parte 08</td></tr>
+          <tr><td data-label="Premissa">Encargos sobre folha CLT</td><td class="tg" data-label="Valor adotado">70%</td><td data-label="Base do arbítrio">INSS, FGTS, férias, 13º e provisões · referência para operação nova</td></tr>
+          <tr><td data-label="Premissa">Consolidação por viagem</td><td class="tg" data-label="Valor adotado">8 pacientes</td><td data-label="Base do arbítrio">Roteirização de turno de hemodiálise · recalibrar no 1º contrato</td></tr>
         </tbody>
       </table>
     </div>
@@ -570,22 +572,69 @@ td strong{color:var(--text);font-weight:600}
 
     <p>O contrato de referência do Master Plan ROTA — 300 mil habitantes, custo direto operacional de R$ 154 mil ao mês — equivale a <strong>R$ 0,513 por habitante ao mês</strong> em custo, ou R$ 0,69 em preço com o BDI Samais de 35%. Esse valor serve de âncora, mas não pode ser aplicado uniformemente: um município que envia pacientes a 356 km consome muito mais quilômetro rodado por habitante que um polo urbano compacto.</p>
 
-    <h3 class="t2">Bandas de preço por faixa de distância</h3>
+    <h3 class="t2">O modelo em duas partes</h3>
+    <p>Custo direto operacional não é proporcional à população. Ele tem um <strong>bloco fixo</strong> — equipe CLT, central e estrutura — que não escala, e um <strong>bloco variável</strong> que acompanha frota e quilometragem. O per capita é <strong>resultado</strong> dessa conta, nunca entrada dela.</p>
+
     <div class="tw">
       <table>
-        <thead><tr><th>Faixa</th><th>Distância ao polo</th><th>Custo/hab/mês</th><th>Preço/hab/mês</th><th>Adotado no estudo</th></tr></thead>
+        <thead><tr><th>Componente do bloco fixo</th><th>Contrato isolado</th><th>Bloco consorciado</th></tr></thead>
         <tbody>
-          <tr><td data-label="Faixa"><strong>A</strong></td><td data-label="Distância ao polo">Polo ou menos de 50 km</td><td class="tn" data-label="Custo/hab/mês">R$ 0,45 – 0,55</td><td class="tn" data-label="Preço/hab/mês">R$ 0,61 – 0,74</td><td class="tg" data-label="Adotado no estudo">R$ 0,68</td></tr>
-          <tr><td data-label="Faixa"><strong>B</strong></td><td data-label="Distância ao polo">50 a 150 km</td><td class="tn" data-label="Custo/hab/mês">R$ 0,55 – 0,70</td><td class="tn" data-label="Preço/hab/mês">R$ 0,74 – 0,94</td><td class="tg" data-label="Adotado no estudo">R$ 0,84</td></tr>
-          <tr><td data-label="Faixa"><strong>C</strong></td><td data-label="Distância ao polo">150 a 350 km</td><td class="tn" data-label="Custo/hab/mês">R$ 0,75 – 1,05</td><td class="tn" data-label="Preço/hab/mês">R$ 1,01 – 1,42</td><td class="tg" data-label="Adotado no estudo">R$ 1,22</td></tr>
-          <tr><td data-label="Faixa"><strong>D</strong></td><td data-label="Distância ao polo">350 a 500 km</td><td class="tn" data-label="Custo/hab/mês">R$ 1,20 – 1,80</td><td class="tn" data-label="Preço/hab/mês">R$ 1,62 – 2,43</td><td class="tg" data-label="Adotado no estudo">R$ 2,03</td></tr>
+          <tr><td data-label="Componente do bloco fixo">Coordenação operacional</td><td class="tn" data-label="Contrato isolado">R$ 11.050</td><td class="tn" data-label="Bloco consorciado">R$ 10.200</td></tr>
+          <tr><td data-label="Componente do bloco fixo">Supervisão de frota</td><td class="tn" data-label="Contrato isolado">R$ 6.800</td><td data-label="Bloco consorciado">compartilhada</td></tr>
+          <tr><td data-label="Componente do bloco fixo">Central de regulação</td><td class="tn" data-label="Contrato isolado">R$ 11.220 · 3 operadores</td><td class="tn" data-label="Bloco consorciado">R$ 7.480 · 2 operadores</td></tr>
+          <tr><td data-label="Componente do bloco fixo">Administrativo e faturamento</td><td class="tn" data-label="Contrato isolado">R$ 4.250</td><td class="tn" data-label="Bloco consorciado">R$ 4.250</td></tr>
+          <tr><td data-label="Componente do bloco fixo">Triagem e acolhimento</td><td class="tn" data-label="Contrato isolado">R$ 7.650 · enfermeiro</td><td data-label="Bloco consorciado">compartilhada</td></tr>
+          <tr><td data-label="Componente do bloco fixo">Sede, sistemas, utilidades e EPI</td><td class="tn" data-label="Contrato isolado">R$ 11.000</td><td class="tn" data-label="Bloco consorciado">R$ 7.000</td></tr>
+          <tr class="tr-hl"><td data-label="Componente do bloco fixo"><strong>Custo fixo mensal</strong></td><td data-label="Contrato isolado"><strong>R$ 51.970</strong></td><td data-label="Bloco consorciado"><strong>R$ 28.930</strong></td></tr>
         </tbody>
       </table>
     </div>
-    <p class="fine">Preço = custo direto operacional × 1,35, conforme o BDI Samais de 35%. O valor adotado é o ponto médio de cada banda, refletindo a premissa de que a operação inicial não terá ainda o ganho de escala de roteirização consolidada.</p>
+    <p class="fine">Salários com encargos de 70% — INSS, FGTS, férias, 13º e provisões. Valores de referência para operação nova, sem histórico próprio; recalibrar no primeiro contrato.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Bloco variável · por veículo/mês</th><th>Frota própria</th><th>Frota cedida · PAC</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Bloco variável · por veículo/mês">Motorista com cobertura de folga e férias · 1,2 FTE</td><td class="tn" data-label="Frota própria">R$ 4.896</td><td class="tn" data-label="Frota cedida · PAC">R$ 4.896</td></tr>
+          <tr><td data-label="Bloco variável · por veículo/mês">Combustível e manutenção · R$ 1,40/km</td><td class="tn" data-label="Frota própria">R$ 7.000</td><td class="tn" data-label="Frota cedida · PAC">R$ 7.000</td></tr>
+          <tr><td data-label="Bloco variável · por veículo/mês">Depreciação ou locação</td><td class="tn" data-label="Frota própria">R$ 3.500</td><td class="tg" data-label="Frota cedida · PAC">R$ 0</td></tr>
+          <tr><td data-label="Bloco variável · por veículo/mês">Seguro e rastreamento</td><td class="tn" data-label="Frota própria">R$ 600</td><td class="tn" data-label="Frota cedida · PAC">R$ 600</td></tr>
+          <tr class="tr-hl"><td data-label="Bloco variável · por veículo/mês"><strong>Custo por veículo · 5.000 km/mês</strong></td><td data-label="Frota própria"><strong>R$ 15.996</strong></td><td data-label="Frota cedida · PAC"><strong>R$ 12.496</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-gold">
+      <div class="box-label">A fórmula</div>
+      <p><strong>CDO = custo fixo do regime + (veículos × custo por veículo)</strong>, com veículos derivados da demanda: viagens por dia útil, divididas por 8 pacientes consolidados e por 2,5 viagens diárias de cada veículo. <strong>Preço = CDO × 1,35.</strong> O per capita sai da divisão pelo total de habitantes — e por isso varia de R$ 0,58 no Cariri a R$ 1,28 no bloco Coelho Neto e Batalha.</p>
+    </div>
+
+    <h3 class="t2">Piso Operacional Mínimo</h3>
+    <p>Sem histórico de operação, o piso não pode sair de expectativa de resultado. Tem que sair <strong>do que quebra a operação</strong>. Três testes cumulativos, e o contrato só entra se passar nos três.</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Teste</th><th>Critério</th><th>Por quê</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Teste"><strong>1 · Participação do fixo</strong></td><td class="tg" data-label="Critério">≤ 55% do CDO</td><td data-label="Por quê">Acima disso não sobra variável para cortar quando o volume frustra, e toda queda de demanda vira prejuízo direto</td></tr>
+          <tr><td data-label="Teste"><strong>2 · Frota mínima</strong></td><td class="tg" data-label="Critério">2 veículos + reserva</td><td data-label="Por quê">Com um único veículo, uma quebra para a operação inteira e o SLA cai no primeiro mês</td></tr>
+          <tr><td data-label="Teste"><strong>3 · Cobertura no piso da banda</strong></td><td class="tg" data-label="Critério">demanda mínima</td><td data-label="Por quê">A banda de pacientes é de quase 2×. Dimensionar e precificar pelo teto é apostar que a demanda alta se confirma</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Regime</th><th>Custo fixo</th><th>Piso de preço</th><th>População equivalente</th><th>Per capita no piso</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Regime"><strong>Contrato isolado</strong></td><td class="tn" data-label="Custo fixo">R$ 51.970</td><td class="tg" data-label="Piso de preço">R$ 127.563 / mês</td><td class="tn" data-label="População equivalente">~131 mil hab</td><td class="tn" data-label="Per capita no piso">R$ 0,98</td></tr>
+          <tr><td data-label="Regime"><strong>Bloco consorciado</strong></td><td class="tn" data-label="Custo fixo">R$ 28.930</td><td class="tg" data-label="Piso de preço">R$ 89.805 / mês</td><td class="tn" data-label="População equivalente">~98 mil hab</td><td class="tn" data-label="Per capita no piso">R$ 0,91</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 class="t2">Por que o preço per capita não decide sozinho</h3>
-    <p>Aplicar R$ 2,03 por habitante ao mês a Ribeiro Gonçalves, o município mais distante da carteira, produz uma receita mensal de <strong>R$ 12.549</strong>. Esse valor não cobre uma central de regulação, um coordenador operacional e um contrato administrado. Aplicar R$ 0,68 a Juazeiro do Norte produz <strong>R$ 207.761</strong> ao mês, com a mesma estrutura fixa diluída em cinquenta vezes mais habitantes.</p>
+    <p>Ribeiro Gonçalves, com 6.182 habitantes, geraria demanda para os 2 veículos mínimos e um bloco fixo próprio — <strong>R$ 89.805 mensais</strong> pelo piso consorciado, ou <strong>R$ 14,53 por habitante ao mês</strong>. Esse valor não cobre uma central de regulação, um coordenador operacional e um contrato administrado. Juazeiro do Norte, com 305 mil habitantes, dilui o mesmo bloco fixo em <strong>R$ 0,58 por habitante</strong>, com a mesma estrutura fixa diluída em cinquenta vezes mais habitantes.</p>
     <p>É por isso que o estudo trabalha com dois pisos. O <strong>piso de contrato isolado</strong>, de R$ 77 mil mensais, cobre central própria e coordenação dedicada. O <strong>piso de bloco consorciado</strong>, de R$ 45 mil, pressupõe central compartilhada entre municípios contíguos — a estrutura que o Master Plan chama de ROTA Consórcio.</p>
 
     <div class="box box-green">
@@ -604,34 +653,34 @@ td strong{color:var(--text);font-weight:600}
 
     <div class="tw">
       <table>
-        <thead><tr><th>Município</th><th>População</th><th>Faixa</th><th>Preço/hab/mês</th><th>Receita mensal</th><th>Situação</th></tr></thead>
+        <thead><tr><th>Município</th><th>População</th><th>Bloco</th><th>Rateio /hab/mês</th><th>Valor mensal</th><th>Situação</th></tr></thead>
         <tbody>
-          <tr><td data-label="Município"><strong>Juazeiro do Norte</strong><span class="uf">CE</span></td><td class="tn" data-label="População">305.531</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tg" data-label="Receita mensal">R$ 207.761</td><td data-label="Situação"><span class="vd vd-a">isolado</span></td></tr>
-          <tr><td data-label="Município"><strong>Sobral</strong><span class="uf">CE</span></td><td class="tn" data-label="População">216.519</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tg" data-label="Receita mensal">R$ 147.233</td><td data-label="Situação"><span class="vd vd-a">isolado</span></td></tr>
-          <tr><td data-label="Município"><strong>Timon</strong><span class="uf">MA</span></td><td class="tn" data-label="População">182.711</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tg" data-label="Receita mensal">R$ 124.243</td><td data-label="Situação"><span class="vd vd-a">isolado</span></td></tr>
-          <tr><td data-label="Município"><strong>Crato</strong><span class="uf">CE</span></td><td class="tn" data-label="População">139.027</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tg" data-label="Receita mensal">R$ 94.538</td><td data-label="Situação"><span class="vd vd-a">isolado</span></td></tr>
-          <tr><td data-label="Município"><strong>Barbalha</strong><span class="uf">CE</span></td><td class="tn" data-label="População">81.441</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tn" data-label="Receita mensal">R$ 55.380</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>São Benedito</strong><span class="uf">CE</span></td><td class="tn" data-label="População">50.058</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 42.049</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Guaraciaba do Norte</strong><span class="uf">CE</span></td><td class="tn" data-label="População">44.565</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 37.435</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Coelho Neto</strong><span class="uf">MA</span></td><td class="tn" data-label="População">42.841</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 35.986</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Batalha</strong><span class="uf">PI</span></td><td class="tn" data-label="População">27.129</td><td data-label="Faixa">C</td><td class="tn" data-label="Preço/hab/mês">R$ 1,22</td><td class="tn" data-label="Receita mensal">R$ 33.097</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Macau</strong><span class="uf">RN</span></td><td class="tn" data-label="População">28.350</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 23.814</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Areia Branca</strong><span class="uf">RN</span></td><td class="tn" data-label="População">27.115</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 22.777</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>São Miguel</strong><span class="uf">RN</span></td><td class="tn" data-label="População">23.100</td><td data-label="Faixa">A</td><td class="tn" data-label="Preço/hab/mês">R$ 0,68</td><td class="tn" data-label="Receita mensal">R$ 15.708</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Santana do Matos</strong><span class="uf">RN</span></td><td class="tn" data-label="População">12.722</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 10.686</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Angicos</strong><span class="uf">RN</span></td><td class="tn" data-label="População">11.985</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 10.067</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Patu</strong><span class="uf">RN</span></td><td class="tn" data-label="População">11.215</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 9.421</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Umarizal</strong><span class="uf">RN</span></td><td class="tn" data-label="População">10.655</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 8.950</td><td data-label="Situação"><span class="vd vd-b">consorciado</span></td></tr>
-          <tr><td data-label="Município"><strong>Baixa Grande do Ribeiro</strong><span class="uf">PI</span></td><td class="tn" data-label="População">13.983</td><td data-label="Faixa">D</td><td class="tn" data-label="Preço/hab/mês">R$ 2,03</td><td class="tn" data-label="Receita mensal">R$ 28.385</td><td data-label="Situação"><span class="vd vd-c">sem bloco</span></td></tr>
-          <tr><td data-label="Município"><strong>Curimatá</strong><span class="uf">PI</span></td><td class="tn" data-label="População">11.581</td><td data-label="Faixa">C</td><td class="tn" data-label="Preço/hab/mês">R$ 1,22</td><td class="tn" data-label="Receita mensal">R$ 14.129</td><td data-label="Situação"><span class="vd vd-c">sem bloco</span></td></tr>
-          <tr><td data-label="Município"><strong>Cambuci</strong><span class="uf">RJ</span></td><td class="tn" data-label="População">15.069</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 12.658</td><td data-label="Situação"><span class="vd vd-c">sem bloco</span></td></tr>
-          <tr><td data-label="Município"><strong>Rio de Contas</strong><span class="uf">BA</span></td><td class="tn" data-label="População">13.184</td><td data-label="Faixa">B</td><td class="tn" data-label="Preço/hab/mês">R$ 0,84</td><td class="tn" data-label="Receita mensal">R$ 11.075</td><td data-label="Situação"><span class="vd vd-c">sem bloco</span></td></tr>
-          <tr><td data-label="Município"><strong>Ribeiro Gonçalves</strong><span class="uf">PI</span></td><td class="tn" data-label="População">6.182</td><td data-label="Faixa">Fora</td><td class="tn" data-label="Preço/hab/mês">R$ 2,03</td><td class="tn" data-label="Receita mensal">R$ 12.549</td><td data-label="Situação"><span class="vd vd-c">descartar</span></td></tr>
+          <tr><td data-label="Município"><strong>Juazeiro do Norte</strong><span class="uf">CE</span></td><td class="tn" data-label="População">305.531</td><td class="tn" data-label="Bloco">A · Cariri</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.58</td><td class="tg" data-label="Valor mensal">R$ 178.730</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Sobral</strong><span class="uf">CE</span></td><td class="tn" data-label="População">216.519</td><td class="tn" data-label="Bloco">B · Sobral</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.72</td><td class="tg" data-label="Valor mensal">R$ 156.538</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Timon</strong><span class="uf">MA</span></td><td class="tn" data-label="População">182.711</td><td class="tn" data-label="Bloco">C · Timon</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.86</td><td class="tg" data-label="Valor mensal">R$ 156.538</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Crato</strong><span class="uf">CE</span></td><td class="tn" data-label="População">139.027</td><td class="tn" data-label="Bloco">A · Cariri</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.58</td><td class="tg" data-label="Valor mensal">R$ 81.328</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Barbalha</strong><span class="uf">CE</span></td><td class="tn" data-label="População">81.441</td><td class="tn" data-label="Bloco">A · Cariri</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.58</td><td class="tg" data-label="Valor mensal">R$ 47.642</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>São Benedito</strong><span class="uf">CE</span></td><td class="tn" data-label="População">50.058</td><td class="tn" data-label="Bloco">B · Ibiapaba</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.93</td><td class="tg" data-label="Valor mensal">R$ 46.509</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Guaraciaba do Norte</strong><span class="uf">CE</span></td><td class="tn" data-label="População">44.565</td><td class="tn" data-label="Bloco">B · Ibiapaba</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.93</td><td class="tg" data-label="Valor mensal">R$ 41.406</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Coelho Neto</strong><span class="uf">MA</span></td><td class="tn" data-label="População">42.841</td><td class="tn" data-label="Bloco">C · Coelho Neto e Batalha</td><td class="tn" data-label="Rateio /hab/mês">R$ 1.28</td><td class="tg" data-label="Valor mensal">R$ 54.986</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Macau</strong><span class="uf">RN</span></td><td class="tn" data-label="População">28.350</td><td class="tn" data-label="Bloco">D · Rio Grande do Norte</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.92</td><td class="tg" data-label="Valor mensal">R$ 26.093</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Batalha</strong><span class="uf">PI</span></td><td class="tn" data-label="População">27.129</td><td class="tn" data-label="Bloco">C · Coelho Neto e Batalha</td><td class="tn" data-label="Rateio /hab/mês">R$ 1.28</td><td class="tg" data-label="Valor mensal">R$ 34.819</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Areia Branca</strong><span class="uf">RN</span></td><td class="tn" data-label="População">27.115</td><td class="tn" data-label="Bloco">D · Rio Grande do Norte</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.92</td><td class="tg" data-label="Valor mensal">R$ 24.956</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>São Miguel</strong><span class="uf">RN</span></td><td class="tn" data-label="População">23.100</td><td class="tn" data-label="Bloco">D · Rio Grande do Norte</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.92</td><td class="tg" data-label="Valor mensal">R$ 21.261</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Santana do Matos</strong><span class="uf">RN</span></td><td class="tn" data-label="População">12.722</td><td class="tn" data-label="Bloco">D · Rio Grande do Norte</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.92</td><td class="tg" data-label="Valor mensal">R$ 11.709</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Angicos</strong><span class="uf">RN</span></td><td class="tn" data-label="População">11.985</td><td class="tn" data-label="Bloco">D · Rio Grande do Norte</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.92</td><td class="tg" data-label="Valor mensal">R$ 11.031</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Patu</strong><span class="uf">RN</span></td><td class="tn" data-label="População">11.215</td><td class="tn" data-label="Bloco">D · Rio Grande do Norte</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.92</td><td class="tg" data-label="Valor mensal">R$ 10.322</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Umarizal</strong><span class="uf">RN</span></td><td class="tn" data-label="População">10.655</td><td class="tn" data-label="Bloco">D · Rio Grande do Norte</td><td class="tn" data-label="Rateio /hab/mês">R$ 0.92</td><td class="tg" data-label="Valor mensal">R$ 9.807</td><td data-label="Situação"><span class="vd vd-a">no bloco</span></td></tr>
+          <tr><td data-label="Município"><strong>Baixa Grande do Ribeiro</strong><span class="uf">PI</span></td><td class="tn" data-label="População">13.983</td><td data-label="Bloco">sem bloco adjacente</td><td class="tn" data-label="Rateio /hab/mês">R$ 6.42</td><td class="tn" data-label="Valor mensal">R$ 89.805</td><td data-label="Situação"><span class="vd vd-c">descartar</span></td></tr>
+          <tr><td data-label="Município"><strong>Curimatá</strong><span class="uf">PI</span></td><td class="tn" data-label="População">11.581</td><td data-label="Bloco">sem bloco adjacente</td><td class="tn" data-label="Rateio /hab/mês">R$ 7.75</td><td class="tn" data-label="Valor mensal">R$ 89.805</td><td data-label="Situação"><span class="vd vd-c">descartar</span></td></tr>
+          <tr><td data-label="Município"><strong>Cambuci</strong><span class="uf">RJ</span></td><td class="tn" data-label="População">15.069</td><td data-label="Bloco">sem bloco adjacente</td><td class="tn" data-label="Rateio /hab/mês">R$ 5.96</td><td class="tn" data-label="Valor mensal">R$ 89.805</td><td data-label="Situação"><span class="vd vd-c">descartar</span></td></tr>
+          <tr><td data-label="Município"><strong>Rio de Contas</strong><span class="uf">BA</span></td><td class="tn" data-label="População">13.184</td><td data-label="Bloco">sem bloco adjacente</td><td class="tn" data-label="Rateio /hab/mês">R$ 6.81</td><td class="tn" data-label="Valor mensal">R$ 89.805</td><td data-label="Situação"><span class="vd vd-c">descartar</span></td></tr>
+          <tr><td data-label="Município"><strong>Ribeiro Gonçalves</strong><span class="uf">PI</span></td><td class="tn" data-label="População">6.182</td><td data-label="Bloco">sem bloco adjacente</td><td class="tn" data-label="Rateio /hab/mês">R$ 14.53</td><td class="tn" data-label="Valor mensal">R$ 89.805</td><td data-label="Situação"><span class="vd vd-c">descartar</span></td></tr>
         </tbody>
       </table>
     </div>
 
-    <p><strong>Isolado</strong> significa receita acima de R$ 77 mil ao mês — sustenta contrato próprio com central dedicada. <strong>Consorciado</strong> significa abaixo desse piso, mas com município adjacente na carteira ou na região com quem dividir a central. <strong>Sem bloco</strong> significa que o município qualifica no gatilho da portaria mas não tem vizinho na carteira, e sozinho fica abaixo dos R$ 45 mil.</p>
+    <p>O valor de cada município é o <strong>rateio populacional do bloco</strong> ao qual pertence — é assim que um consórcio cobra de fato, e é por isso que Juazeiro paga R$ 0,58 por habitante enquanto Coelho Neto paga R$ 1,28: os dois carregam o mesmo bloco fixo, diluído em populações muito diferentes. Os cinco municípios <strong>sem bloco adjacente</strong> teriam de sustentar sozinhos o piso consorciado de R$ 89.805 mensais, o que produz per capita de R$ 6,00 a R$ 14,53 — inviável em qualquer cenário.</p>
 
     <div class="box box-amber">
       <div class="box-label">O caso Ribeiro Gonçalves</div>
@@ -722,14 +771,15 @@ td strong{color:var(--text);font-weight:600}
 
     <div class="tw">
       <table>
-        <thead><tr><th>Bloco</th><th>Municípios</th><th>População</th><th>Receita mensal</th><th>Receita anual</th><th>Per capita/mês</th></tr></thead>
+        <thead><tr><th>Bloco</th><th>Veículos</th><th>População</th><th>Fixo % do CDO</th><th>Preço mensal</th><th>Per capita/mês</th></tr></thead>
         <tbody>
-          <tr><td data-label="Bloco"><strong>A · Cariri</strong></td><td class="tn" data-label="Municípios">3</td><td class="tn" data-label="População">525.999</td><td class="tg" data-label="Receita mensal">R$ 357.679</td><td class="tg" data-label="Receita anual">R$ 4,29 mi</td><td class="tn" data-label="Per capita/mês">R$ 0,68</td></tr>
-          <tr><td data-label="Bloco"><strong>B · Norte do Ceará</strong></td><td class="tn" data-label="Municípios">3</td><td class="tn" data-label="População">311.142</td><td class="tg" data-label="Receita mensal">R$ 226.717</td><td class="tg" data-label="Receita anual">R$ 2,72 mi</td><td class="tn" data-label="Per capita/mês">R$ 0,73</td></tr>
-          <tr><td data-label="Bloco"><strong>C · Teresina–Timon</strong></td><td class="tn" data-label="Municípios">3</td><td class="tn" data-label="População">252.681</td><td class="tg" data-label="Receita mensal">R$ 193.326</td><td class="tg" data-label="Receita anual">R$ 2,32 mi</td><td class="tn" data-label="Per capita/mês">R$ 0,77</td></tr>
-          <tr><td data-label="Bloco"><strong>D · Rio Grande do Norte</strong></td><td class="tn" data-label="Municípios">7</td><td class="tn" data-label="População">125.142</td><td class="tg" data-label="Receita mensal">R$ 101.423</td><td class="tg" data-label="Receita anual">R$ 1,22 mi</td><td class="tn" data-label="Per capita/mês">R$ 0,81</td></tr>
-          <tr><td data-label="Bloco">Fora da carteira</td><td class="tn" data-label="Municípios">5</td><td class="tn" data-label="População">59.999</td><td data-label="Receita mensal">—</td><td data-label="Receita anual">—</td><td data-label="Per capita/mês">—</td></tr>
-          <tr class="tr-hl"><td data-label="Bloco"><strong>Carteira contratável</strong></td><td data-label="Municípios"><strong>16</strong></td><td data-label="População"><strong>1.214.964</strong></td><td data-label="Receita mensal"><strong>R$ 879.145</strong></td><td data-label="Receita anual"><strong>R$ 10,55 mi</strong></td><td data-label="Per capita/mês"><strong>R$ 0,72</strong></td></tr>
+          <tr><td data-label="Bloco"><strong>A · Cariri</strong></td><td class="tn" data-label="Veículos">11</td><td class="tn" data-label="População">525.999</td><td class="tn" data-label="Fixo % do CDO">23%</td><td class="tg" data-label="Preço mensal">R$ 307.700</td><td class="tn" data-label="Per capita/mês">R$ 0,58</td></tr>
+          <tr><td data-label="Bloco"><strong>B · Sobral</strong></td><td class="tn" data-label="Veículos">4</td><td class="tn" data-label="População">216.519</td><td class="tn" data-label="Fixo % do CDO">45%</td><td class="tg" data-label="Preço mensal">R$ 156.538</td><td class="tn" data-label="Per capita/mês">R$ 0,72</td></tr>
+          <tr><td data-label="Bloco"><strong>B · Ibiapaba</strong></td><td class="tn" data-label="Veículos">2</td><td class="tn" data-label="População">94.623</td><td class="tn" data-label="Fixo % do CDO">44%</td><td class="tn" data-label="Preço mensal">R$ 87.915</td><td class="tn" data-label="Per capita/mês">R$ 0,93</td></tr>
+          <tr><td data-label="Bloco"><strong>C · Timon</strong></td><td class="tn" data-label="Veículos">4</td><td class="tn" data-label="População">182.711</td><td class="tn" data-label="Fixo % do CDO">45%</td><td class="tg" data-label="Preço mensal">R$ 156.538</td><td class="tn" data-label="Per capita/mês">R$ 0,86</td></tr>
+          <tr><td data-label="Bloco"><strong>C · Coelho Neto e Batalha</strong></td><td class="tn" data-label="Veículos">2</td><td class="tn" data-label="População">69.970</td><td class="tn" data-label="Fixo % do CDO">43%</td><td class="tg" data-label="Preço mensal">R$ 89.805</td><td class="tn" data-label="Per capita/mês">R$ 1,28</td></tr>
+          <tr><td data-label="Bloco"><strong>D · Rio Grande do Norte</strong></td><td class="tn" data-label="Veículos">3</td><td class="tn" data-label="População">125.142</td><td class="tn" data-label="Fixo % do CDO">34%</td><td class="tg" data-label="Preço mensal">R$ 115.179</td><td class="tn" data-label="Per capita/mês">R$ 0,92</td></tr>
+          <tr class="tr-hl"><td data-label="Bloco"><strong>Carteira contratável</strong></td><td data-label="Veículos"><strong>26</strong></td><td data-label="População"><strong>1.214.964</strong></td><td data-label="Fixo % do CDO"><strong>—</strong></td><td data-label="Preço mensal"><strong>R$ 913.675</strong></td><td data-label="Per capita/mês"><strong>R$ 0,75</strong></td></tr>
         </tbody>
       </table>
     </div>
@@ -748,10 +798,10 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Linha</th><th>Mensal</th><th>Anual</th><th>48 meses</th></tr></thead>
         <tbody>
-          <tr><td data-label="Linha">Receita contratual</td><td class="tg" data-label="Mensal">R$ 879.145</td><td class="tg" data-label="Anual">R$ 10.549.740</td><td class="tg" data-label="48 meses">R$ 42.198.960</td></tr>
-          <tr><td data-label="Linha">Custo direto operacional</td><td class="tn" data-label="Mensal">R$ 651.219</td><td class="tn" data-label="Anual">R$ 7.814.628</td><td class="tn" data-label="48 meses">R$ 31.258.512</td></tr>
-          <tr><td data-label="Linha">Composição do valor contratual · 35% sobre CDO</td><td class="tn" data-label="Mensal">R$ 227.926</td><td class="tn" data-label="Anual">R$ 2.735.112</td><td class="tn" data-label="48 meses">R$ 10.940.448</td></tr>
-          <tr class="tr-hl"><td data-label="Linha"><strong>Resultado líquido pós-impostos</strong></td><td data-label="Mensal"><strong>R$ 105–132 mil</strong></td><td data-label="Anual"><strong>R$ 1,27–1,58 mi</strong></td><td data-label="48 meses"><strong>R$ 5,06–6,33 mi</strong></td></tr>
+          <tr><td data-label="Linha">Receita contratual</td><td class="tg" data-label="Mensal">R$ 913.675</td><td class="tg" data-label="Anual">R$ 10.964.095</td><td class="tg" data-label="48 meses">R$ 43.856.380</td></tr>
+          <tr><td data-label="Linha">Custo direto operacional</td><td class="tn" data-label="Mensal">R$ 676.796</td><td class="tn" data-label="Anual">R$ 8.121.552</td><td class="tn" data-label="48 meses">R$ 32.486.208</td></tr>
+          <tr><td data-label="Linha">Composição do valor contratual · 35% sobre CDO</td><td class="tn" data-label="Mensal">R$ 236.879</td><td class="tn" data-label="Anual">R$ 2.842.543</td><td class="tn" data-label="48 meses">R$ 11.370.172</td></tr>
+          <tr class="tr-hl"><td data-label="Linha"><strong>Resultado líquido pós-impostos</strong></td><td data-label="Mensal"><strong>R$ 110–137 mil</strong></td><td data-label="Anual"><strong>R$ 1,32–1,64 mi</strong></td><td data-label="48 meses"><strong>R$ 5,26–6,58 mi</strong></td></tr>
         </tbody>
       </table>
     </div>
@@ -799,15 +849,15 @@ td strong{color:var(--text);font-weight:600}
       <table>
         <thead><tr><th>Cenário</th><th>Investimento</th><th>Margem anual</th><th>Payback</th></tr></thead>
         <tbody>
-          <tr><td data-label="Cenário"><strong>Frota cedida via Caminhos da Saúde</strong></td><td class="tn" data-label="Investimento">R$ 0,83 – 1,44 mi</td><td class="tn" data-label="Margem anual">R$ 1,27 – 1,58 mi</td><td class="tg" data-label="Payback">6 – 14 meses</td></tr>
-          <tr><td data-label="Cenário">Frota própria</td><td class="tn" data-label="Investimento">R$ 3,23 – 3,84 mi</td><td class="tn" data-label="Margem anual">R$ 1,27 – 1,58 mi</td><td class="tn" data-label="Payback">25 – 36 meses</td></tr>
+          <tr><td data-label="Cenário"><strong>Frota própria ou locada</strong></td><td class="tn" data-label="Investimento">R$ 0,83 – 1,44 mi</td><td class="tn" data-label="Margem anual">R$ 1,32 – 1,64 mi</td><td class="tg" data-label="Payback">6 – 13 meses</td></tr>
+          <tr><td data-label="Cenário">Frota cedida via Caminhos da Saúde</td><td class="tn" data-label="Investimento">R$ 0,83 – 1,44 mi</td><td class="tn" data-label="Margem anual">R$ 1,14 – 1,42 mi</td><td class="tn" data-label="Payback">7 – 15 meses</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="box box-green">
       <div class="box-label">A conclusão financeira do estudo</div>
-      <p>A diferença entre um payback de <strong>6 a 14 meses</strong> e um de <strong>25 a 36 meses</strong> não está no preço praticado, na margem negociada ou no tamanho da carteira. Está em <strong>quem compra o veículo</strong>. O programa federal já colocou 3.300 veículos em distribuição a estados e municípios; a estratégia de entrada deve condicionar a proposta à cessão da frota sempre que o município for beneficiário do programa — e tratar o cenário de frota própria como exceção, não como padrão.</p>
+      <p>A cessão de frota <strong>não muda o payback</strong> — ela derruba o preço. Como a depreciação está no custo operacional e é repassada, a frota cedida reduz o valor do contrato em <strong>13%</strong>, de R$ 10,96 para R$ 9,49 milhões anuais, com o resultado proporcional preservado. O ganho, portanto, é <strong>competitivo</strong>: permite entrar em edital com preço menor sem comprimir a composição. Condicionar a proposta à cessão sempre que o município for beneficiário do programa.</p>
     </div>
   </div>
 </section>
@@ -822,15 +872,15 @@ td strong{color:var(--text);font-weight:600}
     <div class="syn-grid">
       <div class="syn">
         <div class="syn-label">Viabilidade</div>
-        <p class="syn-text"><strong>16 dos 21 municípios</strong> são contratáveis em quatro blocos, somando 1,21 milhão de habitantes e <strong>R$ 10,55 milhões anuais</strong> em regime pleno.</p>
+        <p class="syn-text"><strong>16 dos 21 municípios</strong> são contratáveis em quatro blocos, somando 1,21 milhão de habitantes e <strong>R$ 10,96 milhões anuais</strong> em regime pleno.</p>
       </div>
       <div class="syn">
         <div class="syn-label">Precificação</div>
-        <p class="syn-text">Preço médio de <strong>R$ 0,72 por habitante ao mês</strong>, variando de R$ 0,68 nos polos a R$ 2,03 nas origens acima de 350 km.</p>
+        <p class="syn-text">Preço médio ponderado de <strong>R$ 0,75 por habitante ao mês</strong>, saindo de R$ 0,58 onde o custo fixo dilui a R$ 1,28 onde não dilui.</p>
       </div>
       <div class="syn">
         <div class="syn-label">Retorno</div>
-        <p class="syn-text">Resultado líquido de <strong>R$ 1,27 a 1,58 milhão ao ano</strong>, com payback entre 6 e 14 meses quando a frota é cedida pelo programa federal.</p>
+        <p class="syn-text">Resultado líquido de <strong>R$ 1,32 a 1,64 milhão ao ano</strong>, com payback entre 6 e 13 meses quando a frota é cedida pelo programa federal.</p>
       </div>
     </div>
 
@@ -855,7 +905,7 @@ td strong{color:var(--text);font-weight:600}
     <div style="margin-top:64px;padding-top:44px;border-top:1px solid var(--border)">
       <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px">Recomendação do estudo</p>
       <p style="font-family:'Syne',sans-serif;font-size:clamp(32px,4vw,50px);font-weight:800;color:var(--text);letter-spacing:-.02em;margin-bottom:16px;line-height:1.05">Quatro blocos,<br>não vinte e um nomes.</p>
-      <p style="max-width:620px;color:var(--sub);font-size:15.5px;line-height:1.7;margin:0">Trabalhar a carteira como lista de 21 prospects consome o time comercial inteiro e não produz contrato. Trabalhá-la como quatro aproximações regionais, cada uma com uma central compartilhada e um interlocutor institucional único, entrega os mesmos R$ 10,55 milhões com um quarto do esforço de captura.</p>
+      <p style="max-width:620px;color:var(--sub);font-size:15.5px;line-height:1.7;margin:0">Trabalhar a carteira como lista de 21 prospects consome o time comercial inteiro e não produz contrato. Trabalhá-la como quatro aproximações regionais, cada uma com uma central compartilhada e um interlocutor institucional único, entrega os mesmos R$ 10,96 milhões com um quarto do esforço de captura.</p>
     </div>
   </div>
 </section>
