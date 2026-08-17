@@ -18,6 +18,21 @@ de ambulância/uniforme.
 **Keywords**: Samais, dossiê, dark-luxury, identidade institucional,
 proposta, teaser, estudo municipal, apresentação, branding saúde.
 
+> ## Sistema único — decidido em ago/2026
+>
+> Havia duas famílias divergentes no repositório e cada peça nova tinha de
+> escolher uma. **Não há mais escolha a fazer.**
+>
+> - **Cor, tipografia e easing** seguem o cânone: `#070708`, `#BF9A3D`,
+>   Plus Jakarta Sans, `cubic-bezier(0.22,1,0.36,1)`
+> - **Componentes** — vidro, refração e ritmo de dobras — vêm da linha
+>   institucional, reexpressos nesses tokens
+>
+> `apresentacao-ms/index.html` é **legado**: usa `#0A0A0A`, `#B8954E` e
+> Inter, anteriores à decisão. Serve de referência para *componentes*,
+> nunca para cor ou tipografia. A implementação corrente do sistema
+> completo é `rota-proposta/index.html`.
+
 ## Tokens de cor
 
 > **Hub:** `samais-os` agrega todos os projetos, inclusive os PEP.
@@ -77,6 +92,72 @@ inteiro; não invente variações intermediárias.
 .eyebrow::before{content:'';width:28px;height:1px;background:var(--gold-500);opacity:.6}
 ```
 
+## Vidro, refração e dobras
+
+### Vidro
+```css
+--glass-bg:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.025));
+--glass-border:1px solid rgba(255,255,255,.12);
+--glass-blur:blur(22px) saturate(150%);
+--glass-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.22), 0 18px 50px rgba(0,0,0,.5);
+--glass-radius:18px;
+```
+No tema claro o vidro tem **variante própria** — gradiente branco sobre
+fundo claro, borda em preto a 8%. Nunca a versão escura com opacidade
+trocada: isso suja o claro.
+
+`@supports not (backdrop-filter:blur(1px))` cai para `--surface` sólido.
+
+### Refração — só em imagem
+```html
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="glassDistort" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.009 0.013" numOctaves="2" seed="7" result="n"/>
+    <feGaussianBlur in="n" stdDeviation="1.1" result="nb"/>
+    <feDisplacementMap in="SourceGraphic" in2="nb" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs></svg>
+```
+Aplicar `.refrata{filter:url(#glassDistort)}` **apenas em `<img>`**.
+Vidro que carrega texto **não distorce** — o filtro ondula letra e linha
+reta, e legível vira desleixo. Deixe o comentário no CSS: a regra se perde
+na próxima edição se não estiver escrita ao lado.
+
+### Ritmo de cor nas dobras
+Três níveis mais divisor. **A atribuição é semântica, não decorativa:**
+
+| Classe | Tratamento | Marca |
+|---|---|---|
+| `.fold` | canvas | base, seção de contexto |
+| `.fold-alt` | `var(--surface)` · #0E0E10 | análise |
+| `.fold-deep` | `var(--elevated)` · #161618 | o que a Samais entrega |
+| `.fold-gold` | `linear-gradient(180deg,rgba(var(--gold-rgb),.10),rgba(var(--gold-rgb),.028) 60%,transparent)` | dinheiro ou janela de oportunidade |
+| `.part-divider` | banda de 96px com filete dourado e ponto central | virada entre grupos temáticos |
+
+Alternância mecânica vira tabuleiro. Levante a dobra quando ela **muda de
+natureza**, não a cada duas.
+
+> ⚠ **Sutileza demais é o mesmo que nada.** Lavagem a 1,6% de branco ou
+> 5,5% de ouro sobre `#070708` não é percebida — a dobra parece igual à
+> anterior. No escuro, o passo precisa de **pelo menos ~8 unidades RGB**
+> para o olho separar. Use os tokens de superfície, não opacidades baixas.
+
+### Fotografia dentro da dobra
+```css
+.band img{opacity:.94}
+.band::after{background:linear-gradient(180deg,rgba(7,7,8,.06) 40%,rgba(7,7,8,.58))}
+```
+Overlay só o suficiente para a legenda ler. Escurecer a imagem além disso
+a apaga da página — ela ocupa espaço e não comunica, e o leitor registra
+como "faltou imagem".
+
+### Navegação
+Sticky a 68px, `color-mix(in srgb,var(--canvas) 72%,transparent)` com
+`backdrop-filter:blur(18px) saturate(140%)`. Wordmark de 24px que vira
+monograma de 22px abaixo de 860px. Links em mono 10.5px uppercase, ativo
+em `--gold-300` com `border-bottom` dourado. Hambúrguer animado com
+`aria-expanded`. Alternador de tema persistido em `localStorage`.
+
 ## Tipografia
 
 - **Display/Títulos**: Syne (600–800) — headlines, números de seção,
@@ -131,12 +212,48 @@ inteiro; não invente variações intermediárias.
 - **Docs Word/relatórios FRIO**: sóbrio, tipografia Plus Jakarta Sans, dourado apenas
   em elementos estruturais (linhas, numeração).
 
+## Mobile — regras não negociáveis
+
+### Nunca rolagem horizontal
+Não é meta, é requisito. Tabela larga vira **cartão empilhado** abaixo de
+768px: `thead` some, cada `<td>` recebe `data-label` e renderiza o próprio
+rótulo via `::before`.
+
+**Como verificar de verdade** — o teste fraco passa e a página quebra
+mesmo assim:
+
+1. Doze larguras: 1440, 1180, 1024, 900, 820, 768, 600, 480, 414, 390,
+   360 e 320px
+2. **Rolar a página inteira antes de medir**, para forçar lazy-load de
+   imagem e reveals de scroll — elemento que só aparece depois do primeiro
+   viewport escapa da medição
+3. Medir **todos** os elementos do DOM, não só tabela e seção:
+   `getBoundingClientRect().right > documentElement.clientWidth`
+
+### Preço tem que saltar
+No cartão empilhado o valor compete com o rótulo, e o rótulo costuma
+ganhar — foi o que aconteceu na proposta ROTA antes da correção.
+
+```css
+td::before{font-size:8.5px;letter-spacing:.08em;flex:0 0 38%}
+td.tg,td.tn{font-size:15px}
+td.tg{color:var(--gold-300)!important;font-weight:500}
+tbody tr td.tg{background:rgba(var(--gold-rgb),.05)}
+```
+O rótulo recua para 38% da linha; o valor sobe para 15px e ganha peso e
+fundo. **O dado que o gestor procura não pode ser mais fraco que a
+etiqueta que o nomeia.**
+
 ## O que NUNCA fazer
 
 - Misturar a paleta institucional com a paleta operacional SAMU
   (vermelho vivo) na mesma peça.
 - Usar brasões municipais em peças de vídeo/institucionais.
-- Gradientes coloridos, neon, glassmorphism genérico de template.
+- Gradientes coloridos, neon, glassmorphism genérico de template — o
+  vidro Samais tem tokens próprios e não é o card translúcido de biblioteca.
+- Refração em superfície que carrega texto.
+- Alternar dobra a cada duas seções, produzindo tabuleiro.
+- Rolagem horizontal em qualquer largura.
 - Emojis em documentos institucionais.
 
 
