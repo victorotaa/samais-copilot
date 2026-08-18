@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Estudo de viabilidade, demanda e precificação do transporte sanitário eletivo para o município de Osasco · São Paulo">
+<title>ROTA Osasco · Estudo de Transporte Sanitário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+/* ═══════════════════════════════════════════════════════════
+   SISTEMA VISUAL SAMAIS — unificado
+   Cor e tipografia: cânone do Adendo v2 (#070708 · #BF9A3D · Plus Jakarta)
+   Componentes: vidro, refração e dobras herdados da linha institucional
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --canvas:#070708; --surface:#0E0E10; --elevated:#161618;
+  --border-subtle:#1F1F22; --border-default:#2A2B33; --border-strong:#3A3B45;
+  --ink:#F4F4F5; --ink-2:#A8A8B0; --ink-3:#6E6E78; --on-gold:#070708;
+  --gold-300:#EAC97A; --gold-500:#BF9A3D; --gold-600:#A18230; --gold-rgb:191,154,61;
+  --ok:#43A047; --warn:#FDD835; --danger:#E53935; --info:#1E88E5; --ai:#00D4A8;
+  --glass-bg:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.025));
+  --glass-border:1px solid rgba(255,255,255,.12);
+  --glass-blur:blur(22px) saturate(150%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.22), 0 18px 50px rgba(0,0,0,.5);
+  --glass-radius:18px;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+  --maxw:1180px;
+  color-scheme:dark;
+  --gold:var(--gold-500); --text:var(--ink); --sub:var(--ink-2); --muted:var(--ink-3);
+  --border:var(--border-subtle); --border2:var(--border-default);
+  --green:var(--ok); --green-rgb:67,160,71; --red:var(--danger);
+  --amber:var(--warn); --amber-rgb:253,216,53; --r:8px;
+}
+:root[data-theme="light"]{
+  --canvas:#FAFAF7; --surface:#FFFFFF; --elevated:#F1F1ED;
+  --border-subtle:#E4E4DE; --border-default:#D1D1C9; --border-strong:#B7B7AD;
+  --ink:#1A1A17; --ink-2:#52524C; --ink-3:#828279; --on-gold:#070708;
+  --gold-300:#8A6E28; --gold-500:#A88230; --gold-600:#7E6624;
+  --ok:#2E7D32; --warn:#B58A00; --danger:#C62828; --info:#1565C0; --ai:#00875F;
+  --glass-bg:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,255,255,.55));
+  --glass-border:1px solid rgba(0,0,0,.08);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 18px 50px rgba(0,0,0,.10);
+  color-scheme:light;
+}
+
+body{
+  background:var(--canvas);color:var(--ink);
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  font-size:15.5px;line-height:1.75;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  transition:background-color 240ms var(--ease),color 240ms var(--ease);
+}
+::selection{background:var(--gold-500);color:var(--on-gold)}
+:focus-visible{outline:3px solid var(--gold-500);outline-offset:2px;border-radius:6px}
+img{max-width:100%}
+a{color:inherit;text-decoration:none}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;position:relative}
+
+/* ── Navegação: vidro, wordmark que vira monograma ── */
+.nav{
+  position:sticky;top:0;z-index:60;
+  background:color-mix(in srgb,var(--canvas) 72%,transparent);
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+  border-bottom:1px solid var(--border-subtle);
+}
+.nav-in{max-width:var(--maxw);margin:0 auto;padding:0 28px;height:68px;display:flex;align-items:center;gap:28px}
+.nav-wordmark{height:24px;width:auto;color:var(--gold-500);flex:none}
+.nav-mono{height:22px;width:auto;color:var(--gold-500);flex:none;display:none}
+.nav-links{margin-left:auto;display:flex;gap:22px;align-items:center}
+.nav-links a{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);padding:6px 0;border-bottom:1px solid transparent;transition:color .24s,border-color .24s;
+}
+.nav-links a:hover{color:var(--ink-2)}
+.nav-links a.active{color:var(--gold-300);border-bottom-color:var(--gold-500)}
+.themebtn{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);background:transparent;border:1px solid var(--border-subtle);
+  border-radius:6px;padding:8px 12px;cursor:pointer;transition:all .24s;white-space:nowrap;
+}
+.themebtn:hover{color:var(--ink);border-color:var(--border-strong)}
+.navham{display:none;margin-left:auto;width:34px;height:26px;background:none;border:0;cursor:pointer;position:relative}
+.navham span{position:absolute;left:5px;right:5px;height:1.5px;background:var(--ink-2);transition:.28s var(--ease)}
+.navham span:nth-child(1){top:7px}.navham span:nth-child(2){top:12.5px}.navham span:nth-child(3){top:18px}
+.navham.open span:nth-child(1){top:12.5px;transform:rotate(45deg)}
+.navham.open span:nth-child(2){opacity:0}
+.navham.open span:nth-child(3){top:12.5px;transform:rotate(-45deg)}
+
+/* ── Dobras: ritmo por gradiente, não por troca de fundo ── */
+.fold{position:relative;z-index:1;scroll-margin-top:80px;padding:104px 0;border-top:1px solid var(--border-subtle)}
+.fold:first-of-type{border-top:0}
+/* Ritmo de cor: passos de superfície perceptíveis, não lavagens.
+   Abaixo de ~8 unidades RGB o olho não separa as dobras no escuro. */
+.fold-alt{background:var(--surface)}
+.fold-deep{background:var(--elevated)}
+.fold-gold{background:linear-gradient(180deg,rgba(var(--gold-rgb),.10),rgba(var(--gold-rgb),.028) 60%,transparent)}
+:root[data-theme="light"] .fold-gold{background:linear-gradient(180deg,rgba(var(--gold-rgb),.13),rgba(var(--gold-rgb),.04) 60%,transparent)}
+
+/* Divisor entre grupos temáticos — versão compacta do part-divider */
+.part-divider{position:relative;height:96px;border:0;margin:0;overflow:hidden;background:var(--canvas)}
+.part-divider::before{
+  content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(760px,86vw);height:1px;
+  background:linear-gradient(90deg,transparent,rgba(var(--gold-rgb),.45) 50%,transparent);
+}
+.part-divider::after{
+  content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:7px;height:7px;border-radius:50%;
+  background:var(--gold-500);box-shadow:0 0 0 6px rgba(var(--gold-rgb),.10);
+}
+
+/* ── Tipografia ── */
+h1,h2,h3{font-family:'Syne',sans-serif;line-height:1.08;letter-spacing:-.02em;color:var(--ink)}
+.fold h2,.t1{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(29px,4.1vw,45px);margin-bottom:20px;max-width:19ch;line-height:1.08;letter-spacing:-.02em;color:var(--ink)}
+.t1 em{font-style:normal;color:var(--gold-500)}
+.t2{font-family:'Syne',sans-serif;font-weight:600;font-size:21px;margin:44px 0 14px;line-height:1.2;color:var(--ink)}
+.lead{font-size:17px;color:var(--ink-2);max-width:62ch;font-weight:300;margin-bottom:52px}
+p{color:var(--ink-2);line-height:1.75;margin-bottom:16px}
+p:last-child{margin-bottom:0}
+strong{color:var(--ink);font-weight:600}
+.fine{font-size:13px;color:var(--ink-3);line-height:1.65}
+.ew,.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold-300);display:flex;align-items:center;gap:11px;margin-bottom:20px;
+}
+.ew::before,.eyebrow::before{content:'';width:26px;height:1px;background:var(--gold-500);opacity:.55;flex:none}
+
+/* ── Capa ── */
+.capa{padding:64px 0 0;position:relative;overflow:hidden}
+.capa::after{
+  content:'';position:absolute;top:-240px;left:50%;transform:translateX(-50%);
+  width:900px;height:520px;pointer-events:none;z-index:0;
+  background:radial-gradient(closest-side,rgba(var(--gold-rgb),.13),transparent);
+}
+.capa .wrap{z-index:1}
+.capa h1{font-size:clamp(38px,6vw,64px);font-weight:800;max-width:17ch;margin-bottom:22px}
+.capa h1 em{font-style:normal;color:var(--gold-500)}
+.capa .lead{max-width:64ch;margin-bottom:0}
+.stats{display:flex;flex-wrap:wrap;gap:14px;margin-top:40px}
+.stat{
+  background:var(--glass-bg);border:var(--glass-border);border-radius:12px;
+  box-shadow:var(--glass-shadow);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  padding:16px 20px;display:flex;flex-direction:column;gap:4px;min-width:150px;
+}
+.stat .n{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:500;color:var(--gold-300)}
+.stat .l{font-size:12px;color:var(--ink-2);line-height:1.45}
+
+/* ── Banda de imagem · refração ── */
+.band{position:relative;overflow:hidden;border-radius:14px;margin:0 0 48px;background:#050505;height:min(42vh,360px)}
+.band img{position:absolute;inset:-12% 0;width:100%;height:124%;object-fit:cover;opacity:.94;will-change:transform}
+/* Refração vive na BORDA, nunca no miolo.
+   A camada .refrata distorce por baixo; .nucleo repõe o centro limpo com
+   máscara radial. Assunto da foto — rosto, veículo, texto na lataria — não
+   pode ondular: distorção no centro lê como defeito de arquivo, não como vidro. */
+.refrata{filter:url(#glassDistort)}
+.band .nucleo{
+  position:absolute;inset:-12% 0;width:100%;height:124%;object-fit:cover;
+  opacity:.94;pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse 74% 74% at 50% 50%,#000 56%,rgba(0,0,0,0) 100%);
+  mask-image:radial-gradient(ellipse 74% 74% at 50% 50%,#000 56%,rgba(0,0,0,0) 100%);
+}
+/* Overlay só o suficiente para a legenda ler — imagem escura demais some da página */
+.band::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,8,.06) 40%,rgba(7,7,8,.58))}
+.band-cap{
+  position:absolute;left:24px;bottom:18px;z-index:2;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--gold-300);
+}
+/* Overlay é decoração: nunca pode interceptar clique nem controle nativo */
+.band::after{pointer-events:none}
+
+/* ── Player na capa ──
+   O vídeo é banda de imagem que se move. Herda a moldura da .band — mesmo raio,
+   mesma legenda, mesmo overlay — e dispensa refração: imagem em movimento com
+   deslocamento de pixel lê como falha de codec, não como vidro. */
+.band.vband{height:auto;aspect-ratio:16/9;max-height:min(56vh,470px)}
+.band.vband video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#050505}
+.band-cap{transition:opacity 320ms var(--ease)}
+.vplay{
+  position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;
+  border:0;padding:0;cursor:pointer;-webkit-appearance:none;appearance:none;
+  background:linear-gradient(180deg,rgba(7,7,8,.08),rgba(7,7,8,.44));
+  transition:background 320ms var(--ease);
+}
+.vplay:hover{background:linear-gradient(180deg,rgba(7,7,8,.02),rgba(7,7,8,.34))}
+.vplay span{
+  width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--glass-bg);border:var(--glass-border);box-shadow:var(--glass-shadow);
+  backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  transition:transform 380ms var(--ease);
+}
+.vplay:hover span{transform:scale(1.06)}
+.vplay:focus-visible{outline:2px solid var(--gold-500);outline-offset:-4px}
+.vplay svg{width:26px;height:26px;fill:var(--gold-300);margin-left:5px}
+.vband.on .vplay{display:none}
+.vband.on::after,.vband.on .band-cap{opacity:0}
+@media(max-width:640px){.vplay span{width:62px;height:62px}.vplay svg{width:21px;height:21px}}
+
+.band-duo{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:48px}
+.band-duo .band{margin:0;height:min(34vh,280px)}
+@media(max-width:820px){.band-duo{grid-template-columns:1fr}}
+
+/* ── Vidro: carrega texto, então não distorce ── */
+.glass{
+  background:var(--glass-bg);border:var(--glass-border);border-radius:var(--glass-radius);
+  box-shadow:var(--glass-shadow);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+}
+@supports not (backdrop-filter:blur(1px)){.glass,.stat{background:var(--surface)}}
+
+/* ── Grids e cartões ── */
+.dc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+.hb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:44px}
+.pc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+@media(max-width:900px){.dc-grid,.hb-grid,.pc-grid{grid-template-columns:1fr}}
+.dc,.hb,.pc{
+  background:var(--glass-bg);border:var(--glass-border);border-radius:var(--glass-radius);
+  box-shadow:var(--glass-shadow);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  padding:28px 26px;position:relative;overflow:hidden;
+  transition:transform 240ms var(--ease),box-shadow 240ms var(--ease);
+}
+.dc{border-top:2px solid var(--gold-500)}
+.hb:hover,.pc:hover,.dc:hover{transform:translateY(-4px)}
+.dc-num{font-family:'Syne',sans-serif;font-weight:700;font-size:38px;line-height:1;letter-spacing:-.02em;color:var(--gold-500);margin-bottom:12px}
+.dc-num .u{font-size:.45em;color:var(--ink-3);font-weight:500;letter-spacing:0}
+.dc-label{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);line-height:1.7}
+.dc-sub{font-size:12.5px;color:var(--ink-3);margin-top:6px;line-height:1.5}
+.hb-tag,.pc-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold-300);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+.hb-period{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);margin-bottom:18px}
+.hb-title,.pc-title{font-family:'Syne',sans-serif;font-weight:600;font-size:17px;margin-bottom:10px;line-height:1.22;letter-spacing:-.01em}
+.hb-desc,.pc-desc{font-size:14.5px;color:var(--ink-2);line-height:1.62;flex:1}
+.hb{display:flex;flex-direction:column}
+.hb-divider{height:1px;background:var(--border-subtle);margin:22px 0}
+.hb-kv{display:flex;flex-direction:column;gap:9px}
+.hb-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.hb-k{font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)}
+.hb-v{font-size:13px;color:var(--ink);font-weight:600;font-family:'JetBrains Mono',monospace;text-align:right}
+
+/* ── Blocos de destaque ── */
+.box{border-radius:var(--glass-radius);padding:26px 30px;margin:40px 0;border:var(--glass-border);background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow)}
+.box-gold{border-color:rgba(var(--gold-rgb),.28)}
+.box-amber{border-color:rgba(var(--amber-rgb),.28)}
+.box-green{border-color:rgba(var(--green-rgb),.30)}
+.box-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;color:var(--gold-300)}
+.box-green .box-label{color:var(--ok)}
+.box p{margin:0;line-height:1.7}
+
+/* ── Tabelas ── */
+.tw{margin:32px 0}
+table{width:100%;max-width:100%;border-collapse:collapse;font-size:14px}
+thead tr{border-bottom:1px solid var(--border-default)}
+th{font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-3);padding:11px 14px;text-align:left;line-height:1.4;overflow-wrap:break-word}
+td{padding:13px 14px;border-bottom:1px solid var(--border-subtle);color:var(--ink-2);line-height:1.5;vertical-align:top;overflow-wrap:break-word}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:color-mix(in srgb,var(--ink) 3%,transparent)}
+td strong{color:var(--ink);font-weight:600}
+.tg{color:var(--gold-300)!important;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px}
+.tn{font-family:'JetBrains Mono',monospace;font-size:13px}
+.tr-hl td{border-top:1px solid rgba(var(--gold-rgb),.35);background:rgba(var(--gold-rgb),.05);color:var(--gold-300)!important;font-weight:700}
+.tr-hl td strong{color:var(--gold-300)}
+.tr-hl td:not(:first-child) strong{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px}
+.uf{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:.1em;margin-left:5px}
+
+/* ── Número de fechamento e passos ── */
+.big{margin-top:52px;padding:56px 44px;text-align:center;border-radius:var(--glass-radius);border:1px solid rgba(var(--gold-rgb),.28);background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow)}
+.big-lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-300);margin-bottom:18px}
+.big-num{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(44px,7vw,84px);line-height:1;letter-spacing:-.03em;color:var(--gold-500);margin-bottom:14px}
+.big-num .u{font-size:.26em;color:var(--ink-3);font-weight:500;letter-spacing:0}
+.big-sub{font-size:15px;color:var(--ink-2);max-width:520px;margin:0 auto;line-height:1.7}
+.steps{display:flex;flex-direction:column;gap:16px;margin-top:44px}
+.step{border-radius:var(--glass-radius);border:var(--glass-border);background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow);padding:28px 26px;display:flex;gap:24px;align-items:flex-start}
+.step-n{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;color:rgba(var(--gold-rgb),.4);line-height:1;min-width:42px}
+.step-t{font-family:'Syne',sans-serif;font-weight:600;font-size:17px;margin-bottom:6px;line-height:1.25}
+.step-d{font-size:14.5px;color:var(--ink-2);line-height:1.62;margin:0}
+@media(max-width:700px){.step{flex-direction:column;gap:12px}}
+
+/* ── Movimento ── */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity 700ms var(--ease),transform 700ms var(--ease)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* ── Rodapé ── */
+.footer{border-top:1px solid var(--border-subtle);padding:52px 0;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--ink) 1.4%,transparent))}
+.footer .wrap{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:32px}
+.footer-brand{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.footer-brand em{font-style:normal;color:var(--gold-500)}
+.footer-meta{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-3);line-height:1.8;text-align:right}
+
+@media(max-width:860px){
+  .nav-wordmark{display:none}.nav-mono{display:block}
+  .navham{display:block}
+  .nav-links{
+    position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;
+    background:color-mix(in srgb,var(--canvas) 96%,transparent);backdrop-filter:blur(18px);
+    border-bottom:1px solid var(--border-subtle);padding:8px 28px 18px;display:none;
+  }
+  .nav-links.open{display:flex}
+  .nav-links a{padding:12px 0;width:100%;font-size:11.5px}
+  .themebtn{margin:10px 0 0}
+}
+@media(max-width:768px){
+  .fold{padding:64px 0}
+  .capa{padding:40px 0 0}
+  .big{padding:40px 24px}
+  table{display:block}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{display:block;border:var(--glass-border);border-radius:12px;background:var(--glass-bg);margin-bottom:12px;overflow:hidden}
+  tbody tr:last-child{margin-bottom:0}
+  tbody tr:hover td{background:transparent}
+  td{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding:11px 16px;border-bottom:1px solid var(--border-subtle);text-align:right}
+  tr:last-child td{border-bottom:1px solid var(--border-subtle)}
+  tr td:last-child{border-bottom:none}
+  td::before{content:attr(data-label);font-family:'JetBrains Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);text-align:left;line-height:1.45;flex:0 0 38%}
+  /* Preço é o dado que o gestor procura: no mobile ele cresce e ganha contraste */
+  td.tg,td.tn{font-size:15px}
+  td.tg{color:var(--gold-300)!important;font-weight:500}
+  tbody tr td.tg{background:rgba(var(--gold-rgb),.05)}
+  td.rich{flex-direction:column;align-items:flex-start;text-align:left;gap:6px}
+  td.rich::before{flex:0 0 auto}
+  .tr-hl{border-color:rgba(var(--gold-rgb),.35)}
+  .tr-hl td{border-top:none;background:transparent}
+  .footer .wrap{flex-direction:column;align-items:flex-start}
+  .footer-meta{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="glassDistort" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.009 0.013" numOctaves="2" seed="7" result="n"/>
+    <feGaussianBlur in="n" stdDeviation="1.1" result="nb"/>
+    <feDisplacementMap in="SourceGraphic" in2="nb" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs></svg>
+
+<nav class="nav">
+  <div class="nav-in">
+    <svg class="nav-wordmark" viewBox="0 0 595.3 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="currentColor" d="M44,106.6l4.9-4.9c6.3,3.6,18.2,8.8,33.8,8.8s25.5-3.2,25.5-11.1-14.2-9.6-24.4-9.8c-16.2-.2-35.4-2.8-35.4-14.1s17.3-16.4,32.7-16.4,27,3.2,34.1,6.5l-4.4,4.9c-6.8-3.1-17.2-6-28.9-6s-22.8,1.7-22.8,9.6,17,7.7,24.8,7.9c15.9.2,35.4,3.2,35.4,16.9s-20.1,17.1-35.9,17.1-31.6-5.3-39.4-9.4ZM411.7,60.6h4.7c4.4,0,8.6,2.1,11.3,5.6l36.8,48.2h-11.7l-41-53.7ZM476.6,106.6l4.9-4.9c6.3,3.6,18.2,8.8,33.8,8.8s25.5-3.2,25.5-11.1-14.2-9.6-24.4-9.8c-16.2-.2-35.4-2.8-35.4-14.1s17.3-16.4,32.7-16.4,27,3.2,34.1,6.5l-4.4,4.9c-6.8-3.1-17.2-6-28.9-6s-22.8,1.7-22.8,9.6,17,7.7,24.8,7.9c15.9.2,35.4,3.2,35.4,16.9s-20.1,17.1-35.9,17.1-31.6-5.3-39.4-9.4ZM184.3,60.6h-12.4s24.4,33.7,24.4,33.7h-42.4c-3.2,0-6.3,1.5-8.2,4.2l-11.7,15.9h7.6l7.9-10.7c1.9-2.6,5-4.2,8.2-4.2h42.3s10.8,14.9,10.8,14.9h13.1l-39.6-53.7ZM372.1,60.6h-12.4l24.4,33.7h-42.4c-3.2,0-6.3,1.5-8.2,4.2l-11.7,15.9h7.6l7.9-10.7c1.9-2.6,5-4.2,8.2-4.2h42.3l10.8,14.9h13.1l-39.6-53.7ZM287.2,65.9l-23.3,32.3-23.9-32.4c-2.4-3.2-6.2-5.2-10.2-5.2h-6l33.5,46.6h7.2l27.8-37.7v44.8h11.7v-53.7h-6.6c-4.1,0-7.9,2-10.3,5.3Z"/></svg>
+    <svg class="nav-mono" viewBox="0 0 271 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="currentColor" d="M44.8,106.6l4.9-4.9c6.3,3.6,18.1,8.8,33.7,8.8s25.4-3.2,25.4-11.1-14.2-9.6-24.3-9.8c-16.2-.2-35.3-2.8-35.3-14.1s17.3-16.3,32.6-16.3,27,3.2,34,6.5l-4.4,4.9c-6.7-3.1-17.1-6-28.8-6s-22.8,1.7-22.8,9.6,17,7.7,24.7,7.9c15.9.2,35.3,3.2,35.3,16.9s-20.1,17.1-35.8,17.1-31.5-5.3-39.3-9.4ZM168.7,60.7h-13.1l25,33.6h-42.3c-3.2,0-6.3,1.5-8.2,4.1l-11.7,15.8h7.5l7.9-10.7c1.9-2.6,5-4.1,8.2-4.1h42.2l10.8,14.8h13.1l-39.5-53.6ZM226.2,60.7h-10.4v-10.4h-10v10.4h-10.4v10h10.4v10.4h10v-10.4h10.4v-10Z"/></svg>
+    <button class="navham" id="navham" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="navlinks">
+      <a href="#s01">Veredito</a>
+      <a href="#s03">Geometria</a>
+      <a href="#s04">Demanda</a>
+      <a href="#s05">Frota</a>
+      <a href="#s06">Custo</a>
+      <a href="#s07">Preço</a>
+      <a href="#s09">Retorno</a>
+      <a href="#s10">Próximos passos</a>
+      <button class="themebtn" id="themeToggle" aria-label="Alternar tema claro e escuro">Modo claro</button>
+    </div>
+  </div>
+</nav>
+
+<header class="capa">
+  <div class="wrap">
+    <div class="band">
+      <img class="refrata" src="img/frota-lado.jpg" alt="Micro-ônibus de transporte sanitário eletivo em perfil" loading="eager" width="1280" height="769">
+      <img class="nucleo" src="img/frota-lado.jpg" alt="" aria-hidden="true" loading="lazy" width="1280" height="769">
+      <div class="band-cap">Transporte sanitário eletivo · Frota dimensionada</div>
+    </div>
+    <div class="eyebrow">Estudo de viabilidade · Osasco · São Paulo</div>
+    <h1>Osasco não é um caso de distância. É um caso de <em>volume</em>.</h1>
+    <p class="lead">Estudo de demanda, dimensionamento de frota, custo operacional e precificação para o transporte sanitário eletivo do município de Osasco, aplicando o modelo de custo em duas partes desenvolvido para a carteira do Nordeste — com as correções que a geometria urbana exige.</p>
+    <div class="stats">
+      <div class="stat"><span class="n">756.952</span><span class="l">habitantes · IBGE 2024</span></div>
+      <div class="stat"><span class="n">113.455</span><span class="l">deslocamentos / ano</span></div>
+      <div class="stat"><span class="n">R$ 0,44</span><span class="l">por habitante / mês</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="fold" id="s01">
+  <div class="wrap">
+    <div class="ew">01</div>
+    <h2 class="t1">O veredito,<br>antes da conta.</h2>
+    <p class="lead">Osasco é contratável. Não pelo caminho que a carteira do Nordeste usa.</p>
+
+    <p>As três portarias de maio de 2026 criaram custeio federal para o deslocamento de pacientes de hemodiálise e radioterapia — <strong>desde que o trajeto supere 50 km</strong>. Osasco fica a cerca de 18 km do centro de São Paulo, em malha urbana contínua, e tem serviço de terapia renal substitutiva instalado dentro do próprio território.</p>
+
+    <p>Os dois fatos levam ao mesmo lugar: <strong>o gatilho federal não dispara em Osasco</strong>. Nenhum reembolso por distância, nenhuma receita da Tabela SUS pela linha do ROTA cofinanciado. Um estudo que projetasse essa receita aqui estaria errado na primeira linha.</p>
+
+    <p>O que existe em Osasco é outra coisa, e é maior: <strong>113 mil deslocamentos por ano dentro de um município de 757 mil habitantes</strong>, hoje resolvidos por frota própria da prefeitura e por compra avulsa de capacidade. O caso não se sustenta em cofinanciamento — se sustenta em custo por deslocamento e em previsibilidade de operação.</p>
+
+    <div class="box box-gold">
+      <div class="box-label">A tese comercial em uma frase</div>
+      <p>Em Osasco o bloco fixo da operação se dilui em 757 mil habitantes. É o que faz o per capita cair para <strong>R$ 0,44 por habitante ao mês</strong> — quase metade da referência média da carteira do Nordeste, com a mesma estrutura de central, frota e indicadores. Escala é o argumento.</p>
+    </div>
+  </div>
+</section>
+
+<section class="fold fold-alt" id="s02">
+  <div class="wrap">
+    <div class="ew">02</div>
+    <h2 class="t1">Atestado<br>de cadastro.</h2>
+    <p class="lead">Antes da modelagem, o que está confirmado e o que não está.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Item</th><th>Registro</th><th>Fonte e situação</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Item"><strong>Grafia oficial</strong></td><td class="tn" data-label="Registro">Osasco</td><td data-label="Fonte e situação">IBGE · confirmada</td></tr>
+          <tr><td data-label="Item"><strong>Unidade federativa</strong></td><td class="tn" data-label="Registro">São Paulo <span class="uf">SP</span></td><td data-label="Fonte e situação">IBGE · confirmada</td></tr>
+          <tr><td data-label="Item"><strong>População</strong></td><td class="tg" data-label="Registro">756.952</td><td data-label="Fonte e situação">IBGE · estimativa de 2024, divulgada em 29/08/2024</td></tr>
+          <tr><td data-label="Item"><strong>Posição estadual</strong></td><td class="tn" data-label="Registro">7ª</td><td data-label="Fonte e situação">Município mais populoso de São Paulo</td></tr>
+          <tr><td data-label="Item"><strong>Região</strong></td><td class="tn" data-label="Registro">RMSP · sub-região Oeste</td><td data-label="Fonte e situação">Confirmada</td></tr>
+          <tr><td data-label="Item"><strong>Consórcio</strong></td><td class="tn" data-label="Registro">CIOESTE</td><td data-label="Fonte e situação">Consórcio já constituído · Osasco é integrante</td></tr>
+          <tr><td data-label="Item"><strong>Serviço de TRS no município</strong></td><td class="tn" data-label="Registro">Existente</td><td data-label="Fonte e situação">Habilitação SUS <strong>a confirmar em CNES</strong></td></tr>
+          <tr><td data-label="Item"><strong>Radioterapia no município</strong></td><td class="tn" data-label="Registro">A confirmar</td><td data-label="Fonte e situação">Habilitação de alta complexidade <strong>não verificada</strong></td></tr>
+          <tr><td data-label="Item"><strong>Veículo do Caminhos da Saúde</strong></td><td class="tn" data-label="Registro">Improvável</td><td data-label="Fonte e situação">Frota federal destinada a trajetos acima de 50 km · <strong>a confirmar</strong></td></tr>
+          <tr><td data-label="Item"><strong>Alíquota de ISS</strong></td><td class="tn" data-label="Registro">A confirmar</td><td data-label="Fonte e situação">Move a rubrica de tributos na composição</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="fine">Nenhuma divergência de cadastro foi encontrada. A população adotada é a estimativa de 2024 — a de 2025 não estava publicada para o município no levantamento desta rodada, e usar um número não publicado seria pior que usar um número datado.</p>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-gold" id="s03">
+  <div class="wrap">
+    <div class="ew">03</div>
+    <h2 class="t1">A geometria<br>do fluxo.</h2>
+    <p class="lead">O que determina a receita não é a população — é a posição do município no fluxo e a distância até o polo.</p>
+
+    <p>Esse princípio organiza toda a carteira do ROTA, e em Osasco ele produz um resultado incômodo. O município é <strong>destino</strong>, não origem. Tem clínicas de terapia renal substitutiva no próprio território e hospital regional de referência. O paciente de Osasco em hemodiálise não atravessa 160 km de sertão — atravessa a cidade.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Filtro regulatório</th><th>Parâmetro</th><th>Osasco</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Filtro regulatório"><strong>Piso de distância</strong></td><td class="tn" data-label="Parâmetro">acima de 50 km</td><td class="tg" data-label="Osasco">Não atende · conurbação</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Teto de raio</strong></td><td class="tn" data-label="Parâmetro">até 500 km</td><td data-label="Osasco">Irrelevante</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Hemodiálise</strong></td><td class="tn" data-label="Parâmetro">apenas âmbito estadual</td><td data-label="Osasco">Fluxo intramunicipal</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Posição no fluxo</strong></td><td class="tn" data-label="Parâmetro">origem gera receita</td><td class="tg" data-label="Osasco">Destino · não captura</td></tr>
+          <tr class="tr-hl"><td data-label="Filtro regulatório"><strong>Cofinanciamento federal aplicável</strong></td><td data-label="Parâmetro"><strong>—</strong></td><td data-label="Osasco"><strong>R$ 0</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Um município que é polo <strong>não captura</strong> a receita de deslocamento — quem captura são os vizinhos que enviam pacientes. Em Osasco, dentro da Região Metropolitana, nem os vizinhos capturam: todos estão a menos de 50 km uns dos outros.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">A consequência comercial</div>
+      <p>A proposta em Osasco deve ser ancorada em <strong>transporte sanitário eletivo intramunicipal</strong> custeado por recurso próprio do município, e em TFD de saída para serviços não disponíveis na Região Metropolitana. Nunca no gatilho das portarias. Levar o argumento do cofinanciamento a esta mesa é queimar credibilidade técnica na primeira reunião.</p>
+    </div>
+  </div>
+</section>
+
+<section class="fold" id="s04">
+  <div class="wrap">
+    <div class="ew">04</div>
+    <h2 class="t1">A demanda<br>dimensionada.</h2>
+    <p class="lead">Duas linhas com parâmetro epidemiológico confiável. Uma terceira, maior, que não se estima — se levanta.</p>
+
+    <div class="dc-grid reveal">
+      <div class="dc">
+        <div class="dc-num">580</div>
+        <div class="dc-label">Pacientes em diálise</div>
+        <div class="dc-sub">Em modalidade de centro, com deslocamento</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">919</div>
+        <div class="dc-label">Pacientes em radioterapia</div>
+        <div class="dc-sub">Por ano, sobre 1.837 casos novos</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">113.455</div>
+        <div class="dc-label">Deslocamentos por ano</div>
+        <div class="dc-sub">Ida e volta, nas duas linhas</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">378</div>
+        <div class="dc-label">Deslocamentos por dia útil</div>
+        <div class="dc-sub">Sobre 300 dias operacionais</div>
+      </div>
+    </div>
+
+    <h3 class="t2">Como cada número foi obtido</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Linha</th><th>Parâmetro aplicado</th><th>Cálculo</th><th>Resultado</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Linha"><strong>Diálise</strong></td><td data-label="Parâmetro aplicado">812 pmp × 94,4% em modalidade de centro</td><td class="tn" data-label="Cálculo">756.952 × 766/1.000.000</td><td class="tg" data-label="Resultado">580 pacientes</td></tr>
+          <tr><td data-label="Linha"><strong>Diálise · viagens</strong></td><td data-label="Parâmetro aplicado">156 sessões por ano · 3 semanais</td><td class="tn" data-label="Cálculo">580 × 156</td><td class="tg" data-label="Resultado">90.480 / ano</td></tr>
+          <tr><td data-label="Linha"><strong>Oncologia</strong></td><td data-label="Parâmetro aplicado">2.427 casos novos por milhão</td><td class="tn" data-label="Cálculo">756.952 × 2.427/1.000.000</td><td class="tg" data-label="Resultado">1.837 casos</td></tr>
+          <tr><td data-label="Linha"><strong>Radioterapia</strong></td><td data-label="Parâmetro aplicado">50% dos casos · 25 sessões</td><td class="tn" data-label="Cálculo">1.837 × 0,50 × 25</td><td class="tg" data-label="Resultado">22.975 / ano</td></tr>
+          <tr class="tr-hl"><td data-label="Linha"><strong>Total modelado</strong></td><td data-label="Parâmetro aplicado"><strong>0,15 deslocamento por habitante ao ano</strong></td><td data-label="Cálculo"><strong>90.480 + 22.975</strong></td><td data-label="Resultado"><strong>113.455 / ano</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="fine">O total bate com o benchmark de verificação da carteira — de 0,09 a 0,15 deslocamento por habitante ao ano nas duas linhas. Osasco sai no teto da faixa porque aqui se aplicou a prevalência nacional integral; na carteira do Nordeste a banda parte de taxas estaduais menores, e é isso — não a demografia — que puxa aqueles municípios para baixo.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">Duas advertências sobre estes números</div>
+      <p>A prevalência de 812 por milhão é a <strong>média nacional</strong> do Censo Brasileiro de Diálise 2024. A taxa específica de São Paulo não foi apurada nesta rodada. Como prevalência mede <strong>acesso</strong>, e São Paulo tem a rede mais densa do país, o número acima deve ser lido como <strong>piso, não como teto</strong> — o inverso do que vale para a carteira do Nordeste.</p>
+      <p>E o transporte eletivo geral — consultas, exames, cirurgias eletivas, TFD — <strong>não está nesta conta</strong>. Não existe parâmetro confiável para estimá-lo, e historicamente ele supera o volume de diálise e oncologia somados. Em um município com rede básica do porte da de Osasco, essa linha é provavelmente a maior de todas. Ela se levanta na central de regulação municipal, não se projeta.</p>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-deep" id="s05">
+  <div class="wrap">
+    <div class="ew">05</div>
+    <h2 class="t1">A frota, e a correção<br>que a cidade exige.</h2>
+    <p class="lead">A fórmula da carteira do Nordeste foi calibrada em estrada. Aplicá-la sem ajuste em malha urbana produz uma frota duas vezes maior que a necessária — e um preço duas vezes maior que o defensável.</p>
+
+    <p>O dimensionamento da carteira parte de <strong>2,5 corridas por veículo por dia útil</strong>. É o número certo para um trajeto de 90 km até o polo regional, onde o veículo faz a ida pela manhã, espera a sessão e retorna à tarde. Em Osasco o trajeto médio é intramunicipal, dentro de 65 km² de malha contínua.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Etapa</th><th>Geometria intermunicipal</th><th>Geometria urbana · Osasco</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Etapa"><strong>Deslocamentos por dia útil</strong></td><td class="tn" data-label="Geometria intermunicipal">378</td><td class="tn" data-label="Geometria urbana · Osasco">378</td></tr>
+          <tr><td data-label="Etapa"><strong>Pacientes consolidados por corrida</strong></td><td class="tn" data-label="Geometria intermunicipal">8</td><td class="tn" data-label="Geometria urbana · Osasco">8</td></tr>
+          <tr><td data-label="Etapa"><strong>Corridas consolidadas por dia</strong></td><td class="tn" data-label="Geometria intermunicipal">48</td><td class="tn" data-label="Geometria urbana · Osasco">48</td></tr>
+          <tr><td data-label="Etapa"><strong>Corridas por veículo por dia</strong></td><td class="tn" data-label="Geometria intermunicipal">2,5</td><td class="tg" data-label="Geometria urbana · Osasco">5,5</td></tr>
+          <tr class="tr-hl"><td data-label="Etapa"><strong>Veículos operacionais</strong></td><td data-label="Geometria intermunicipal"><strong>19</strong></td><td data-label="Geometria urbana · Osasco"><strong>9</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>O ciclo completo de uma corrida consolidada em Osasco — embarque distribuído de até oito pacientes, entrega no serviço, retorno — foi arbitrado em <strong>1h40</strong>. Sobre uma jornada operacional de dez horas isso daria seis ciclos; adotou-se <strong>5,5</strong>, com folga para atraso de sessão e para o trânsito da Região Metropolitana. É premissa declarada, não dado de fonte primária, e é a primeira coisa a recalibrar no primeiro mês de operação.</p>
+
+    <div class="box box-gold">
+      <div class="box-label">Frota contratada</div>
+      <p><strong>9 veículos operacionais e 1 de reserva.</strong> A reserva não é conforto: com frota única, uma quebra derruba o SLA no primeiro mês. Composição indicada — <strong>4 micro-ônibus</strong> para os turnos consolidados de hemodiálise e <strong>6 vans</strong>, uma delas adaptada para paciente com mobilidade reduzida.</p>
+    </div>
+  </div>
+</section>
+
+<section class="fold" id="s06">
+  <div class="wrap">
+    <div class="ew">06</div>
+    <h2 class="t1">O custo direto<br>operacional.</h2>
+    <p class="lead">Custo de transporte sanitário não é proporcional à população. Tem um bloco fixo que não escala e um bloco variável que acompanha frota e quilometragem.</p>
+
+    <p>É por isso que o valor por habitante é <strong>resultado</strong> da conta, nunca entrada. Em Osasco, o bloco fixo se dilui em 757 mil habitantes — e é exatamente daí que vem a eficiência do contrato.</p>
+
+    <h3 class="t2">Bloco fixo mensal</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Componente</th><th>Dimensionamento</th><th>Mensal</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Componente"><strong>Coordenação operacional</strong></td><td data-label="Dimensionamento">1 posto</td><td class="tg" data-label="Mensal">R$ 11.050</td></tr>
+          <tr><td data-label="Componente"><strong>Supervisão de frota</strong></td><td data-label="Dimensionamento">1 posto</td><td class="tg" data-label="Mensal">R$ 6.800</td></tr>
+          <tr><td data-label="Componente"><strong>Central de regulação ROTA</strong></td><td data-label="Dimensionamento">5 operadores</td><td class="tg" data-label="Mensal">R$ 18.700</td></tr>
+          <tr><td data-label="Componente"><strong>Administrativo e faturamento</strong></td><td data-label="Dimensionamento">2 postos</td><td class="tg" data-label="Mensal">R$ 8.500</td></tr>
+          <tr><td data-label="Componente"><strong>Triagem e acolhimento</strong></td><td data-label="Dimensionamento">1 posto</td><td class="tg" data-label="Mensal">R$ 7.650</td></tr>
+          <tr><td data-label="Componente"><strong>Sede, sistemas, utilidades e EPI</strong></td><td data-label="Dimensionamento">—</td><td class="tg" data-label="Mensal">R$ 14.000</td></tr>
+          <tr class="tr-hl"><td data-label="Componente"><strong>Bloco fixo</strong></td><td data-label="Dimensionamento"><strong>—</strong></td><td data-label="Mensal"><strong>R$ 66.700</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="fine">Salários com encargos de 70% — INSS, FGTS, férias, décimo terceiro e provisões. A central foi dimensionada em cinco operadores, e não nos três do contrato isolado da carteira: 378 deslocamentos por dia útil não cabem em três posições sem degradar confirmação prévia e remanejamento.</p>
+
+    <h3 class="t2">Bloco variável · por veículo ao mês</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Item</th><th>Base</th><th>Frota própria</th><th>Frota cedida</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Item"><strong>Motorista com cobertura</strong></td><td data-label="Base">1,2 FTE</td><td class="tg" data-label="Frota própria">R$ 4.896</td><td class="tg" data-label="Frota cedida">R$ 4.896</td></tr>
+          <tr><td data-label="Item"><strong>Combustível e manutenção</strong></td><td data-label="Base">4.200 km × R$ 1,55</td><td class="tg" data-label="Frota própria">R$ 6.510</td><td class="tg" data-label="Frota cedida">R$ 6.510</td></tr>
+          <tr><td data-label="Item"><strong>Depreciação</strong></td><td data-label="Base">60 meses · média ponderada</td><td class="tg" data-label="Frota própria">R$ 6.943</td><td class="tg" data-label="Frota cedida">R$ 0</td></tr>
+          <tr><td data-label="Item"><strong>Seguro e rastreamento</strong></td><td data-label="Base">—</td><td class="tg" data-label="Frota própria">R$ 600</td><td class="tg" data-label="Frota cedida">R$ 600</td></tr>
+          <tr class="tr-hl"><td data-label="Item"><strong>Por veículo</strong></td><td data-label="Base"><strong>—</strong></td><td data-label="Frota própria"><strong>R$ 18.949</strong></td><td data-label="Frota cedida"><strong>R$ 12.006</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-amber">
+      <div class="box-label">Correção de premissa · depreciação</div>
+      <p>O benchmark da carteira usa <strong>R$ 3.500</strong> de depreciação por veículo ao mês. Confrontado com os preços de referência das entregas do Ministério da Saúde — <strong>R$ 584,6 mil</strong> por micro-ônibus e <strong>R$ 304,6 mil</strong> por van — esse número não se sustenta: implicaria um veículo de R$ 210 mil em 60 meses.</p>
+      <p>A composição indicada para Osasco deprecia <strong>R$ 6.943</strong> por veículo ao mês, quase o dobro. Manter os R$ 3.500 subprecificaria o contrato em cerca de <strong>R$ 46 mil por mês</strong> — e a conta só apareceria na hora de repor a frota.</p>
+    </div>
+
+    <h3 class="t2">Custo direto operacional consolidado</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Composição</th><th>Frota própria</th><th>Frota cedida</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Composição"><strong>Bloco fixo</strong></td><td class="tn" data-label="Frota própria">R$ 66.700</td><td class="tn" data-label="Frota cedida">R$ 66.700</td></tr>
+          <tr><td data-label="Composição"><strong>9 veículos operacionais</strong></td><td class="tn" data-label="Frota própria">R$ 170.541</td><td class="tn" data-label="Frota cedida">R$ 108.054</td></tr>
+          <tr><td data-label="Composição"><strong>1 veículo de reserva</strong></td><td class="tn" data-label="Frota própria">R$ 7.543</td><td class="tn" data-label="Frota cedida">R$ 600</td></tr>
+          <tr class="tr-hl"><td data-label="Composição"><strong>Custo direto operacional</strong></td><td data-label="Frota própria"><strong>R$ 244.784</strong></td><td data-label="Frota cedida"><strong>R$ 175.354</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-alt" id="s07">
+  <div class="wrap">
+    <div class="ew">07</div>
+    <h2 class="t1">Preço e composição<br>do valor contratual.</h2>
+    <p class="lead">Preço aberto, decomposto por rubrica, defensável na Lei 14.133/2021.</p>
+
+    <div class="big">
+      <div class="big-lbl">Referência mensal · frota própria</div>
+      <div class="big-num">R$ 330.458<span class="u"> / mês</span></div>
+      <p class="big-sub"><strong>R$ 0,44 por habitante ao mês.</strong> Cerca de R$ 5,24 por habitante ao ano para uma operação completa de transporte sanitário eletivo, com central de regulação própria, frota gerida, roteirização e indicadores auditáveis.</p>
+    </div>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Cenário</th><th>Custo direto</th><th>Referência mensal</th><th>Por habitante</th><th>Por deslocamento</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cenário"><strong>Frota própria Samais</strong></td><td class="tn" data-label="Custo direto">R$ 244.784</td><td class="tg" data-label="Referência mensal">R$ 330.458</td><td class="tg" data-label="Por habitante">R$ 0,44</td><td class="tn" data-label="Por deslocamento">R$ 34,95</td></tr>
+          <tr><td data-label="Cenário"><strong>Frota cedida pelo município</strong></td><td class="tn" data-label="Custo direto">R$ 175.354</td><td class="tg" data-label="Referência mensal">R$ 236.728</td><td class="tg" data-label="Por habitante">R$ 0,31</td><td class="tn" data-label="Por deslocamento">R$ 25,04</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>A cessão de frota reduz o valor do contrato em <strong>28%</strong> — R$ 93.730 por mês. Na carteira do Nordeste essa diferença era de cerca de 13%, calculada sobre a depreciação antiga. Com o preço real dos veículos, a cessão passa a ser <strong>a variável mais poderosa da negociação</strong>, e não um detalhe operacional.</p>
+
+    <h3 class="t2">Composição sobre o custo direto</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Rubrica</th><th>% sobre o custo direto</th><th>Natureza</th></tr></thead>
+        <tbody>
+          <tr><td class="rich" data-label="Rubrica"><strong>Tributos sobre faturamento</strong><br><span class="fine">PIS, COFINS, ISS municipal e provisão de IR/CSLL</span></td><td class="tg" data-label="% sobre o custo direto">13,5%</td><td data-label="Natureza">Obrigatório</td></tr>
+          <tr><td class="rich" data-label="Rubrica"><strong>Despesas administrativas e de gestão corporativa</strong><br><span class="fine">Direção, jurídico, financeiro, RH, coordenação regional, auditoria</span></td><td class="tg" data-label="% sobre o custo direto">8,0%</td><td data-label="Natureza">Estrutural</td></tr>
+          <tr><td class="rich" data-label="Rubrica"><strong>Tecnologia, sistemas e roteirização</strong><br><span class="fine">Plataforma de regulação, rastreamento, integrações com sistemas do SUS</span></td><td class="tg" data-label="% sobre o custo direto">5,0%</td><td data-label="Natureza">Diferencial</td></tr>
+          <tr><td class="rich" data-label="Rubrica"><strong>Reserva técnica operacional</strong><br><span class="fine">Frota reserva, equipamentos e contingências de operação</span></td><td class="tg" data-label="% sobre o custo direto">3,0%</td><td data-label="Natureza">Prudencial</td></tr>
+          <tr><td class="rich" data-label="Rubrica"><strong>Capacitação continuada</strong><br><span class="fine">Formação de motoristas e equipe em acolhimento de paciente crônico</span></td><td class="tg" data-label="% sobre o custo direto">2,0%</td><td data-label="Natureza">Diferencial</td></tr>
+          <tr><td class="rich" data-label="Rubrica"><strong>Contingências, seguros e garantias contratuais</strong><br><span class="fine">Seguro de passageiro, garantia de execução, provisões trabalhistas</span></td><td class="tg" data-label="% sobre o custo direto">2,5%</td><td data-label="Natureza">Prudencial</td></tr>
+          <tr><td class="rich" data-label="Rubrica"><strong>Remuneração empresarial</strong></td><td class="tg" data-label="% sobre o custo direto">4,0%</td><td data-label="Natureza">Resultado</td></tr>
+          <tr class="tr-hl"><td class="rich" data-label="Rubrica"><strong>Composição total</strong></td><td data-label="% sobre o custo direto"><strong>38,0%</strong></td><td data-label="Natureza"><strong>Sobre o custo direto</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-amber">
+      <div class="box-label">Três pontos que não podem ser concedidos duas vezes</div>
+      <p>A composição aberta soma <strong>38%</strong>. O preço modelado neste estudo aplica <strong>35%</strong> sobre o custo direto — três pontos abaixo da composição, o que equivale a <strong>R$ 7.344 por mês</strong> já concedidos antes da primeira reunião.</p>
+      <p>Isso é margem de negociação embutida, e precisa ser tratada como decisão consciente: quem chegar à mesa com o preço de R$ 330.458 e ainda negociar desconto sobre ele está entregando o segundo desconto sem saber que já deu o primeiro.</p>
+    </div>
+
+    <p class="fine">A alíquota de ISS de Osasco não foi confirmada nesta rodada e impacta diretamente a primeira rubrica. A composição considera regime de Lucro Real; em outra configuração tributária o componente se altera e será recalculado na proposta definitiva.</p>
+  </div>
+</section>
+
+<section class="fold fold-gold" id="s08">
+  <div class="wrap">
+    <div class="ew">08</div>
+    <h2 class="t1">Piso operacional<br>mínimo.</h2>
+    <p class="lead">Sem histórico próprio, o piso não sai de expectativa de resultado — sai do que quebra a operação. Três testes cumulativos.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Teste</th><th>Critério</th><th>Osasco</th><th>Veredito</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Teste"><strong>Participação do bloco fixo</strong></td><td data-label="Critério">até 55% do custo direto</td><td class="tn" data-label="Osasco">27,2%</td><td class="tg" data-label="Veredito">Passa com folga</td></tr>
+          <tr><td data-label="Teste"><strong>Frota mínima</strong></td><td data-label="Critério">2 veículos mais reserva</td><td class="tn" data-label="Osasco">9 mais 1</td><td class="tg" data-label="Veredito">Passa</td></tr>
+          <tr><td data-label="Teste"><strong>Piso de preço · contrato isolado</strong></td><td data-label="Critério">R$ 127.563 por mês</td><td class="tn" data-label="Osasco">R$ 330.458</td><td class="tg" data-label="Veredito">2,6× acima</td></tr>
+          <tr><td data-label="Teste"><strong>Cobertura no piso da banda</strong></td><td data-label="Critério">dimensionar pela demanda mínima</td><td class="tn" data-label="Osasco">Banda invertida</td><td data-label="Veredito"><strong>Exige cláusula</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Os três primeiros testes passam sem discussão — Osasco é, em participação de bloco fixo, o contrato mais confortável já modelado na linha. O quarto merece atenção, porque <strong>funciona ao contrário aqui</strong>.</p>
+
+    <p>Na carteira do Nordeste o risco é a demanda alta não se confirmar, e a proteção é dimensionar pelo piso da banda. Em Osasco a âncora de 812 por milhão é a média nacional aplicada ao estado de rede mais densa do país — o risco real é a demanda <strong>superar</strong> o dimensionado. Nove veículos cobrem 580 pacientes em diálise; a cada 65 pacientes acima disso, entra um veículo.</p>
+
+    <div class="box box-gold">
+      <div class="box-label">Formato contratual recomendado</div>
+      <p>Preço fixo global joga todo o risco de volume para a Samais. Para o primeiro contrato, propor <strong>base fixa mais faixa variável por veículo ativado</strong>, com gatilho declarado em número de pacientes regulados. É o que transforma um erro de premissa em ajuste contratual, em vez de prejuízo.</p>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-deep" id="s09">
+  <div class="wrap">
+    <div class="ew">09</div>
+    <h2 class="t1">Frota própria<br>ou cedida.</h2>
+    <p class="lead">A diferença não é de preço. É de prazo — e o prazo é o que decide.</p>
+
+    <div class="band">
+      <img class="refrata" src="img/frota-frente.jpg" alt="Micro-ônibus do programa Caminhos da Saúde com identidade Pacientes Eletivos" loading="lazy" width="1200" height="799">
+      <img class="nucleo" src="img/frota-frente.jpg" alt="" aria-hidden="true" loading="lazy" width="1200" height="799">
+      <div class="band-cap">Composição indicada · 4 micro-ônibus e 6 vans</div>
+    </div>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Cenário</th><th>Investimento inicial</th><th>Recuperação</th><th>Exposição</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cenário"><strong>Frota própria</strong></td><td class="tg" data-label="Investimento inicial">R$ 4.166.000</td><td class="tn" data-label="Recuperação">60 meses</td><td data-label="Exposição">Residual em contrato curto</td></tr>
+          <tr><td data-label="Cenário"><strong>Frota cedida</strong></td><td class="tg" data-label="Investimento inicial">R$ 351.000</td><td class="tn" data-label="Recuperação">Primeiro trimestre</td><td data-label="Exposição">Capital de giro</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>O investimento em frota própria foi calculado sobre os preços de referência das entregas do Ministério da Saúde: quatro micro-ônibus a R$ 584,6 mil e seis vans a R$ 304,6 mil. A recuperação se dá pela rubrica de depreciação — <strong>R$ 70.030 por mês</strong>, ou R$ 840 mil ao ano.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">O ponto que decide o cenário</div>
+      <p>Com frota própria, o contrato recupera o investimento <strong>exatamente no horizonte de depreciação — 60 meses</strong>. Isso é aritmética, não coincidência: a rubrica foi construída assim.</p>
+      <p>A consequência é dura. Um contrato de 12 meses com frota própria deixa cerca de <strong>R$ 3,3 milhões de exposição residual</strong> em veículos que precisam ser realocados ou revendidos. Frota própria em Osasco só se justifica com <strong>prazo contratual de 60 meses</strong>, ou com destino garantido dos veículos em outro contrato da carteira.</p>
+    </div>
+
+    <p>Na frota cedida não há capex de veículo. A exposição é capital de giro — cerca de dois meses de custo direto, R$ 351 mil — recuperado à medida que o faturamento entra em regime. É o cenário que a Samais deve levar à mesa como preferencial, e o desconto de 28% no valor do contrato é o argumento que o vende sozinho.</p>
+  </div>
+</section>
+
+<section class="fold" id="s10">
+  <div class="wrap">
+    <div class="ew">10</div>
+    <h2 class="t1">Riscos, lacunas<br>e próximos passos.</h2>
+    <p class="lead">O que este estudo não sabe, e o que precisa ser levantado antes de qualquer manifestação formal.</p>
+
+    <div class="pc-grid reveal">
+      <div class="pc">
+        <div class="pc-n">Lacuna 01</div>
+        <div class="pc-title">Prevalência estadual de diálise</div>
+        <p class="pc-desc">A taxa aplicada é a média nacional. São Paulo tem a rede mais densa do país e prevalência apurada provavelmente superior. O dimensionamento de nove veículos é piso, não teto.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Lacuna 02</div>
+        <div class="pc-title">Habilitação em CNES</div>
+        <p class="pc-desc">Os serviços de terapia renal substitutiva em Osasco precisam ser verificados quanto à habilitação SUS efetiva. Serviço privado sem contratualização muda o destino do paciente, e o destino define a rota.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Lacuna 03</div>
+        <div class="pc-title">Linha eletiva geral</div>
+        <p class="pc-desc">Consultas, exames e cirurgias eletivas não estão dimensionados nem precificados. É provavelmente o maior volume do município e só se levanta na central de regulação municipal.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Lacuna 04</div>
+        <div class="pc-title">Operação atual e ISS</div>
+        <p class="pc-desc">O município conduziu em 2025 processo de aquisição de veículo para transporte de pacientes em hemodiálise, o que sugere operação por frota própria. A alíquota municipal de ISS também segue por confirmar.</p>
+      </div>
+    </div>
+
+    <h3 class="t2">O caminho CIOESTE</h3>
+
+    <p>Osasco integra o <strong>Consórcio Intermunicipal da Região Oeste Metropolitana de São Paulo</strong>, ao lado de Barueri, Carapicuíba, Cotia, Itapevi, Jandira, Santana de Parnaíba, Cajamar, Araçariguama, Pirapora do Bom Jesus, São Roque, Vargem Grande Paulista e Ibiúna.</p>
+
+    <p>É um consórcio <strong>já constituído</strong> — e isso vale muito. Formar um consórcio de transporte sanitário do zero leva de doze a dezoito meses e depende de lei em cada câmara municipal. Aderir a um existente não leva nenhum. Um bloco CIOESTE diluiria o mesmo bloco fixo de R$ 66.700 em uma população várias vezes maior, derrubando o per capita de todos os integrantes ao mesmo tempo.</p>
+
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div>
+          <div class="step-t">Reunião técnica</div>
+          <p class="step-d">Apresentação do modelo à Secretaria Municipal de Saúde de Osasco e alinhamento sobre o perfil real de deslocamento. Noventa minutos, presencial ou remota.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">02</div>
+        <div>
+          <div class="step-t">Levantamento na central de regulação</div>
+          <p class="step-d">Extração do volume efetivo das quatro linhas — diálise, radioterapia, eletivo geral e TFD — com origem, destino, horário e taxa de absenteísmo. É o dado que fecha as lacunas 01 e 03 de uma vez.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div>
+          <div class="step-t">Confirmação cadastral</div>
+          <p class="step-d">Habilitação dos serviços em CNES, alíquota de ISS e situação da frota municipal. Sem isso, nenhuma manifestação formal.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">04</div>
+        <div>
+          <div class="step-t">Proposta definitiva</div>
+          <p class="step-d">Recomposição do preço com os dados de campo, no formato de base fixa mais faixa variável, nos dois cenários de frota. Em paralelo, sondagem do CIOESTE como bloco.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="wrap">
+    <div>
+      <div class="footer-brand">Samais <em>·</em> Gestão em Saúde</div>
+      <p class="fine" style="margin-top:8px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em">ROTA · Osasco · Estudo de Viabilidade e Precificação</p>
+    </div>
+    <div class="footer-meta"><span>Agosto · 2026</span><br><span>samais.com.br</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement, tb=document.getElementById('themeToggle');
+  try{var sv=localStorage.getItem('samais.theme'); if(sv) root.setAttribute('data-theme',sv);}catch(e){}
+  function sync(){tb.textContent = root.getAttribute('data-theme')==='light' ? 'Modo escuro' : 'Modo claro';}
+  tb.addEventListener('click',function(){
+    var n = root.getAttribute('data-theme')==='light' ? 'dark' : 'light';
+    root.setAttribute('data-theme',n);
+    try{localStorage.setItem('samais.theme',n);}catch(e){}
+    sync();
+  });
+  sync();
+
+  var ham=document.getElementById('navham'), links=document.getElementById('navlinks');
+  ham.addEventListener('click',function(){
+    var open=links.classList.toggle('open');
+    ham.classList.toggle('open',open);
+    ham.setAttribute('aria-expanded',open?'true':'false');
+  });
+  links.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){
+      links.classList.remove('open'); ham.classList.remove('open'); ham.setAttribute('aria-expanded','false');
+    });
+  });
+
+  var nl=links.querySelectorAll('a');
+  var so=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      nl.forEach(function(l){l.classList.remove('active')});
+      var a=links.querySelector('a[href="#'+e.target.id+'"]');
+      if(a) a.classList.add('active');
+    });
+  },{rootMargin:'-20% 0px -70% 0px',threshold:0});
+  document.querySelectorAll('section[id]').forEach(function(s){so.observe(s)});
+
+  var rv=document.querySelectorAll('.reveal');
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    rv.forEach(function(e){e.classList.add('in')});
+  } else {
+    var ro=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target);}});
+    },{rootMargin:'0px 0px -12% 0px',threshold:.12});
+    rv.forEach(function(e){ro.observe(e)});
+  }
+
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var bands=[].slice.call(document.querySelectorAll('.band img'));
+    var tick=false;
+    function par(){
+      bands.forEach(function(im){
+        var r=im.parentElement.getBoundingClientRect();
+        if(r.bottom<0||r.top>innerHeight) return;
+        var p=(r.top+r.height/2-innerHeight/2)/innerHeight;
+        im.style.transform='translate3d(0,'+(p*-26).toFixed(2)+'px,0)';
+      });
+      tick=false;
+    }
+    addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(par);}},{passive:true});
+    par();
+  }
+})();
+</script>
+
+</body>
+</html>
