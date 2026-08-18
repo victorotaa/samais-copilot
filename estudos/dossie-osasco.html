@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="ROTA Osasco — proposta técnica e comercial de transporte sanitário eletivo para o município de Osasco · São Paulo">
-<title>ROTA Osasco · Proposta Técnica e Comercial</title>
+<meta name="description" content="Uso interno Samais · dossiê de viabilidade, precificação e riscos do transporte sanitário eletivo em Osasco">
+<title>Dossiê Interno · ROTA Osasco</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -349,14 +349,14 @@ td strong{color:var(--ink);font-weight:600}
     <svg class="nav-mono" viewBox="0 0 271 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="currentColor" d="M44.8,106.6l4.9-4.9c6.3,3.6,18.1,8.8,33.7,8.8s25.4-3.2,25.4-11.1-14.2-9.6-24.3-9.8c-16.2-.2-35.3-2.8-35.3-14.1s17.3-16.3,32.6-16.3,27,3.2,34,6.5l-4.4,4.9c-6.7-3.1-17.1-6-28.8-6s-22.8,1.7-22.8,9.6,17,7.7,24.7,7.9c15.9.2,35.3,3.2,35.3,16.9s-20.1,17.1-35.8,17.1-31.5-5.3-39.3-9.4ZM168.7,60.7h-13.1l25,33.6h-42.3c-3.2,0-6.3,1.5-8.2,4.1l-11.7,15.8h7.5l7.9-10.7c1.9-2.6,5-4.1,8.2-4.1h42.2l10.8,14.8h13.1l-39.5-53.6ZM226.2,60.7h-10.4v-10.4h-10v10.4h-10.4v10h10.4v10.4h10v-10.4h10.4v-10Z"/></svg>
     <button class="navham" id="navham" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="nav-links" id="navlinks">
-      <a href="#s01">A Samais</a>
-      <a href="#s02">Território</a>
-      <a href="#s03">Demanda</a>
-      <a href="#s04">Solução</a>
+      <a href="#s01">Veredito</a>
+      <a href="#s03">Geometria</a>
+      <a href="#s04">Demanda</a>
       <a href="#s05">Frota</a>
-      <a href="#s06">Composição</a>
-      <a href="#s07">Custo</a>
-      <a href="#s09">Próximos passos</a>
+      <a href="#s06">Custo</a>
+      <a href="#s07">Preço</a>
+      <a href="#s09">Retorno</a>
+      <a href="#s10">Próximos passos</a>
       <button class="themebtn" id="themeToggle" aria-label="Alternar tema claro e escuro">Modo claro</button>
     </div>
   </div>
@@ -365,13 +365,13 @@ td strong{color:var(--ink);font-weight:600}
 <header class="capa">
   <div class="wrap">
     <div class="band">
-      <img class="refrata" src="img/frota-lado.jpg" alt="Micro-ônibus de transporte sanitário eletivo em perfil" loading="eager" width="1280" height="769">
-      <img class="nucleo" src="img/frota-lado.jpg" alt="" aria-hidden="true" loading="lazy" width="1280" height="769">
+      <img class="refrata" src="../rota-proposta/img/frota-lado.jpg" alt="Micro-ônibus de transporte sanitário eletivo em perfil" loading="eager" width="1280" height="769">
+      <img class="nucleo" src="../rota-proposta/img/frota-lado.jpg" alt="" aria-hidden="true" loading="lazy" width="1280" height="769">
       <div class="band-cap">Transporte sanitário eletivo · Frota dimensionada</div>
     </div>
-    <div class="eyebrow">Proposta técnica e comercial · Osasco · São Paulo</div>
-    <h1>Para que o paciente de Osasco <em>chegue</em> ao tratamento.</h1>
-    <p class="lead">Operação completa de transporte sanitário eletivo para o município de Osasco: central de regulação própria, frota dimensionada sobre a demanda real, roteirização inteligente e indicadores auditáveis em cada viagem.</p>
+    <div class="eyebrow">Uso interno Samais · não circular · Osasco · São Paulo</div>
+    <h1>Osasco não é um caso de distância. É um caso de <em>volume</em>.</h1>
+    <p class="lead">Estudo de demanda, dimensionamento de frota, custo operacional e precificação para o transporte sanitário eletivo do município de Osasco, aplicando o modelo de custo em duas partes da operação ROTA — com as correções que a geometria urbana exige.</p>
     <div class="stats">
       <div class="stat"><span class="n">756.952</span><span class="l">habitantes · IBGE 2024</span></div>
       <div class="stat"><span class="n">113.455</span><span class="l">deslocamentos / ano</span></div>
@@ -383,86 +383,87 @@ td strong{color:var(--ink);font-weight:600}
 <section class="fold" id="s01">
   <div class="wrap">
     <div class="ew">01</div>
-    <h2 class="t1">Quem opera<br>a sua rota.</h2>
-    <p class="lead">A Samais Gestão em Saúde é operadora de serviços públicos de saúde com atuação em municípios, estados e consórcios intermunicipais.</p>
+    <h2 class="t1">O veredito,<br>antes da conta.</h2>
+    <p class="lead">Osasco é contratável. Não pelo caminho que o cofinanciamento federal abriu.</p>
 
-    <p>Fundada em 2016, a Samais entrega soluções completas e integradas de gestão em saúde por meio de terceirização qualificada. A empresa opera em todos os níveis de gestão pública, com gestão total ou parcial de <strong>SAMU 192, UPAs, hospitais, unidades básicas de saúde, exames laboratoriais, gestão de frota e telemedicina</strong>.</p>
-    <p>O ROTA nasce dessa base. Não é uma empresa de transporte que decidiu atender saúde — é uma operadora de saúde que já regula, despacha e monitora frota 24 horas por dia, aplicando essa capacidade instalada ao transporte sanitário eletivo.</p>
+    <p>As três portarias de maio de 2026 criaram custeio federal para o deslocamento de pacientes de hemodiálise e radioterapia — <strong>desde que o trajeto supere 50 km</strong>. Osasco fica a cerca de 18 km do centro de São Paulo, em malha urbana contínua, e tem serviço de terapia renal substitutiva instalado dentro do próprio território.</p>
 
-    <div class="pc-grid reveal">
-      <div class="pc">
-        <div class="pc-n">Capacidade 01</div>
-        <div class="pc-title">Regulação 24/7 instalada</div>
-        <p class="pc-desc">Central de regulação médica em operação contínua, com protocolo, registro auditável e escala ininterrupta. A mesma disciplina aplicada ao agendamento e despacho do transporte eletivo.</p>
-      </div>
-      <div class="pc">
-        <div class="pc-n">Capacidade 02</div>
-        <div class="pc-title">Gestão de frota e telemetria</div>
-        <p class="pc-desc">Rastreamento em tempo real, controle de manutenção preventiva, gestão de combustível e indicadores de disponibilidade por veículo.</p>
-      </div>
-      <div class="pc">
-        <div class="pc-n">Capacidade 03</div>
-        <div class="pc-title">Estrutura jurídico-regulatória</div>
-        <p class="pc-desc">Equipe dedicada a contratos públicos, habilitações, prestação de contas e conformidade com a Lei 14.133/2021.</p>
-      </div>
-      <div class="pc">
-        <div class="pc-n">Capacidade 04</div>
-        <div class="pc-title">Implantação sem descontinuidade</div>
-        <p class="pc-desc">Método de transição que assume a operação sem interromper o atendimento — experiência acumulada em contratos de urgência, onde a parada não é opção.</p>
-      </div>
-      <div class="pc">
-        <div class="pc-n">Capacidade 05</div>
-        <div class="pc-title">Operação consorciada</div>
-        <p class="pc-desc">Experiência em contrato com consórcio intermunicipal de saúde, com central compartilhada e rateio entre municípios-membro.</p>
-      </div>
-      <div class="pc">
-        <div class="pc-n">Capacidade 06</div>
-        <div class="pc-title">Garantia contratual</div>
-        <p class="pc-desc">Estrutura financeira que suporta o ciclo de faturamento público sem repassar pressão de caixa à operação e ao paciente.</p>
-      </div>
+    <p>Os dois fatos levam ao mesmo lugar: <strong>o gatilho federal não dispara em Osasco</strong>. Nenhum reembolso por distância, nenhuma receita da Tabela SUS pela linha do ROTA cofinanciado. Um estudo que projetasse essa receita aqui estaria errado na primeira linha.</p>
+
+    <p>O que existe em Osasco é outra coisa, e é maior: <strong>113 mil deslocamentos por ano dentro de um município de 757 mil habitantes</strong>, hoje resolvidos por frota própria da prefeitura e por compra avulsa de capacidade. O caso não se sustenta em cofinanciamento — se sustenta em custo por deslocamento e em previsibilidade de operação.</p>
+
+    <div class="box box-gold">
+      <div class="box-label">A tese comercial em uma frase</div>
+      <p>Em Osasco o bloco fixo da operação se dilui em 757 mil habitantes. É o que faz o per capita cair para <strong>R$ 0,44 por habitante ao mês</strong> — patamar que só município de grande porte alcança, porque a mesma central, a mesma supervisão e o mesmo sistema atendem 757 mil pessoas ou 60 mil. Escala é o argumento.</p>
     </div>
+  </div>
+</section>
+
+<section class="fold fold-alt" id="s02">
+  <div class="wrap">
+    <div class="ew">02</div>
+    <h2 class="t1">Atestado<br>de cadastro.</h2>
+    <p class="lead">Antes da modelagem, o que está confirmado e o que não está.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Item</th><th>Registro</th><th>Fonte e situação</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Item"><strong>Grafia oficial</strong></td><td class="tn" data-label="Registro">Osasco</td><td data-label="Fonte e situação">IBGE · confirmada</td></tr>
+          <tr><td data-label="Item"><strong>Unidade federativa</strong></td><td class="tn" data-label="Registro">São Paulo <span class="uf">SP</span></td><td data-label="Fonte e situação">IBGE · confirmada</td></tr>
+          <tr><td data-label="Item"><strong>População</strong></td><td class="tg" data-label="Registro">756.952</td><td data-label="Fonte e situação">IBGE · estimativa de 2024, divulgada em 29/08/2024</td></tr>
+          <tr><td data-label="Item"><strong>Posição estadual</strong></td><td class="tn" data-label="Registro">7ª</td><td data-label="Fonte e situação">Município mais populoso de São Paulo</td></tr>
+          <tr><td data-label="Item"><strong>Região</strong></td><td class="tn" data-label="Registro">RMSP · sub-região Oeste</td><td data-label="Fonte e situação">Confirmada</td></tr>
+          <tr><td data-label="Item"><strong>Consórcio</strong></td><td class="tn" data-label="Registro">CIOESTE</td><td data-label="Fonte e situação">Consórcio já constituído · Osasco é integrante</td></tr>
+          <tr><td data-label="Item"><strong>Serviço de TRS no município</strong></td><td class="tn" data-label="Registro">Existente</td><td data-label="Fonte e situação">Habilitação SUS <strong>a confirmar em CNES</strong></td></tr>
+          <tr><td data-label="Item"><strong>Radioterapia no município</strong></td><td class="tn" data-label="Registro">A confirmar</td><td data-label="Fonte e situação">Habilitação de alta complexidade <strong>não verificada</strong></td></tr>
+          <tr><td data-label="Item"><strong>Veículo do Caminhos da Saúde</strong></td><td class="tn" data-label="Registro">Improvável</td><td data-label="Fonte e situação">Frota federal destinada a trajetos acima de 50 km · <strong>a confirmar</strong></td></tr>
+          <tr><td data-label="Item"><strong>Alíquota de ISS</strong></td><td class="tn" data-label="Registro">A confirmar</td><td data-label="Fonte e situação">Move a rubrica de tributos na composição</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="fine">Nenhuma divergência de cadastro foi encontrada. A população adotada é a estimativa de 2024 — a de 2025 não estava publicada para o município no levantamento desta rodada, e usar um número não publicado seria pior que usar um número datado.</p>
   </div>
 </section>
 
 <div class="part-divider" aria-hidden="true"></div>
 
-<section class="fold fold-alt" id="s02">
+<section class="fold fold-gold" id="s03">
   <div class="wrap">
-    <div class="ew">02</div>
-    <h2 class="t1">Conhecemos<br>o seu território.</h2>
-    <p class="lead">Osasco é o sétimo município mais populoso de São Paulo, e o seu paciente crônico não enfrenta estrada — enfrenta a cidade.</p>
+    <div class="ew">03</div>
+    <h2 class="t1">A geometria<br>do fluxo.</h2>
+    <p class="lead">O que determina a receita não é a população — é a posição do município no fluxo e a distância até o polo.</p>
 
-    <p>O município tem <strong>756.952 habitantes</strong> na estimativa do IBGE de 2024, dentro da sub-região Oeste da Região Metropolitana de São Paulo. Tem serviço de terapia renal substitutiva instalado no próprio território e hospital regional de referência. Isso muda inteiramente o desenho da operação de transporte.</p>
-
-    <p>O paciente de Osasco em hemodiálise vai à sessão três vezes por semana, o ano inteiro, e o trajeto é <strong>intramunicipal</strong>. O desafio não é distância — é <strong>regularidade</strong>: garantir que 580 pessoas cheguem no horário da sua sessão, todas as semanas, sem depender de disponibilidade improvisada de veículo.</p>
+    <p>Esse princípio organiza todo o desenho do ROTA, e em Osasco ele produz um resultado incômodo. O município é <strong>destino</strong>, não origem. Tem clínicas de terapia renal substitutiva no próprio território e hospital regional de referência. O paciente de Osasco em hemodiálise não percorre uma estrada até o polo regional — atravessa a cidade.</p>
 
     <div class="tw reveal">
       <table>
-        <thead><tr><th>Característica do território</th><th>Registro</th></tr></thead>
+        <thead><tr><th>Filtro regulatório</th><th>Parâmetro</th><th>Osasco</th></tr></thead>
         <tbody>
-          <tr><td data-label="Característica do território"><strong>População</strong></td><td class="tg" data-label="Registro">756.952 habitantes · IBGE 2024</td></tr>
-          <tr><td data-label="Característica do território"><strong>Posição estadual</strong></td><td class="tn" data-label="Registro">7º município mais populoso de São Paulo</td></tr>
-          <tr><td data-label="Característica do território"><strong>Região</strong></td><td class="tn" data-label="Registro">RMSP · sub-região Oeste</td></tr>
-          <tr><td data-label="Característica do território"><strong>Consórcio</strong></td><td class="tn" data-label="Registro">Integrante do CIOESTE</td></tr>
-          <tr><td data-label="Característica do território"><strong>Terapia renal substitutiva</strong></td><td class="tn" data-label="Registro">Serviço instalado no município</td></tr>
-          <tr><td data-label="Característica do território"><strong>Perfil do deslocamento</strong></td><td class="tg" data-label="Registro">Predominantemente intramunicipal</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Piso de distância</strong></td><td class="tn" data-label="Parâmetro">acima de 50 km</td><td class="tg" data-label="Osasco">Não atende · conurbação</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Teto de raio</strong></td><td class="tn" data-label="Parâmetro">até 500 km</td><td data-label="Osasco">Irrelevante</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Hemodiálise</strong></td><td class="tn" data-label="Parâmetro">apenas âmbito estadual</td><td data-label="Osasco">Fluxo intramunicipal</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Posição no fluxo</strong></td><td class="tn" data-label="Parâmetro">origem gera receita</td><td class="tg" data-label="Osasco">Destino · não captura</td></tr>
+          <tr class="tr-hl"><td data-label="Filtro regulatório"><strong>Cofinanciamento federal aplicável</strong></td><td data-label="Parâmetro"><strong>—</strong></td><td data-label="Osasco"><strong>R$ 0</strong></td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="box box-gold">
-      <div class="box-label">Sobre o custeio deste contrato</div>
-      <p>As portarias federais de maio de 2026 criaram custeio específico para o deslocamento de pacientes de hemodiálise e radioterapia em trajetos <strong>superiores a 50 km</strong>. Osasco, por ser polo de atendimento dentro da malha metropolitana, não se enquadra nesse gatilho.</p>
-      <p>A operação proposta é, portanto, de <strong>transporte sanitário eletivo municipal</strong>, custeada por recurso próprio — e é justamente por concentrar volume em trajeto curto que ela atinge o menor custo por deslocamento de toda a linha ROTA.</p>
+    <p>Um município que é polo <strong>não captura</strong> a receita de deslocamento — quem captura são os vizinhos que enviam pacientes. Em Osasco, dentro da Região Metropolitana, nem os vizinhos capturam: todos estão a menos de 50 km uns dos outros.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">A consequência comercial</div>
+      <p>A proposta em Osasco deve ser ancorada em <strong>transporte sanitário eletivo intramunicipal</strong> custeado por recurso próprio do município, e em TFD de saída para serviços não disponíveis na Região Metropolitana. Nunca no gatilho das portarias. Levar o argumento do cofinanciamento a esta mesa é queimar credibilidade técnica na primeira reunião.</p>
     </div>
   </div>
 </section>
 
-<section class="fold" id="s03">
+<section class="fold" id="s04">
   <div class="wrap">
-    <div class="ew">03</div>
-    <h2 class="t1">Quantos pacientes<br>estão nessa rota.</h2>
-    <p class="lead">O dimensionamento parte de parâmetro epidemiológico público, não de estimativa comercial.</p>
+    <div class="ew">04</div>
+    <h2 class="t1">A demanda<br>dimensionada.</h2>
+    <p class="lead">Duas linhas com parâmetro epidemiológico confiável. Uma terceira, maior, que não se estima — se levanta.</p>
 
     <div class="dc-grid reveal">
       <div class="dc">
@@ -487,129 +488,72 @@ td strong{color:var(--ink);font-weight:600}
       </div>
     </div>
 
-    <h3 class="t2">A origem de cada número</h3>
+    <h3 class="t2">Como cada número foi obtido</h3>
 
     <div class="tw reveal">
       <table>
-        <thead><tr><th>Linha</th><th>Parâmetro aplicado</th><th>Fonte</th><th>Resultado</th></tr></thead>
+        <thead><tr><th>Linha</th><th>Parâmetro aplicado</th><th>Cálculo</th><th>Resultado</th></tr></thead>
         <tbody>
-          <tr><td data-label="Linha"><strong>Diálise</strong></td><td data-label="Parâmetro aplicado">812 por milhão · 94,4% em modalidade de centro</td><td class="tn" data-label="Fonte">Censo Brasileiro de Diálise 2024 · SBN</td><td class="tg" data-label="Resultado">580 pacientes</td></tr>
-          <tr><td data-label="Linha"><strong>Diálise · deslocamentos</strong></td><td data-label="Parâmetro aplicado">156 sessões por ano · 3 semanais</td><td class="tn" data-label="Fonte">Protocolo padrão</td><td class="tg" data-label="Resultado">90.480 / ano</td></tr>
-          <tr><td data-label="Linha"><strong>Oncologia</strong></td><td data-label="Parâmetro aplicado">2.427 casos novos por milhão</td><td class="tn" data-label="Fonte">INCA · Estimativa 2026–2028</td><td class="tg" data-label="Resultado">1.837 casos</td></tr>
-          <tr><td data-label="Linha"><strong>Radioterapia</strong></td><td data-label="Parâmetro aplicado">50% dos casos · 25 sessões</td><td class="tn" data-label="Fonte">Fracionamento convencional</td><td class="tg" data-label="Resultado">22.975 / ano</td></tr>
-          <tr class="tr-hl"><td data-label="Linha"><strong>Total dimensionado</strong></td><td data-label="Parâmetro aplicado"><strong>0,15 deslocamento por habitante ao ano</strong></td><td data-label="Fonte"><strong>—</strong></td><td data-label="Resultado"><strong>113.455 / ano</strong></td></tr>
+          <tr><td data-label="Linha"><strong>Diálise</strong></td><td data-label="Parâmetro aplicado">812 pmp × 94,4% em modalidade de centro</td><td class="tn" data-label="Cálculo">756.952 × 766/1.000.000</td><td class="tg" data-label="Resultado">580 pacientes</td></tr>
+          <tr><td data-label="Linha"><strong>Diálise · viagens</strong></td><td data-label="Parâmetro aplicado">156 sessões por ano · 3 semanais</td><td class="tn" data-label="Cálculo">580 × 156</td><td class="tg" data-label="Resultado">90.480 / ano</td></tr>
+          <tr><td data-label="Linha"><strong>Oncologia</strong></td><td data-label="Parâmetro aplicado">2.427 casos novos por milhão</td><td class="tn" data-label="Cálculo">756.952 × 2.427/1.000.000</td><td class="tg" data-label="Resultado">1.837 casos</td></tr>
+          <tr><td data-label="Linha"><strong>Radioterapia</strong></td><td data-label="Parâmetro aplicado">50% dos casos · 25 sessões</td><td class="tn" data-label="Cálculo">1.837 × 0,50 × 25</td><td class="tg" data-label="Resultado">22.975 / ano</td></tr>
+          <tr class="tr-hl"><td data-label="Linha"><strong>Total modelado</strong></td><td data-label="Parâmetro aplicado"><strong>0,15 deslocamento por habitante ao ano</strong></td><td data-label="Cálculo"><strong>90.480 + 22.975</strong></td><td data-label="Resultado"><strong>113.455 / ano</strong></td></tr>
         </tbody>
       </table>
     </div>
 
-    <p>Estas são as duas linhas com parâmetro epidemiológico consolidado. O <strong>transporte eletivo geral</strong> — consultas, exames, cirurgias eletivas e tratamento fora de domicílio — tem volume próprio e será apurado junto à central de regulação municipal no diagnóstico de campo, com o histórico real do município.</p>
+    <p class="fine">O total fica dentro da faixa de verificação do modelo — de 0,09 a 0,15 deslocamento por habitante ao ano nas duas linhas. Osasco sai no teto da faixa porque se aplicou a prevalência nacional integral; onde a taxa estadual apurada é menor que a média, o indicador desce na mesma proporção.</p>
 
-    <p class="fine">A prevalência aplicada é a média nacional do Censo Brasileiro de Diálise 2024. O número apurado de pacientes efetivamente inscritos em programa será confirmado no diagnóstico de campo e o dimensionamento, ajustado ao que a Secretaria registrar.</p>
+    <div class="box box-amber">
+      <div class="box-label">Duas advertências sobre estes números</div>
+      <p>A prevalência de 812 por milhão é a <strong>média nacional</strong> do Censo Brasileiro de Diálise 2024. A taxa específica de São Paulo não foi apurada nesta rodada. Como prevalência mede <strong>acesso</strong>, e São Paulo tem a rede mais densa do país, o número acima deve ser lido como <strong>piso, não como teto</strong> — o inverso do que vale onde a rede assistencial é rarefeita.</p>
+      <p>E o transporte eletivo geral — consultas, exames, cirurgias eletivas, TFD — <strong>não está nesta conta</strong>. Não existe parâmetro confiável para estimá-lo, e historicamente ele supera o volume de diálise e oncologia somados. Em um município com rede básica do porte da de Osasco, essa linha é provavelmente a maior de todas. Ela se levanta na central de regulação municipal, não se projeta.</p>
+    </div>
   </div>
 </section>
 
 <div class="part-divider" aria-hidden="true"></div>
 
-<section class="fold fold-deep" id="s04">
-  <div class="wrap">
-    <div class="ew">04</div>
-    <h2 class="t1">O que a Samais<br>entrega.</h2>
-    <p class="lead">Operação completa, com indicador auditável em cada etapa.</p>
-
-    <div class="hb-grid reveal">
-      <div class="hb">
-        <div class="hb-tag">Entrega 01</div>
-        <div class="hb-period">Central de Regulação ROTA</div>
-        <div class="hb-title">Agendamento e despacho</div>
-        <div class="hb-desc">Central dedicada ao transporte eletivo de Osasco, integrada à regulação municipal, com confirmação prévia com o paciente, controle de faltas e remanejamento em tempo real. Cada viagem tem registro de origem, destino, horário e ocupação.</div>
-        <div class="hb-divider"></div>
-        <div class="hb-kv">
-          <div class="hb-row"><span class="hb-k">Operação</span><span class="hb-v">Dias úteis</span></div>
-          <div class="hb-row"><span class="hb-k">Registro</span><span class="hb-v">Auditável</span></div>
-        </div>
-      </div>
-      <div class="hb">
-        <div class="hb-tag">Entrega 02</div>
-        <div class="hb-period">Frota dimensionada</div>
-        <div class="hb-title">Veículo certo para cada rota</div>
-        <div class="hb-desc">Composição mista conforme o perfil do deslocamento: micro-ônibus para os turnos consolidados de hemodiálise, van para trajetos individuais e veículo adaptado para paciente com mobilidade reduzida. Manutenção preventiva e rastreamento contínuo.</div>
-        <div class="hb-divider"></div>
-        <div class="hb-kv">
-          <div class="hb-row"><span class="hb-k">Rastreamento</span><span class="hb-v">Tempo real</span></div>
-          <div class="hb-row"><span class="hb-k">Reserva técnica</span><span class="hb-v">Incluída</span></div>
-        </div>
-      </div>
-      <div class="hb">
-        <div class="hb-tag">Entrega 03</div>
-        <div class="hb-period">Roteirização</div>
-        <div class="hb-title">Menos quilômetro, mais paciente</div>
-        <div class="hb-desc">Consolidação de pacientes com mesma origem, destino e horário. Um veículo que atende um turno inteiro de hemodiálise transporta o grupo na mesma viagem — o que reduz custo por paciente e tempo de espera simultaneamente.</div>
-        <div class="hb-divider"></div>
-        <div class="hb-kv">
-          <div class="hb-row"><span class="hb-k">Consolidação</span><span class="hb-v">8 por corrida</span></div>
-          <div class="hb-row"><span class="hb-k">Ciclos por dia</span><span class="hb-v">5,5 por veículo</span></div>
-        </div>
-      </div>
-      <div class="hb">
-        <div class="hb-tag">Entrega 04</div>
-        <div class="hb-period">Indicadores</div>
-        <div class="hb-title">Prestação de contas contínua</div>
-        <div class="hb-desc">Painel mensal com pontualidade, taxa de absenteísmo, ocupação média por veículo, quilometragem e custo por deslocamento. O gestor acompanha a operação com número, não com percepção.</div>
-        <div class="hb-divider"></div>
-        <div class="hb-kv">
-          <div class="hb-row"><span class="hb-k">Periodicidade</span><span class="hb-v">Mensal</span></div>
-          <div class="hb-row"><span class="hb-k">Base</span><span class="hb-v">Viagem a viagem</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="fold" id="s05">
+<section class="fold fold-deep" id="s05">
   <div class="wrap">
     <div class="ew">05</div>
-    <h2 class="t1">A frota dimensionada<br>para Osasco.</h2>
-    <p class="lead">Frota se dimensiona sobre ciclo operacional, nunca sobre população.</p>
+    <h2 class="t1">A frota, e a correção<br>que a cidade exige.</h2>
+    <p class="lead">A fórmula de dimensionamento do modelo foi calibrada em operação rodoviária. Aplicá-la sem ajuste em malha urbana produz uma frota duas vezes maior que a necessária — e um preço duas vezes maior que o defensável.</p>
 
-    <p>Os 378 deslocamentos de um dia útil, consolidados a oito pacientes por corrida, resultam em <strong>48 corridas diárias</strong>. Em malha urbana contínua, o ciclo completo de uma corrida — embarque distribuído, entrega no serviço e retorno — leva cerca de <strong>1h40</strong>. Sobre uma jornada operacional de dez horas, cada veículo cumpre 5,5 ciclos com folga para atraso de sessão e trânsito.</p>
+    <p>O dimensionamento padrão parte de <strong>2,5 corridas por veículo por dia útil</strong>. É o número certo para um trajeto de 90 km até o polo regional, onde o veículo faz a ida pela manhã, espera a sessão e retorna à tarde. Em Osasco o trajeto médio é intramunicipal, dentro de 65 km² de malha contínua.</p>
 
     <div class="tw reveal">
       <table>
-        <thead><tr><th>Etapa do dimensionamento</th><th>Parâmetro</th><th>Resultado</th></tr></thead>
+        <thead><tr><th>Etapa</th><th>Geometria intermunicipal</th><th>Geometria urbana · Osasco</th></tr></thead>
         <tbody>
-          <tr><td data-label="Etapa do dimensionamento"><strong>Deslocamentos por dia útil</strong></td><td class="tn" data-label="Parâmetro">113.455 ÷ 300 dias</td><td class="tg" data-label="Resultado">378</td></tr>
-          <tr><td data-label="Etapa do dimensionamento"><strong>Pacientes por corrida</strong></td><td class="tn" data-label="Parâmetro">Consolidação por turno e destino</td><td class="tg" data-label="Resultado">8</td></tr>
-          <tr><td data-label="Etapa do dimensionamento"><strong>Corridas consolidadas por dia</strong></td><td class="tn" data-label="Parâmetro">378 ÷ 8</td><td class="tg" data-label="Resultado">48</td></tr>
-          <tr><td data-label="Etapa do dimensionamento"><strong>Ciclos por veículo ao dia</strong></td><td class="tn" data-label="Parâmetro">Jornada de 10h · ciclo de 1h40</td><td class="tg" data-label="Resultado">5,5</td></tr>
-          <tr class="tr-hl"><td data-label="Etapa do dimensionamento"><strong>Frota operacional</strong></td><td data-label="Parâmetro"><strong>48 ÷ 5,5</strong></td><td data-label="Resultado"><strong>9 veículos</strong></td></tr>
+          <tr><td data-label="Etapa"><strong>Deslocamentos por dia útil</strong></td><td class="tn" data-label="Geometria intermunicipal">378</td><td class="tn" data-label="Geometria urbana · Osasco">378</td></tr>
+          <tr><td data-label="Etapa"><strong>Pacientes consolidados por corrida</strong></td><td class="tn" data-label="Geometria intermunicipal">8</td><td class="tn" data-label="Geometria urbana · Osasco">8</td></tr>
+          <tr><td data-label="Etapa"><strong>Corridas consolidadas por dia</strong></td><td class="tn" data-label="Geometria intermunicipal">48</td><td class="tn" data-label="Geometria urbana · Osasco">48</td></tr>
+          <tr><td data-label="Etapa"><strong>Corridas por veículo por dia</strong></td><td class="tn" data-label="Geometria intermunicipal">2,5</td><td class="tg" data-label="Geometria urbana · Osasco">5,5</td></tr>
+          <tr class="tr-hl"><td data-label="Etapa"><strong>Veículos operacionais</strong></td><td data-label="Geometria intermunicipal"><strong>19</strong></td><td data-label="Geometria urbana · Osasco"><strong>9</strong></td></tr>
         </tbody>
       </table>
     </div>
+
+    <p>O ciclo completo de uma corrida consolidada em Osasco — embarque distribuído de até oito pacientes, entrega no serviço, retorno — foi arbitrado em <strong>1h40</strong>. Sobre uma jornada operacional de dez horas isso daria seis ciclos; adotou-se <strong>5,5</strong>, com folga para atraso de sessão e para o trânsito da Região Metropolitana. É premissa declarada, não dado de fonte primária, e é a primeira coisa a recalibrar no primeiro mês de operação.</p>
 
     <div class="box box-gold">
       <div class="box-label">Frota contratada</div>
-      <p><strong>9 veículos operacionais e 1 de reserva.</strong> A reserva técnica não é conforto: com frota justa, uma quebra derruba o atendimento do dia. Composição indicada — <strong>4 micro-ônibus</strong> para os turnos consolidados de hemodiálise e <strong>6 vans</strong>, uma delas adaptada para paciente com mobilidade reduzida.</p>
-    </div>
-
-    <div class="band">
-      <img class="refrata" src="img/frota-frente.jpg" alt="Micro-ônibus do programa Caminhos da Saúde com identidade Pacientes Eletivos" loading="lazy" width="1200" height="799">
-      <img class="nucleo" src="img/frota-frente.jpg" alt="" aria-hidden="true" loading="lazy" width="1200" height="799">
-      <div class="band-cap">Composição indicada · 4 micro-ônibus e 6 vans</div>
+      <p><strong>9 veículos operacionais e 1 de reserva.</strong> A reserva não é conforto: com frota única, uma quebra derruba o SLA no primeiro mês. Composição indicada — <strong>4 micro-ônibus</strong> para os turnos consolidados de hemodiálise e <strong>6 vans</strong>, uma delas adaptada para paciente com mobilidade reduzida.</p>
     </div>
   </div>
 </section>
 
-<div class="part-divider" aria-hidden="true"></div>
-
-<section class="fold fold-alt" id="s06">
+<section class="fold" id="s06">
   <div class="wrap">
     <div class="ew">06</div>
-    <h2 class="t1">Composição do<br>valor contratual.</h2>
-    <p class="lead">Preço aberto, decomposto por rubrica, tecnicamente justificado e defensável na Lei 14.133/2021.</p>
+    <h2 class="t1">O custo direto<br>operacional.</h2>
+    <p class="lead">Custo de transporte sanitário não é proporcional à população. Tem um bloco fixo que não escala e um bloco variável que acompanha frota e quilometragem.</p>
 
-    <p>O valor contratual da Samais é formado pelo <strong>custo direto operacional</strong> — pessoal, frota, combustível, manutenção e insumos — acrescido de uma composição de encargos, provisões e estrutura. Essa composição é apresentada aberta, rubrica a rubrica, porque o gestor público tem o direito de saber exatamente o que está contratando.</p>
+    <p>É por isso que o valor por habitante é <strong>resultado</strong> da conta, nunca entrada. Em Osasco, o bloco fixo se dilui em 757 mil habitantes — e é exatamente daí que vem a eficiência do contrato.</p>
 
-    <h3 class="t2">Estrutura fixa contratada</h3>
+    <h3 class="t2">Bloco fixo mensal</h3>
 
     <div class="tw reveal">
       <table>
@@ -621,29 +565,75 @@ td strong{color:var(--ink);font-weight:600}
           <tr><td data-label="Componente"><strong>Administrativo e faturamento</strong></td><td data-label="Dimensionamento">2 postos</td><td class="tg" data-label="Mensal">R$ 8.500</td></tr>
           <tr><td data-label="Componente"><strong>Triagem e acolhimento</strong></td><td data-label="Dimensionamento">1 posto</td><td class="tg" data-label="Mensal">R$ 7.650</td></tr>
           <tr><td data-label="Componente"><strong>Sede, sistemas, utilidades e EPI</strong></td><td data-label="Dimensionamento">—</td><td class="tg" data-label="Mensal">R$ 14.000</td></tr>
-          <tr class="tr-hl"><td data-label="Componente"><strong>Estrutura fixa</strong></td><td data-label="Dimensionamento"><strong>—</strong></td><td data-label="Mensal"><strong>R$ 66.700</strong></td></tr>
+          <tr class="tr-hl"><td data-label="Componente"><strong>Bloco fixo</strong></td><td data-label="Dimensionamento"><strong>—</strong></td><td data-label="Mensal"><strong>R$ 66.700</strong></td></tr>
         </tbody>
       </table>
     </div>
 
-    <p class="fine">Salários com encargos de 70% — INSS, FGTS, férias, décimo terceiro e provisões trabalhistas. A central foi dimensionada em cinco operadores porque 378 deslocamentos por dia útil exigem confirmação prévia com o paciente e remanejamento em tempo real, e não cabem em uma estrutura menor sem perda de qualidade.</p>
+    <p class="fine">Salários com encargos de 70% — INSS, FGTS, férias, décimo terceiro e provisões. A central foi dimensionada em cinco operadores, e não nos três do dimensionamento padrão: 378 deslocamentos por dia útil não cabem em três posições sem degradar confirmação prévia e remanejamento.</p>
 
-    <h3 class="t2">Custo por veículo ao mês</h3>
+    <h3 class="t2">Bloco variável · por veículo ao mês</h3>
 
     <div class="tw reveal">
       <table>
-        <thead><tr><th>Item</th><th>Base</th><th>Frota Samais</th><th>Frota cedida</th></tr></thead>
+        <thead><tr><th>Item</th><th>Base</th><th>Frota própria</th><th>Frota cedida</th></tr></thead>
         <tbody>
-          <tr><td data-label="Item"><strong>Motorista com cobertura</strong></td><td data-label="Base">1,2 posto</td><td class="tg" data-label="Frota Samais">R$ 4.896</td><td class="tg" data-label="Frota cedida">R$ 4.896</td></tr>
-          <tr><td data-label="Item"><strong>Combustível e manutenção</strong></td><td data-label="Base">4.200 km × R$ 1,55</td><td class="tg" data-label="Frota Samais">R$ 6.510</td><td class="tg" data-label="Frota cedida">R$ 6.510</td></tr>
-          <tr><td data-label="Item"><strong>Depreciação do veículo</strong></td><td data-label="Base">60 meses</td><td class="tg" data-label="Frota Samais">R$ 6.943</td><td class="tg" data-label="Frota cedida">R$ 0</td></tr>
-          <tr><td data-label="Item"><strong>Seguro e rastreamento</strong></td><td data-label="Base">—</td><td class="tg" data-label="Frota Samais">R$ 600</td><td class="tg" data-label="Frota cedida">R$ 600</td></tr>
-          <tr class="tr-hl"><td data-label="Item"><strong>Por veículo</strong></td><td data-label="Base"><strong>—</strong></td><td data-label="Frota Samais"><strong>R$ 18.949</strong></td><td data-label="Frota cedida"><strong>R$ 12.006</strong></td></tr>
+          <tr><td data-label="Item"><strong>Motorista com cobertura</strong></td><td data-label="Base">1,2 FTE</td><td class="tg" data-label="Frota própria">R$ 4.896</td><td class="tg" data-label="Frota cedida">R$ 4.896</td></tr>
+          <tr><td data-label="Item"><strong>Combustível e manutenção</strong></td><td data-label="Base">4.200 km × R$ 1,55</td><td class="tg" data-label="Frota própria">R$ 6.510</td><td class="tg" data-label="Frota cedida">R$ 6.510</td></tr>
+          <tr><td data-label="Item"><strong>Depreciação</strong></td><td data-label="Base">60 meses · média ponderada</td><td class="tg" data-label="Frota própria">R$ 6.943</td><td class="tg" data-label="Frota cedida">R$ 0</td></tr>
+          <tr><td data-label="Item"><strong>Seguro e rastreamento</strong></td><td data-label="Base">—</td><td class="tg" data-label="Frota própria">R$ 600</td><td class="tg" data-label="Frota cedida">R$ 600</td></tr>
+          <tr class="tr-hl"><td data-label="Item"><strong>Por veículo</strong></td><td data-label="Base"><strong>—</strong></td><td data-label="Frota própria"><strong>R$ 18.949</strong></td><td data-label="Frota cedida"><strong>R$ 12.006</strong></td></tr>
         </tbody>
       </table>
     </div>
 
-    <p class="fine">A depreciação considera os preços de referência praticados nas aquisições federais de veículos de transporte sanitário — R$ 584,6 mil por micro-ônibus e R$ 304,6 mil por van — em horizonte de 60 meses.</p>
+    <div class="box box-amber">
+      <div class="box-label">Correção de premissa · depreciação</div>
+      <p>O parâmetro padrão do modelo usa <strong>R$ 3.500</strong> de depreciação por veículo ao mês. Confrontado com os preços de referência das entregas do Ministério da Saúde — <strong>R$ 584,6 mil</strong> por micro-ônibus e <strong>R$ 304,6 mil</strong> por van — esse número não se sustenta: implicaria um veículo de R$ 210 mil em 60 meses.</p>
+      <p>A composição indicada para Osasco deprecia <strong>R$ 6.943</strong> por veículo ao mês, quase o dobro. Manter os R$ 3.500 subprecificaria o contrato em cerca de <strong>R$ 46 mil por mês</strong> — e a conta só apareceria na hora de repor a frota.</p>
+    </div>
+
+    <h3 class="t2">Custo direto operacional consolidado</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Composição</th><th>Frota própria</th><th>Frota cedida</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Composição"><strong>Bloco fixo</strong></td><td class="tn" data-label="Frota própria">R$ 66.700</td><td class="tn" data-label="Frota cedida">R$ 66.700</td></tr>
+          <tr><td data-label="Composição"><strong>9 veículos operacionais</strong></td><td class="tn" data-label="Frota própria">R$ 170.541</td><td class="tn" data-label="Frota cedida">R$ 108.054</td></tr>
+          <tr><td data-label="Composição"><strong>1 veículo de reserva</strong></td><td class="tn" data-label="Frota própria">R$ 7.543</td><td class="tn" data-label="Frota cedida">R$ 600</td></tr>
+          <tr class="tr-hl"><td data-label="Composição"><strong>Custo direto operacional</strong></td><td data-label="Frota própria"><strong>R$ 244.784</strong></td><td data-label="Frota cedida"><strong>R$ 175.354</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-alt" id="s07">
+  <div class="wrap">
+    <div class="ew">07</div>
+    <h2 class="t1">Preço e composição<br>do valor contratual.</h2>
+    <p class="lead">Preço aberto, decomposto por rubrica, defensável na Lei 14.133/2021.</p>
+
+    <div class="big">
+      <div class="big-lbl">Referência mensal · frota própria</div>
+      <div class="big-num">R$ 330.458<span class="u"> / mês</span></div>
+      <p class="big-sub"><strong>R$ 0,44 por habitante ao mês.</strong> Cerca de R$ 5,24 por habitante ao ano para uma operação completa de transporte sanitário eletivo, com central de regulação própria, frota gerida, roteirização e indicadores auditáveis.</p>
+    </div>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Cenário</th><th>Custo direto</th><th>Referência mensal</th><th>Por habitante</th><th>Por deslocamento</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cenário"><strong>Frota própria Samais</strong></td><td class="tn" data-label="Custo direto">R$ 244.784</td><td class="tg" data-label="Referência mensal">R$ 330.458</td><td class="tg" data-label="Por habitante">R$ 0,44</td><td class="tn" data-label="Por deslocamento">R$ 34,95</td></tr>
+          <tr><td data-label="Cenário"><strong>Frota cedida pelo município</strong></td><td class="tn" data-label="Custo direto">R$ 175.354</td><td class="tg" data-label="Referência mensal">R$ 236.728</td><td class="tg" data-label="Por habitante">R$ 0,31</td><td class="tn" data-label="Por deslocamento">R$ 25,04</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>A cessão de frota reduz o valor do contrato em <strong>28%</strong> — R$ 93.730 por mês. Calculada sobre o parâmetro antigo de depreciação, essa diferença seria de cerca de 13%. Com o preço real dos veículos, a cessão passa a ser <strong>a variável mais poderosa da negociação</strong>, e não um detalhe operacional.</p>
 
     <h3 class="t2">Composição sobre o custo direto</h3>
 
@@ -663,109 +653,143 @@ td strong{color:var(--ink);font-weight:600}
       </table>
     </div>
 
-    <p class="fine">A alíquota de ISS varia conforme a legislação do município contratante e impacta diretamente a primeira rubrica. A composição considera regime de Lucro Real; em outra configuração tributária o componente se altera e será recalculado na proposta definitiva.</p>
+    <div class="box box-amber">
+      <div class="box-label">Três pontos que não podem ser concedidos duas vezes</div>
+      <p>A composição aberta soma <strong>38%</strong>. O preço modelado neste estudo aplica <strong>35%</strong> sobre o custo direto — três pontos abaixo da composição, o que equivale a <strong>R$ 7.344 por mês</strong> já concedidos antes da primeira reunião.</p>
+      <p>Isso é margem de negociação embutida, e precisa ser tratada como decisão consciente: quem chegar à mesa com o preço de R$ 330.458 e ainda negociar desconto sobre ele está entregando o segundo desconto sem saber que já deu o primeiro.</p>
+    </div>
+
+    <p class="fine">A alíquota de ISS de Osasco não foi confirmada nesta rodada e impacta diretamente a primeira rubrica. A composição considera regime de Lucro Real; em outra configuração tributária o componente se altera e será recalculado na proposta definitiva.</p>
   </div>
 </section>
 
-<section class="fold fold-gold" id="s07">
+<section class="fold fold-gold" id="s08">
   <div class="wrap">
-    <div class="ew">07</div>
-    <h2 class="t1">O custo por<br>habitante.</h2>
-    <p class="lead">O valor por habitante é resultado da operação dimensionada, nunca um número escolhido antes da conta.</p>
-
-    <div class="big">
-      <div class="big-lbl">Referência mensal · frota Samais</div>
-      <div class="big-num">R$ 330.458<span class="u"> / mês</span></div>
-      <p class="big-sub"><strong>R$ 0,44 por habitante ao mês.</strong> Cerca de R$ 5,24 por habitante ao ano para uma operação completa de transporte sanitário eletivo, com central de regulação própria, frota gerida, roteirização e indicadores auditáveis.</p>
-    </div>
+    <div class="ew">08</div>
+    <h2 class="t1">Piso operacional<br>mínimo.</h2>
+    <p class="lead">Sem histórico próprio, o piso não sai de expectativa de resultado — sai do que quebra a operação. Três testes cumulativos.</p>
 
     <div class="tw reveal">
       <table>
-        <thead><tr><th>Cenário de frota</th><th>Custo direto</th><th>Referência mensal</th><th>Por habitante</th><th>Por deslocamento</th></tr></thead>
+        <thead><tr><th>Teste</th><th>Critério</th><th>Osasco</th><th>Veredito</th></tr></thead>
         <tbody>
-          <tr><td data-label="Cenário de frota"><strong>Frota Samais</strong></td><td class="tn" data-label="Custo direto">R$ 244.784</td><td class="tg" data-label="Referência mensal">R$ 330.458</td><td class="tg" data-label="Por habitante">R$ 0,44</td><td class="tn" data-label="Por deslocamento">R$ 34,95</td></tr>
-          <tr><td data-label="Cenário de frota"><strong>Frota cedida pelo município</strong></td><td class="tn" data-label="Custo direto">R$ 175.354</td><td class="tg" data-label="Referência mensal">R$ 236.728</td><td class="tg" data-label="Por habitante">R$ 0,31</td><td class="tn" data-label="Por deslocamento">R$ 25,04</td></tr>
+          <tr><td data-label="Teste"><strong>Participação do bloco fixo</strong></td><td data-label="Critério">até 55% do custo direto</td><td class="tn" data-label="Osasco">27,2%</td><td class="tg" data-label="Veredito">Passa com folga</td></tr>
+          <tr><td data-label="Teste"><strong>Frota mínima</strong></td><td data-label="Critério">2 veículos mais reserva</td><td class="tn" data-label="Osasco">9 mais 1</td><td class="tg" data-label="Veredito">Passa</td></tr>
+          <tr><td data-label="Teste"><strong>Piso de preço · contrato isolado</strong></td><td data-label="Critério">R$ 127.563 por mês</td><td class="tn" data-label="Osasco">R$ 330.458</td><td class="tg" data-label="Veredito">2,6× acima</td></tr>
+          <tr><td data-label="Teste"><strong>Cobertura no piso da banda</strong></td><td data-label="Critério">dimensionar pela demanda mínima</td><td class="tn" data-label="Osasco">Banda invertida</td><td data-label="Veredito"><strong>Exige cláusula</strong></td></tr>
         </tbody>
       </table>
     </div>
 
-    <p>Se o município dispuser de veículos próprios adequados ao transporte sanitário — inclusive os recebidos por programas federais — a cessão à operação reduz o valor do contrato em <strong>28%</strong>, ou R$ 93.730 por mês. A composição da equipe, da central e dos indicadores permanece integralmente a mesma.</p>
+    <p>Os três primeiros testes passam sem discussão — Osasco é, em participação de bloco fixo, o contrato mais confortável já modelado na linha. O quarto merece atenção, porque <strong>funciona ao contrário aqui</strong>.</p>
+
+    <p>Onde a prevalência apurada é baixa, o risco é a demanda alta não se confirmar, e a proteção é dimensionar pelo piso da banda. Em Osasco a âncora de 812 por milhão é a média nacional aplicada ao estado de rede mais densa do país — o risco real é a demanda <strong>superar</strong> o dimensionado. Nove veículos cobrem 580 pacientes em diálise; a cada 65 pacientes acima disso, entra um veículo.</p>
 
     <div class="box box-gold">
-      <div class="box-label">Formato contratual proposto</div>
-      <p>Para o primeiro ciclo, a Samais propõe <strong>base fixa mais faixa variável por veículo ativado</strong>, com gatilho declarado em número de pacientes regulados. O município paga pela operação efetivamente demandada, e a ampliação da carteira de pacientes tem regra de reajuste conhecida desde a assinatura — sem aditivo emergencial no meio do contrato.</p>
+      <div class="box-label">Formato contratual recomendado</div>
+      <p>Preço fixo global joga todo o risco de volume para a Samais. Para o primeiro contrato, propor <strong>base fixa mais faixa variável por veículo ativado</strong>, com gatilho declarado em número de pacientes regulados. É o que transforma um erro de premissa em ajuste contratual, em vez de prejuízo.</p>
     </div>
   </div>
 </section>
 
 <div class="part-divider" aria-hidden="true"></div>
 
-<section class="fold fold-deep" id="s08">
+<section class="fold fold-deep" id="s09">
   <div class="wrap">
-    <div class="ew">08</div>
-    <h2 class="t1">Tecnologia<br>e roteirização.</h2>
-    <p class="lead">O que separa uma operação de transporte de uma operação de saúde é o registro.</p>
+    <div class="ew">09</div>
+    <h2 class="t1">Frota própria<br>ou cedida.</h2>
+    <p class="lead">A diferença não é de preço. É de prazo — e o prazo é o que decide.</p>
 
-    <p>Cada deslocamento do ROTA nasce de uma solicitação regulada e termina em um registro fechado: quem foi transportado, de onde, para onde, em que horário, em qual veículo, com qual acompanhante. Esse registro alimenta o painel de indicadores da Secretaria e sustenta a prestação de contas.</p>
-
-    <div class="pc-grid reveal">
-      <div class="pc">
-        <div class="pc-n">Recurso 01</div>
-        <div class="pc-title">Agendamento com confirmação prévia</div>
-        <p class="pc-desc">O paciente é contatado antes da viagem. A confirmação prévia é o que derruba a taxa de absenteísmo, que é o maior desperdício silencioso de qualquer frota sanitária.</p>
-      </div>
-      <div class="pc">
-        <div class="pc-n">Recurso 02</div>
-        <div class="pc-title">Roteirização por turno e destino</div>
-        <p class="pc-desc">Pacientes com mesmo horário de sessão e mesmo serviço de destino viajam juntos. É o que transforma 378 deslocamentos diários em 48 corridas.</p>
-      </div>
-      <div class="pc">
-        <div class="pc-n">Recurso 03</div>
-        <div class="pc-title">Rastreamento em tempo real</div>
-        <p class="pc-desc">Posição, velocidade e quilometragem por veículo, com histórico. Atraso deixa de ser relato e passa a ser dado.</p>
-      </div>
-      <div class="pc">
-        <div class="pc-n">Recurso 04</div>
-        <div class="pc-title">Painel de indicadores</div>
-        <p class="pc-desc">Pontualidade, absenteísmo, ocupação média, quilometragem e custo por deslocamento, atualizados mês a mês para a gestão municipal.</p>
-      </div>
+    <div class="band">
+      <img class="refrata" src="../rota-proposta/img/frota-frente.jpg" alt="Micro-ônibus do programa Caminhos da Saúde com identidade Pacientes Eletivos" loading="lazy" width="1200" height="799">
+      <img class="nucleo" src="../rota-proposta/img/frota-frente.jpg" alt="" aria-hidden="true" loading="lazy" width="1200" height="799">
+      <div class="band-cap">Composição indicada · 4 micro-ônibus e 6 vans</div>
     </div>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Cenário</th><th>Investimento inicial</th><th>Recuperação</th><th>Exposição</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cenário"><strong>Frota própria</strong></td><td class="tg" data-label="Investimento inicial">R$ 4.166.000</td><td class="tn" data-label="Recuperação">60 meses</td><td data-label="Exposição">Residual em contrato curto</td></tr>
+          <tr><td data-label="Cenário"><strong>Frota cedida</strong></td><td class="tg" data-label="Investimento inicial">R$ 351.000</td><td class="tn" data-label="Recuperação">Primeiro trimestre</td><td data-label="Exposição">Capital de giro</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>O investimento em frota própria foi calculado sobre os preços de referência das entregas do Ministério da Saúde: quatro micro-ônibus a R$ 584,6 mil e seis vans a R$ 304,6 mil. A recuperação se dá pela rubrica de depreciação — <strong>R$ 70.030 por mês</strong>, ou R$ 840 mil ao ano.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">O ponto que decide o cenário</div>
+      <p>Com frota própria, o contrato recupera o investimento <strong>exatamente no horizonte de depreciação — 60 meses</strong>. Isso é aritmética, não coincidência: a rubrica foi construída assim.</p>
+      <p>A consequência é dura. Um contrato de 12 meses com frota própria deixa cerca de <strong>R$ 3,3 milhões de exposição residual</strong> em veículos que precisam ser realocados ou revendidos. Frota própria em Osasco só se justifica com <strong>prazo contratual de 60 meses</strong>, ou com destino garantido dos veículos ao fim do contrato.</p>
+    </div>
+
+    <p>Na frota cedida não há capex de veículo. A exposição é capital de giro — cerca de dois meses de custo direto, R$ 351 mil — recuperado à medida que o faturamento entra em regime. É o cenário que a Samais deve levar à mesa como preferencial, e o desconto de 28% no valor do contrato é o argumento que o vende sozinho.</p>
   </div>
 </section>
 
-<section class="fold" id="s09">
+<section class="fold" id="s10">
   <div class="wrap">
-    <div class="ew">09</div>
-    <h2 class="t1">Próximos<br>passos.</h2>
-    <p class="lead">Quatro etapas até a proposta definitiva, calibrada com o dado real de Osasco.</p>
+    <div class="ew">10</div>
+    <h2 class="t1">Riscos, lacunas<br>e próximos passos.</h2>
+    <p class="lead">O que este estudo não sabe, e o que precisa ser levantado antes de qualquer manifestação formal.</p>
+
+    <div class="pc-grid reveal">
+      <div class="pc">
+        <div class="pc-n">Lacuna 01</div>
+        <div class="pc-title">Prevalência estadual de diálise</div>
+        <p class="pc-desc">A taxa aplicada é a média nacional. São Paulo tem a rede mais densa do país e prevalência apurada provavelmente superior. O dimensionamento de nove veículos é piso, não teto.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Lacuna 02</div>
+        <div class="pc-title">Habilitação em CNES</div>
+        <p class="pc-desc">Os serviços de terapia renal substitutiva em Osasco precisam ser verificados quanto à habilitação SUS efetiva. Serviço privado sem contratualização muda o destino do paciente, e o destino define a rota.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Lacuna 03</div>
+        <div class="pc-title">Linha eletiva geral</div>
+        <p class="pc-desc">Consultas, exames e cirurgias eletivas não estão dimensionados nem precificados. É provavelmente o maior volume do município e só se levanta na central de regulação municipal.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Lacuna 04</div>
+        <div class="pc-title">Operação atual e ISS</div>
+        <p class="pc-desc">O município conduziu em 2025 processo de aquisição de veículo para transporte de pacientes em hemodiálise, o que sugere operação por frota própria. A alíquota municipal de ISS também segue por confirmar.</p>
+      </div>
+    </div>
+
+    <h3 class="t2">O caminho CIOESTE</h3>
+
+    <p>Osasco integra o <strong>Consórcio Intermunicipal da Região Oeste Metropolitana de São Paulo</strong>, ao lado de Barueri, Carapicuíba, Cotia, Itapevi, Jandira, Santana de Parnaíba, Cajamar, Araçariguama, Pirapora do Bom Jesus, São Roque, Vargem Grande Paulista e Ibiúna.</p>
+
+    <p>É um consórcio <strong>já constituído</strong> — e isso vale muito. Formar um consórcio de transporte sanitário do zero leva de doze a dezoito meses e depende de lei em cada câmara municipal. Aderir a um existente não leva nenhum. Um bloco CIOESTE diluiria o mesmo bloco fixo de R$ 66.700 em uma população várias vezes maior, derrubando o per capita de todos os integrantes ao mesmo tempo.</p>
 
     <div class="steps reveal">
       <div class="step">
         <div class="step-n">01</div>
         <div>
           <div class="step-t">Reunião técnica</div>
-          <p class="step-d">Apresentação do modelo à Secretaria Municipal de Saúde de Osasco e alinhamento sobre o perfil real de deslocamento da população atendida. Duração aproximada de noventa minutos, presencial ou remota.</p>
+          <p class="step-d">Apresentação do modelo à Secretaria Municipal de Saúde de Osasco e alinhamento sobre o perfil real de deslocamento. Noventa minutos, presencial ou remota.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-n">02</div>
         <div>
-          <div class="step-t">Diagnóstico de campo</div>
-          <p class="step-d">Levantamento junto à central de regulação municipal do volume efetivo das quatro linhas — diálise, radioterapia, eletivo geral e tratamento fora de domicílio — com origem, destino, horário e taxa de absenteísmo.</p>
+          <div class="step-t">Levantamento na central de regulação</div>
+          <p class="step-d">Extração do volume efetivo das quatro linhas — diálise, radioterapia, eletivo geral e TFD — com origem, destino, horário e taxa de absenteísmo. É o dado que fecha as lacunas 01 e 03 de uma vez.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-n">03</div>
         <div>
-          <div class="step-t">Calibração do dimensionamento</div>
-          <p class="step-d">Ajuste da frota e da estrutura ao volume apurado, com confirmação da rede habilitada de destino e do enquadramento tributário aplicável ao contrato.</p>
+          <div class="step-t">Confirmação cadastral</div>
+          <p class="step-d">Habilitação dos serviços em CNES, alíquota de ISS e situação da frota municipal. Sem isso, nenhuma manifestação formal.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-n">04</div>
         <div>
           <div class="step-t">Proposta definitiva</div>
-          <p class="step-d">Entrega da proposta com planilha aberta, nos dois cenários de frota, no formato de base fixa mais faixa variável, pronta para instrução do processo de contratação.</p>
+          <p class="step-d">Recomposição do preço com os dados de campo, no formato de base fixa mais faixa variável, nos dois cenários de frota. Em paralelo, sondagem do CIOESTE como bloco.</p>
         </div>
       </div>
     </div>
@@ -777,7 +801,7 @@ td strong{color:var(--ink);font-weight:600}
   <div class="wrap">
     <div>
       <div class="footer-brand">Samais <em>·</em> Gestão em Saúde</div>
-      <p class="fine" style="margin-top:8px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em">ROTA · Osasco · Proposta Técnica e Comercial</p>
+      <p class="fine" style="margin-top:8px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em">ROTA · Osasco · Dossiê Interno · Uso Exclusivo Samais</p>
     </div>
     <div class="footer-meta"><span>Agosto · 2026</span><br><span>samais.com.br</span></div>
   </div>
