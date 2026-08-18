@@ -120,8 +120,33 @@ trocada: isso suja o claro.
 ```
 Aplicar `.refrata{filter:url(#glassDistort)}` **apenas em `<img>`**.
 Vidro que carrega texto **não distorce** — o filtro ondula letra e linha
-reta, e legível vira desleixo. Deixe o comentário no CSS: a regra se perde
-na próxima edição se não estiver escrita ao lado.
+reta, e legível vira desleixo.
+
+> ⚠ **A refração vive na borda, nunca no miolo.** Aplicada à imagem
+> inteira, ela ondula o assunto — rosto, veículo, texto na lataria — e o
+> resultado lê como **defeito de arquivo**, não como vidro. Reponha o
+> centro limpo com uma segunda camada mascarada:
+
+```html
+<div class="band">
+  <img class="refrata" src="foto.jpg" alt="...">
+  <img class="nucleo"  src="foto.jpg" alt="" aria-hidden="true">
+</div>
+```
+```css
+.band .nucleo{
+  position:absolute;inset:-12% 0;width:100%;height:124%;object-fit:cover;
+  opacity:.94;pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse 74% 74% at 50% 50%,#000 56%,rgba(0,0,0,0) 100%);
+  mask-image:radial-gradient(ellipse 74% 74% at 50% 50%,#000 56%,rgba(0,0,0,0) 100%);
+}
+```
+A camada limpa é `aria-hidden` e sem `alt`, para o leitor de tela não
+anunciar a mesma imagem duas vezes. O navegador reusa o mesmo arquivo do
+cache, então não custa banda.
+
+Deixe o comentário no CSS: a regra se perde na próxima edição se não
+estiver escrita ao lado.
 
 ### Ritmo de cor nas dobras
 Três níveis mais divisor. **A atribuição é semântica, não decorativa:**
