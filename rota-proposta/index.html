@@ -172,6 +172,36 @@ strong{color:var(--ink);font-weight:600}
   position:absolute;left:24px;bottom:18px;z-index:2;font-family:'JetBrains Mono',monospace;font-size:10px;
   letter-spacing:.13em;text-transform:uppercase;color:var(--gold-300);
 }
+/* Overlay é decoração: nunca pode interceptar clique nem controle nativo */
+.band::after{pointer-events:none}
+
+/* ── Player na capa ──
+   O vídeo é banda de imagem que se move. Herda a moldura da .band — mesmo raio,
+   mesma legenda, mesmo overlay — e dispensa refração: imagem em movimento com
+   deslocamento de pixel lê como falha de codec, não como vidro. */
+.band.vband{height:auto;aspect-ratio:16/9;max-height:min(56vh,470px)}
+.band.vband video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#050505}
+.band-cap{transition:opacity 320ms var(--ease)}
+.vplay{
+  position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;
+  border:0;padding:0;cursor:pointer;-webkit-appearance:none;appearance:none;
+  background:linear-gradient(180deg,rgba(7,7,8,.08),rgba(7,7,8,.44));
+  transition:background 320ms var(--ease);
+}
+.vplay:hover{background:linear-gradient(180deg,rgba(7,7,8,.02),rgba(7,7,8,.34))}
+.vplay span{
+  width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--glass-bg);border:var(--glass-border);box-shadow:var(--glass-shadow);
+  backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  transition:transform 380ms var(--ease);
+}
+.vplay:hover span{transform:scale(1.06)}
+.vplay:focus-visible{outline:2px solid var(--gold-500);outline-offset:-4px}
+.vplay svg{width:26px;height:26px;fill:var(--gold-300);margin-left:5px}
+.vband.on .vplay{display:none}
+.vband.on::after,.vband.on .band-cap{opacity:0}
+@media(max-width:640px){.vplay span{width:62px;height:62px}.vplay svg{width:21px;height:21px}}
+
 .band-duo{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:48px}
 .band-duo .band{margin:0;height:min(34vh,280px)}
 @media(max-width:820px){.band-duo{grid-template-columns:1fr}}
@@ -333,10 +363,14 @@ td strong{color:var(--ink);font-weight:600}
 
 <header class="capa">
   <div class="wrap">
-    <div class="band">
-      <img class="refrata" src="img/frota-frente.jpg" alt="Micro-ônibus do programa Caminhos da Saúde com identidade Pacientes Eletivos" loading="eager" width="1200" height="799">
-        <img class="nucleo" src="img/frota-frente.jpg" alt="" aria-hidden="true" loading="lazy" width="1200" height="799">
-      <div class="band-cap">Frota Caminhos da Saúde · Novo PAC · Pacientes Eletivos</div>
+    <div class="band vband" id="vp">
+      <video id="vid" preload="none" playsinline poster="video/rota-poster.jpg" width="1280" height="720">
+        <source src="video/rota.mp4" type="video/mp4">
+      </video>
+      <button class="vplay" id="vplay" aria-label="Reproduzir o vídeo institucional da operação ROTA">
+        <span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"></path></svg></span>
+      </button>
+      <div class="band-cap">Operação ROTA · institucional · 1min30</div>
     </div>
     <div class="eyebrow">Proposta técnica e comercial · Transporte sanitário eletivo</div>
     <h1>Para que o paciente <em>chegue</em> ao tratamento.</h1>
@@ -514,6 +548,12 @@ td strong{color:var(--ink);font-weight:600}
     <div class="ew">05</div>
     <h2 class="t1">O que a Samais<br>entrega.</h2>
     <p class="lead">Operação completa, com indicador auditável em cada etapa.</p>
+
+    <div class="band">
+      <img class="refrata" src="img/frota-frente.jpg" alt="Micro-ônibus do programa Caminhos da Saúde com identidade Pacientes Eletivos" loading="lazy" width="1200" height="799">
+      <img class="nucleo" src="img/frota-frente.jpg" alt="" aria-hidden="true" loading="lazy" width="1200" height="799">
+      <div class="band-cap">Frota Caminhos da Saúde · Novo PAC · Pacientes Eletivos</div>
+    </div>
 
     <div class="hb-grid reveal">
       <div class="hb">
@@ -819,6 +859,17 @@ td strong{color:var(--ink);font-weight:600}
       es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target);}});
     },{rootMargin:'0px 0px -12% 0px',threshold:.12});
     rv.forEach(function(e){ro.observe(e)});
+  }
+
+  var vp=document.getElementById('vp'),vid=document.getElementById('vid'),vb=document.getElementById('vplay');
+  if(vp&&vid&&vb){
+    vb.addEventListener('click',function(){
+      vp.classList.add('on');
+      vid.setAttribute('controls','');
+      vid.focus();
+      var pr=vid.play();
+      if(pr&&pr.catch){pr.catch(function(){});}
+    });
   }
 
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
