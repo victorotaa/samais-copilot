@@ -76,6 +76,97 @@ se a modelagem divergir muito dessa faixa, há erro de conta.
 
 ---
 
+## 1-B · Critério de importância — leia antes de qualificar carteira
+
+**A distância que qualifica repasse federal não é medida de oportunidade.**
+Ela é fonte de custeio, e só isso. Ordenar prospecção pelo gatilho dos 50 km
+descarta exatamente onde há mais paciente para transportar — capital e polo,
+onde o serviço existe, o volume é grande e o deslocamento é curto.
+
+O termômetro é outro:
+
+| Critério | O que produz |
+|---|---|
+| Distância que qualifica repasse | Descarta capital e polo · orienta para o interior disperso |
+| Posição no fluxo (envia ou recebe) | Descarta quem recebe · ignora o paciente que mora ali |
+| **Raio entre a casa e a unidade de destino** | **Precifica qualquer geografia · escala por aditivo** |
+
+Município que é destino não captura o cofinanciamento — isso continua
+verdadeiro e continua irrelevante para decidir se vale entrar. O que decide é
+**volume de atendimento agendado dentro do próprio município**.
+
+### Universo de demanda intramunicipal
+
+Parâmetros assistenciais do SUS (Portaria GM/MS 1.631/2015): **2 a 3 consultas
+médicas por habitante ao ano**. Esse é o campo, não a demanda contratável — o
+escopo é decisão de contrato, definida por critério de elegibilidade escrito
+(idoso com limitação de mobilidade, PCD, tratamento continuado, gestante de
+alto risco).
+
+**Absenteísmo é o indicador que paga.** A taxa de não comparecimento em
+consultas agendadas na rede pública gira em torno de **25%** (Cuiabá 23,06%,
+Campo Largo 26,85%). Entre os motivos mais relatados estão *esquecimento da
+data* e *desconhecimento de que a consulta estava agendada* — falha de
+comunicação e de deslocamento, que é exatamente o que a central resolve.
+
+> Compromisso contratável é de **processo** — confirmação feita, viagem
+> realizada, registro entregue. A queda do absenteísmo é consequência
+> esperada, medida e publicada, nunca garantia de desempenho.
+
+---
+
+## 1-C · Modelo de raio — preço unitário por faixa
+
+Custo de deslocamento não depende de qual fronteira ele cruza; depende de
+quantos ciclos o veículo cumpre no dia. Entre raio curto urbano e raio longo,
+o custo por paciente varia **quase nove vezes**.
+
+Jornada de 10 h, 8 pacientes consolidados por corrida, 22 dias úteis,
+**ocupação de 80%** — nunca lotação plena.
+
+| Faixa | Ciclos/dia | Veículo | Km/mês | Atend./veículo/mês | Custo variável por atendimento |
+|---|---|---|---|---|---|
+| **A · até 5 km** | 10 | Van | 2.200 | 1.408 | R$ 9,93 |
+| **B · 5 a 15 km** | 6 | Van | 3.168 | 845 | R$ 18,33 |
+| **C · 15 a 35 km** | 4 | Micro | 4.400 | 563 | R$ 39,17 |
+| **D · 35 a 70 km** | 2 | Micro | 6.160 | 282 | R$ 88,02 |
+| **E · fluvial** | — | Embarcação | — | — | **sem parâmetro · levantar em campo** |
+
+```
+Preço unitário da faixa = (custo variável da faixa + bloco fixo ÷ volume total) × 1,35
+```
+
+O rateio do fixo cai quando o volume sobe, então **o preço unitário baixa com a
+expansão de escopo**. É o argumento comercial mais forte da linha: alinha o
+interesse dos dois lados.
+
+**Um operador de central para cada 75 atendimentos por dia útil.**
+
+### Escada de aditivos
+
+Preço global obriga a renegociar a cada mudança de escopo. Preço unitário por
+faixa transforma expansão em **aditivo de volume** — a diferença entre uma nova
+licitação e um ofício.
+
+> ⚠ **Cláusula de aditivo assinada é direito de quem contrata, não opção da
+> operadora.** Antes de propor a escada inteira, confirmar até qual degrau a
+> estrutura de garantia, capital de giro e recrutamento sustenta. Um degrau de
+> escopo pleno em capital é operação de porte de concessão urbana.
+
+### Ociosidade é o risco que o modelo cria
+
+Preço por atendimento transfere o risco de volume para a operadora: veículo
+parado não fatura. Os 80% de ocupação são **premissa declarada**. Se a ocupação
+real for 60%, o preço está 25% subdimensionado e o contrato dá prejuízo sem que
+nada tenha dado errado operacionalmente. Recalibrar no terceiro mês, com
+ocupação medida viagem a viagem.
+
+Por isso a proposta final **combina os dois modelos**: componente fixo pela
+estrutura e frota mínima, que garante disponibilidade; componente variável por
+faixa, para volume acima da base e para toda expansão futura.
+
+---
+
 ## 2 · Modelo de precificação em duas partes
 
 **Custo direto operacional não é proporcional à população.** Ele tem um
@@ -108,10 +199,16 @@ Salários com **encargos de 70%** — INSS, FGTS, férias, 13º e provisões.
 |---|---|---|
 | Motorista com cobertura · 1,2 FTE | R$ 4.896 | R$ 4.896 |
 | Combustível e manutenção · R$ 1,40/km | R$ 7.000 | R$ 7.000 |
-| Depreciação ou locação | R$ 3.500 | **R$ 0** |
+| Depreciação · **por tipo de veículo** | van R$ 5.077 · micro R$ 9.743 | **R$ 0** |
 | Seguro e rastreamento | R$ 600 | R$ 600 |
 | **Total** | **R$ 15.996** | **R$ 12.496** |
 
+> **Depreciação por tipo, nunca média ponderada.** Os preços de referência das
+> aquisições federais são de R$ 584,6 mil por micro-ônibus e R$ 304,6 mil por
+> van; em 60 meses isso dá R$ 9.743 e R$ 5.077. Média ponderada em frota
+> desbalanceada **subestima** o custo, e o erro só aparece na hora de repor a
+> frota.
+>
 > A cessão de frota **não muda o payback** — muda o preço. A depreciação
 > está no custo e é repassada, então a cessão reduz o valor do contrato em
 > ~13% com resultado proporcional preservado. O ganho é **competitivo**:
