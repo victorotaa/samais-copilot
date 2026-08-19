@@ -124,13 +124,30 @@ o custo por paciente varia **quase nove vezes**.
 Jornada de 10 h, 8 pacientes consolidados por corrida, 22 dias úteis,
 **ocupação de 80%** — nunca lotação plena.
 
-| Faixa | Ciclos/dia | Veículo | Km/mês | Atend./veículo/mês | Custo variável por atendimento |
-|---|---|---|---|---|---|
-| **A · até 5 km** | 10 | Van | 2.200 | 1.408 | R$ 9,93 |
-| **B · 5 a 15 km** | 6 | Van | 3.168 | 845 | R$ 18,33 |
-| **C · 15 a 35 km** | 4 | Micro | 4.400 | 563 | R$ 39,17 |
-| **D · 35 a 70 km** | 2 | Micro | 6.160 | 282 | R$ 88,02 |
-| **E · fluvial** | — | Embarcação | — | — | **sem parâmetro · levantar em campo** |
+| Faixa | Ciclos/dia | Veículo | Km/ciclo | Km/mês | Atend./veículo/mês | Custo variável por atendimento |
+|---|---|---|---|---|---|---|
+| **A · até 5 km** | 10 | Van | 22 | 4.840 | 1.408 | R$ 12,84 |
+| **B · 5 a 15 km** | 6 | Van | 43 | 5.676 | 845 | R$ 22,93 |
+| **C · 15 a 35 km** | 4 | Micro | 80 | 7.040 | 563 | R$ 46,43 |
+| **D · 35 a 70 km** | 2 | Micro | 160 | 7.040 | 282 | R$ 92,87 |
+| **E · fluvial** | — | Embarcação | — | — | — | **sem parâmetro · levantar em campo** |
+
+### Km por ciclo sai do tempo, nunca do raio
+
+O erro fácil é tomar o raio da faixa como se fosse a distância percorrida. Não
+é: uma corrida de raio curto **coleta oito pacientes espalhados** antes de
+entregar, e o percurso real é múltiplo do raio.
+
+```
+km por ciclo = duração do ciclo × velocidade média urbana declarada
+A · 1h00 × 22 km/h    B · 1h40 × 26 km/h    C · 2h30 × 32 km/h
+D · percurso conhecido de ida e volta + coleta
+```
+
+Arbitrar a distância direto do raio **subestima o combustível e a manutenção
+em cerca de 30%** — e o erro passa despercebido porque o número parece
+razoável. Foi assim que a primeira modelagem de Belém saiu 10,6% abaixo do que
+o modelo de frota indicava.
 
 ```
 Preço unitário da faixa = (custo variável da faixa + bloco fixo ÷ volume total) × 1,35
