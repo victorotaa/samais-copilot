@@ -182,6 +182,26 @@ descarte.
 - **No OUTPUT A:** omitir ou usar "a detalhar em diagnóstico de campo"
 - Nunca inventar. Ausência marcada é melhor que número inventado.
 
+### Link externo em peça de cliente — regra
+
+**Não linkar notícia de portal governamental em proposta.** Itens de sala de
+imprensa do gov.br são movidos, despublicados e colocados atrás de login sem
+aviso; o link que funcionava na semana da reunião cai em *"Conteúdo Restrito ·
+é necessário autenticar"* na semana da decisão. Em peça comercial isso não lê
+como problema do governo — lê como descuido da Samais.
+
+Ordem de preferência para sustentar uma afirmação:
+
+1. **Citação no texto** — número da portaria, data e o que ela determina. É o
+   que o técnico da secretaria confere sozinho, e não quebra nunca.
+2. **Ato normativo**, se o link for mesmo necessário — `bvsms.saude.gov.br`
+   (saudelegis) ou DOU em `in.gov.br`. São bases de arquivo, não de notícia.
+3. **Nunca** `gov.br/.../noticias/...` nem portal de agência com URL datada.
+
+E o princípio acima dos três: **proposta não manda o decisor para fora da
+página.** Cada link de saída é uma chance de perder o leitor e uma dependência
+que a Samais não controla.
+
 ---
 
 ## FASE 6 — Entrega
