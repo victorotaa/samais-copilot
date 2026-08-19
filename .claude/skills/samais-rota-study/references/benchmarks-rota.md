@@ -233,6 +233,44 @@ Salários com **encargos de 70%** — INSS, FGTS, férias, 13º e provisões.
 
 ---
 
+### Ambulância de suporte básico — obrigatória na composição
+
+Todo contrato de transporte sanitário eletivo leva **pelo menos uma ambulância**
+além da frota de transporte. Não é redundância de frota: cobre dois casos que
+van e micro-ônibus não cobrem.
+
+1. **Paciente que só se desloca em maca.** Acamado, pós-operatório, crônico
+   debilitado. Sem a unidade, esse paciente simplesmente não é transportado — e
+   é ele quem mais depende do serviço.
+2. **Intercorrência no trajeto.** Hipotensão após sessão de hemodiálise é evento
+   frequente. Um micro-ônibus com oito passageiros não responde a isso nem
+   clinicamente nem logisticamente: interromper a corrida atrasa os outros sete.
+
+| Item | Tipo B · USB | Tipo A |
+|---|---|---|
+| Motorista com cobertura · 1,2 FTE | R$ 4.896 | R$ 4.896 |
+| Técnico de enfermagem · 1,2 FTE | R$ 6.783 | — |
+| Combustível e manutenção · 1.500 km | R$ 2.325 | R$ 2.325 |
+| Depreciação · 60 meses | R$ 5.077 | R$ 5.077 |
+| Seguro e rastreamento | R$ 600 | R$ 600 |
+| **Total mensal** | **R$ 19.681** | **R$ 12.898** |
+
+**Padrão: tipo B.** O tipo A transporta em decúbito mas não tem quem responda à
+intercorrência, que é metade da justificativa. Tipo A só quando o edital limitar
+o escopo ou o preço não comportar.
+
+O técnico de enfermagem é dimensionado sobre o **piso nacional da enfermagem**
+com encargos de 70%. A depreciação usa a referência da van na falta de preço
+federal para a unidade — **substituir pelo valor de mercado da unidade
+especificada** antes da proposta definitiva.
+
+> A ambulância é **linha fixa de disponibilidade**, não capacidade vendida por
+> deslocamento. Não entra no modelo de raio nem no rateio por atendimento: entra
+> no bloco fixo. Quem a diluir no preço unitário está vendendo standby como se
+> fosse produção.
+
+---
+
 ## 3 · Piso Operacional Mínimo
 
 Sem histórico próprio, o piso não sai de expectativa de resultado — sai
