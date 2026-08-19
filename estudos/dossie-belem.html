@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Uso interno Samais · varredura de viabilidade, demanda e precificação do transporte sanitário eletivo em Belém · Pará">
+<title>Dossiê Interno · ROTA Belém</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+/* ═══════════════════════════════════════════════════════════
+   SISTEMA VISUAL SAMAIS — unificado
+   Cor e tipografia: cânone do Adendo v2 (#070708 · #BF9A3D · Plus Jakarta)
+   Componentes: vidro, refração e dobras herdados da linha institucional
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --canvas:#070708; --surface:#0E0E10; --elevated:#161618;
+  --border-subtle:#1F1F22; --border-default:#2A2B33; --border-strong:#3A3B45;
+  --ink:#F4F4F5; --ink-2:#A8A8B0; --ink-3:#6E6E78; --on-gold:#070708;
+  --gold-300:#EAC97A; --gold-500:#BF9A3D; --gold-600:#A18230; --gold-rgb:191,154,61;
+  --ok:#43A047; --warn:#FDD835; --danger:#E53935; --info:#1E88E5; --ai:#00D4A8;
+  --glass-bg:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.025));
+  --glass-border:1px solid rgba(255,255,255,.12);
+  --glass-blur:blur(22px) saturate(150%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.22), 0 18px 50px rgba(0,0,0,.5);
+  --glass-radius:18px;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+  --maxw:1180px;
+  color-scheme:dark;
+  --gold:var(--gold-500); --text:var(--ink); --sub:var(--ink-2); --muted:var(--ink-3);
+  --border:var(--border-subtle); --border2:var(--border-default);
+  --green:var(--ok); --green-rgb:67,160,71; --red:var(--danger);
+  --amber:var(--warn); --amber-rgb:253,216,53; --r:8px;
+}
+:root[data-theme="light"]{
+  --canvas:#FAFAF7; --surface:#FFFFFF; --elevated:#F1F1ED;
+  --border-subtle:#E4E4DE; --border-default:#D1D1C9; --border-strong:#B7B7AD;
+  --ink:#1A1A17; --ink-2:#52524C; --ink-3:#828279; --on-gold:#070708;
+  --gold-300:#8A6E28; --gold-500:#A88230; --gold-600:#7E6624;
+  --ok:#2E7D32; --warn:#B58A00; --danger:#C62828; --info:#1565C0; --ai:#00875F;
+  --glass-bg:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,255,255,.55));
+  --glass-border:1px solid rgba(0,0,0,.08);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 18px 50px rgba(0,0,0,.10);
+  color-scheme:light;
+}
+
+body{
+  background:var(--canvas);color:var(--ink);
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  font-size:15.5px;line-height:1.75;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  transition:background-color 240ms var(--ease),color 240ms var(--ease);
+}
+::selection{background:var(--gold-500);color:var(--on-gold)}
+:focus-visible{outline:3px solid var(--gold-500);outline-offset:2px;border-radius:6px}
+img{max-width:100%}
+a{color:inherit;text-decoration:none}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;position:relative}
+
+/* ── Navegação: vidro, wordmark que vira monograma ── */
+.nav{
+  position:sticky;top:0;z-index:60;
+  background:color-mix(in srgb,var(--canvas) 72%,transparent);
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+  border-bottom:1px solid var(--border-subtle);
+}
+.nav-in{max-width:var(--maxw);margin:0 auto;padding:0 28px;height:68px;display:flex;align-items:center;gap:28px}
+.nav-wordmark{height:24px;width:auto;color:var(--gold-500);flex:none}
+.nav-mono{height:22px;width:auto;color:var(--gold-500);flex:none;display:none}
+.nav-links{margin-left:auto;display:flex;gap:22px;align-items:center}
+.nav-links a{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);padding:6px 0;border-bottom:1px solid transparent;transition:color .24s,border-color .24s;
+}
+.nav-links a:hover{color:var(--ink-2)}
+.nav-links a.active{color:var(--gold-300);border-bottom-color:var(--gold-500)}
+.themebtn{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);background:transparent;border:1px solid var(--border-subtle);
+  border-radius:6px;padding:8px 12px;cursor:pointer;transition:all .24s;white-space:nowrap;
+}
+.themebtn:hover{color:var(--ink);border-color:var(--border-strong)}
+.navham{display:none;margin-left:auto;width:34px;height:26px;background:none;border:0;cursor:pointer;position:relative}
+.navham span{position:absolute;left:5px;right:5px;height:1.5px;background:var(--ink-2);transition:.28s var(--ease)}
+.navham span:nth-child(1){top:7px}.navham span:nth-child(2){top:12.5px}.navham span:nth-child(3){top:18px}
+.navham.open span:nth-child(1){top:12.5px;transform:rotate(45deg)}
+.navham.open span:nth-child(2){opacity:0}
+.navham.open span:nth-child(3){top:12.5px;transform:rotate(-45deg)}
+
+/* ── Dobras: ritmo por gradiente, não por troca de fundo ── */
+.fold{position:relative;z-index:1;scroll-margin-top:80px;padding:104px 0;border-top:1px solid var(--border-subtle)}
+.fold:first-of-type{border-top:0}
+/* Ritmo de cor: passos de superfície perceptíveis, não lavagens.
+   Abaixo de ~8 unidades RGB o olho não separa as dobras no escuro. */
+.fold-alt{background:var(--surface)}
+.fold-deep{background:var(--elevated)}
+.fold-gold{background:linear-gradient(180deg,rgba(var(--gold-rgb),.10),rgba(var(--gold-rgb),.028) 60%,transparent)}
+:root[data-theme="light"] .fold-gold{background:linear-gradient(180deg,rgba(var(--gold-rgb),.13),rgba(var(--gold-rgb),.04) 60%,transparent)}
+
+/* Divisor entre grupos temáticos — versão compacta do part-divider */
+.part-divider{position:relative;height:96px;border:0;margin:0;overflow:hidden;background:var(--canvas)}
+.part-divider::before{
+  content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(760px,86vw);height:1px;
+  background:linear-gradient(90deg,transparent,rgba(var(--gold-rgb),.45) 50%,transparent);
+}
+.part-divider::after{
+  content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:7px;height:7px;border-radius:50%;
+  background:var(--gold-500);box-shadow:0 0 0 6px rgba(var(--gold-rgb),.10);
+}
+
+/* ── Tipografia ── */
+h1,h2,h3{font-family:'Syne',sans-serif;line-height:1.08;letter-spacing:-.02em;color:var(--ink)}
+.fold h2,.t1{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(29px,4.1vw,45px);margin-bottom:20px;max-width:19ch;line-height:1.08;letter-spacing:-.02em;color:var(--ink)}
+.t1 em{font-style:normal;color:var(--gold-500)}
+.t2{font-family:'Syne',sans-serif;font-weight:600;font-size:21px;margin:44px 0 14px;line-height:1.2;color:var(--ink)}
+.lead{font-size:17px;color:var(--ink-2);max-width:62ch;font-weight:300;margin-bottom:52px}
+p{color:var(--ink-2);line-height:1.75;margin-bottom:16px}
+p:last-child{margin-bottom:0}
+strong{color:var(--ink);font-weight:600}
+.fine{font-size:13px;color:var(--ink-3);line-height:1.65}
+.ew,.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold-300);display:flex;align-items:center;gap:11px;margin-bottom:20px;
+}
+.ew::before,.eyebrow::before{content:'';width:26px;height:1px;background:var(--gold-500);opacity:.55;flex:none}
+
+/* ── Capa ── */
+.capa{padding:64px 0 0;position:relative;overflow:hidden}
+.capa::after{
+  content:'';position:absolute;top:-240px;left:50%;transform:translateX(-50%);
+  width:900px;height:520px;pointer-events:none;z-index:0;
+  background:radial-gradient(closest-side,rgba(var(--gold-rgb),.13),transparent);
+}
+.capa .wrap{z-index:1}
+.capa h1{font-size:clamp(38px,6vw,64px);font-weight:800;max-width:17ch;margin-bottom:22px}
+.capa h1 em{font-style:normal;color:var(--gold-500)}
+.capa .lead{max-width:64ch;margin-bottom:0}
+.stats{display:flex;flex-wrap:wrap;gap:14px;margin-top:40px}
+.stat{
+  background:var(--glass-bg);border:var(--glass-border);border-radius:12px;
+  box-shadow:var(--glass-shadow);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  padding:16px 20px;display:flex;flex-direction:column;gap:4px;min-width:150px;
+}
+.stat .n{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:500;color:var(--gold-300)}
+.stat .l{font-size:12px;color:var(--ink-2);line-height:1.45}
+
+/* ── Banda de imagem · refração ── */
+.band{position:relative;overflow:hidden;border-radius:14px;margin:0 0 48px;background:#050505;height:min(42vh,360px)}
+.band img{position:absolute;inset:-12% 0;width:100%;height:124%;object-fit:cover;opacity:.94;will-change:transform}
+/* Refração vive na BORDA, nunca no miolo.
+   A camada .refrata distorce por baixo; .nucleo repõe o centro limpo com
+   máscara radial. Assunto da foto — rosto, veículo, texto na lataria — não
+   pode ondular: distorção no centro lê como defeito de arquivo, não como vidro. */
+.refrata{filter:url(#glassDistort)}
+.band .nucleo{
+  position:absolute;inset:-12% 0;width:100%;height:124%;object-fit:cover;
+  opacity:.94;pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse 74% 74% at 50% 50%,#000 56%,rgba(0,0,0,0) 100%);
+  mask-image:radial-gradient(ellipse 74% 74% at 50% 50%,#000 56%,rgba(0,0,0,0) 100%);
+}
+/* Overlay só o suficiente para a legenda ler — imagem escura demais some da página */
+.band::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,8,.06) 40%,rgba(7,7,8,.58))}
+.band-cap{
+  position:absolute;left:24px;bottom:18px;z-index:2;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--gold-300);
+}
+/* Overlay é decoração: nunca pode interceptar clique nem controle nativo */
+.band::after{pointer-events:none}
+
+/* ── Player na capa ──
+   O vídeo é banda de imagem que se move. Herda a moldura da .band — mesmo raio,
+   mesma legenda, mesmo overlay — e dispensa refração: imagem em movimento com
+   deslocamento de pixel lê como falha de codec, não como vidro. */
+.band.vband{height:auto;aspect-ratio:16/9;max-height:min(56vh,470px)}
+.band.vband video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#050505}
+.band-cap{transition:opacity 320ms var(--ease)}
+.vplay{
+  position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;
+  border:0;padding:0;cursor:pointer;-webkit-appearance:none;appearance:none;
+  background:linear-gradient(180deg,rgba(7,7,8,.08),rgba(7,7,8,.44));
+  transition:background 320ms var(--ease);
+}
+.vplay:hover{background:linear-gradient(180deg,rgba(7,7,8,.02),rgba(7,7,8,.34))}
+.vplay span{
+  width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--glass-bg);border:var(--glass-border);box-shadow:var(--glass-shadow);
+  backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  transition:transform 380ms var(--ease);
+}
+.vplay:hover span{transform:scale(1.06)}
+.vplay:focus-visible{outline:2px solid var(--gold-500);outline-offset:-4px}
+.vplay svg{width:26px;height:26px;fill:var(--gold-300);margin-left:5px}
+.vband.on .vplay{display:none}
+.vband.on::after,.vband.on .band-cap{opacity:0}
+@media(max-width:640px){.vplay span{width:62px;height:62px}.vplay svg{width:21px;height:21px}}
+
+.band-duo{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:48px}
+.band-duo .band{margin:0;height:min(34vh,280px)}
+@media(max-width:820px){.band-duo{grid-template-columns:1fr}}
+
+/* ── Vidro: carrega texto, então não distorce ── */
+.glass{
+  background:var(--glass-bg);border:var(--glass-border);border-radius:var(--glass-radius);
+  box-shadow:var(--glass-shadow);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+}
+@supports not (backdrop-filter:blur(1px)){.glass,.stat{background:var(--surface)}}
+
+/* ── Grids e cartões ── */
+.dc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+.hb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:44px}
+.pc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+@media(max-width:900px){.dc-grid,.hb-grid,.pc-grid{grid-template-columns:1fr}}
+.dc,.hb,.pc{
+  background:var(--glass-bg);border:var(--glass-border);border-radius:var(--glass-radius);
+  box-shadow:var(--glass-shadow);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  padding:28px 26px;position:relative;overflow:hidden;
+  transition:transform 240ms var(--ease),box-shadow 240ms var(--ease);
+}
+.dc{border-top:2px solid var(--gold-500)}
+.hb:hover,.pc:hover,.dc:hover{transform:translateY(-4px)}
+.dc-num{font-family:'Syne',sans-serif;font-weight:700;font-size:38px;line-height:1;letter-spacing:-.02em;color:var(--gold-500);margin-bottom:12px}
+.dc-num .u{font-size:.45em;color:var(--ink-3);font-weight:500;letter-spacing:0}
+.dc-label{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);line-height:1.7}
+.dc-sub{font-size:12.5px;color:var(--ink-3);margin-top:6px;line-height:1.5}
+.hb-tag,.pc-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold-300);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+.hb-period{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);margin-bottom:18px}
+.hb-title,.pc-title{font-family:'Syne',sans-serif;font-weight:600;font-size:17px;margin-bottom:10px;line-height:1.22;letter-spacing:-.01em}
+.hb-desc,.pc-desc{font-size:14.5px;color:var(--ink-2);line-height:1.62;flex:1}
+.hb{display:flex;flex-direction:column}
+.hb-divider{height:1px;background:var(--border-subtle);margin:22px 0}
+.hb-kv{display:flex;flex-direction:column;gap:9px}
+.hb-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.hb-k{font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)}
+.hb-v{font-size:13px;color:var(--ink);font-weight:600;font-family:'JetBrains Mono',monospace;text-align:right}
+
+/* ── Blocos de destaque ── */
+.box{border-radius:var(--glass-radius);padding:26px 30px;margin:40px 0;border:var(--glass-border);background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow)}
+.box-gold{border-color:rgba(var(--gold-rgb),.28)}
+.box-amber{border-color:rgba(var(--amber-rgb),.28)}
+.box-green{border-color:rgba(var(--green-rgb),.30)}
+.box-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;color:var(--gold-300)}
+.box-green .box-label{color:var(--ok)}
+.box p{margin:0;line-height:1.7}
+
+/* ── Tabelas ── */
+.tw{margin:32px 0}
+table{width:100%;max-width:100%;border-collapse:collapse;font-size:14px}
+thead tr{border-bottom:1px solid var(--border-default)}
+th{font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-3);padding:11px 14px;text-align:left;line-height:1.4;overflow-wrap:break-word}
+td{padding:13px 14px;border-bottom:1px solid var(--border-subtle);color:var(--ink-2);line-height:1.5;vertical-align:top;overflow-wrap:break-word}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:color-mix(in srgb,var(--ink) 3%,transparent)}
+td strong{color:var(--ink);font-weight:600}
+.tg{color:var(--gold-300)!important;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px}
+.tn{font-family:'JetBrains Mono',monospace;font-size:13px}
+.tr-hl td{border-top:1px solid rgba(var(--gold-rgb),.35);background:rgba(var(--gold-rgb),.05);color:var(--gold-300)!important;font-weight:700}
+.tr-hl td strong{color:var(--gold-300)}
+.tr-hl td:not(:first-child) strong{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px}
+.uf{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:.1em;margin-left:5px}
+
+/* ── Número de fechamento e passos ── */
+.big{margin-top:52px;padding:56px 44px;text-align:center;border-radius:var(--glass-radius);border:1px solid rgba(var(--gold-rgb),.28);background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow)}
+.big-lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-300);margin-bottom:18px}
+.big-num{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(44px,7vw,84px);line-height:1;letter-spacing:-.03em;color:var(--gold-500);margin-bottom:14px}
+.big-num .u{font-size:.26em;color:var(--ink-3);font-weight:500;letter-spacing:0}
+.big-sub{font-size:15px;color:var(--ink-2);max-width:520px;margin:0 auto;line-height:1.7}
+.steps{display:flex;flex-direction:column;gap:16px;margin-top:44px}
+.step{border-radius:var(--glass-radius);border:var(--glass-border);background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow);padding:28px 26px;display:flex;gap:24px;align-items:flex-start}
+.step-n{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;color:rgba(var(--gold-rgb),.4);line-height:1;min-width:42px}
+.step-t{font-family:'Syne',sans-serif;font-weight:600;font-size:17px;margin-bottom:6px;line-height:1.25}
+.step-d{font-size:14.5px;color:var(--ink-2);line-height:1.62;margin:0}
+@media(max-width:700px){.step{flex-direction:column;gap:12px}}
+
+/* ── Movimento ── */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity 700ms var(--ease),transform 700ms var(--ease)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* ── Rodapé ── */
+.footer{border-top:1px solid var(--border-subtle);padding:52px 0;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--ink) 1.4%,transparent))}
+.footer .wrap{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:32px}
+.footer-brand{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.footer-brand em{font-style:normal;color:var(--gold-500)}
+.footer-meta{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-3);line-height:1.8;text-align:right}
+
+/* Nove itens de navegação não cabem em 900px: o menu recolhe mais cedo aqui
+   do que nas outras páginas, senão a barra empurra a página para a direita. */
+@media(max-width:980px){
+  .nav-wordmark{display:none}.nav-mono{display:block}
+  .navham{display:block}
+  .nav-links{
+    position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;
+    background:color-mix(in srgb,var(--canvas) 96%,transparent);backdrop-filter:blur(18px);
+    border-bottom:1px solid var(--border-subtle);padding:8px 28px 18px;display:none;
+  }
+  .nav-links.open{display:flex}
+  .nav-links a{padding:12px 0;width:100%;font-size:11.5px}
+  .themebtn{margin:10px 0 0}
+}
+@media(max-width:768px){
+  .fold{padding:64px 0}
+  .capa{padding:40px 0 0}
+  .big{padding:40px 24px}
+  table{display:block}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{display:block;border:var(--glass-border);border-radius:12px;background:var(--glass-bg);margin-bottom:12px;overflow:hidden}
+  tbody tr:last-child{margin-bottom:0}
+  tbody tr:hover td{background:transparent}
+  td{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding:11px 16px;border-bottom:1px solid var(--border-subtle);text-align:right}
+  tr:last-child td{border-bottom:1px solid var(--border-subtle)}
+  tr td:last-child{border-bottom:none}
+  td::before{content:attr(data-label);font-family:'JetBrains Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);text-align:left;line-height:1.45;flex:0 0 38%}
+  /* Preço é o dado que o gestor procura: no mobile ele cresce e ganha contraste */
+  td.tg,td.tn{font-size:15px}
+  td.tg{color:var(--gold-300)!important;font-weight:500}
+  tbody tr td.tg{background:rgba(var(--gold-rgb),.05)}
+  td.rich{flex-direction:column;align-items:flex-start;text-align:left;gap:6px}
+  td.rich::before{flex:0 0 auto}
+  .tr-hl{border-color:rgba(var(--gold-rgb),.35)}
+  .tr-hl td{border-top:none;background:transparent}
+  .footer .wrap{flex-direction:column;align-items:flex-start}
+  .footer-meta{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="glassDistort" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.009 0.013" numOctaves="2" seed="7" result="n"/>
+    <feGaussianBlur in="n" stdDeviation="1.1" result="nb"/>
+    <feDisplacementMap in="SourceGraphic" in2="nb" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs></svg>
+
+<nav class="nav">
+  <div class="nav-in">
+    <svg class="nav-wordmark" viewBox="0 0 595.3 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="currentColor" d="M44,106.6l4.9-4.9c6.3,3.6,18.2,8.8,33.8,8.8s25.5-3.2,25.5-11.1-14.2-9.6-24.4-9.8c-16.2-.2-35.4-2.8-35.4-14.1s17.3-16.4,32.7-16.4,27,3.2,34.1,6.5l-4.4,4.9c-6.8-3.1-17.2-6-28.9-6s-22.8,1.7-22.8,9.6,17,7.7,24.8,7.9c15.9.2,35.4,3.2,35.4,16.9s-20.1,17.1-35.9,17.1-31.6-5.3-39.4-9.4ZM411.7,60.6h4.7c4.4,0,8.6,2.1,11.3,5.6l36.8,48.2h-11.7l-41-53.7ZM476.6,106.6l4.9-4.9c6.3,3.6,18.2,8.8,33.8,8.8s25.5-3.2,25.5-11.1-14.2-9.6-24.4-9.8c-16.2-.2-35.4-2.8-35.4-14.1s17.3-16.4,32.7-16.4,27,3.2,34.1,6.5l-4.4,4.9c-6.8-3.1-17.2-6-28.9-6s-22.8,1.7-22.8,9.6,17,7.7,24.8,7.9c15.9.2,35.4,3.2,35.4,16.9s-20.1,17.1-35.9,17.1-31.6-5.3-39.4-9.4ZM184.3,60.6h-12.4s24.4,33.7,24.4,33.7h-42.4c-3.2,0-6.3,1.5-8.2,4.2l-11.7,15.9h7.6l7.9-10.7c1.9-2.6,5-4.2,8.2-4.2h42.3s10.8,14.9,10.8,14.9h13.1l-39.6-53.7ZM372.1,60.6h-12.4l24.4,33.7h-42.4c-3.2,0-6.3,1.5-8.2,4.2l-11.7,15.9h7.6l7.9-10.7c1.9-2.6,5-4.2,8.2-4.2h42.3l10.8,14.9h13.1l-39.6-53.7ZM287.2,65.9l-23.3,32.3-23.9-32.4c-2.4-3.2-6.2-5.2-10.2-5.2h-6l33.5,46.6h7.2l27.8-37.7v44.8h11.7v-53.7h-6.6c-4.1,0-7.9,2-10.3,5.3Z"/></svg>
+    <svg class="nav-mono" viewBox="0 0 271 175.9" role="img" aria-label="Samais" preserveAspectRatio="xMidYMid meet"><path fill="currentColor" d="M44.8,106.6l4.9-4.9c6.3,3.6,18.1,8.8,33.7,8.8s25.4-3.2,25.4-11.1-14.2-9.6-24.3-9.8c-16.2-.2-35.3-2.8-35.3-14.1s17.3-16.3,32.6-16.3,27,3.2,34,6.5l-4.4,4.9c-6.7-3.1-17.1-6-28.8-6s-22.8,1.7-22.8,9.6,17,7.7,24.7,7.9c15.9.2,35.3,3.2,35.3,16.9s-20.1,17.1-35.8,17.1-31.5-5.3-39.3-9.4ZM168.7,60.7h-13.1l25,33.6h-42.3c-3.2,0-6.3,1.5-8.2,4.1l-11.7,15.8h7.5l7.9-10.7c1.9-2.6,5-4.1,8.2-4.1h42.2l10.8,14.8h13.1l-39.5-53.6ZM226.2,60.7h-10.4v-10.4h-10v10.4h-10.4v10h10.4v10.4h10v-10.4h10.4v-10Z"/></svg>
+    <button class="navham" id="navham" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="navlinks">
+      <a href="#s01">Veredito</a>
+      <a href="#s03">Geometria</a>
+      <a href="#s04">Insular</a>
+      <a href="#s05">Demanda</a>
+      <a href="#s06">Frota</a>
+      <a href="#s07">Custo</a>
+      <a href="#s08">Preço</a>
+      <a href="#s10">Oportunidade</a>
+      <a href="#s11">Riscos</a>
+      <button class="themebtn" id="themeToggle" aria-label="Alternar tema claro e escuro">Modo claro</button>
+    </div>
+  </div>
+</nav>
+
+<header class="capa">
+  <div class="wrap">
+    <div class="band">
+      <img class="refrata" src="../rota-proposta/img/frota-lado.jpg" alt="Micro-ônibus de transporte sanitário eletivo em perfil" loading="eager" width="1280" height="769">
+      <img class="nucleo" src="../rota-proposta/img/frota-lado.jpg" alt="" aria-hidden="true" loading="lazy" width="1280" height="769">
+      <div class="band-cap">Transporte sanitário eletivo · Varredura de prospecção</div>
+    </div>
+    <div class="eyebrow">Uso interno Samais · não circular · Belém · Pará</div>
+    <h1>Belém é o maior <em>destino</em> do Norte — e essa é a boa e a má notícia.</h1>
+    <p class="lead">Varredura de viabilidade, demanda, dimensionamento e precificação do transporte sanitário eletivo para o município de Belém, com o modelo de custo em duas partes e as correções que a geografia insular impõe.</p>
+    <div class="stats">
+      <div class="stat"><span class="n">1.397.315</span><span class="l">habitantes · IBGE 2025</span></div>
+      <div class="stat"><span class="n">131–209 mil</span><span class="l">deslocamentos / ano · banda</span></div>
+      <div class="stat"><span class="n">R$ 0,33</span><span class="l">por habitante / mês · no piso</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="fold" id="s01">
+  <div class="wrap">
+    <div class="ew">01</div>
+    <h2 class="t1">O veredito<br>da varredura.</h2>
+    <p class="lead">Belém é contratável, é grande, e é o contrato mais complexo que a carteira já modelou. Nenhuma das três coisas é opinião.</p>
+
+    <p><strong>Contratável.</strong> No piso da banda de demanda, a operação sai a <strong>R$ 464.407 por mês</strong> — R$ 0,33 por habitante. É o menor per capita de toda a carteira, porque 1,4 milhão de habitantes diluem o bloco fixo como nenhum outro município consegue.</p>
+
+    <p><strong>Sem cofinanciamento federal.</strong> Belém é <strong>destino</strong>, não origem. O Hospital Ophir Loyola é CACON e atende os 144 municípios do Pará, mais Amapá, Maranhão e Amazonas. O cofinanciamento das portarias de maio de 2026 remunera o deslocamento <strong>a partir do município de origem</strong> — quem captura são os outros 143. Dentro da Região Metropolitana, ninguém captura: todos estão a menos de 50 km.</p>
+
+    <p><strong>Complexo.</strong> Belém tem oito distritos administrativos, e três deles são insulares. Mosqueiro fica a <strong>70 km do centro</strong> — mais longe do que muitos trajetos intermunicipais da carteira, e ainda assim <em>dentro do mesmo município</em>. Cotijuba só se alcança de barco. Isso não é detalhe operacional: é uma segunda geometria dentro do mesmo contrato.</p>
+
+    <div class="box box-gold">
+      <div class="box-label">A tese comercial em uma frase</div>
+      <p>Belém não se vende pelo gatilho federal — se vende por <strong>escala e complexidade</strong>. É o único município da carteira onde o argumento "ninguém mais consegue operar isso" é literalmente verdadeiro, porque exige rodoviário urbano, rodoviário longo e fluvial no mesmo contrato, com uma central só.</p>
+    </div>
+  </div>
+</section>
+
+<section class="fold fold-alt" id="s02">
+  <div class="wrap">
+    <div class="ew">02</div>
+    <h2 class="t1">Atestado<br>de cadastro.</h2>
+    <p class="lead">O que está confirmado, o que veio de fonte secundária e o que não está.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Item</th><th>Registro</th><th>Fonte e situação</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Item"><strong>Grafia oficial</strong></td><td class="tn" data-label="Registro">Belém</td><td data-label="Fonte e situação">IBGE · confirmada</td></tr>
+          <tr><td data-label="Item"><strong>Unidade federativa</strong></td><td class="tn" data-label="Registro">Pará <span class="uf">PA</span></td><td data-label="Fonte e situação">Capital do estado · confirmada</td></tr>
+          <tr><td data-label="Item"><strong>População</strong></td><td class="tg" data-label="Registro">1.397.315</td><td data-label="Fonte e situação">IBGE · estimativa 2025</td></tr>
+          <tr><td data-label="Item"><strong>Tendência populacional</strong></td><td class="tn" data-label="Registro">Queda de 0,09%</td><td data-label="Fonte e situação">Segundo ano consecutivo de redução · migração</td></tr>
+          <tr><td data-label="Item"><strong>Distritos administrativos</strong></td><td class="tn" data-label="Registro">8</td><td data-label="Fonte e situação">Belém, Bengui, Entroncamento, Guamá, Icoaraci, Mosqueiro, Outeiro, Sacramenta</td></tr>
+          <tr><td data-label="Item"><strong>Polo oncológico</strong></td><td class="tn" data-label="Registro">Hospital Ophir Loyola</td><td data-label="Fonte e situação">CACON · maior centro de radioterapia do Norte</td></tr>
+          <tr><td data-label="Item"><strong>Serviço de TRS</strong></td><td class="tn" data-label="Registro">Existente no município</td><td data-label="Fonte e situação">Habilitação SUS <strong>a confirmar em CNES</strong></td></tr>
+          <tr><td data-label="Item"><strong>Prevalência de diálise no Pará</strong></td><td class="tn" data-label="Registro">Não confirmada</td><td data-label="Fonte e situação">Fonte secundária indica ~431 pmp · <strong>não verificada em fonte primária</strong></td></tr>
+          <tr><td data-label="Item"><strong>Frota do Caminhos da Saúde</strong></td><td class="tg" data-label="Registro">141 veículos ao Pará</td><td data-label="Fonte e situação">39 ambulâncias, 67 micro-ônibus, 35 vans · destino por município <strong>a confirmar</strong></td></tr>
+          <tr><td data-label="Item"><strong>Alíquota de ISS</strong></td><td class="tn" data-label="Registro">A confirmar</td><td data-label="Fonte e situação">Move a rubrica de tributos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-amber">
+      <div class="box-label">Duas observações de cadastro que mudam a conta</div>
+      <p><strong>A população está caindo.</strong> Dois anos consecutivos de redução por movimento migratório. Em contrato precificado por habitante, isso é deflator embutido — e deve entrar na cláusula de reajuste, não ser descoberto na primeira revisão.</p>
+      <p><strong>A prevalência do Pará não foi apurada em fonte primária.</strong> Uma fonte secundária indica algo próximo de 431 por milhão, mas esse é exatamente o número que o Censo registra para o Maranhão, o que levanta suspeita de conflação. Toda a modelagem abaixo trabalha com <strong>banda</strong>, nunca com número pontual.</p>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-gold" id="s03">
+  <div class="wrap">
+    <div class="ew">03</div>
+    <h2 class="t1">A geometria<br>do fluxo.</h2>
+    <p class="lead">O que determina a receita não é a população — é a posição do município no fluxo.</p>
+
+    <p>Belém ocupa a posição mais extrema que esse princípio admite: é o <strong>destino terminal de um estado inteiro</strong>. O Ophir Loyola recebe pacientes dos 144 municípios paraenses e de estados vizinhos. Quem se desloca mais de 50 km para chegar a Belém está saindo de outro município — e é lá que o cofinanciamento é remunerado.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Filtro regulatório</th><th>Parâmetro</th><th>Belém</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Filtro regulatório"><strong>Piso de distância</strong></td><td class="tn" data-label="Parâmetro">acima de 50 km</td><td class="tg" data-label="Belém">Não atende · fluxo interno e metropolitano</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Posição no fluxo</strong></td><td class="tn" data-label="Parâmetro">origem gera receita</td><td class="tg" data-label="Belém">Destino terminal · não captura</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Hemodiálise</strong></td><td class="tn" data-label="Parâmetro">apenas âmbito estadual</td><td data-label="Belém">Irrelevante · fluxo intramunicipal</td></tr>
+          <tr><td data-label="Filtro regulatório"><strong>Região Metropolitana</strong></td><td class="tn" data-label="Parâmetro">Ananindeua, Marituba, Benevides, Santa Bárbara</td><td data-label="Belém">Conurbação · abaixo de 50 km</td></tr>
+          <tr class="tr-hl"><td data-label="Filtro regulatório"><strong>Cofinanciamento federal aplicável</strong></td><td data-label="Parâmetro"><strong>—</strong></td><td data-label="Belém"><strong>R$ 0</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>A operação em Belém é, portanto, <strong>transporte sanitário eletivo municipal custeado por recurso próprio</strong>. Não há gatilho federal a invocar, e invocá-lo em reunião queima credibilidade técnica na primeira frase.</p>
+  </div>
+</section>
+
+<section class="fold" id="s04">
+  <div class="wrap">
+    <div class="ew">04</div>
+    <h2 class="t1">O fator que não existe<br>em nenhum outro município.</h2>
+    <p class="lead">Belém tem três distritos insulares. Um deles fica mais longe do centro do que muitos trajetos intermunicipais da carteira — e continua sendo o mesmo município.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Distrito insular</th><th>Distância ao centro</th><th>Acesso</th><th>Consequência operacional</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Distrito insular"><strong>Mosqueiro</strong></td><td class="tg" data-label="Distância ao centro">70 km</td><td data-label="Acesso">Rodoviário · ponte Sebastião R. de Oliveira</td><td data-label="Consequência operacional">2 ciclos por veículo ao dia, não 5,5</td></tr>
+          <tr><td data-label="Distrito insular"><strong>Outeiro · Caratateua</strong></td><td class="tg" data-label="Distância ao centro">25 km</td><td data-label="Acesso">Rodoviário · ~45 min de trajeto</td><td data-label="Consequência operacional">Ciclo intermediário · agrupável</td></tr>
+          <tr><td data-label="Distrito insular"><strong>Cotijuba e demais ilhas</strong></td><td class="tn" data-label="Distância ao centro">Somente por água</td><td data-label="Acesso">Embarcação a partir de Icoaraci</td><td class="tg" data-label="Consequência operacional"><strong>Módulo fluvial · não precificado</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>O distrito de Outeiro tem parte insular composta por 26 ilhas e cerca de 80 mil habitantes. Mosqueiro tem 212 km² de área. Somados aos demais núcleos insulares, representam algo próximo de <strong>8,6% da população do município</strong> — a fração adotada nesta modelagem para separar as duas geometrias.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">O que esta varredura não precifica</div>
+      <p>O deslocamento <strong>fluvial</strong> — Cotijuba, Combu e os demais núcleos alcançáveis apenas por embarcação — está fora do preço apresentado. Não existe parâmetro confiável de custo por viagem fluvial na base da Samais, e arbitrar um seria inventar número em cima da parte mais arriscada do contrato.</p>
+      <p>Fica como <strong>módulo separado, a dimensionar em campo</strong>: número de pacientes por ilha, embarcação adequada, tripulação, atracadouro, seguro e regime de maré. A prefeitura já opera uma UBS Fluvial, o que indica que a estrutura de referência existe e pode ser levantada.</p>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-deep" id="s05">
+  <div class="wrap">
+    <div class="ew">05</div>
+    <h2 class="t1">A demanda,<br>em banda.</h2>
+    <p class="lead">Sem a taxa estadual apurada, número pontual é chute com aparência de precisão.</p>
+
+    <div class="dc-grid reveal">
+      <div class="dc">
+        <div class="dc-num">569–1.071</div>
+        <div class="dc-label">Pacientes em diálise</div>
+        <div class="dc-sub">Em modalidade de centro, com deslocamento</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">1.696</div>
+        <div class="dc-label">Pacientes em radioterapia</div>
+        <div class="dc-sub">Por ano, sobre 3.391 casos novos</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">131–209 mil</div>
+        <div class="dc-label">Deslocamentos por ano</div>
+        <div class="dc-sub">Ida e volta, nas duas linhas</div>
+      </div>
+      <div class="dc">
+        <div class="dc-num">437–698</div>
+        <div class="dc-label">Deslocamentos por dia útil</div>
+        <div class="dc-sub">Sobre 300 dias operacionais</div>
+      </div>
+    </div>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Linha</th><th>Parâmetro</th><th>Piso da banda</th><th>Teto da banda</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Linha"><strong>Prevalência aplicada</strong></td><td data-label="Parâmetro">× 94,4% em modalidade de centro</td><td class="tn" data-label="Piso da banda">431 pmp</td><td class="tn" data-label="Teto da banda">812 pmp</td></tr>
+          <tr><td data-label="Linha"><strong>Pacientes em diálise</strong></td><td data-label="Parâmetro">População × prevalência de centro</td><td class="tg" data-label="Piso da banda">569</td><td class="tg" data-label="Teto da banda">1.071</td></tr>
+          <tr><td data-label="Linha"><strong>Deslocamentos de diálise</strong></td><td data-label="Parâmetro">156 sessões ao ano</td><td class="tn" data-label="Piso da banda">88.764</td><td class="tn" data-label="Teto da banda">167.076</td></tr>
+          <tr><td data-label="Linha"><strong>Deslocamentos de radioterapia</strong></td><td data-label="Parâmetro">1.696 pacientes × 25 sessões</td><td class="tn" data-label="Piso da banda">42.400</td><td class="tn" data-label="Teto da banda">42.400</td></tr>
+          <tr class="tr-hl"><td data-label="Linha"><strong>Total por ano</strong></td><td data-label="Parâmetro"><strong>0,094 a 0,150 por habitante</strong></td><td data-label="Piso da banda"><strong>131.164</strong></td><td data-label="Teto da banda"><strong>209.476</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="fine">A banda cabe dentro da faixa de verificação do modelo — de 0,09 a 0,15 deslocamento por habitante ao ano. O piso usa a menor prevalência estadual conhecida no Censo Brasileiro de Diálise 2024; o teto usa a média nacional de 812 por milhão. A taxa oncológica é nacional, de 2.427 casos novos por milhão, sem ajuste regional apurado.</p>
+
+    <p>A banda é de <strong>quase 60%</strong> entre piso e teto. Isso não é imprecisão da modelagem — é a dispersão real da prevalência entre estados, e some no dia em que a Secretaria informar quantos pacientes estão efetivamente inscritos em programa. Enquanto não informar, dimensionar pelo teto é apostar.</p>
+
+    <p>O <strong>transporte eletivo geral</strong> — consultas, exames, cirurgias, TFD de saída — não está nesta conta e historicamente supera as duas linhas somadas. Em uma capital com rede básica do porte da de Belém, é quase certo que seja a maior linha. Levantar na central de regulação, nunca estimar.</p>
+  </div>
+</section>
+
+<section class="fold" id="s06">
+  <div class="wrap">
+    <div class="ew">06</div>
+    <h2 class="t1">Frota: duas geometrias<br>no mesmo contrato.</h2>
+    <p class="lead">Um veículo do continente cumpre 5,5 ciclos por dia. Um veículo de Mosqueiro cumpre 2. Tratar os dois com o mesmo parâmetro erra a frota inteira.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Etapa</th><th>Continental</th><th>Insular rodoviário</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Etapa"><strong>Fração da demanda</strong></td><td class="tn" data-label="Continental">91,4%</td><td class="tn" data-label="Insular rodoviário">8,6%</td></tr>
+          <tr><td data-label="Etapa"><strong>Deslocamentos por dia útil</strong></td><td class="tn" data-label="Continental">399</td><td class="tn" data-label="Insular rodoviário">38</td></tr>
+          <tr><td data-label="Etapa"><strong>Corridas consolidadas por dia</strong></td><td class="tn" data-label="Continental">50</td><td class="tn" data-label="Insular rodoviário">5</td></tr>
+          <tr><td data-label="Etapa"><strong>Ciclos por veículo ao dia</strong></td><td class="tg" data-label="Continental">5,5</td><td class="tg" data-label="Insular rodoviário">2,0</td></tr>
+          <tr><td data-label="Etapa"><strong>Quilometragem mensal por veículo</strong></td><td class="tn" data-label="Continental">4.200 km</td><td class="tn" data-label="Insular rodoviário">6.160 km</td></tr>
+          <tr class="tr-hl"><td data-label="Etapa"><strong>Veículos operacionais</strong></td><td data-label="Continental"><strong>9</strong></td><td data-label="Insular rodoviário"><strong>3</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-gold">
+      <div class="box-label">Frota contratada · dimensionada no piso da banda</div>
+      <p><strong>12 veículos operacionais e 1 de reserva.</strong> Composição — <strong>4 micro-ônibus</strong> e <strong>5 vans</strong> na malha continental, <strong>3 micro-ônibus</strong> na linha insular rodoviária, mais <strong>1 micro-ônibus</strong> de reserva técnica.</p>
+      <p>No teto da banda a frota vai a <strong>19 operacionais</strong> — 15 continentais e 4 insulares. É por isso que o contrato precisa de faixa variável: a diferença entre os dois cenários é de sete veículos e mais de R$ 200 mil por mês.</p>
+    </div>
+
+    <div class="band">
+      <img class="refrata" src="../rota-proposta/img/frota-frente.jpg" alt="Micro-ônibus do programa Caminhos da Saúde com identidade Pacientes Eletivos" loading="lazy" width="1200" height="799">
+      <img class="nucleo" src="../rota-proposta/img/frota-frente.jpg" alt="" aria-hidden="true" loading="lazy" width="1200" height="799">
+      <div class="band-cap">Composição indicada · 8 micro-ônibus e 5 vans</div>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-alt" id="s07">
+  <div class="wrap">
+    <div class="ew">07</div>
+    <h2 class="t1">Custo direto<br>operacional.</h2>
+    <p class="lead">Bloco fixo que não escala, mais bloco variável que acompanha frota e quilometragem.</p>
+
+    <h3 class="t2">Bloco fixo mensal</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Componente</th><th>Dimensionamento</th><th>Mensal</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Componente"><strong>Coordenação operacional</strong></td><td data-label="Dimensionamento">1 posto</td><td class="tg" data-label="Mensal">R$ 11.050</td></tr>
+          <tr><td data-label="Componente"><strong>Supervisão de frota</strong></td><td data-label="Dimensionamento">1 posto</td><td class="tg" data-label="Mensal">R$ 6.800</td></tr>
+          <tr><td data-label="Componente"><strong>Coordenação da linha insular</strong></td><td data-label="Dimensionamento">1 posto</td><td class="tg" data-label="Mensal">R$ 6.800</td></tr>
+          <tr><td data-label="Componente"><strong>Central de regulação ROTA</strong></td><td data-label="Dimensionamento">6 operadores</td><td class="tg" data-label="Mensal">R$ 22.440</td></tr>
+          <tr><td data-label="Componente"><strong>Administrativo e faturamento</strong></td><td data-label="Dimensionamento">2 postos</td><td class="tg" data-label="Mensal">R$ 8.500</td></tr>
+          <tr><td data-label="Componente"><strong>Triagem e acolhimento</strong></td><td data-label="Dimensionamento">2 postos</td><td class="tg" data-label="Mensal">R$ 15.300</td></tr>
+          <tr><td data-label="Componente"><strong>Sede, sistemas, utilidades e EPI</strong></td><td data-label="Dimensionamento">—</td><td class="tg" data-label="Mensal">R$ 16.000</td></tr>
+          <tr class="tr-hl"><td data-label="Componente"><strong>Bloco fixo</strong></td><td data-label="Dimensionamento"><strong>—</strong></td><td data-label="Mensal"><strong>R$ 86.890</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="fine">Salários com encargos de 70%. A central sobe para seis operadores porque 437 deslocamentos por dia útil no piso da banda — e até 698 no teto — não cabem na configuração de cinco. A coordenação da linha insular é posto próprio: escala de maré, ponte e balsa não se gerencia junto com trânsito urbano.</p>
+
+    <h3 class="t2">Bloco variável · por veículo ao mês</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Item</th><th>Van continental</th><th>Micro continental</th><th>Micro insular</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Item"><strong>Motorista com cobertura · 1,2 FTE</strong></td><td class="tn" data-label="Van continental">R$ 4.896</td><td class="tn" data-label="Micro continental">R$ 4.896</td><td class="tn" data-label="Micro insular">R$ 4.896</td></tr>
+          <tr><td data-label="Item"><strong>Combustível e manutenção · R$ 1,55/km</strong></td><td class="tn" data-label="Van continental">R$ 6.510</td><td class="tn" data-label="Micro continental">R$ 6.510</td><td class="tg" data-label="Micro insular">R$ 9.548</td></tr>
+          <tr><td data-label="Item"><strong>Depreciação · 60 meses</strong></td><td class="tn" data-label="Van continental">R$ 5.077</td><td class="tg" data-label="Micro continental">R$ 9.743</td><td class="tg" data-label="Micro insular">R$ 9.743</td></tr>
+          <tr><td data-label="Item"><strong>Seguro e rastreamento</strong></td><td class="tn" data-label="Van continental">R$ 600</td><td class="tn" data-label="Micro continental">R$ 600</td><td class="tn" data-label="Micro insular">R$ 600</td></tr>
+          <tr class="tr-hl"><td data-label="Item"><strong>Por veículo</strong></td><td data-label="Van continental"><strong>R$ 17.083</strong></td><td data-label="Micro continental"><strong>R$ 21.749</strong></td><td data-label="Micro insular"><strong>R$ 24.787</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-amber">
+      <div class="box-label">Mudança de método em relação à modelagem anterior</div>
+      <p>Osasco usou uma <strong>depreciação média ponderada</strong> de R$ 6.943 para toda a frota. Aqui a depreciação é <strong>por tipo de veículo</strong> — R$ 9.743 para micro-ônibus, R$ 5.077 para van, sobre os preços de referência das aquisições federais em horizonte de 60 meses.</p>
+      <p>A razão é que Belém tem frota desbalanceada: oito micro-ônibus para cinco vans, contra quatro e seis em Osasco. Média ponderada em frota desbalanceada distorce, e nesse caso <strong>subestimaria</strong> o custo. O método por tipo deve substituir o anterior nas próximas modelagens.</p>
+    </div>
+
+    <h3 class="t2">Consolidado</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Composição</th><th>Frota própria</th><th>Frota cedida</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Composição"><strong>Bloco fixo</strong></td><td class="tn" data-label="Frota própria">R$ 86.890</td><td class="tn" data-label="Frota cedida">R$ 86.890</td></tr>
+          <tr><td data-label="Composição"><strong>4 micro-ônibus continentais</strong></td><td class="tn" data-label="Frota própria">R$ 86.996</td><td class="tn" data-label="Frota cedida">R$ 48.024</td></tr>
+          <tr><td data-label="Composição"><strong>5 vans continentais</strong></td><td class="tn" data-label="Frota própria">R$ 85.415</td><td class="tn" data-label="Frota cedida">R$ 60.030</td></tr>
+          <tr><td data-label="Composição"><strong>3 micro-ônibus insulares</strong></td><td class="tn" data-label="Frota própria">R$ 74.361</td><td class="tn" data-label="Frota cedida">R$ 45.132</td></tr>
+          <tr><td data-label="Composição"><strong>1 veículo de reserva</strong></td><td class="tn" data-label="Frota própria">R$ 10.343</td><td class="tn" data-label="Frota cedida">R$ 600</td></tr>
+          <tr class="tr-hl"><td data-label="Composição"><strong>Custo direto operacional</strong></td><td data-label="Frota própria"><strong>R$ 344.005</strong></td><td data-label="Frota cedida"><strong>R$ 240.676</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="fold fold-gold" id="s08">
+  <div class="wrap">
+    <div class="ew">08</div>
+    <h2 class="t1">Preço e piso<br>operacional.</h2>
+    <p class="lead">Preço é custo direto vezes 1,35. O piso é o que separa contrato de prejuízo.</p>
+
+    <div class="big">
+      <div class="big-lbl">Referência mensal · frota própria · piso da banda</div>
+      <div class="big-num">R$ 464.407<span class="u"> / mês</span></div>
+      <p class="big-sub"><strong>R$ 0,33 por habitante ao mês</strong> — o menor per capita já modelado na linha, e o efeito direto de diluir R$ 86.890 de bloco fixo em 1,4 milhão de habitantes.</p>
+    </div>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Cenário</th><th>Custo direto</th><th>Referência mensal</th><th>Por habitante</th><th>Por deslocamento</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cenário"><strong>Frota própria</strong></td><td class="tn" data-label="Custo direto">R$ 344.005</td><td class="tg" data-label="Referência mensal">R$ 464.407</td><td class="tg" data-label="Por habitante">R$ 0,33</td><td class="tn" data-label="Por deslocamento">R$ 42,49</td></tr>
+          <tr><td data-label="Cenário"><strong>Frota cedida</strong></td><td class="tn" data-label="Custo direto">R$ 240.676</td><td class="tg" data-label="Referência mensal">R$ 324.913</td><td class="tg" data-label="Por habitante">R$ 0,23</td><td class="tn" data-label="Por deslocamento">R$ 29,73</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>A cessão derruba o contrato em <strong>30%</strong> — R$ 139.494 por mês. Com 141 veículos federais destinados ao Pará, dos quais 67 são especificamente para radioterapia e hemodiálise, a chance de existir frota cedível na praça é a maior de toda a carteira. <strong>Confirmar o destino desses veículos é a primeira diligência</strong>, porque muda o preço da proposta em um terço.</p>
+
+    <h3 class="t2">Os três testes do piso</h3>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Teste</th><th>Critério</th><th>Belém</th><th>Veredito</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Teste"><strong>Participação do bloco fixo</strong></td><td data-label="Critério">até 55% do custo direto</td><td class="tn" data-label="Belém">25,3%</td><td class="tg" data-label="Veredito">Passa com folga</td></tr>
+          <tr><td data-label="Teste"><strong>Frota mínima</strong></td><td data-label="Critério">2 veículos mais reserva</td><td class="tn" data-label="Belém">12 mais 1</td><td class="tg" data-label="Veredito">Passa</td></tr>
+          <tr><td data-label="Teste"><strong>Piso de preço · contrato isolado</strong></td><td data-label="Critério">R$ 127.563 por mês</td><td class="tn" data-label="Belém">R$ 464.407</td><td class="tg" data-label="Veredito">3,6× acima</td></tr>
+          <tr><td data-label="Teste"><strong>Cobertura no piso da banda</strong></td><td data-label="Critério">dimensionar pela demanda mínima</td><td class="tn" data-label="Belém">Aplicado</td><td class="tg" data-label="Veredito">Passa · exige faixa variável</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-gold">
+      <div class="box-label">Formato contratual — inegociável em Belém</div>
+      <p>A banda de demanda é de quase 60% e a frota varia de 12 a 19 veículos entre os cenários. <strong>Preço fixo global aqui é temerário.</strong> A proposta tem de ser base fixa mais <strong>faixa variável por veículo ativado</strong>, com gatilho declarado em número de pacientes regulados — e o módulo fluvial precificado à parte, depois do levantamento de campo.</p>
+    </div>
+  </div>
+</section>
+
+<div class="part-divider" aria-hidden="true"></div>
+
+<section class="fold fold-deep" id="s09">
+  <div class="wrap">
+    <div class="ew">09</div>
+    <h2 class="t1">Retorno e<br>cenários de frota.</h2>
+    <p class="lead">O investimento em frota própria em Belém é o maior da carteira — e o prazo contratual decide se ele fecha.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Cenário</th><th>Investimento inicial</th><th>Recuperação</th><th>Exposição</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cenário"><strong>Frota própria</strong></td><td class="tg" data-label="Investimento inicial">R$ 6.199.800</td><td class="tn" data-label="Recuperação">60 meses</td><td data-label="Exposição">Residual em contrato curto</td></tr>
+          <tr><td data-label="Cenário"><strong>Frota cedida</strong></td><td class="tg" data-label="Investimento inicial">R$ 481.000</td><td class="tn" data-label="Recuperação">Primeiro trimestre</td><td data-label="Exposição">Capital de giro</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Oito micro-ônibus a R$ 584,6 mil e cinco vans a R$ 304,6 mil, nos preços de referência das aquisições federais. A recuperação se dá pela rubrica de depreciação — <strong>R$ 103.329 por mês</strong>, ou R$ 1,24 milhão ao ano.</p>
+
+    <div class="box box-amber">
+      <div class="box-label">O ponto que decide</div>
+      <p>Como em toda modelagem da linha, a frota própria recupera o investimento <strong>exatamente no horizonte de depreciação — 60 meses</strong>. Um contrato de 12 meses deixaria cerca de <strong>R$ 5 milhões de exposição residual</strong> em veículos.</p>
+      <p>Em Belém isso é mais grave que em qualquer outro município da carteira, porque três dos veículos são <strong>dedicados à linha insular</strong> e têm realocação mais difícil. Frota própria aqui exige prazo de 60 meses. Sem isso, a proposta é de frota cedida — e há 141 veículos federais chegando ao estado que tornam essa hipótese concreta.</p>
+    </div>
+  </div>
+</section>
+
+<section class="fold fold-gold" id="s10">
+  <div class="wrap">
+    <div class="ew">10</div>
+    <h2 class="t1">A oportunidade maior:<br>o fluxo que Belém não captura.</h2>
+    <p class="lead">O contrato municipal é o menor dos negócios possíveis em Belém. Vale enxergar o outro antes de entrar.</p>
+
+    <p>O Ophir Loyola atende os 144 municípios do Pará. Os 67 veículos federais destinados especificamente a radioterapia e hemodiálise no estado existem para levar paciente do interior <strong>até Belém</strong>. Cada uma dessas viagens tem origem em outro município — e é lá que o cofinanciamento das portarias é remunerado, com trajetos que superam os 50 km com folga.</p>
+
+    <p>Ou seja: o fluxo que passa por Belém é grande, cofinanciado e <strong>não pertence a Belém</strong>. Pertence aos municípios de origem, que em geral não têm estrutura para operá-lo.</p>
+
+    <div class="tw reveal">
+      <table>
+        <thead><tr><th>Frente</th><th>Contratante</th><th>Cofinanciamento</th><th>Papel de Belém</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Frente"><strong>Transporte eletivo municipal</strong></td><td class="tn" data-label="Contratante">Prefeitura de Belém</td><td data-label="Cofinanciamento">Recurso próprio</td><td data-label="Papel de Belém">Objeto do contrato</td></tr>
+          <tr><td data-label="Frente"><strong>Fluxo de origem para o polo</strong></td><td class="tn" data-label="Contratante">Municípios do interior ou consórcio</td><td class="tg" data-label="Cofinanciamento">Aplicável · acima de 50 km</td><td data-label="Papel de Belém">Base operacional e destino</td></tr>
+          <tr><td data-label="Frente"><strong>Rede estadual</strong></td><td class="tn" data-label="Contratante">SESPA</td><td data-label="Cofinanciamento">A apurar</td><td data-label="Papel de Belém">Centro de regulação</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Uma operação instalada em Belém — central, garagem, manutenção, escala — é a <strong>base natural</strong> para atender as três frentes com o mesmo bloco fixo. É o argumento que transforma um contrato municipal de R$ 464 mil em uma posição regional.</p>
+
+    <p class="fine">Nada disso está modelado nesta varredura. É direção de prospecção, não número: exige levantar quais municípios de origem já têm frota federal destinada, quais têm consórcio constituído e qual o fluxo efetivo registrado no Ophir Loyola.</p>
+  </div>
+</section>
+
+<section class="fold" id="s11">
+  <div class="wrap">
+    <div class="ew">11</div>
+    <h2 class="t1">Riscos, lacunas<br>e próximos passos.</h2>
+    <p class="lead">O que esta varredura não sabe — e o que precisa ser levantado antes de qualquer manifestação formal.</p>
+
+    <div class="pc-grid reveal">
+      <div class="pc">
+        <div class="pc-n">Risco 01</div>
+        <div class="pc-title">Banda de demanda de 60%</div>
+        <p class="pc-desc">A prevalência do Pará não foi apurada em fonte primária, e a fonte secundária encontrada repete o número do Maranhão — indício de conflação. A frota varia de 12 a 19 veículos entre os extremos. Preço fixo global nessas condições é temerário.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Risco 02</div>
+        <div class="pc-title">Módulo fluvial sem parâmetro</div>
+        <p class="pc-desc">Embarcação, tripulação, atracadouro, seguro e regime de maré não têm referência de custo na base da Samais. É a parte mais arriscada do contrato e está fora do preço apresentado — deliberadamente.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Risco 03</div>
+        <div class="pc-title">População em queda</div>
+        <p class="pc-desc">Segundo ano consecutivo de redução por migração. Em contrato por habitante, é deflator embutido. Precisa entrar na cláusula de reajuste desde a assinatura.</p>
+      </div>
+      <div class="pc">
+        <div class="pc-n">Risco 04</div>
+        <div class="pc-title">Linha eletiva geral não dimensionada</div>
+        <p class="pc-desc">Provavelmente o maior volume do município e não está no preço. Em capital com rede básica extensa, pode dobrar o contrato — para cima, e sem estrutura contratada para absorver.</p>
+      </div>
+    </div>
+
+    <h3 class="t2">Diligências, em ordem de impacto</h3>
+
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div>
+          <div class="step-t">Destino dos 141 veículos federais</div>
+          <p class="step-d">Quantos couberam a Belém e à Região Metropolitana, e sob qual regime. Muda o preço da proposta em 30% e é a diligência de maior retorno por hora gasta.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">02</div>
+        <div>
+          <div class="step-t">Pacientes efetivamente inscritos</div>
+          <p class="step-d">Número real de pacientes em diálise de centro e em radioterapia com residência em Belém, junto à central de regulação e ao Ophir Loyola. Fecha a banda de 60% de uma vez.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div>
+          <div class="step-t">Levantamento insular e fluvial</div>
+          <p class="step-d">Pacientes por ilha, embarcações disponíveis, atracadouros, e como a prefeitura opera hoje a UBS Fluvial. É o que permite precificar o módulo que hoje está fora.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">04</div>
+        <div>
+          <div class="step-t">Via de contratação</div>
+          <p class="step-d">A Sesma conduziu chamada pública de credenciamento de serviços especializados em 2025. Verificar se o transporte sanitário cabe nesse instrumento ou se exige licitação própria, e mapear o contrato vigente.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">05</div>
+        <div>
+          <div class="step-t">Confirmação cadastral</div>
+          <p class="step-d">Habilitação dos serviços de TRS em CNES e alíquota municipal de ISS. Sem isso, nenhuma manifestação formal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="wrap">
+    <div>
+      <div class="footer-brand">Samais <em>·</em> Gestão em Saúde</div>
+      <p class="fine" style="margin-top:8px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em">ROTA · Belém · Dossiê Interno · Uso Exclusivo Samais</p>
+    </div>
+    <div class="footer-meta"><span>Agosto · 2026</span><br><span>samais.com.br</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement, tb=document.getElementById('themeToggle');
+  try{var sv=localStorage.getItem('samais.theme'); if(sv) root.setAttribute('data-theme',sv);}catch(e){}
+  function sync(){tb.textContent = root.getAttribute('data-theme')==='light' ? 'Modo escuro' : 'Modo claro';}
+  tb.addEventListener('click',function(){
+    var n = root.getAttribute('data-theme')==='light' ? 'dark' : 'light';
+    root.setAttribute('data-theme',n);
+    try{localStorage.setItem('samais.theme',n);}catch(e){}
+    sync();
+  });
+  sync();
+
+  var ham=document.getElementById('navham'), links=document.getElementById('navlinks');
+  ham.addEventListener('click',function(){
+    var open=links.classList.toggle('open');
+    ham.classList.toggle('open',open);
+    ham.setAttribute('aria-expanded',open?'true':'false');
+  });
+  links.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){
+      links.classList.remove('open'); ham.classList.remove('open'); ham.setAttribute('aria-expanded','false');
+    });
+  });
+
+  var nl=links.querySelectorAll('a');
+  var so=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      nl.forEach(function(l){l.classList.remove('active')});
+      var a=links.querySelector('a[href="#'+e.target.id+'"]');
+      if(a) a.classList.add('active');
+    });
+  },{rootMargin:'-20% 0px -70% 0px',threshold:0});
+  document.querySelectorAll('section[id]').forEach(function(s){so.observe(s)});
+
+  var rv=document.querySelectorAll('.reveal');
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    rv.forEach(function(e){e.classList.add('in')});
+  } else {
+    var ro=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target);}});
+    },{rootMargin:'0px 0px -12% 0px',threshold:.12});
+    rv.forEach(function(e){ro.observe(e)});
+  }
+
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var bands=[].slice.call(document.querySelectorAll('.band img'));
+    var tick=false;
+    function par(){
+      bands.forEach(function(im){
+        var r=im.parentElement.getBoundingClientRect();
+        if(r.bottom<0||r.top>innerHeight) return;
+        var p=(r.top+r.height/2-innerHeight/2)/innerHeight;
+        im.style.transform='translate3d(0,'+(p*-26).toFixed(2)+'px,0)';
+      });
+      tick=false;
+    }
+    addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(par);}},{passive:true});
+    par();
+  }
+})();
+</script>
+
+</body>
+</html>
