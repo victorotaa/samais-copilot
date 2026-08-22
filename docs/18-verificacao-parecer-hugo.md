@@ -174,6 +174,19 @@ desta vez, precisa ler inteiro.
 
 ---
 
+## Adendo (22/08) — quarto defeito na `0001`, ausente do parecer
+
+Ao preparar a aplicação no banco vivo, um defeito que o parecer **não** listou em F-03:
+as linhas de auditoria **já existentes** não têm hash, e `verificar_cadeia_auditoria`
+começa do genesis — a primeira linha histórica seria acusada como adulterada no primeiro
+`select`. A v2 ganhou **backfill**: encadeia o histórico em ordem de id, por tenant, sob
+o mesmo lock consultivo do trigger (insert ao vivo durante o backfill espera, em vez de
+encadear no meio de cadeia pela metade), e roda **antes** dos gatilhos de imutabilidade —
+que bloqueariam o próprio backfill. A régua vale para os dois lados do parecer, e também
+para nós mesmos: a v2 de 16/08 tampouco estava pronta.
+
+A resposta formal enviada ao Hugo está em `docs/19-retorno-parecer-hugo.md`.
+
 ## Registro
 
 Produzido em 16/08/2026, na sessão de análise do parecer, a pedido do Ota. Toda citação

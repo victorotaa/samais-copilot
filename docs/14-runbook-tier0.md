@@ -73,11 +73,19 @@
 ## 5. SEC-05 · Cadeia de auditoria (hash-chain)
 
 - [ ] **Aplicar `supabase/migrations/0001_audit_hash_chain.sql` na revisão v2**
-      (16/08 — pós-parecer; a v1 tinha corrida de concorrência, payload dependente de
-      sessão e TRUNCATE aberto, e **não devia ser aplicada como estava**). Implementa
-      `hash_atual = sha256(hash_anterior || payload)` serializado por tenant, bloqueia
-      UPDATE/DELETE/TRUNCATE e cria `verificar_cadeia_auditoria(tenant)`.
-- [ ] Rodar `select * from verificar_cadeia_auditoria('<tenant_id>')` e guardar a saída.
+      (pós-parecer; a v1 tinha corrida de concorrência, payload dependente de
+      sessão, TRUNCATE aberto **e não fazia backfill** — sem ele, a verificação
+      acusaria a primeira linha histórica como adulterada; quarto defeito achado na
+      revisão de 22/08, e **não devia ser aplicada como estava**). Implementa
+      `hash_atual = sha256(hash_anterior || payload)` serializado por tenant, encadeia
+      o histórico existente, bloqueia UPDATE/DELETE/TRUNCATE e cria
+      `verificar_cadeia_auditoria(tenant)`.
+      **Ordem de aplicação: uma colagem da `0001` v2, uma da `0002`, e as conferências
+      que cada arquivo traz no fim.** O sandbox de desenvolvimento não alcança o banco
+      (nem pooler nem HTTPS do projeto) — a colagem no SQL Editor é o caminho.
+- [ ] Rodar `select * from verificar_cadeia_auditoria('<tenant_id>')` e guardar a saída
+      (esperado: `NULL`), e `select count(*) filter (where hash_atual is null) from
+      auditoria` (esperado: `0`).
 - [ ] Testar concorrência: 2+ sessões inserindo em paralelo no mesmo tenant → a
       verificação continua retornando `NULL` (íntegra).
 - [ ] Só depois disso a UI pode deixar de dizer "encadeamento em homologação".
