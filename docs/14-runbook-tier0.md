@@ -24,6 +24,14 @@
       histórico ou considerar as credenciais antigas queimadas (todas rotacionadas).
 - [ ] Registrar o **inventário de segredos** (onde mora cada um: Vercel env, Supabase,
       Google Cloud, Deepgram) em local controlado — não no repositório.
+- [ ] ⚠️ **GATE DE MERGE (F-05):** definir `VITE_SUPABASE_URL` e `VITE_SUPABASE_KEY` no
+      projeto Vercel (Production + Preview) **antes** de mergear a remoção do fallback
+      hardcoded (`src/lib/supabase.ts`, 16/08). Sem as variáveis, o app publicado entra em
+      modo demo puro e o login real (`TARM-04` etc.) deixa de persistir — mesmo rito da
+      chave do Maps acima. Valores: Settings → API do projeto Supabase (URL e publishable).
+- [ ] Conferir que `GEMINI_API_KEY` **não existe** no ambiente de build da Vercel — o
+      `define` que a injetava no bundle foi removido do `vite.config.ts` (parecer
+      `docs/17` F-04), mas variável órfã em build é convite a reintroduzir o padrão.
 
 ## 2. SEC-02 · Cifragem em trânsito e repouso
 
@@ -46,8 +54,16 @@
 - [ ] Ajustar o front para o desafio TOTP (hoje o card do login apenas informa que o MFA
       é habilitado em produção).
 
-## 4. SEC-04 · RLS e menor privilégio
+## 4. SEC-04, SEC-08 e SEC-09 · RLS, view de métricas e autoria da auditoria
 
+- [ ] **Aplicar `supabase/migrations/0002_fix_rls_metricas_auditoria.sql`** no SQL Editor
+      (achados F-01/F-02 do parecer `docs/17`): predicado de tenant na view
+      `metricas_gestor` + `usuario_id = auth.uid()` no insert da auditoria + revoke de
+      TRUNCATE. O arquivo termina com os **4 SQLs de conferência** e os resultados
+      esperados — rodar todos e guardar a saída.
+- [ ] Conferir os **grants default** do projeto: `select grantee, privilege_type from
+      information_schema.role_table_grants where table_name = 'auditoria' and grantee in
+      ('anon','authenticated');` — não deve restar UPDATE/DELETE/TRUNCATE.
 - [ ] Confirmar RLS habilitado e deny-by-default em todas as tabelas.
 - [ ] Testes automatizados (entram no CI): tenant A não lê linha de B; `GESTOR` recebe
       0 linhas em `ocorrencias`/`despachos`; `VIATURA` lê apenas o despacho atribuído
@@ -56,10 +72,14 @@
 
 ## 5. SEC-05 · Cadeia de auditoria (hash-chain)
 
-- [ ] Revisar e **aplicar** `supabase/migrations/0001_audit_hash_chain.sql` (escrita, nunca
-      aplicada). Implementa `hash_atual = sha256(hash_anterior || payload)`, bloqueia
-      UPDATE/DELETE e cria `verificar_cadeia_auditoria(tenant)`.
+- [ ] **Aplicar `supabase/migrations/0001_audit_hash_chain.sql` na revisão v2**
+      (16/08 — pós-parecer; a v1 tinha corrida de concorrência, payload dependente de
+      sessão e TRUNCATE aberto, e **não devia ser aplicada como estava**). Implementa
+      `hash_atual = sha256(hash_anterior || payload)` serializado por tenant, bloqueia
+      UPDATE/DELETE/TRUNCATE e cria `verificar_cadeia_auditoria(tenant)`.
 - [ ] Rodar `select * from verificar_cadeia_auditoria('<tenant_id>')` e guardar a saída.
+- [ ] Testar concorrência: 2+ sessões inserindo em paralelo no mesmo tenant → a
+      verificação continua retornando `NULL` (íntegra).
 - [ ] Só depois disso a UI pode deixar de dizer "encadeamento em homologação".
 
 ## 6. SEC-06 · Backups e restore

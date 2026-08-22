@@ -71,31 +71,45 @@ resumo aqui para você não perder tempo:
 
 | Área | Estado |
 |---|---|
-| Login por matrícula, perfis (TARM / médico / viatura / gestor) | **real**, Supabase Auth + RLS |
+| Login por matrícula, **5 perfis** (TARM / médico / viatura / gestor / admin do tenant) | **real**, Supabase Auth + RLS — o 5º (`ADMIN_TENANT`) é o mais privilegiado e o menos construído: não há gestão de usuário pela aplicação (SEC-19) |
 | Frota, escalas, ocorrências ponta a ponta (T0–T4) | **real**, persistem no banco com realtime |
 | Trilha de auditoria append-only | **real** |
 | **Triagem por IA — transcrição, extração clínica, classificação** | **não existe.** É `MOCK_SCRIPTS`, roteiro fixo. Sem STT, sem LLM. |
 | Integração com a telefonia da central (SIPREC) | não existe; arquitetura desenhada em `docs/05` §3 |
-| Hash encadeado da auditoria | migration **escrita e não aplicada** (`0001`) |
+| Hash encadeado da auditoria | migration **escrita e não aplicada** (`0001`, revisada em v2 após o parecer — a v1 tinha corrida de concorrência e não devia ser aplicada como estava) |
 | Exportação FHIR / APH-BR | `JSON.stringify` de mock, não pipeline |
 
-Estimativa honesta de quanto do caminho está andado até virar produto: **15–20%**.
+Estimativa de quanto do caminho está andado, na régua dupla que o parecer independente
+(`docs/17`) propôs e adotamos: **15–20% da superfície, 0% do núcleo** — e uma decisão de
+arquitetura (a camada servidor, `docs/11` §1.11) precede a primeira linha do núcleo.
 
 A parte difícil — IA de verdade sobre áudio de emergência em português, sob estresse,
 com fallback — é exatamente a que **ainda não foi feita**. Se você entrar, é provável
 que seja por aí.
 
+O sistema já passou por uma auditoria externa de leitura: parecer em `docs/17`, nossa
+verificação achado a achado em `docs/18`. Quatro achados de segurança confirmados foram
+corrigidos no repositório em 16/08 (aplicação no projeto vivo pelo runbook `docs/14`).
+
 ## B.3 O que precisamos de você
 
 Três frentes. Não precisam vir todas, e não precisam vir juntas.
 
-**1. Desenvolvimento.** Na ordem em que faz diferença:
+**1. Desenvolvimento.** Na ordem em que faz diferença (reordenada em 16/08 pelo
+   argumento do parecer `docs/17` ETAPA 5, que aceitamos):
+   - **CI, testes e ESLint primeiro** — é o instrumento que torna todo o resto seguro.
+     Foi a ausência dele que deixou passar os três erros de documentação que o parecer
+     achou (contagem de linhas, "cai em modo demo", encanamento de LLM no bundle).
    - **Tier 0 de segurança** (`docs/07`, roteiro em `docs/14`) — é o que separa "demo"
-     de "pode tocar em dado real de paciente". Inclui aplicar a migration `0001`.
+     de "pode tocar em dado real de paciente". Corre em paralelo ao CI no que não
+     depende dele. Inclui aplicar as migrations `0001` (na revisão v2) e `0002`.
    - **Substituir o mock por IA real**: STT em streaming + extração clínica + sugestão
      de classificação, com modo degradado obrigatório. Arquitetura em `docs/05` §2.
-   - **Modularizar `src/App.tsx`** (monolito de ~2 mil linhas), montar ESLint, testes e
-     CI. Dívida conhecida e priorizada.
+     ⚠️ Pré-requisito: a decisão da **camada servidor** (`docs/11` §1.11) — chave de
+     STT/LLM e áudio não podem passar pelo navegador.
+   - **Modularizar `src/App.tsx`** (monolito de ~2,7 mil linhas). Dívida conhecida e
+     priorizada — habilita a fila multi-ocorrência, o rádio-operador e o offline do
+     tablet, que são o que aparece no primeiro dia de operação real.
 
 **2. Treinamento do modelo.** A tese do produto depende de acertar a classificação de
 risco em português falado sob estresse. O critério de liberação já está declarado e é
@@ -113,10 +127,14 @@ e acompanhar a operação em paralelo à equipe. É trabalho de campo, não só 
 git clone https://github.com/victorotaa/samais-copilot.git
 cd samais-copilot
 npm ci
-cp .env.example .env      # preencha o que tiver; sem chave, cai em modo demo
+cp .env.example .env      # preencha o que tiver
 npm run dev               # app em :3000, LP em /lp
 npx tsc --noEmit          # typecheck (não há ESLint nem teste ainda — é dívida)
 ```
+
+Sem `VITE_SUPABASE_URL`/`VITE_SUPABASE_KEY` o app roda em **modo demo puro**: roteiro
+local, nenhuma conexão tentada. (Até 16/08 havia um fallback hardcoded que apontava
+fork sem `.env` para o backend real — removido; parecer `docs/17` F-05.)
 
 **Stack:** React 19 + Vite 6 + TypeScript + Tailwind v4 no front; Supabase (Postgres,
 Auth, RLS, Realtime) no backend; Vercel no deploy. Banco em `supabase/schema.sql`.
@@ -167,10 +185,16 @@ Não são preferências de estilo; vêm da natureza do que o sistema faz.
 
 ## B.8 Primeira tarefa sugerida
 
-Se quiser calibrar sem compromisso, antes de qualquer acesso: rode local, leia `docs/07`
-e `docs/14`, e traga sua leitura de **quanto trabalho é o Tier 0** e **como você atacaria
-a substituição do `MOCK_SCRIPTS` por STT real**. Discordar do que está escrito é
-bem-vindo — os documentos são a melhor leitura que tínhamos, não sentença.
+Atualizada em 16/08, adotando a proposta do próprio Hugo (`docs/17` Adendo B.1):
+**o ambiente Docker é a primeira entrega, não o pré-requisito.** Hoje não existe
+`Dockerfile` nem `docker-compose.yml` — só `npm run dev`. Criar o ambiente
+conteinerizado (app + Postgres local + serviço de STT + um SRS de mentira que toca um
+`.wav` como se fosse RTP) não exige nenhum acesso concedido, é verificável, e resolve o
+problema de todo mundo depois. Desenvolver contra Postgres local, não contra o projeto
+Supabase compartilhado; o Supabase entra depois, para validar RLS e Realtime.
+
+Discordar do que está escrito segue bem-vindo — os documentos são a melhor leitura que
+tínhamos, não sentença. O parecer em `docs/17` é a prova de que funciona.
 
 ---
 
