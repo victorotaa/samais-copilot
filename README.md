@@ -83,7 +83,7 @@ samais-copilot/
 ├── supabase/
 │   ├── schema.sql              # tenants, usuários, viaturas, ocorrências, despachos, auditoria
 │   ├── seed.sql                # tenant de demonstração e os 4 papéis
-│   └── migrations/             # 0001 — cadeia de hash da auditoria (a aplicar)
+│   └── migrations/             # 0001 v2 (hash da auditoria) · 0002 (RLS do parecer) — a aplicar
 ├── src/
 │   ├── App.tsx                 # aplicação (modularização é dívida conhecida)
 │   ├── lib/{supabase,theme}.ts
@@ -102,7 +102,7 @@ estão em [`docs/09`](./docs/09-fluxo-cru-metricas-implantacao.md).
 
 Build Vite padrão (`dist/`). O `vercel.json` configura framework, rewrites de SPA e
 headers de segurança (incluindo HSTS e CSP). A LP é copiada para `dist/lp/` no build.
-A peça em `apresentacao-ms/` **não** entra no deploy.
+A peça em `apresentacao-ms/` é copiada para `dist/apresentacao-ms/` no build e servida em `/apresentacao-ms/` sob CSP própria.
 
 ⚠️ Se o script inline de tema no `index.html` mudar, recalcular o hash do CSP —
 instruções em [`docs/14`](./docs/14-runbook-tier0.md) §2.
