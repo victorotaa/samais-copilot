@@ -1,18 +1,24 @@
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * Backend Samais (Supabase) — projeto demo "CoPilot OS".
- * A publishable key é pública por design (a segurança vem do RLS);
- * sobrescrevível por env para outros ambientes/tenants.
+ * Backend Samais (Supabase) — configurado EXCLUSIVAMENTE por env.
+ * Sem VITE_SUPABASE_URL/KEY o app roda em modo demo puro: nenhuma conexão é
+ * tentada. Fallback hardcoded para o projeto real foi removido (parecer docs/17
+ * F-05): fork/clone/CI sem .env não deve apontar para o backend da Samais, e a
+ * promessa do onboarding ("sem chave, cai em modo demo") passa a ser verdadeira.
+ * A publishable key continua sendo pública por design quando configurada — a
+ * segurança vem do RLS.
  */
-const SUPABASE_URL =
-  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
-  'https://scnytznopheodlketzxn.supabase.co';
-const SUPABASE_KEY =
-  (import.meta.env.VITE_SUPABASE_KEY as string | undefined) ||
-  'sb_publishable_R7LpWL_JjfSYlaN0Af8dIg_-RPzw2CF';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY as string | undefined;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+/** true quando há backend configurado; false = modo demo puro (roteiro local). */
+export const hasBackend = Boolean(SUPABASE_URL && SUPABASE_KEY);
+
+export const supabase = createClient(
+  SUPABASE_URL ?? 'https://demo.invalid',
+  SUPABASE_KEY ?? 'sb_publishable_demo',
+);
 
 export const TENANT_SLUG = 'cru-sao-paulo';
 export const TENANT_ID = '11111111-1111-1111-1111-111111111111'; // seed do tenant demo
@@ -55,6 +61,7 @@ export function mapDbVehicle(row: { codigo: string; tipo: string; status: string
 
 /** Tenta o login real com timeout curto; null = backend indisponível (modo demo). */
 export async function tryRealLogin(matricula: string, password: string) {
+  if (!hasBackend) return null; // modo demo puro: nem tenta a rede
   const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000));
   const attempt = (async () => {
     const { data, error } = await supabase.auth.signInWithPassword({
