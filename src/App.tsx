@@ -3,7 +3,7 @@ import { Bar, BarChart, CartesianGrid, Cell, LabelList, Line, LineChart, Respons
 import { useTheme } from './lib/theme';
 import { Icon } from './ui/Icon';
 import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
-import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_ID } from './lib/supabase';
+import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_ID, hasBackend } from './lib/supabase';
 
 const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
 
@@ -90,6 +90,16 @@ const MOCK_CALLERS = [
     name: "Maria Silva (Paciente)",
     historyCount: 5,
     aml: { lat: -23.5505, lng: -46.6333, address: "Praça da Sé", number: "S/N", neighborhood: "Sé", city: "São Paulo — SP", cep: "01001-000" }
+  },
+  // Cenário de estresse: chamada SEM localização automática (telefone fixo/VoIP,
+  // AML indisponível). O caminho manual — coletar endereço por voz — é o produto
+  // funcionando, não uma falha; a demo precisa mostrá-lo.
+  {
+    phone: "(11) 3222-0000",
+    hasHistory: false,
+    name: "",
+    historyCount: 0,
+    aml: null as null | { lat: number; lng: number; address: string; number: string; neighborhood: string; city: string; cep: string }
   }
 ];
 
@@ -163,7 +173,11 @@ function buildInitialRoster() {
       const dia = isoDate(addDays(start, i));
       if (m.status === 'FÉRIAS' || m.status === 'ATESTADO') { r[m.id][dia] = 'FOLGA'; continue; }
       if (m.id === 'GESTOR-01') { r[m.id][dia] = i < 5 ? 'ADMINISTRATIVO' : i === 5 ? 'SOBREAVISO' : 'FOLGA'; continue; }
-      r[m.id][dia] = i < 5 ? (m.shift === 'Noturno' ? 'NOTURNO' : 'DIURNO') : 'FOLGA';
+      // Escala 12×36: metade da equipe operacional em plantão a cada dia, fim de
+      // semana incluído — SAMU é 24/7; a versão anterior dava FOLGA geral no sábado
+      // e domingo e o painel do gestor mostrava "Equipe em Plantão 0/8".
+      const idx = MOCK_TEAM.indexOf(m);
+      r[m.id][dia] = (i + idx) % 2 === 0 ? (m.shift === 'Noturno' ? 'NOTURNO' : 'DIURNO') : 'FOLGA';
     }
   });
   return r;
@@ -285,6 +299,17 @@ const MOCK_SCRIPTS = [
     { speaker: 'TARM', text: 'Graças a Deus. A cor dele está voltando ao normal?', delay: 31000 },
     { speaker: 'CALLER', text: 'Tá sim, ele tá chorando forte agora. Muito obrigada!', delay: 34000 },
     { speaker: 'TARM', text: 'A ambulância continua a caminho para avaliar ele. Vou transferir para o médico para acompanhamento.', delay: 38000 }
+  ],
+  // Cenário de estresse: TROTE. Nenhuma extração clínica acontece (o risco permanece
+  // PENDING) e o encerramento correto é o botão "Encerrar · trote / engano" — sem
+  // regulação, com registro em auditoria. A detecção NÃO é automática: quem decide
+  // que é trote é o operador; o sistema só registra.
+  [
+    { speaker: 'TARM', text: 'SAMU, emergência. Qual é a ocorrência?', delay: 1500 },
+    { speaker: 'CALLER', text: '(risadas ao fundo) Alô? É da pizzaria?', delay: 4500 },
+    { speaker: 'TARM', text: 'Aqui é o SAMU 192, serviço de emergência médica. Há alguma emergência no local?', delay: 8000 },
+    { speaker: 'CALLER', text: '(mais risadas) Manda uma ambulância de pepperoni… (desliga)', delay: 12000 },
+    { speaker: 'TARM', text: 'Senhor, trote ao 192 mantém a linha ocupada e pode custar uma vida. A ligação fica registrada.', delay: 15500 }
   ]
 ];
 
@@ -329,6 +354,42 @@ const playSound = (type: 'call' | 'vehicle' | 'alert', enabled: boolean) => {
     console.error("Audio play failed", e);
   }
 };
+
+// Mapa esquemático local — usado no modo demonstração (sem backend): a demo é
+// aberta em sala de reunião, pen drive e rede hostil, e um iframe de mapa sem
+// rede vira ícone de imagem quebrada no meio da tela. Zero requisição externa;
+// cores pelos tokens do tema (currentColor/classes), nunca hex novo.
+function MapaEsquematico({ pino, rota }: { pino?: boolean; rota?: boolean }) {
+  return (
+    <div className="relative w-full h-full bg-elevated overflow-hidden">
+      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className="w-full h-full text-ink-secondary/25" aria-hidden="true">
+        {/* malha viária */}
+        {[40, 90, 140, 190, 240].map(y => <line key={`h${y}`} x1="0" y1={y} x2="400" y2={y} stroke="currentColor" strokeWidth="1" />)}
+        {[60, 120, 180, 240, 300, 360].map(x => <line key={`v${x}`} x1={x} y1="0" x2={x} y2="300" stroke="currentColor" strokeWidth="1" />)}
+        {/* avenidas */}
+        <line x1="0" y1="270" x2="400" y2="150" stroke="currentColor" strokeWidth="2.5" />
+        <line x1="30" y1="0" x2="250" y2="300" stroke="currentColor" strokeWidth="2.5" />
+        {/* quadras de referência */}
+        <rect x="70" y="50" width="38" height="28" rx="3" fill="currentColor" opacity=".35" />
+        <rect x="200" y="100" width="46" height="30" rx="3" fill="currentColor" opacity=".35" />
+        <rect x="300" y="200" width="40" height="26" rx="3" fill="currentColor" opacity=".35" />
+        <rect x="130" y="200" width="34" height="24" rx="3" fill="currentColor" opacity=".35" />
+        {rota && (
+          <path d="M60,260 L120,220 L180,190 L200,150 L200,150" className="text-gold-500" stroke="currentColor" strokeWidth="2.5" strokeDasharray="7 6" fill="none" strokeLinecap="round" />
+        )}
+        {pino && (
+          <g className="text-danger">
+            <circle cx="200" cy="150" r="16" fill="currentColor" opacity=".18" />
+            <circle cx="200" cy="150" r="6" fill="currentColor" />
+          </g>
+        )}
+      </svg>
+      <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-canvas/80 border border-border-subtle text-[0.55rem] font-mono uppercase tracking-widest text-ink-secondary">
+        Mapa esquemático · demonstração
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const { theme, toggleTheme } = useTheme();
@@ -377,6 +438,18 @@ export default function App() {
     confidence: { patientName: 0, symptoms: 0, protocol: 0 }
   });
   const [justification, setJustification] = useState<string | null>(null);
+  // Classificação de risco é DECISÃO EXPLÍCITA do regulador — nunca default.
+  // null = ainda não classificado; o despacho fica bloqueado até a escolha.
+  const [riscoFinal, setRiscoFinal] = useState<'RED' | 'ORANGE' | 'YELLOW' | 'GREEN' | 'BLUE' | null>(null);
+  // T1–T4: horário de cada marca; a barra de missão só habilita o PRÓXIMO passo,
+  // pulo exige confirmação (2 toques) e marca feita é imutável — tempo probatório
+  // não se sobrescreve em silêncio.
+  const [missionMarks, setMissionMarks] = useState<Record<string, string>>({});
+  const [skipArm, setSkipArm] = useState<string | null>(null);
+  // Timers do roteiro de transcrição: o kill switch precisa CANCELÁ-los de fato —
+  // sem isso a "transcrição" continuaria chegando com a IA desligada.
+  const scriptTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const scriptShownRef = useRef<Set<string>>(new Set());
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('Hoje');
@@ -477,6 +550,13 @@ export default function App() {
     return vehicles.filter(v => v.type.includes('USA') || v.type.includes('USB')).sort((a, b) => a.eta - b.eta);
   }, [vehicles]);
 
+  // Gate do despacho: classificação explícita sempre; justificativa quando a decisão
+  // médica diverge da sugestão do sistema (é a divergência que treina o modelo e
+  // sustenta a auditoria — doutrina "copiloto, não piloto").
+  const RISCO_LABEL: Record<string, string> = { RED: 'VERMELHO', ORANGE: 'LARANJA', YELLOW: 'AMARELO', GREEN: 'VERDE', BLUE: 'AZUL', PENDING: 'PENDENTE' };
+  const riscoDiverge = riscoFinal !== null && extractedData.risk !== 'PENDING' && riscoFinal !== extractedData.risk;
+  const podeDespachar = riscoFinal !== null && (!riscoDiverge || justification !== null);
+
   // Chave do Maps só por env (SEC-01). Sem a variável, os mapas caem no embed
   // público keyless — nenhuma credencial vive no código-fonte.
   const GMAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
@@ -484,6 +564,7 @@ export default function App() {
 
   const MapIframe = useMemo(() => {
     if (!amlData) return <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>;
+    if (!hasBackend) return <MapaEsquematico pino />;
     const src = GMAPS_KEY
       ? `https://www.google.com/maps/embed/v1/place?key=${GMAPS_KEY}&q=${amlData.lat},${amlData.lng}&zoom=16`
       : `https://maps.google.com/maps?q=${amlData.lat},${amlData.lng}&z=16&output=embed`;
@@ -503,6 +584,7 @@ export default function App() {
   // Rota da viatura: base operacional → local da ocorrência.
   const RouteMapIframe = useMemo(() => {
     if (!amlData) return null;
+    if (!hasBackend) return <MapaEsquematico pino rota />;
     const origin = '-23.5505,-46.6333'; // Base Central (config do tenant no futuro)
     const dest = `${amlData.lat},${amlData.lng}`;
     const src = GMAPS_KEY
@@ -524,6 +606,7 @@ export default function App() {
   // Mapa da tela de espera — base operacional (centro de São Paulo por ora;
   // vira configuração do tenant quando houver backend).
   const IdleMapIframe = useMemo(() => {
+    if (!hasBackend) return <MapaEsquematico />;
     const src = GMAPS_KEY
       ? `https://www.google.com/maps/embed/v1/view?key=${GMAPS_KEY}&center=-23.5505,-46.6333&zoom=13&maptype=roadmap`
       : `https://maps.google.com/maps?q=-23.5505,-46.6333&z=13&output=embed`;
@@ -553,11 +636,18 @@ export default function App() {
     let timer: NodeJS.Timeout;
     if (isAuthenticated && currentModule === 'IDLE' && !incomingCall) {
       // Reset TARM states when going back to IDLE
+      scriptTimersRef.current.forEach(clearTimeout);
+      scriptTimersRef.current = [];
+      scriptShownRef.current = new Set();
       setTarmChat([]);
       setExtractedData({ patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '', confidence: { patientName: 0, symptoms: 0, protocol: 0 } });
       setAiActive(true);
       setActiveScriptIndex(Math.floor(Math.random() * MOCK_SCRIPTS.length));
       setMissionStatus('A CAMINHO');
+      setMissionMarks({});
+      setSkipArm(null);
+      setRiscoFinal(null);
+      setJustification(null);
       setOccId(null);
       setDispatchId(null);
 
@@ -606,6 +696,8 @@ export default function App() {
       playSound('vehicle', soundEnabledRef.current);
       showToast('Nova ocorrência designada à USA-01', 'warn');
       setMissionStatus('A CAMINHO');
+      setMissionMarks({});
+      setSkipArm(null);
     }, 10000);
     return () => clearTimeout(t);
   }, [isAuthenticated, role, currentModule, currentCaller]);
@@ -621,33 +713,65 @@ export default function App() {
     };
   }, [incomingCall]);
 
-  // Simulação do TARM (Chat e Extração)
+  // Simulação do TARM (Chat e Extração). Todos os timers ficam registrados para o
+  // kill switch poder CANCELAR de verdade — sem isso a transcrição continuaria
+  // chegando com a IA desligada, e o modo degradado seria só cosmético.
+  const agendarRoteiro = (itens: (typeof MOCK_SCRIPTS)[number], atraso: (i: number, item: { delay: number }) => number) => {
+    itens.forEach((item, i) => {
+      if (scriptShownRef.current.has(item.text)) return;
+      const id = setTimeout(() => {
+        scriptShownRef.current.add(item.text);
+        setTarmChat(prev => {
+          // Evita duplicatas caso o componente re-renderize
+          if (prev.some(msg => msg.text === item.text)) return prev;
+          return [...prev, { speaker: item.speaker as any, text: item.text, time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) }];
+        });
+
+        if (item.extract) {
+          const extract = item.extract as any;
+          if (extract.patientName) {
+            setExtractedData(prev => ({ ...prev, patientName: extract.patientName, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
+          }
+          if (extract.symptoms) {
+            setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
+          }
+          if (extract.risk) {
+            setExtractedData(prev => ({ ...prev, risk: extract.risk as any, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
+          }
+        }
+      }, atraso(i, item));
+      scriptTimersRef.current.push(id);
+    });
+  };
+
+  const marcadorSistema = (texto: string) => {
+    setTarmChat(prev => [...prev, { speaker: 'SYS' as any, text: texto, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }]);
+  };
+
+  // Kill switch com o comportamento do modo degradado real (docs/17 §A.2.6):
+  // desligar CONGELA a transcrição com marca visível e registra a janela sem IA;
+  // religar marca a retomada e reagenda só o que ainda não apareceu.
+  const toggleIA = () => {
+    const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    if (aiActive) {
+      scriptTimersRef.current.forEach(clearTimeout);
+      scriptTimersRef.current = [];
+      if (currentModule === 'TARM' && tarmChat.length > 0) marcadorSistema(`— transcrição interrompida às ${agora} · IA desligada pelo operador —`);
+      audit('IA_DESLIGADA', { em: agora, modulo: currentModule });
+      setAiActive(false);
+    } else {
+      if (currentModule === 'TARM' && tarmChat.length > 0) {
+        marcadorSistema(`— IA religada às ${agora} · transcrição retomada; a janela sem IA fica registrada na auditoria —`);
+        agendarRoteiro(MOCK_SCRIPTS[activeScriptIndex], i => 1800 + i * 2600);
+      }
+      audit('IA_RELIGADA', { em: agora, modulo: currentModule });
+      setAiActive(true);
+    }
+  };
+
   useEffect(() => {
     if (currentModule === 'TARM' && aiActive && tarmChat.length === 0) {
-      const script = MOCK_SCRIPTS[activeScriptIndex];
-
-      script.forEach(item => {
-        setTimeout(() => {
-          setTarmChat(prev => {
-            // Evita duplicatas caso o componente re-renderize
-            if (prev.some(msg => msg.text === item.text)) return prev;
-            return [...prev, { speaker: item.speaker as any, text: item.text, time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) }];
-          });
-          
-          if (item.extract) {
-            const extract = item.extract as any;
-            if (extract.patientName) {
-              setExtractedData(prev => ({ ...prev, patientName: extract.patientName, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
-            }
-            if (extract.symptoms) {
-              setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
-            }
-            if (extract.risk) {
-              setExtractedData(prev => ({ ...prev, risk: extract.risk as any, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
-            }
-          }
-        }, item.delay);
-      });
+      agendarRoteiro(MOCK_SCRIPTS[activeScriptIndex], (_i, item) => item.delay);
     }
   }, [currentModule, aiActive]);
 
@@ -677,7 +801,15 @@ export default function App() {
       setOperatorId(demo[1]);
       setIsAuthenticated(true);
       setIsAuthenticating(false);
-      setCurrentModule(role === 'GESTOR' ? 'GESTOR' : role === 'VIATURA' ? 'VIATURA' : 'IDLE');
+      if (role === 'MEDICO') {
+        // O papel promete regulação — aterrissar no IDLE era surpresa. Entra direto
+        // na fila de regulação com um handoff pronto, como no login real.
+        applyDemoSnapshot();
+        setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
+        setCurrentModule('REGULADOR');
+      } else {
+        setCurrentModule(role === 'GESTOR' ? 'GESTOR' : role === 'VIATURA' ? 'VIATURA' : 'IDLE');
+      }
       showToast('Modo demonstração — backend offline', 'info');
     }, 1200);
   };
@@ -743,6 +875,10 @@ export default function App() {
       confidence: { patientName: 0.96, symptoms: 0.89, protocol: 0.92 },
     });
     setAiActive(false);
+    setRiscoFinal(null);
+    setJustification(null);
+    setMissionMarks({});
+    setSkipArm(null);
     setTarmChat(prev => prev.length > 0 ? prev : MOCK_SCRIPTS[0].slice(0, 7).map(i => ({
       speaker: i.speaker as any, text: i.text,
       time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -805,6 +941,10 @@ export default function App() {
     setCurrentCaller(null);
     setAmlData(null);
     setMissionStatus('A CAMINHO');
+    setMissionMarks({});
+    setSkipArm(null);
+    setRiscoFinal(null);
+    setJustification(null);
     setOccId(null);
     setDispatchId(null);
     if (role !== 'VIATURA') setCurrentModule('IDLE');
@@ -865,7 +1005,8 @@ export default function App() {
     setTimeout(() => {
       if (currentCaller) {
         setAmlData(currentCaller.aml);
-        showToast('Localização AML triangulada', 'info');
+        if (currentCaller.aml) showToast('Localização AML triangulada', 'info');
+        else showToast('Sem localização automática — coletar endereço por voz', 'warn');
       }
     }, 1500);
   };
@@ -907,6 +1048,22 @@ export default function App() {
         className="w-full py-4 px-3 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-wider text-xs md:text-sm rounded-xl shadow-[0_0_30px_rgba(191,154,61,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
       >
         <Icon name="user-doctor" className="text-base shrink-0" /> <span className="truncate">Handoff & Ir p/ Regulador</span>
+      </button>
+      {/* Sempre habilitado: chamada sem extração conclusiva (trote, engano, queda)
+          não pode TRAVAR o TARM — os dois botões acima exigem risco definido.
+          Quem decide que é trote é o operador; o sistema só registra e audita. */}
+      <button
+        onClick={() => {
+          audit('CHAMADA_ENCERRADA_SEM_REGULACAO', { motivo: 'trote_engano_queda', extracao: extractedData.risk });
+          scriptTimersRef.current.forEach(clearTimeout);
+          scriptTimersRef.current = [];
+          showToast('Chamada encerrada sem regulação — registrada em auditoria', 'info');
+          setIncomingCall(false);
+          setCurrentModule('IDLE');
+        }}
+        className="w-full py-2 text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary hover:text-warn transition-colors flex items-center justify-center gap-2"
+      >
+        <Icon name="mask" /> Encerrar sem regulação · trote / engano / queda
       </button>
     </>
   );
@@ -1048,7 +1205,7 @@ export default function App() {
       )}
 
       {/* GLOBAL HEADER */}
-      <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-5 shrink-0 z-50 shadow-md relative">
+      <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-3 sm:px-5 shrink-0 z-50 shadow-md relative">
         <div className="flex items-center gap-4">
           <SamaisMonogram className="h-9 shrink-0 text-gold-500" />
           <div className="hidden sm:block">
@@ -1060,23 +1217,32 @@ export default function App() {
 
         </div>
 
-        {/* No mobile a pílula entra no fluxo (3º item do justify-between): absoluta
-            e centrada, ela pintava por cima dos botões de som/tema a 390px. */}
-        <div className={`max-sm:static max-sm:translate-x-0 max-sm:mx-2 max-sm:px-3 sm:absolute sm:left-1/2 sm:-translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 whitespace-nowrap shrink-0 ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
-          <Icon name="circle" className={`text-[7px] ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'text-danger animate-pulse' : 'text-ink-secondary'}`} />
-          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'text-danger' : 'text-ink-secondary'}`}>
-            {role === 'GESTOR' ? 'GESTÃO' : currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA'}
+        {/* Abaixo de lg a pílula entra no fluxo (3º item do justify-between): absoluta
+            e centrada, ela pintava por cima do relógio e dos botões — visto a 390 E a
+            768px. E viatura em prontidão (sem ocorrência) não está "EM CHAMADA". */}
+        {(() => {
+          const emChamada = role !== 'GESTOR' && currentModule !== 'IDLE' && !(role === 'VIATURA' && !currentCaller);
+          const rotulo = role === 'GESTOR' ? 'GESTÃO'
+            : role === 'VIATURA' && !currentCaller ? 'PRONTIDÃO'
+            : currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA';
+          return (
+        <div className={`max-lg:static max-lg:translate-x-0 max-lg:mx-1.5 max-sm:px-2.5 max-lg:px-3 lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 whitespace-nowrap shrink-0 ${emChamada ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
+          <Icon name="circle" className={`text-[7px] ${emChamada ? 'text-danger animate-pulse' : 'text-ink-secondary'}`} />
+          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${emChamada ? 'text-danger' : 'text-ink-secondary'}`}>
+            {rotulo}
           </span>
         </div>
+          );
+        })()}
 
-        <div className="flex items-center gap-4">
-          <div className="text-right hidden sm:block">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="text-right hidden lg:block">
             <div className="text-[0.6rem] text-ink-secondary uppercase tracking-widest font-bold">Hora Local</div>
             <div className="text-sm font-bold font-mono text-ink-primary">
               {new Date().toLocaleTimeString('pt-BR')}
             </div>
           </div>
-          <div className="h-7 w-px bg-hover hidden sm:block"></div>
+          <div className="h-7 w-px bg-hover hidden lg:block"></div>
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${soundEnabled ? 'bg-elevated border border-border-subtle text-gold-500 hover:border-gold-500' : 'bg-elevated border border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
@@ -1092,11 +1258,11 @@ export default function App() {
           >
             <Icon name="moon" />
           </button>
-          <div className="h-7 w-px bg-hover"></div>
+          <div className="h-7 w-px bg-hover hidden sm:block"></div>
           {(role === 'TARM' || role === 'MEDICO') && (
           <button
             onClick={() => setShowEscala(true)}
-            className="px-3 h-9 rounded-lg flex items-center gap-2 text-xs font-bold transition-colors bg-elevated border border-border-subtle text-ink-secondary hover:text-gold-500 hover:border-gold-500"
+            className="px-2 sm:px-3 h-9 rounded-lg flex items-center gap-2 text-xs font-bold transition-colors bg-elevated border border-border-subtle text-ink-secondary hover:text-gold-500 hover:border-gold-500"
             title="Minha escala"
           >
             <Icon name="calendar" /> <span className="hidden md:inline">Escala</span>
@@ -1278,6 +1444,17 @@ export default function App() {
                   )}
                 </div>
                 <div className="p-5 flex flex-col gap-4 overflow-y-auto max-h-[40vh] lg:max-h-none">
+                  {/* Cenário real: fixo/VoIP sem AML. O caminho manual É o produto
+                      funcionando — a triagem nunca depende da localização automática. */}
+                  {currentCaller && !currentCaller.aml && (
+                    <div className="fu p-4 rounded-xl bg-warn/10 border border-warn/40 flex items-start gap-3">
+                      <Icon name="location-crosshairs" className="text-warn mt-0.5" />
+                      <div>
+                        <p className="text-sm font-bold text-ink-primary">Sem localização automática nesta chamada</p>
+                        <p className="text-xs text-ink-secondary leading-relaxed">Linha fixa ou VoIP — o AML não se aplica. Colete o endereço por voz durante a triagem; os campos ficam editáveis e nada aqui bloqueia o atendimento.</p>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Renderização Condicional do Nome */}
                   {currentCaller.hasHistory ? (
@@ -1383,10 +1560,10 @@ export default function App() {
                   showToast('Dados de localização salvos e AML confirmado', 'success');
                   setCurrentModule('TARM');
                 }}
-                disabled={!amlData}
+                disabled={!amlData && !!currentCaller?.aml}
                 className="px-10 py-4 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_40px_rgba(191,154,61,0.35)] hover:scale-[1.02] transition-transform flex items-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
               >
-                <Icon name="check-double" className="text-lg" /> Confirmar AML & Iniciar Triagem
+                <Icon name="check-double" className="text-lg" /> {currentCaller?.aml ? 'Confirmar AML & Iniciar Triagem' : 'Iniciar Triagem — endereço por voz'}
                 <Icon name="arrow-right" className="text-lg" />
               </button>
             </div>
@@ -1576,7 +1753,7 @@ export default function App() {
                 
                 {/* Kill Switch */}
                 <button 
-                  onClick={() => setAiActive(!aiActive)}
+                  onClick={toggleIA}
                   className={`px-4 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-widest flex items-center gap-2 transition-all border ${
                     aiActive 
                       ? 'bg-danger/10 border-danger/30 text-danger hover:bg-danger hover:text-white' 
@@ -1659,6 +1836,8 @@ export default function App() {
                             setAmlData(caller.aml);
                             setExtractedData(c.data as any);
                             setSelectedVehicleId(null);
+                            setRiscoFinal(null);
+                            setJustification(null);
                             showToast(`Atendimento ${c.num} em foco`, 'info');
                           }}
                           className={`w-full p-2 rounded-lg border text-left flex items-center gap-2 transition-colors ${active ? 'bg-gold-500/10 border-gold-500' : 'bg-surface border-border-subtle hover:border-gold-500'}`}
@@ -1684,7 +1863,7 @@ export default function App() {
                   extractedData.risk === 'RED' ? 'chip-danger' :
                   extractedData.risk === 'YELLOW' ? 'chip-warn' :
                   'chip-ok'
-                } text-[0.6rem]`}>{extractedData.risk}</span>
+                } text-[0.6rem]`}>{RISCO_LABEL[extractedData.risk] || extractedData.risk}</span>
               </div>
               <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
                 {/* Patient Info */}
@@ -1765,7 +1944,7 @@ export default function App() {
                   <div className="w-10 h-10 rounded-full bg-ai/20 flex items-center justify-center shrink-0">
                     <Icon name="robot" className="text-ai" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3 className="text-sm font-bold text-ai mb-1 flex items-center justify-between">
                       Recomendação do Sistema
                       {extractedData.confidence.protocol > 0 && <span className="text-[0.55rem] text-ai font-mono bg-ai/10 px-1.5 py-0.5 rounded">CONF: {(extractedData.confidence.protocol * 100).toFixed(0)}%</span>}
@@ -1773,16 +1952,48 @@ export default function App() {
                     <p className="text-xs text-ink-primary leading-relaxed mb-3">
                       Com base nos sintomas extraídos, o protocolo sugerido é <strong>{extractedData.protocol}</strong>. Recomenda-se envio imediato de Suporte Avançado de Vida.
                     </p>
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-2">
                       <div className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle flex items-center gap-2">
                         <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Prioridade</span>
-                        <span className={`text-xs font-bold ${extractedData.risk === 'RED' ? 'text-danger' : extractedData.risk === 'YELLOW' ? 'text-warn' : 'text-ok'}`}>{extractedData.risk}</span>
+                        <span className={`text-xs font-bold ${extractedData.risk === 'RED' ? 'text-danger' : extractedData.risk === 'YELLOW' ? 'text-warn' : 'text-ok'}`}>{RISCO_LABEL[extractedData.risk] || extractedData.risk}</span>
                       </div>
                       <div className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle flex items-center gap-2">
                         <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Recurso</span>
                         <span className="text-xs font-bold text-ink-primary">USA (UTI Móvel)</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Classificação de risco — A DECISÃO É DO MÉDICO. A sugestão da IA é
+                    proposta; sem escolha explícita aqui, o despacho fica bloqueado.
+                    Nada de default silencioso (havia um YELLOW automático — removido). */}
+                <div className="p-4 bg-surface border border-border-subtle rounded-xl">
+                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-1 flex items-center gap-2">
+                    <Icon name="user-doctor" className="text-gold-500" /> Classificação de risco — decisão do regulador
+                  </h3>
+                  <p className="text-[0.65rem] text-ink-tertiary mb-3">A sugestão do sistema está marcada. Confirme ou classifique diferente — divergência exige justificativa.</p>
+                  <div className="grid grid-cols-5 gap-1.5">
+                    {([
+                      { c: 'RED', l: 'VERMELHO', cls: 'text-danger border-danger/50', sel: 'bg-danger text-white border-danger' },
+                      { c: 'ORANGE', l: 'LARANJA', cls: 'text-orange-500 border-orange-500/50', sel: 'bg-orange-500 text-white border-orange-500' },
+                      { c: 'YELLOW', l: 'AMARELO', cls: 'text-warn border-warn/50', sel: 'bg-warn text-ink-inverse border-warn' },
+                      { c: 'GREEN', l: 'VERDE', cls: 'text-ok border-ok/50', sel: 'bg-ok text-white border-ok' },
+                      { c: 'BLUE', l: 'AZUL', cls: 'text-info border-info/50', sel: 'bg-info text-white border-info' },
+                    ] as const).map(o => {
+                      const sugerido = extractedData.risk === o.c;
+                      const ativo = riscoFinal === o.c;
+                      return (
+                        <button
+                          key={o.c}
+                          onClick={() => { setRiscoFinal(o.c); audit('RISCO_CLASSIFICADO', { risco: o.c, sugestao: extractedData.risk, divergiu: extractedData.risk !== 'PENDING' && o.c !== extractedData.risk }); }}
+                          className={`min-h-[46px] px-0.5 rounded-lg border text-[0.5rem] min-[420px]:text-[0.55rem] md:text-[0.6rem] font-bold uppercase tracking-tight md:tracking-wider transition-all flex flex-col items-center justify-center gap-0.5 ${ativo ? o.sel : `bg-elevated hover:scale-[1.03] ${o.cls}`}`}
+                        >
+                          {o.l}
+                          {sugerido && <span className={`text-[0.5rem] font-mono normal-case tracking-normal ${ativo ? 'opacity-80' : 'text-ai'}`}>sugerido</span>}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1806,13 +2017,15 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Divergent Decision Justification */}
-                {selectedVehicleId && selectedVehicleId !== MOCK_VEHICLES.filter(v => v.type.includes('USA'))[0]?.id && (
-                  <div className="p-4 bg-surface border border-border-subtle rounded-xl shrink-0">
+                {/* Divergent Decision Justification — obrigatória quando o risco
+                    escolhido difere da sugestão (gate do despacho), e também exibida
+                    quando a viatura escolhida não é a recomendada. */}
+                {(riscoDiverge || (selectedVehicleId && selectedVehicleId !== MOCK_VEHICLES.filter(v => v.type.includes('USA'))[0]?.id)) && (
+                  <div className={`p-4 bg-surface border rounded-xl shrink-0 ${riscoDiverge && !justification ? 'border-warn/60 shadow-[0_0_16px_rgba(240,180,41,0.12)]' : 'border-border-subtle'}`}>
                     <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center gap-2">
-                      <Icon name="code-branch" /> Decisão Divergente
+                      <Icon name="code-branch" /> Decisão Divergente {riscoDiverge && <span className="chip chip-warn text-[0.55rem]">justificativa obrigatória</span>}
                     </h3>
-                    <p className="text-xs text-ink-primary mb-3">Se a sua decisão médica for diferente da recomendação da IA, selecione a justificativa abaixo para fins de auditoria e aprendizado do sistema:</p>
+                    <p className="text-xs text-ink-primary mb-3">{riscoDiverge ? `Você classificou ${RISCO_LABEL[riscoFinal!] || riscoFinal} e o sistema sugeriu ${RISCO_LABEL[extractedData.risk] || extractedData.risk}. Registre a justificativa — ela vai à auditoria e treina o modelo:` : 'Se a sua decisão for diferente da recomendação, selecione a justificativa abaixo para fins de auditoria e aprendizado do sistema:'}</p>
                     <div className="grid grid-cols-2 gap-2">
                       <button 
                         onClick={() => setJustification('ansiedade')}
@@ -1921,10 +2134,11 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Despacho designado pelo sistema após a regulação */}
+              {/* Recomendação de despacho — o sistema SUGERE; quem aciona é a regulação
+                  (copiloto, não piloto: a copy anterior dizia "o sistema aciona"). */}
               <div className="p-3 rounded-xl bg-ai/5 border border-ai/30 text-[0.7rem] text-ink-secondary flex items-start gap-2 shrink-0">
                 <Icon name="robot" className="text-ai mt-0.5" />
-                <span><b className="text-ai">Designação automática:</b> concluída a regulação, o sistema aciona {recommendedVehicles[0]?.id || 'USA-01'} (melhor ETA × gravidade). Você pode alterar a viatura ao lado ou permanecer na linha com o solicitante.</span>
+                <span><b className="text-ai">Recomendação de despacho:</b> o sistema sugere {recommendedVehicles[0]?.id || 'USA-01'} (melhor ETA × gravidade). A decisão e o acionamento são da regulação — confirme abaixo, ou altere a viatura ao lado.</span>
               </div>
               <button 
                 onClick={() => {
@@ -1932,7 +2146,8 @@ export default function App() {
                   const codigo = selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01';
                   if (connected && occId) {
                     supabase.from('ocorrencias').update({
-                      risco_final: extractedData.risk === 'PENDING' ? 'YELLOW' : extractedData.risk,
+                      risco_final: riscoFinal,
+                      divergencia_justificativa: riscoDiverge ? justification : null,
                       regulador_id: role === 'MEDICO' ? authUserId : null,
                     }).eq('id', occId).then();
                     const vid = vehicleIds[codigo];
@@ -1942,7 +2157,7 @@ export default function App() {
                         .select('id').single()
                         .then(({ data }) => { if (data) setDispatchId(data.id); });
                     }
-                    audit('DESPACHO_CONFIRMADO', { viatura: codigo, risco: extractedData.risk });
+                    audit('DESPACHO_CONFIRMADO', { viatura: codigo, risco: riscoFinal, sugestao: extractedData.risk, divergiu: riscoDiverge, justificativa: riscoDiverge ? justification : null });
                   }
                   setTimeout(() => {
                     setIsDispatching(false);
@@ -1951,8 +2166,8 @@ export default function App() {
                     setCurrentModule('VIATURA');
                   }, 800);
                 }}
-                disabled={isDispatching}
-                className="w-full py-4 px-3 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-wider text-xs md:text-sm rounded-xl shadow-[0_0_30px_rgba(229,57,53,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-70 disabled:hover:scale-100"
+                disabled={isDispatching || !podeDespachar}
+                className="w-full py-4 px-3 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-wider text-xs md:text-sm rounded-xl shadow-[0_0_30px_rgba(229,57,53,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-60 disabled:hover:scale-100 disabled:shadow-none"
               >
                 {isDispatching ? (
                   <><Icon name="circle-notch" className="animate-spin text-lg" /> Acionando...</>
@@ -1960,6 +2175,11 @@ export default function App() {
                   <><Icon name="truck-fast" className="text-base shrink-0" /> <span className="truncate">Confirmar Despacho · {selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01'}</span></>
                 )}
               </button>
+              {!podeDespachar && !isDispatching && (
+                <p className="text-[0.65rem] font-mono text-warn text-center shrink-0 -mt-1">
+                  {riscoFinal === null ? 'Classifique o risco para liberar o despacho — a decisão é do regulador.' : 'Divergência da sugestão: selecione a justificativa para liberar o despacho.'}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -2086,34 +2306,57 @@ export default function App() {
               </div>
             ) : (
             <div className="shrink-0 bg-canvas border-t border-border-subtle p-3 pb-14 md:pb-16 grid grid-cols-4 gap-2">
-              {MISSION_STEPS.map((step, i) => {
-                const stateIdx = MISSION_STEPS.indexOf(missionStatus);
-                const isDone = i < stateIdx;
-                const isCurrent = i === stateIdx;
-                return (
-                  <button
-                    key={step}
-                    onClick={() => {
-                      setMissionStatus(step);
-                      const col = ({ 'A CAMINHO': 't1_a_caminho', 'NO LOCAL': 't2_no_local', 'TRANSPORTANDO': 't3_transportando', 'NO HOSPITAL': 't4_no_hospital' } as Record<string, string>)[step];
-                      if (connected && dispatchId && col) supabase.from('despachos').update({ [col]: new Date().toISOString() }).eq('id', dispatchId).then();
-                      audit(`MISSAO_${step.replace(/ /g, '_')}`, { viatura: selectedVehicleId });
-                      playSound('vehicle', soundEnabledRef.current);
-                      showToast(`${selectedVehicleId || 'USA-01'} → ${step} · ${new Date().toLocaleTimeString('pt-BR')}`, 'success');
-                    }}
-                    className={`min-h-[60px] rounded-xl text-[0.65rem] md:text-xs font-bold uppercase tracking-wider transition-all flex flex-col items-center justify-center gap-1 border ${
-                      isCurrent
-                        ? 'bg-gold-500 text-ink-inverse border-gold-500 shadow-[0_0_20px_rgba(191,154,61,0.4)]'
-                        : isDone
-                          ? 'bg-ok/15 text-ok border-ok/40'
-                          : 'bg-elevated text-ink-secondary border-border-subtle hover:border-gold-500'
-                    }`}
-                  >
-                    {isDone && <Icon name="circle-check" />}
-                    {step}
-                  </button>
-                );
-              })}
+              {/* Trava de sequência: tempo probatório não se sobrescreve. Só o PRÓXIMO
+                  passo é acionável; marca feita é imutável e mostra o horário; pular
+                  exige confirmação (2 toques) e fica registrado — o buraco em T2/T3
+                  vira decisão auditada da equipe, nunca acidente de toque com luva. */}
+              {(() => {
+                const nextIdx = MISSION_STEPS.findIndex(s => !missionMarks[s]);
+                return MISSION_STEPS.map((step, i) => {
+                  const marca = missionMarks[step];
+                  const isNext = i === nextIdx;
+                  const armado = skipArm === step;
+                  const marcar = (comSalto: boolean) => {
+                    const hora = new Date().toLocaleTimeString('pt-BR');
+                    setMissionMarks(prev => ({ ...prev, [step]: hora }));
+                    setSkipArm(null);
+                    setMissionStatus(step);
+                    const col = ({ 'A CAMINHO': 't1_a_caminho', 'NO LOCAL': 't2_no_local', 'TRANSPORTANDO': 't3_transportando', 'NO HOSPITAL': 't4_no_hospital' } as Record<string, string>)[step];
+                    if (connected && dispatchId && col) supabase.from('despachos').update({ [col]: new Date().toISOString() }).eq('id', dispatchId).then();
+                    if (comSalto) audit('MISSAO_SALTO_CONFIRMADO', { ate: step, sem_marca: MISSION_STEPS.slice(nextIdx, i), viatura: selectedVehicleId });
+                    audit(`MISSAO_${step.replace(/ /g, '_')}`, { viatura: selectedVehicleId, salto: comSalto || undefined });
+                    playSound('vehicle', soundEnabledRef.current);
+                    showToast(`${selectedVehicleId || 'USA-01'} → ${step} · ${hora}`, 'success');
+                  };
+                  return (
+                    <button
+                      key={step}
+                      disabled={!!marca}
+                      onClick={() => {
+                        if (marca) return;
+                        if (isNext) { marcar(false); return; }
+                        if (armado) { marcar(true); return; }
+                        setSkipArm(step);
+                        setTimeout(() => setSkipArm(prev => (prev === step ? null : prev)), 4000);
+                      }}
+                      className={`min-h-[60px] rounded-xl text-[0.65rem] md:text-xs font-bold uppercase tracking-wider transition-all flex flex-col items-center justify-center gap-0.5 border ${
+                        marca
+                          ? 'bg-ok/15 text-ok border-ok/40 cursor-default'
+                          : isNext
+                            ? 'bg-gold-500 text-ink-inverse border-gold-500 shadow-[0_0_20px_rgba(191,154,61,0.4)]'
+                            : armado
+                              ? 'bg-warn/15 text-warn border-warn/60 animate-pulse'
+                              : 'bg-elevated text-ink-secondary/60 border-border-subtle hover:border-warn/50'
+                      }`}
+                    >
+                      {marca && <Icon name="circle-check" />}
+                      {armado ? 'PULAR ATÉ AQUI?' : step}
+                      {marca ? <span className="font-mono text-[0.55rem] normal-case tracking-normal opacity-80">{marca}</span>
+                        : armado ? <span className="font-mono text-[0.5rem] normal-case tracking-normal">toque de novo p/ confirmar</span> : null}
+                    </button>
+                  );
+                });
+              })()}
             </div>
             )}
           </div>
@@ -2653,25 +2896,33 @@ export default function App() {
 
       </main>
 
-      {/* BOTTOM NAV (OSX Dock Style) */}
-      <div 
-        className="fixed bottom-0 left-0 right-0 h-8 md:h-12 z-[1000] flex justify-center items-end pb-4 md:pb-6"
-        onMouseEnter={() => setIsNavOpen(true)}
-        onMouseLeave={() => setIsNavOpen(false)}
-      >
+      {/* BOTTOM NAV (OSX Dock Style)
+          O invólucro é pointer-events-none: com 48px de altura interativa no desktop,
+          ele ENGOLIA o clique de qualquer botão de conteúdo na faixa inferior (provado
+          em teste — o "Confirmar AML" ficava com a metade de baixo morta). Só a faixa
+          fina de hover, a área de toque mobile e a própria nav recebem eventos. */}
+      <div className="fixed bottom-0 left-0 right-0 h-8 md:h-12 z-[1000] flex justify-center items-end pb-4 md:pb-6 pointer-events-none">
+        {/* Faixa fina de hover (desktop): abre a nav sem bloquear cliques acima dela */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-2.5 hidden md:block pointer-events-auto"
+          onMouseEnter={() => setIsNavOpen(true)}
+        ></div>
+
         {/* Mobile Toggle Area (Invisible hit area to open nav on tap) */}
-        <div 
-          className="absolute inset-0 md:hidden" 
+        <div
+          className="absolute inset-0 md:hidden pointer-events-auto"
           onClick={() => setIsNavOpen(!isNavOpen)}
         ></div>
 
         {/* Mobile Indicator (Small pill at the bottom) */}
-        <div className={`absolute bottom-2 w-12 h-1.5 bg-ink-secondary/30 rounded-full md:hidden transition-opacity duration-300 ${isNavOpen ? 'opacity-0' : 'opacity-100'}`}></div>
+        <div className={`absolute bottom-2 w-12 h-1.5 bg-ink-secondary/30 rounded-full md:hidden transition-opacity duration-300 pointer-events-none ${isNavOpen ? 'opacity-0' : 'opacity-100'}`}></div>
 
-        <nav 
+        <nav
           className={`relative p-2 rounded-full flex gap-2 bg-surface/90 border border-border-subtle shadow-[0_15px_50px_rgba(0,0,0,0.45)] backdrop-blur-2xl overflow-x-auto max-w-[92vw] no-scrollbar snap-x snap-mandatory transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
             isNavOpen ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto' : 'translate-y-full opacity-0 scale-95 pointer-events-none'
           }`}
+          onMouseEnter={() => setIsNavOpen(true)}
+          onMouseLeave={() => setIsNavOpen(false)}
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside nav
         >
           {(role === 'TARM' || role === 'MEDICO') && (<>

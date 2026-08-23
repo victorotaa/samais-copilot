@@ -42,6 +42,7 @@ disponível, o app cai em modo demonstração e os dados voltam a ser locais.
 | **[`docs/17-parecer-hugo.md`](./docs/17-parecer-hugo.md)** | **Parecer técnico independente recebido (13/08) — registrado verbatim** |
 | **[`docs/18-verificacao-parecer-hugo.md`](./docs/18-verificacao-parecer-hugo.md)** | **Verificação achado a achado do parecer: o que confirmou, o que corrigiu, o que mudou** |
 | [`docs/19-retorno-parecer-hugo.md`](./docs/19-retorno-parecer-hugo.md) | Resposta formal ao parecer — o documento que se envia ao Hugo |
+| **[`docs/20-auditoria-padrao-ouro.md`](./docs/20-auditoria-padrao-ouro.md)** | **Auditoria da demo: 15 defeitos corrigidos, cenários de estresse, UX e expansão guiada pelo OS** |
 | [`SECURITY.md`](./SECURITY.md) | Postura de segurança e o que ainda é roadmap |
 
 ## Rodando local
@@ -76,7 +77,7 @@ Ver [`.env.example`](./.env.example). Nenhum segredo vive no código-fonte.
 
 ```
 samais-copilot/
-├── docs/                       # documentação estratégica e técnica (00–19)
+├── docs/                       # documentação estratégica e técnica (00–20)
 ├── apresentacao-ms/            # peça institucional (HTML único, servida em /apresentacao-ms/)
 ├── lp/                         # landing page B2B (servida em /lp)
 ├── master-plan-rota/           # documento institucional de outro vertical (ROTA)

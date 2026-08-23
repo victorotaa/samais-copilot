@@ -103,3 +103,10 @@
    - Google Maps API key (ou trocar para Mapbox)
 4. **Decisão sobre PR #1** (Taboão proposal): merge na main como peça permanente do repo, ou manter em branch isolado/movida para um repo `samais-propostas`?
 5. **Aprovação da identidade visual unificada** depois que PEP OS for liberado — vou mandar comparativo lado a lado.
+
+---
+
+**Épico F1 — Painéis guiados pelo OS (23/08/2026):** frota-hora da transferência
+inter-hospitalar, cobertura de escala (FC implícito), metas contratuais com metodologia,
+ficha da operação, NEP, obrigações da operação, carga da central e aba de sustentação —
+fundamentos, fontes e os 5 campos de schema em `docs/20-auditoria-padrao-ouro.md` §4.
