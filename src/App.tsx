@@ -1026,14 +1026,13 @@ export default function App() {
               <span className="text-ink-primary font-mono text-xl md:text-2xl font-bold truncate">{currentCaller.phone}</span>
             </div>
 
-            {/* Mobile Transcription Box (Preview) */}
-            <div className="md:hidden w-full p-4 bg-elevated/50 border border-border-subtle rounded-2xl mb-8 flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-[0.6rem] font-bold text-ai uppercase tracking-widest">
-                <Icon name="microphone-lines" className="animate-pulse" /> Transcrição Prévia (IA)
-              </div>
-              <div className="text-xs text-ink-primary italic text-left line-clamp-2">
-                "Socorro! Meu pai está com muita dor no peito e não consegue respirar direito, estamos na rua..."
-              </div>
+            {/* Antes do ATENDER só existe sinalização do PABX — o sistema recebe cópia
+                do áudio da chamada atendida (shadow) e NUNCA escuta ou transcreve
+                pré-atendimento. O box "Transcrição Prévia" que existia aqui violava
+                essa premissa e foi removido (22/08). */}
+            <div className="md:hidden w-full px-4 py-3 bg-elevated/50 border border-border-subtle rounded-2xl mb-8 flex items-center gap-2 justify-center">
+              <Icon name="circle" className="text-[6px] text-ink-secondary animate-pulse" />
+              <span className="text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary">Sinalização do PABX · transcrição inicia ao atender</span>
             </div>
 
             <div className="flex gap-4 w-full">
@@ -1061,7 +1060,9 @@ export default function App() {
 
         </div>
 
-        <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
+        {/* No mobile a pílula entra no fluxo (3º item do justify-between): absoluta
+            e centrada, ela pintava por cima dos botões de som/tema a 390px. */}
+        <div className={`max-sm:static max-sm:translate-x-0 max-sm:mx-2 max-sm:px-3 sm:absolute sm:left-1/2 sm:-translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 whitespace-nowrap shrink-0 ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
           <Icon name="circle" className={`text-[7px] ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'text-danger animate-pulse' : 'text-ink-secondary'}`} />
           <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${role !== 'GESTOR' && currentModule !== 'IDLE' ? 'text-danger' : 'text-ink-secondary'}`}>
             {role === 'GESTOR' ? 'GESTÃO' : currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA'}
@@ -1118,7 +1119,9 @@ export default function App() {
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className={`flex-1 flex flex-col relative overflow-hidden p-4 md:p-5`}>
+      {/* pb-10 no mobile: folga para a faixa do dock fixo (h-8 + pílula) — sem ela,
+          a última linha de texto dos módulos corre por baixo do menu de rodapé. */}
+      <main className={`flex-1 flex flex-col relative overflow-hidden p-4 pb-10 md:p-5`}>
         {/* Guardrails for empty states */}
         {currentModule === 'VIATURA' && !currentCaller && (
           <div className="flex-1 relative fu min-h-0 -m-4 md:-m-5 overflow-hidden bg-elevated">

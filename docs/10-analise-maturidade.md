@@ -115,6 +115,13 @@ Ordenadas por severidade operacional. "Fase" = onde entram no programa de `docs/
   LP com meta (≥90%, critério de go-live) no lugar de acurácia inventada (96.8%).
   **Regra permanente:** claim novo só entra na UI mapeado a controle implementado ou
   rotulado roadmap.
+- **Fidelidade de postura na demo (regra nova, 23/08, decisão do Ota):** a demo não pode
+  encenar comportamento que o produto **não terá por doutrina**. O sistema opera em
+  shadow sobre a chamada **atendida** — recebe cópia do áudio, nunca antecipa fala nem
+  transcreve antes de o TARM atender. O overlay mobile de chamada entrante exibia uma
+  "Transcrição Prévia (IA)" com fala do solicitante **antes do ATENDER** — removida;
+  no lugar, a sinalização honesta do PABX ("transcrição inicia ao atender"). Antes do
+  atendimento só existe o que a telefonia sinaliza de fato: número, fila, toque.
 - **Tier 1 — antes do 1º contrato com dado real:** cofre PII (SEC-10/11), TSA (SEC-12),
   WAF (SEC-13), CI seguro (SEC-14), pentest (SEC-15), DPO+DPIA+runbook ANPD (SEC-16),
   DPA com sub-processadores (SEC-17), MDM (SEC-18).
