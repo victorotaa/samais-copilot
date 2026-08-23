@@ -128,3 +128,10 @@ Gerado em 11/08/2026, na sessão de maturação do CoPilot, a pedido do Ota. Com
 A resposta do Hugo, quando vier, entra como `docs/17-parecer-hugo.md` — inclusive se
 contrariar o que está escrito aqui. Parecer que só confirma o que já pensávamos não
 justificou o convite.
+
+**Veio.** Recebida em 16/08/2026 e registrada verbatim em `docs/17-parecer-hugo.md`
+(parecer de 13/08, ETAPAS 1–7 sob protocolo próprio dele, + Adendos A e B). A
+verificação achado a achado, com o que foi aceito, corrigido e mudado por causa dele,
+está em `docs/18-verificacao-parecer-hugo.md`. O convite se justificou: quatro achados
+de segurança confirmados que nenhum documento nosso tinha, e uma inversão de ordem de
+trabalho que adotamos.

@@ -31,6 +31,26 @@
 | Hospital(is) de referência | Registro de destino; futuro handoff/contra-referência | F3 |
 | Operadora/mantenedor do PABX | Espelhamento SIPREC, janela de homologação | Ordem de serviço técnica |
 
+**Levantamento de campo — as perguntas que destravam tudo** (parecer `docs/17` §A.3.4 e
+§B.3; cabem numa visita, e nenhuma linha de integração se escreve antes das respostas):
+
+1. Qual PABX/SBC, versão, e **quem o opera** (equipe própria? terceirizada? quem autoriza
+   mudança?) — define SIPREC × fork Asterisk/FreeSWITCH × tap.
+2. Suporta SIPREC? Precisa de **licença adicional**? (Em vários fornecedores, precisa.)
+3. Tronco SIP puro ou E1/R2 legado? (TDM = gateway no caminho, custo e fornecedor a mais.)
+4. **Qual codec** — G.711 ou G.729? (Compressão degrada o STT; verificar, não presumir.)
+5. Que máquina existe na central e há espaço em rack? (Decide se o STT na borda cabe.)
+6. **Link de internet**: banda, operadora, redundância? (Decide o que pode sair do prédio
+   — áudio é pesado e contínuo; texto é leve. Link ruim condena áudio na nuvem, não a
+   arquitetura web.)
+7. LAN da central: aguenta o fork RTP? VLAN, portas SIP, faixa RTP, firewall, NAT?
+8. Estações dos TARMs (navegador, capacidade) e conectividade real dos tablets em campo.
+9. **NTP** entre PABX, gravador e aplicação — sem relógio comum, T0 e áudio divergem e a
+   trilha perde valor probatório.
+10. **Base legal da gravação hoje**: a CRU já grava? Sob qual amparo? Aviso ao chamador?
+    Retenção, cifragem, quem pode ouvir? (Herdar consentimento inexistente é erro que só
+    aparece na fiscalização.)
+
 ### 1.3 Nacional (institucional)
 | Quem | O quê | Estado |
 |---|---|---|
@@ -91,7 +111,7 @@ culpa do usuário.
 | E2E (Playwright) | Fluxo completo IDLE→AML→TARM→REG→VIATURA→desfecho | F1 | cenários felizes + degradados |
 | **Testes de RLS** (SEC-04) | Tenant A não lê B; GESTOR = 0 rows em PII; VIATURA só o próprio despacho | F0 | automatizado no CI |
 | Restore drill (SEC-06) | Backup restaura de verdade | F0 | RTO/RPO medidos e documentados |
-| **Backtest de IA** | Acurácia Manchester vs regulação real | F1 (gate) | **≥90% em ≥1.000 chamadas anonimizadas**; matriz de confusão revisada pelo RT; casos obstétricos/psiquiátricos representados |
+| **Backtest de IA** | Acurácia Manchester vs regulação real | F1 (gate) | **≥90% em ≥1.000 chamadas anonimizadas** E **critério assimétrico de sub-triagem: taxa de vermelhos rebaixados ≤ limite definido pelo RT** (parecer `docs/17`: 90% agregado esconde a distribuição que importa — um sistema com 95% global e 12% de vermelhos rebaixados é pior que um com 85% e zero; concordância mede alinhamento com a prática, não acerto clínico, então a matriz de confusão revisada pelo RT é parte do gate, não anexo); casos obstétricos/psiquiátricos representados |
 | Shadow mode | Valor operacional real | F2 (gate) | ≥8 semanas; T. de regulação com/sem painel medido; aceite do RT |
 | Carga/realtime | Fila cheia + N viaturas simultâneas | F1–F2 | alvo de latência definido e cumprido |
 | Pentest (SEC-15) | Segurança externa validada | F2 | sem críticos/altos abertos |
@@ -101,7 +121,12 @@ culpa do usuário.
 
 **Fonte das chamadas do backtest:** gravações históricas anonimizadas da própria CRU
 (base legal e anonimização validadas pelo DPO **antes** de qualquer uso — sem esse
-parecer, o backtest não começa).
+parecer, o backtest não começa). Se a CRU não tiver acervo aproveitável, a sequência do
+parecer `docs/17` §A.3.5 assume o lugar: **captação passiva primeiro** — SIPREC/fork
+gravando só em arquivo, sem IA e sem nada na tela — prova que o fork não afeta a chamada
+e **forma o acervo** que o backtest e o futuro fine-tuning exigem (um levantamento serve
+aos dois). Nesse caso o backtest desliza para dentro da F2, e o gate F1 fecha com os
+demais critérios + captação passiva operante.
 
 ## 5. Programa em fases com gates
 
@@ -112,16 +137,25 @@ até operação plena em 1 CRU**, condicionado ao acesso à CRU piloto (decisão
 ### F0 — Fundação e higiene (2–4 semanas)
 - Segurança: **Tier 0 completo** — SEC-01 (rotação da senha exposta), SEC-02 (HSTS/CSP
   ok; documentar repouso), SEC-03 (MFA TOTP), SEC-04 (testes RLS), SEC-05 (aplicar
-  migration 0001), SEC-06 (restore drill), SEC-07 (região documentada). Runbook: `docs/14`.
-- Engenharia: ESLint+Prettier, Vitest base, CI seguro (SEC-14), `.catch` em toda
-  mutação, seed 4/4 aplicado, migration 0002 (`desfecho`), dep morta fora.
+  migration 0001 **v2**), SEC-06 (restore drill), SEC-07 (região documentada), **SEC-08 e
+  SEC-09 (aplicar migration 0002 — correções do parecer `docs/17`)**. Runbook: `docs/14`.
+- Engenharia: **CI seguro (SEC-14) primeiro** — ESLint+Prettier, Vitest base, `.catch` em
+  toda mutação, seed 4/4 aplicado, migration 0003 (`desfecho`). Dep morta `@google/genai`
+  removida em 16/08. Ordem adotada do parecer: CI é o instrumento que torna o resto
+  seguro, e teria pego sozinho os três erros de registro que a auditoria externa achou.
 - Institucional: apresentação ao MS realizada; DPO indicado.
 - **Gate F0:** Tier 0 100% + CI verde + restore documentado + demo com 4 logins reais.
   *Nenhum dado real de paciente antes deste gate.*
 
 ### F1 — IA real e fila operacional (6–10 semanas)
-- IA/Dados: contrato+DPA Deepgram; `TranscriptProvider` e `LLMProvider`; extração +
-  Manchester + explicabilidade persistida; modo degradado; **backtest ≥90%** (gate).
+- **Pré-requisito de entrada (novo, do parecer):** decisão da **camada servidor**
+  (`docs/11` §1.11) tomada — chave de STT/LLM e áudio não passam pelo navegador; sem essa
+  camada decidida, a substituição do mock não começa.
+- IA/Dados: **bake-off de STT com áudio real** (critérios em `docs/11` §1.3: WER em 8 kHz
+  E taxa de erro em entidade crítica — a decisão Deepgram-cloud está suspensa até esse
+  resultado) → contrato+DPA do vencedor; `TranscriptProvider` e `LLMProvider`; extração +
+  Manchester + explicabilidade persistida; modo degradado; **backtest ≥90% + sub-triagem
+  de vermelho ≤ limite do RT** (gate — ver §4).
 - Engenharia: modularização do `App.tsx` + Zustand + router como **habilitadores da
   fila multi-ocorrência simultânea**; papel RO; N viaturas por ocorrência; GPS real do
   tablet (AVL); offline-first v1; WCAG.

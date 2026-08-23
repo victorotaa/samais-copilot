@@ -37,6 +37,11 @@ disponível, o app cai em modo demonstração e os dados voltam a ser locais.
 | **[`docs/12-operacao-implantacao-treinamento-testes.md`](./docs/12-operacao-implantacao-treinamento-testes.md)** | **Stakeholders, operação, treinamento NEP, testes e fases com gates** |
 | **[`docs/13-apresentacao-ms.md`](./docs/13-apresentacao-ms.md)** | **Briefing da apresentação institucional ao Ministério da Saúde** |
 | **[`docs/14-runbook-tier0.md`](./docs/14-runbook-tier0.md)** | **Ações de segurança fora do repositório (Supabase, Vercel, GitHub)** |
+| [`docs/15-onboarding-hugo.md`](./docs/15-onboarding-hugo.md) | Onboarding de colaborador (Hugo): estado real, frentes, regras |
+| [`docs/16-handoff-analise-hugo.md`](./docs/16-handoff-analise-hugo.md) | Prompt de análise independente enviado ao Hugo |
+| **[`docs/17-parecer-hugo.md`](./docs/17-parecer-hugo.md)** | **Parecer técnico independente recebido (13/08) — registrado verbatim** |
+| **[`docs/18-verificacao-parecer-hugo.md`](./docs/18-verificacao-parecer-hugo.md)** | **Verificação achado a achado do parecer: o que confirmou, o que corrigiu, o que mudou** |
+| [`docs/19-retorno-parecer-hugo.md`](./docs/19-retorno-parecer-hugo.md) | Resposta formal ao parecer — o documento que se envia ao Hugo |
 | [`SECURITY.md`](./SECURITY.md) | Postura de segurança e o que ainda é roadmap |
 
 ## Rodando local
@@ -71,14 +76,14 @@ Ver [`.env.example`](./.env.example). Nenhum segredo vive no código-fonte.
 
 ```
 samais-copilot/
-├── docs/                       # documentação estratégica e técnica (00–14)
-├── apresentacao-ms/            # peça institucional (HTML único, fora do deploy)
+├── docs/                       # documentação estratégica e técnica (00–19)
+├── apresentacao-ms/            # peça institucional (HTML único, servida em /apresentacao-ms/)
 ├── lp/                         # landing page B2B (servida em /lp)
 ├── master-plan-rota/           # documento institucional de outro vertical (ROTA)
 ├── supabase/
 │   ├── schema.sql              # tenants, usuários, viaturas, ocorrências, despachos, auditoria
 │   ├── seed.sql                # tenant de demonstração e os 4 papéis
-│   └── migrations/             # 0001 — cadeia de hash da auditoria (a aplicar)
+│   └── migrations/             # 0001 v2 (hash da auditoria) · 0002 (RLS do parecer) — a aplicar
 ├── src/
 │   ├── App.tsx                 # aplicação (modularização é dívida conhecida)
 │   ├── lib/{supabase,theme}.ts
@@ -97,7 +102,7 @@ estão em [`docs/09`](./docs/09-fluxo-cru-metricas-implantacao.md).
 
 Build Vite padrão (`dist/`). O `vercel.json` configura framework, rewrites de SPA e
 headers de segurança (incluindo HSTS e CSP). A LP é copiada para `dist/lp/` no build.
-A peça em `apresentacao-ms/` **não** entra no deploy.
+A peça em `apresentacao-ms/` é copiada para `dist/apresentacao-ms/` no build e servida em `/apresentacao-ms/` sob CSP própria.
 
 ⚠️ Se o script inline de tema no `index.html` mudar, recalcular o hash do CSP —
 instruções em [`docs/14`](./docs/14-runbook-tier0.md) §2.

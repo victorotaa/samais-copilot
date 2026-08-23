@@ -47,11 +47,28 @@
 - **Recusado como primário:** Google Speech v2 (sem vantagem de preço/latência
   registrada) e Whisper self-hosted (exige GPU dedicada — vira **plano B homologado**
   para contrato que exija 100% on-prem, viável pela abstração `TranscriptProvider`).
-- **Fase:** F1.
+- **⚠️ Contestação registrada (16/08 — parecer `docs/17` §A.2 e Adendo B):** esta
+  decisão foi tomada sem pesar dois argumentos que o parecer trouxe: (1) **residência do
+  áudio** — Deepgram processa fora do país, o que exige DPA + retenção zero + transferência
+  internacional de dado sensível na RIPD, enquanto STT em contêiner (Azure Speech
+  Brazil South) ou Whisper **na borda, dentro da CRU**, elimina o problema na origem;
+  (2) **link precário na central** — áudio é pesado e contínuo, texto é leve; STT na
+  borda faz só o texto atravessar o link. E a régua de escolha muda: **bake-off com áudio
+  real da CRU alvo** medindo WER em 8 kHz *e* **taxa de erro em entidade crítica**
+  (negação, consciência, sangramento, idade, medicamento — léxico fechado com o RT
+  médico); serviço com WER pior e erro de negação menor **ganha**. A decisão
+  Deepgram-cloud fica **suspensa até o bake-off**; a abstração `TranscriptProvider` já
+  previa a troca. Decisão final: Ota, com o resultado medido. SIPREC entregando as duas
+  pernas em canais separados dispensa diarização — argumento de arquitetura que vale
+  para qualquer fornecedor.
+- **Fase:** F1 (bake-off no início; ver `docs/12` — captação passiva forma o acervo).
 
 ### 1.4 LLM (extração clínica + sugestão Manchester) — Gemini, atrás de `LLMProvider`
-- **Por quê:** SDK `@google/genai` já no repo; família Flash cobre extração estruturada
-  em streaming com custo marginal (ver §3). Prompts versionados no repo; explicabilidade
+- **Por quê:** família Flash cobre extração estruturada em streaming com custo marginal
+  (ver §3). O SDK `@google/genai` foi **removido do repo em 16/08** — estava instalado
+  sem nenhum uso, superfície de supply chain sem contrapartida (parecer `docs/17` D-06);
+  reinstala-se quando a F1 começar, **na camada servidor (§1.11), nunca no cliente**.
+  Prompts versionados no repo; explicabilidade
   persistida em `ocorrencias.fatores_ia`; divergência do regulador como base de
   avaliação contínua. **Preço público (11/08/2026, ai.google.dev): Flash-Lite
   US$ 0,30/1M tokens entrada · US$ 2,50/1M saída; Flash US$ 1,50 entrada · US$ 7,50–9,00
@@ -92,6 +109,10 @@
   decisão de 30/07/2026 no OS); Sentry para erro/performance de front (a cotar; tier
   inicial baixo). Uptime/alertas: monitor externo simples (a cotar). Logs de auditoria
   vivem no próprio Postgres (append-only + hash-chain SEC-05).
+- **⚠️ Pendência nomeada (parecer `docs/17` E-32):** nada disso está implementado e o
+  alerta não tem **destinatário nomeado** — "quem é acordado às 3h" é pergunta sem
+  resposta hoje. O primeiro a saber que o sistema caiu não pode ser o TARM no meio de
+  uma chamada. Gate de F2: monitor no ar com rota de acionamento escrita (`docs/12` §2).
 - **Headers de segurança:** HSTS + CSP adicionados ao `vercel.json` em ago/2026 (SEC-02).
 - **Fase:** F0.
 
@@ -119,6 +140,32 @@
   até a agenda técnica acontecer (`docs/12` §1). FHIR R4 permanece como formato-alvo
   interno (a pré-visualização da UI está rotulada como formato, não como integração).
 - **Fase:** F3.
+
+### 1.11 Camada servidor (Backend CoPilot / media gateway) — decisão PENDENTE
+- **O fato (parecer `docs/17` ETAPA 4.3, confirmado):** hoje **não existe backend
+  próprio** — nenhuma Edge Function, nenhuma API, nenhum servidor; a SPA fala direto com
+  o Postgres e toda a segurança são as policies de RLS. Isso é viável para o que existe
+  e **incompatível com o produto pretendido**: chave de STT/LLM não pode ir ao browser
+  (o `define` do Gemini no `vite.config.ts` errou exatamente aí — F-04, removido), áudio
+  SIPREC não chega em navegador, e decisão clínica não se computa em contexto que o
+  usuário controla. `docs/05` §2 já desenha os componentes (Media Gateway → STT → Backend
+  CoPilot → UI); o que nunca foi decidido é **onde essa camada roda e quem a opera**.
+- **Regra de sequência (nova, adotada do parecer):** esta decisão **precede a primeira
+  linha de STT/LLM/SIPREC**. Tier 0 corre em paralelo no que não depende dela; a
+  substituição do `MOCK_SCRIPTS` não começa sem ela. Tier 0 e IA real **não** são
+  frentes 100% paralelas.
+- **Candidatas (trade-off honesto, sem decidir):**
+  1. **Supabase Edge Functions** — menor atrito com a stack atual; bom para API leve
+     (extração LLM, webhooks); **não serve** para ingestão RTP/SIPREC contínua.
+  2. **Contêiner gerenciado junto ao banco** (Cloud Run/App Runner/Container Apps em
+     região BR) — serve o backend de streaming e o gateway; um fornecedor a mais no DPA.
+  3. **Appliance dentro da CRU** (SRS + STT na borda; parecer §A.3/§B.2) — o áudio
+     nunca sai do prédio, só texto atravessa o link precário; melhor resposta à RIPD e
+     ao link ruim; exige hardware por central e operação remota de frota de appliances.
+  A escolha interage com a decisão de STT (§1.3): STT na borda empurra para a candidata
+  3 no braço de mídia, possivelmente combinada com a 1 ou 2 para a API.
+- **Dono:** Ota (com o resultado do levantamento de campo de `docs/12` §1 e do bake-off
+  de STT). **Fase da decisão:** antes do início da F1.
 
 ## 2. Assinaturas e contratos — tabela consolidada
 

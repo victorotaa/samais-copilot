@@ -41,7 +41,7 @@ Legenda: ✅ real e funcionando · 🎭 simulado na UI (teatro de demo) · ❌ a
 | MFA | 🎭 | card "Biométrica MFA" sem handler; TOTP é SEC-03 |
 | Frota (status, manutenção) | ✅ | persistida + **realtime** |
 | Escalas (planner do gestor + "Minha Escala") | ✅ | leitura/escrita reais |
-| Ciclo da ocorrência (atender → handoff → despacho T0–T4 → desfecho) | ✅ | persistido ponta a ponta **quando conectado**; desfecho ainda só na auditoria (migration 0002 sugerida) |
+| Ciclo da ocorrência (atender → handoff → despacho T0–T4 → desfecho) | ✅ | persistido ponta a ponta **quando conectado**; desfecho ainda só na auditoria (migration 0003 sugerida — a 0002 é a correção RLS do parecer, 16/08) |
 | Trilha de auditoria | ✅/🎭 | inserts reais append-only; **hash-chain escrito e não aplicado** (`supabase/migrations/0001_audit_hash_chain.sql` — SEC-05) |
 | Métricas do Dashboard | ✅/🎭 | chamadas recebidas e T0→T2 reais quando há dados; T. regulação, abandono, acurácia e tabela recente **fixos** |
 | STT (transcrição) | ❌ | zero integração; a transcrição é `MOCK_SCRIPTS` com `setTimeout` |
@@ -90,7 +90,7 @@ Ordenadas por severidade operacional. "Fase" = onde entram no programa de `docs/
 | 4.4 | **Offline-first no tablet** | Túnel, garagem e sombra de sinal existem mesmo com Starlink (`docs/05` §6). Requisito declarado, zero implementação (nem fila local, nem retry). | F1 |
 | 4.5 | **GPS real das viaturas (AVL)** | O tablet é a fonte natural de posição; hoje os marcadores são animação. Sem AVL não há ETA real nem recomendação de viatura defensável. | F1–F2 |
 | 4.6 | **Telefonia real (SIPREC + sinalização de fila)** | Sem áudio não há IA; sem sinalização não há T. de atendimento nem taxa de abandono reais. Gargalo mais externo (depende do PABX de cada CRU). | F2 |
-| 4.7 | **Desfecho como coluna própria** | Hoje só na auditoria; migration 0002 sugerida. Sem coluna, o dado que fecha o ciclo não entra em métrica nem no futuro APH-BR. | F0 |
+| 4.7 | **Desfecho como coluna própria** | Hoje só na auditoria; migration 0003 sugerida — a 0002 é a correção RLS do parecer (16/08). Sem coluna, o dado que fecha o ciclo não entra em métrica nem no futuro APH-BR. | F0 |
 | 4.8 | **Destino hospitalar / vaga zero / grade de leitos** | A regulação real negocia destino (CROSS em SP, regulação estadual alhures). Registro do hospital de destino é o mínimo; integração é evolução. | F3 |
 | 4.9 | **Export e-SUS SAMU / interoperabilidade oficial** | O MS referencia o e-SUS SAMU (DATASUS). Exportar no formato oficial evita duplo registro — argumento decisivo para o gestor público. Detalhar em agenda técnica com o DATASUS. | F3 |
 | 4.10 | **Instrumentação de metas contratuais** | O roteiro de implantação do Samais-OS exige "como cada meta é MEDIDA" (item crítico). O produto deve emitir os indicadores do contrato com procedência — é a "prova de entrega". | F2 |

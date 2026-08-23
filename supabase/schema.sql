@@ -103,7 +103,9 @@ create table auditoria (
   hash_anterior text,                   -- encadeamento p/ imutabilidade verificável
   created_at timestamptz not null default now()
 );
-revoke update, delete on auditoria from anon, authenticated;
+-- TRUNCATE tem privilégio próprio (não coberto por update/delete) e não passa por RLS
+-- nem por trigger de linha — revogar explicitamente (parecer docs/17 F-03).
+revoke update, delete, truncate on auditoria from anon, authenticated;
 
 -- ── RLS: isolamento estrito por tenant ──
 alter table tenants enable row level security;
@@ -142,12 +144,20 @@ create policy ocorrencias_operacao on ocorrencias for all
   using (tenant_id = meu_tenant() and meu_role() in ('TARM', 'REGULADOR', 'VIATURA', 'ADMIN_TENANT'));
 create policy despachos_operacao on despachos for all
   using (tenant_id = meu_tenant() and meu_role() in ('TARM', 'REGULADOR', 'VIATURA', 'ADMIN_TENANT'));
+-- usuario_id preso ao auth.uid(): sem isso, qualquer usuário do tenant insere registro
+-- de auditoria em nome de outro operador (parecer docs/17 F-02).
 create policy auditoria_insert on auditoria for insert
-  with check (tenant_id = meu_tenant());
+  with check (tenant_id = meu_tenant() and usuario_id = auth.uid());
 create policy auditoria_gestor on auditoria for select
   using (tenant_id = meu_tenant() and meu_role() in ('GESTOR', 'ADMIN_TENANT'));
 
--- Métricas agregadas, sem PII — é isto que o painel do Gestor consome
+-- Métricas agregadas, sem PII — é isto que o painel do Gestor consome.
+-- A view É definer de propósito: GESTOR não tem policy de select em `ocorrencias`
+-- ("gestor sem PII por construção"), então `security_invoker = true` o deixaria sem
+-- painel. O isolamento entre centrais vem do predicado de tenant DENTRO da view —
+-- sem ele, a view definer contorna o RLS das tabelas base e entrega o agregado de
+-- todos os tenants a qualquer autenticado (parecer docs/17 F-01). Para `anon`,
+-- meu_tenant() é null e o predicado zera o resultado; o revoke abaixo é o cinto.
 create view metricas_gestor with (security_invoker = false) as
 select
   o.tenant_id,
@@ -158,4 +168,6 @@ select
   avg(extract(epoch from (d.t2_no_local - d.t0_despacho))) as t_resposta_medio_s
 from ocorrencias o
 left join despachos d on d.ocorrencia_id = o.id
+where o.tenant_id = meu_tenant()
 group by 1, 2;
+revoke all on metricas_gestor from anon;

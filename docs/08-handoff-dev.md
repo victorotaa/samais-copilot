@@ -18,7 +18,7 @@ Protótipo navegável de alta fidelidade + backend inicial no Supabase. **~15–
 | Frota, escalas (planner do gestor) | ✅ persistem no banco + realtime | — |
 | **Triagem por IA (STT + NLP + Manchester)** | ❌ | **`MOCK_SCRIPTS` determinístico** — sem Deepgram, sem LLM |
 | Integração com PABX da CRU | ❌ | Não existe (arquitetura SIPREC em `docs/05` §3) |
-| Ocorrências ponta a ponta (chamada→despacho→T0–T4) | ✅ persistem desde ago/2026 | inclui desfecho na auditoria; coluna própria é a migration 0002 |
+| Ocorrências ponta a ponta (chamada→despacho→T0–T4) | ✅ persistem desde ago/2026 | inclui desfecho na auditoria; coluna própria é a migration 0003 (a 0002 é a correção RLS do parecer) |
 | FHIR R4 / APH-BR | ❌ | `JSON.stringify` de mock no Dashboard, não pipeline (a UI já rotula como pré-visualização de formato) |
 | Compliance (AES/SHA/audit) | ⚠️ parcial | trilha append-only real; hash-chain **escrito e não aplicado**. Claims da UI higienizados em ago/2026 (SEC-20) — ver `SECURITY.md` e `docs/10` §5 |
 

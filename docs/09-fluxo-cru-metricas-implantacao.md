@@ -79,7 +79,7 @@ Encerramento + registro (desfecho) ──► estatística/faturamento/relatório
 - LP ainda cita "trotes filtrados: 29%" no stat-strip — alinhar à faixa real na próxima edição da LP.
 - Skill `samais-brand-guidelines` (PR #7) cita **Inter**; o canônico do produto é **Plus Jakarta Sans** (docs/04). Alinhar a skill institucional ou registrar exceção.
 - Papel RÁDIO-OPERADOR como 4º perfil operacional (avaliar com o primeiro cliente).
-- `desfecho` como coluna própria em `ocorrencias` (migration 0002 sugerida) — hoje registrado via `auditoria`.
+- `desfecho` como coluna própria em `ocorrencias` (migration 0003 sugerida — a 0002 é a correção RLS do parecer, 16/08) — hoje registrado via `auditoria`.
 
 ## 6. Passo a passo de implantação (futuro próximo)
 
