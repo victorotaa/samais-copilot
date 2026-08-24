@@ -421,6 +421,35 @@ const RISCO_UI: Record<string, { label: string; box: string; dot: string; text: 
   PENDING:{ label: 'PENDENTE', box: 'bg-surface border-border-subtle', dot: 'bg-hover',                                          text: 'text-ink-primary', chip: 'chip-nude',  bg: 'bg-elevated',      ring: 'border-border-subtle bg-hover' },
 };
 
+// Meta de tempo da chamada — PARÂMETRO da central, nunca constante nacional
+// (docs/21 §3.3: o contador do MV-PR alerta ao exceder tempo "parametrizado no
+// sistema"; 1 min ideal / teto 3 min é protocolo LOCAL de Fortaleza; para o
+// médico, o manual MS 2006 indica 30s–1min para julgar gravidade). A demo usa
+// 60/180s como default declarado — em produto, configuração por tenant.
+const META_CHAMADA_S = { meta: 60, teto: 180 };
+
+// Cronômetro da etapa: neutro dentro da meta, âmbar acima dela, vermelho no
+// teto — o padrão vivo nos sistemas reais de CRU (docs/21 §2.2b).
+function CronometroMeta({ inicio, agora, rotulo }: { inicio: number | null; agora: Date; rotulo?: string }) {
+  if (!inicio) return null;
+  const seg = Math.max(0, Math.floor((agora.getTime() - inicio) / 1000));
+  const mm = String(Math.floor(seg / 60)).padStart(2, '0');
+  const ss = String(seg % 60).padStart(2, '0');
+  const estado = seg >= META_CHAMADA_S.teto ? 'teto' : seg >= META_CHAMADA_S.meta ? 'meta' : 'ok';
+  const estilo = estado === 'teto' ? 'bg-danger/10 border-danger/40 text-danger animate-pulse'
+    : estado === 'meta' ? 'bg-warn/10 border-warn/40 text-warn'
+    : 'bg-elevated border-border-subtle text-ink-secondary';
+  return (
+    <span
+      title={`Meta da etapa — parâmetro da central (demo: ${META_CHAMADA_S.meta / 60} min, teto ${META_CHAMADA_S.teto / 60} min · docs/21 §3.3)`}
+      className={`px-2.5 py-1 rounded-full border font-mono text-[0.65rem] font-bold tracking-widest whitespace-nowrap shrink-0 inline-flex items-center gap-1.5 ${estilo}`}
+    >
+      <Icon name="stopwatch" />{rotulo ? ` ${rotulo} ` : ' '}{mm}:{ss}
+      {estado !== 'ok' && <span className="hidden min-[480px]:inline">· {estado === 'teto' ? 'TETO EXCEDIDO' : 'ACIMA DA META'}</span>}
+    </span>
+  );
+}
+
 // Mapa esquemático local — usado no modo demonstração (sem backend): a demo é
 // aberta em sala de reunião, pen drive e rede hostil, e um iframe de mapa sem
 // rede vira ícone de imagem quebrada no meio da tela. Zero requisição externa;
@@ -504,6 +533,9 @@ export default function App() {
     confidence: { patientName: 0, symptoms: 0, protocol: 0 }
   });
   const [justification, setJustification] = useState<string | null>(null);
+  // Cronômetros de etapa: nascem no ATENDER (nunca antes — shadow) e no handoff.
+  const [chamadaInicio, setChamadaInicio] = useState<number | null>(null);
+  const [regulacaoInicio, setRegulacaoInicio] = useState<number | null>(null);
   // Classificação de risco é DECISÃO EXPLÍCITA do regulador — nunca default.
   // null = ainda não classificado; o despacho fica bloqueado até a escolha.
   const [riscoFinal, setRiscoFinal] = useState<'RED' | 'ORANGE' | 'YELLOW' | 'GREEN' | 'BLUE' | null>(null);
@@ -734,6 +766,8 @@ export default function App() {
       setSkipArm(null);
       setRiscoFinal(null);
       setJustification(null);
+      setChamadaInicio(null);
+      setRegulacaoInicio(null);
       setOccId(null);
       setDispatchId(null);
 
@@ -1080,11 +1114,13 @@ export default function App() {
     if (role === 'MEDICO') {
       applyDemoSnapshot();
       setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
+      setRegulacaoInicio(Date.now());
       setCurrentModule('REGULADOR');
       showToast('Handoff recebido do TARM-04', 'success');
       return;
     }
     showToast('Chamada conectada com sucesso', 'success');
+    setChamadaInicio(Date.now());
     setCurrentModule('AML');
     
     setTimeout(() => {
@@ -1128,6 +1164,7 @@ export default function App() {
             }).eq('id', occId).then();
             audit('HANDOFF_REGULACAO', { risco: extractedData.risk });
           }
+          setRegulacaoInicio(Date.now());
           setCurrentModule('REGULADOR');
         }}
         className="w-full py-4 px-3 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-wider text-xs md:text-sm rounded-xl shadow-[0_0_30px_rgba(191,154,61,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
@@ -1847,7 +1884,7 @@ export default function App() {
 
             {/* Center Panel: Transcription Chat */}
             <div className="flex-1 gp rounded-2xl flex flex-col lg:overflow-hidden border-l-4 border-l-ai order-2 lg:order-2 shrink-0 min-h-[400px] lg:min-h-0">
-              <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
+              <div className="p-3.5 border-b border-border-subtle bg-elevated flex flex-wrap items-center justify-between gap-y-2 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-ai/15 flex items-center justify-center text-ai border border-ai/30 relative overflow-hidden">
                     <Icon name="microphone-lines" className="relative z-10" />
@@ -1863,7 +1900,9 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-                
+
+                <CronometroMeta inicio={chamadaInicio} agora={time} />
+
                 {/* Kill Switch */}
                 <button 
                   onClick={toggleIA}
@@ -1955,7 +1994,7 @@ export default function App() {
                           }}
                           className={`w-full p-2 rounded-lg border text-left flex items-center gap-2 transition-colors ${active ? 'bg-gold-500/10 border-gold-500' : 'bg-surface border-border-subtle hover:border-gold-500'}`}
                         >
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${c.data.risk === 'RED' ? 'bg-danger' : 'bg-warn'}`}></span>
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${(RISCO_UI[c.data.risk] || RISCO_UI.PENDING).dot}`}></span>
                           <span className="min-w-0">
                             <span className="block text-[0.7rem] font-bold text-ink-primary truncate">{c.num} · {c.label}</span>
                             <span className="block text-[0.6rem] text-ink-tertiary truncate">{c.data.protocol}</span>
@@ -2066,6 +2105,7 @@ export default function App() {
                         <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Prioridade</span>
                         <span className={`text-xs font-bold ${(RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).text}`}>{RISCO_LABEL[extractedData.risk] || extractedData.risk}</span>
                       </div>
+                      <CronometroMeta inicio={regulacaoInicio} agora={time} rotulo="EM REGULAÇÃO" />
                       <div className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle flex items-center gap-2">
                         <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Recurso</span>
                         <span className="text-xs font-bold text-ink-primary">USA (UTI Móvel)</span>

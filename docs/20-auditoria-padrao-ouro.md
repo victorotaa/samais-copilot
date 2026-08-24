@@ -83,7 +83,12 @@ viatura offline com fila local e sincronização ao reconectar (padrão local-fi
 provado no OS em `ferramentas/despesas` — IndexedDB + consolidação) · queda de rede da
 central com degradação a papel/rádio treinada · sobrecarga do REGULADOR (mais casos que
 capacidade, envelhecimento visível da fila) · chamada muda/silenciosa (protocolo de
-confirmação) · solicitante agressivo/em pânico com TARM mantendo o protocolo.
+confirmação) · solicitante agressivo/em pânico com TARM mantendo o protocolo ·
+**tipificação do encerramento** pela taxonomia dos sistemas reais (trote / engano /
+queda / desistência / orientação como tipos distintos — no e-SUS SAMU trote e engano
+encerram automaticamente; `docs/21` §2.2a) · **painel de últimas ligações 24h** por
+telefone/bairro/endereço com mecanismo de **complemento** em vez de nova ocorrência
+(anti-duplicidade presente nos dois sistemas com manual público; `docs/21` §2.4).
 
 ## 3. Recomendações de visual e usabilidade (Samais-OS + bom senso de regulação)
 
@@ -92,7 +97,13 @@ legível); estados de bloqueio **explicando o que falta** (nunca botão morto se
 explicação); rótulos Manchester em PT nas superfícies (código só em dado); alvos ≥46px
 nos controles novos; mapa local com selo de demonstração (procedência visual); seletor
 de cenário no IDLE como **ferramenta de apresentação** (§2a) — quem demonstra dirige a
-próxima chamada em vez de torcer pelo sorteio.
+próxima chamada em vez de torcer pelo sorteio; **cronômetro de etapa com meta** (pedido
+do Ota, 24/08) — nasce no ATENDER (nunca antes — shadow), neutro dentro da meta, âmbar
+acima dela, vermelho no teto, no TARM e na regulação (desde o handoff). É o padrão vivo
+dos sistemas reais: o MV-PR alterna a cor do contador e avisa "tempo médio de
+atendimento foi excedido" (`docs/21` §2.2b). ⚠️ Procedência declarada no próprio chip
+(tooltip): **o limiar é parâmetro da central, não constante nacional** — a demo usa
+1/3 min do protocolo local de Fortaleza (`docs/21` §3.3); em produto, config por tenant.
 
 Recomendadas para as próximas rodadas, em ordem de valor:
 
