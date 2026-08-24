@@ -45,6 +45,38 @@ aparece com o mesmo destaque que o estresse da rua.
 | **Divergência clínica** | REGULADOR | O médico discorda da IA → justificativa obrigatória → vira dado de treino e auditoria |
 | **Toque errado com luva** | barra T da viatura | Passo fora de ordem arma confirmação em vez de executar; marca não se sobrescreve |
 
+**Kill switch não é binário (nota do Ota, 24/08):** entre a IA plena e o manual total
+existe o modo **IA sobre digitação** — sem escuta, o TARM digita em paralelo ao telefone
+como já faz no software próprio da CRU, e a IA faz o mesmo rankeamento e chaveamento de
+quadros a partir do texto digitado. Desligar a escuta nunca degrada o fluxo abaixo do
+que a central já opera sem nós. Registro doutrinário em `docs/05` §2; parâmetros do
+fluxo de digitação dos softwares em uso nas centrais em levantamento (`docs/22`).
+
+### 2a. Variabilidade de cenários — seletor de demonstração (24/08)
+
+A tela de espera ganhou o painel **"Demonstração · próxima chamada"**: o apresentador
+dirige o cenário da chamada seguinte, ou deixa em **Aleatório** — que usa bolsa
+embaralhada (todos os cenários saem antes de qualquer um repetir; o sorteio antigo podia
+repetir o mesmo roteiro três vezes seguidas). Cada cenário pareia roteiro e chamador
+**coerentes** — o sorteio antigo combinava qualquer roteiro com qualquer telefone, e um
+trote podia chegar de um número com cinco ocorrências de histórico.
+
+| Cenário | Classificação | Chamador (anti-trote) | O que demonstra |
+|---|---|---|---|
+| IAM | VERMELHO | Esposa, cadastro com histórico | Fluxo completo feliz, USA |
+| Trauma (auto × moto) | AMARELO | Terceiro no local, sem cadastro | Vítima desconhecida, via pública |
+| OVACE (lactente) | VERMELHO → AMARELO | Mãe, sem cadastro | Instrução pré-chegada guiada e **reclassificação na própria chamada** após reversão |
+| AVC | LARANJA | Filho, 2 ocorrências anteriores | Cor Manchester intermediária; janela terapêutica com hora de início registrada |
+| Obstétrico (parto iminente) | LARANJA | Marido, sem cadastro | Protocolo obstétrico; orientação pré-chegada |
+| Verde — orientação | VERDE | O próprio paciente, 5 ocorrências | Encaminhamento à UBS **sem despacho** — a frota protegida do acionamento desnecessário |
+| Trote | sem extração | Sem cadastro | Nenhuma classificação automática; encerramento sem regulação, auditado |
+| Sem localização (AML) | VERMELHO (IAM) | Linha fixa, sem AML | Coleta de endereço por voz; a triagem **não bloqueia** |
+
+Nota de fidelidade: a paleta Manchester completa (RED/ORANGE/YELLOW/GREEN/BLUE) agora
+vem de um mapa único de estilo (`RISCO_UI`) — antes, LARANJA caía no estilo de "não-RED"
+e renderizava como se fosse verde/amarelo em três superfícies (painel do TARM, chips do
+REGULADOR, banner da viatura).
+
 **Backlog de cenários (dependem da F1/modularização — registrar, não improvisar):**
 fila multi-ocorrência com vermelho furando a fila e 2ª chamada em espera no TARM ·
 viatura offline com fila local e sincronização ao reconectar (padrão local-first já
@@ -58,7 +90,9 @@ confirmação) · solicitante agressivo/em pânico com TARM mantendo o protocolo
 Aplicadas nesta rodada: timestamps **nos próprios botões** T (o tablet vira registro
 legível); estados de bloqueio **explicando o que falta** (nunca botão morto sem
 explicação); rótulos Manchester em PT nas superfícies (código só em dado); alvos ≥46px
-nos controles novos; mapa local com selo de demonstração (procedência visual).
+nos controles novos; mapa local com selo de demonstração (procedência visual); seletor
+de cenário no IDLE como **ferramenta de apresentação** (§2a) — quem demonstra dirige a
+próxima chamada em vez de torcer pelo sorteio.
 
 Recomendadas para as próximas rodadas, em ordem de valor:
 

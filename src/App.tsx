@@ -87,7 +87,7 @@ const MOCK_CALLERS = [
   {
     phone: "(11) 93333-2222",
     hasHistory: true,
-    name: "Maria Silva (Paciente)",
+    name: "Antônio Ribeiro (Paciente)",
     historyCount: 5,
     aml: { lat: -23.5505, lng: -46.6333, address: "Praça da Sé", number: "S/N", neighborhood: "Sé", city: "São Paulo — SP", cep: "01001-000" }
   },
@@ -135,6 +135,21 @@ const MEDICO_CASES = [
 ];
 
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
+
+// Cenários de demonstração: pares COERENTES roteiro ↔ chamador (o sorteio antigo
+// combinava qualquer script com qualquer telefone — trote saindo de número com 5
+// ocorrências de histórico). O seletor do IDLE permite demonstração dirigida; o
+// aleatório usa bolsa embaralhada (percorre todos antes de repetir qualquer um).
+const CENARIOS_DEMO = [
+  { id: 'iam',        rotulo: 'IAM · vermelho',        script: 0, caller: 0 },
+  { id: 'trauma',     rotulo: 'Trauma · amarelo',      script: 1, caller: 3 },
+  { id: 'ovace',      rotulo: 'OVACE · reversão',      script: 2, caller: 1 },
+  { id: 'avc',        rotulo: 'AVC · laranja',         script: 4, caller: 2 },
+  { id: 'obstetrico', rotulo: 'Obstétrico · laranja',  script: 5, caller: 1 },
+  { id: 'verde',      rotulo: 'Verde · orientação',    script: 6, caller: 4 },
+  { id: 'trote',      rotulo: 'Trote',                 script: 3, caller: 3 },
+  { id: 'sem-aml',    rotulo: 'Sem localização (AML)', script: 0, caller: 5 },
+] as const;
 
 // ── Calendário de escalas (planner do Gestor + Minha Escala) ──
 function startOfWeek(d: Date) {
@@ -310,6 +325,46 @@ const MOCK_SCRIPTS = [
     { speaker: 'TARM', text: 'Aqui é o SAMU 192, serviço de emergência médica. Há alguma emergência no local?', delay: 8000 },
     { speaker: 'CALLER', text: '(mais risadas) Manda uma ambulância de pepperoni… (desliga)', delay: 12000 },
     { speaker: 'TARM', text: 'Senhor, trote ao 192 mantém a linha ocupada e pode custar uma vida. A ligação fica registrada.', delay: 15500 }
+  ],
+  // 5 · AVC — LARANJA: a janela terapêutica é o argumento vivo do tempo medido.
+  [
+    { speaker: 'CALLER', text: 'Moço, minha mãe acordou com a boca torta e não consegue falar direito. Ela tá muito estranha.', delay: 1500 },
+    { speaker: 'TARM', text: 'Vou te ajudar. Qual o nome e a idade dela? E a que horas você percebeu isso?', delay: 5000 },
+    { speaker: 'CALLER', text: 'Terezinha, 68 anos. Foi agora, faz uns vinte minutos. Ela tentou levantar e o braço esquerdo não obedece.', delay: 9500,
+      extract: { patientName: 'Terezinha Almeida', age: '68 anos', gender: 'Feminino' } },
+    { speaker: 'TARM', text: 'Peça para ela sorrir. O sorriso está torto? E peça para repetir uma frase simples.', delay: 14000 },
+    { speaker: 'CALLER', text: 'Tá torto sim, só um lado mexe. E a fala sai toda enrolada, não dá pra entender nada.', delay: 18500,
+      extract: { symptoms: ['Desvio de rima labial', 'Fraqueza em braço esquerdo', 'Fala arrastada (disartria)'], risk: 'ORANGE', protocol: 'Suspeita de AVC — janela terapêutica' } },
+    { speaker: 'TARM', text: 'Entendi. Deite ela de lado, não dê água nem comida, e anote a hora em que começou — isso é muito importante para o tratamento. O socorro já está sendo acionado.', delay: 23000 },
+    { speaker: 'CALLER', text: 'Anotei: começou 7h40. Por favor, venham rápido.', delay: 27500 },
+    { speaker: 'TARM', text: 'O horário ficou registrado. Vou passar para o médico regulador agora — fique na linha.', delay: 31000 }
+  ],
+  // 6 · Obstétrico — LARANJA: docs/12 exige o caso representado; a demo espelha.
+  [
+    { speaker: 'CALLER', text: 'Minha esposa tá em trabalho de parto! As contrações tão muito perto uma da outra!', delay: 1500 },
+    { speaker: 'TARM', text: 'Calma, vou te orientar. Qual o nome dela, quantas semanas de gestação, e de quanto em quanto tempo vêm as contrações?', delay: 5500 },
+    { speaker: 'CALLER', text: 'Luana, 27 anos, tá de 39 semanas. As contrações vêm de 4 em 4 minutos, e a bolsa estourou faz meia hora.', delay: 10500,
+      extract: { patientName: 'Luana Ferreira', age: '27 anos', gender: 'Feminino', symptoms: ['Trabalho de parto ativo', 'Bolsa rota há 30 min', 'Contrações 4/4 min'], risk: 'ORANGE', protocol: 'Obstétrico — parto iminente' } },
+    { speaker: 'TARM', text: 'É o primeiro filho dela? Ela sente vontade de fazer força?', delay: 15500 },
+    { speaker: 'CALLER', text: 'É o segundo. E ela tá dizendo que a pressão tá aumentando muito!', delay: 19500,
+      extract: { symptoms: ['Multípara — evolução rápida'] } },
+    { speaker: 'TARM', text: 'Deite ela do lado esquerdo, separe toalhas limpas e não deixe ela ir ao banheiro sozinha. A equipe já está sendo acionada com prioridade.', delay: 24000 },
+    { speaker: 'CALLER', text: 'Tá certo, já deitei ela. Vem logo, por favor!', delay: 28500 },
+    { speaker: 'TARM', text: 'Transferindo agora para o médico regulador. Continue na linha comigo.', delay: 32000 }
+  ],
+  // 7 · VERDE — orientação sem despacho: o sistema também protege a frota do
+  // acionamento desnecessário; o desfecho digno é o encaminhamento certo.
+  [
+    { speaker: 'CALLER', text: 'Boa tarde. Tô com uma dor nas costas que não passa, já faz uns dias. Queria uma ambulância pra ir ao hospital.', delay: 1500 },
+    { speaker: 'TARM', text: 'Boa tarde. Vou entender o seu caso. A dor começou quando? O senhor consegue andar e se mover normalmente?', delay: 5500 },
+    { speaker: 'CALLER', text: 'Faz umas duas semanas. Ando sim, só incomoda quando fico muito tempo sentado.', delay: 10000,
+      extract: { patientName: 'Antônio Ribeiro', age: '52 anos', gender: 'Masculino', symptoms: ['Lombalgia há 2 semanas', 'Deambulando normalmente'] } },
+    { speaker: 'TARM', text: 'O senhor tem febre, perda de força nas pernas ou dificuldade para urinar?', delay: 14500 },
+    { speaker: 'CALLER', text: 'Não, nada disso. É só a dor mesmo.', delay: 18000,
+      extract: { risk: 'GREEN', protocol: 'Orientação — rede básica (UBS)' } },
+    { speaker: 'TARM', text: 'Entendi. Pelo que o senhor descreve, não é uma emergência — e a ambulância precisa ficar livre para risco de vida. O caminho certo é a UBS do seu bairro. Se surgir perda de força, febre alta ou a dor mudar de repente, ligue de novo na hora.', delay: 22500 },
+    { speaker: 'CALLER', text: 'Ah, entendi. Vou na UBS amanhã cedo então. Obrigado, viu?', delay: 28000 },
+    { speaker: 'TARM', text: 'Às ordens. Melhoras para o senhor.', delay: 31000 }
   ]
 ];
 
@@ -353,6 +408,17 @@ const playSound = (type: 'call' | 'vehicle' | 'alert', enabled: boolean) => {
   } catch (e) {
     console.error("Audio play failed", e);
   }
+};
+
+// UI por classificação Manchester — TODAS as 5 cores (os ternários antigos só
+// conheciam RED/YELLOW e pintavam LARANJA/VERDE/AZUL de neutro ou verde).
+const RISCO_UI: Record<string, { label: string; box: string; dot: string; text: string; chip: string; bg: string; ring: string }> = {
+  RED:    { label: 'VERMELHO', box: 'bg-danger/10 border-danger/40',  dot: 'bg-danger shadow-[0_0_10px_rgba(229,57,53,0.8)]',   text: 'text-danger',     chip: 'chip-danger', bg: 'bg-danger/10',     ring: 'border-danger bg-danger/20' },
+  ORANGE: { label: 'LARANJA',  box: 'bg-orange-500/10 border-orange-500/40', dot: 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.8)]', text: 'text-orange-500', chip: 'chip-warn',  bg: 'bg-orange-500/10', ring: 'border-orange-500 bg-orange-500/20' },
+  YELLOW: { label: 'AMARELO',  box: 'bg-warn/10 border-warn/40',      dot: 'bg-warn shadow-[0_0_10px_rgba(253,216,53,0.8)]',    text: 'text-warn',       chip: 'chip-warn',   bg: 'bg-warn/10',       ring: 'border-warn bg-warn/20' },
+  GREEN:  { label: 'VERDE',    box: 'bg-ok/10 border-ok/40',          dot: 'bg-ok shadow-[0_0_10px_rgba(67,160,71,0.8)]',       text: 'text-ok',         chip: 'chip-ok',     bg: 'bg-ok/10',         ring: 'border-ok bg-ok/20' },
+  BLUE:   { label: 'AZUL',     box: 'bg-info/10 border-info/40',      dot: 'bg-info shadow-[0_0_10px_rgba(41,121,255,0.8)]',    text: 'text-info',       chip: 'chip-ai',     bg: 'bg-info/10',       ring: 'border-info bg-info/20' },
+  PENDING:{ label: 'PENDENTE', box: 'bg-surface border-border-subtle', dot: 'bg-hover',                                          text: 'text-ink-primary', chip: 'chip-nude',  bg: 'bg-elevated',      ring: 'border-border-subtle bg-hover' },
 };
 
 // Mapa esquemático local — usado no modo demonstração (sem backend): a demo é
@@ -425,7 +491,7 @@ export default function App() {
     gender: string;
     symptoms: string[];
     comorbidities: string[];
-    risk: 'PENDING' | 'RED' | 'YELLOW' | 'GREEN';
+    risk: 'PENDING' | 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN' | 'BLUE';
     protocol: string;
     observations: string;
     confidence: {
@@ -450,6 +516,9 @@ export default function App() {
   // sem isso a "transcrição" continuaria chegando com a IA desligada.
   const scriptTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const scriptShownRef = useRef<Set<string>>(new Set());
+  // Seletor de cenário da demonstração (IDLE): 'aleatorio' sorteia da bolsa.
+  const [cenarioDemo, setCenarioDemo] = useState<string>('aleatorio');
+  const bolsaCenariosRef = useRef<string[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('Hoje');
@@ -503,6 +572,14 @@ export default function App() {
         { id: 'p3', label: 'Hemorragia Exsanguinante?', checked: false },
         { id: 'p4', label: 'Choque?', checked: false },
       ]);
+    } else if (extractedData.risk === 'ORANGE') {
+      // Discriminadores "muito urgente" — o caso vivo é o AVC em janela.
+      setProtocolSteps([
+        { id: 'p1', label: 'Déficit Neurológico Agudo?', checked: true },
+        { id: 'p2', label: 'Início há menos de 4,5h (janela)?', checked: true },
+        { id: 'p3', label: 'Alteração do Estado de Consciência?', checked: false },
+        { id: 'p4', label: 'Dor Severa?', checked: false },
+      ]);
     } else if (extractedData.risk === 'YELLOW') {
       setProtocolSteps([
         { id: 'p1', label: 'Dor Severa?', checked: true },
@@ -553,7 +630,7 @@ export default function App() {
   // Gate do despacho: classificação explícita sempre; justificativa quando a decisão
   // médica diverge da sugestão do sistema (é a divergência que treina o modelo e
   // sustenta a auditoria — doutrina "copiloto, não piloto").
-  const RISCO_LABEL: Record<string, string> = { RED: 'VERMELHO', ORANGE: 'LARANJA', YELLOW: 'AMARELO', GREEN: 'VERDE', BLUE: 'AZUL', PENDING: 'PENDENTE' };
+  const RISCO_LABEL: Record<string, string> = Object.fromEntries(Object.entries(RISCO_UI).map(([k, v]) => [k, v.label]));
   const riscoDiverge = riscoFinal !== null && extractedData.risk !== 'PENDING' && riscoFinal !== extractedData.risk;
   const podeDespachar = riscoFinal !== null && (!riscoDiverge || justification !== null);
 
@@ -642,7 +719,16 @@ export default function App() {
       setTarmChat([]);
       setExtractedData({ patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '', confidence: { patientName: 0, symptoms: 0, protocol: 0 } });
       setAiActive(true);
-      setActiveScriptIndex(Math.floor(Math.random() * MOCK_SCRIPTS.length));
+      let escolhido = CENARIOS_DEMO.find(c => c.id === cenarioDemo);
+      if (!escolhido) {
+        if (bolsaCenariosRef.current.length === 0) {
+          bolsaCenariosRef.current = CENARIOS_DEMO.map(c => c.id).sort(() => Math.random() - 0.5);
+        }
+        const proximo = bolsaCenariosRef.current.pop()!;
+        escolhido = CENARIOS_DEMO.find(c => c.id === proximo)!;
+      }
+      const cenario = escolhido;
+      setActiveScriptIndex(cenario.script);
       setMissionStatus('A CAMINHO');
       setMissionMarks({});
       setSkipArm(null);
@@ -652,14 +738,13 @@ export default function App() {
       setDispatchId(null);
 
       timer = setTimeout(() => {
-        const randomCaller = MOCK_CALLERS[Math.floor(Math.random() * MOCK_CALLERS.length)];
-        setCurrentCaller(randomCaller);
+        setCurrentCaller(MOCK_CALLERS[cenario.caller]);
         setAmlData(null);
         setIncomingCall(true);
       }, 10000);
     }
     return () => clearTimeout(timer);
-  }, [isAuthenticated, currentModule, incomingCall]);
+  }, [isAuthenticated, currentModule, incomingCall, cenarioDemo]);
 
   // Fila de espera viva: tempos sobem em tempo real; chamadas entram e são atendidas.
   useEffect(() => {
@@ -1320,6 +1405,30 @@ export default function App() {
               </div>
             </div>
 
+            {/* Seletor de cenário — ferramenta de APRESENTAÇÃO: permite dirigir a
+                próxima chamada (IAM, AVC, trote, sem AML…) em vez de torcer pelo
+                sorteio. Aleatório usa bolsa: todos os cenários antes de repetir. */}
+            <div className="w-full max-w-7xl px-5 mb-8">
+              <div className="gp rounded-xl px-4 py-3 flex flex-wrap items-center gap-2">
+                <span className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mr-1 shrink-0">Demonstração · próxima chamada</span>
+                <button
+                  onClick={() => setCenarioDemo('aleatorio')}
+                  className={`px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider border transition-colors ${cenarioDemo === 'aleatorio' ? 'bg-gold-500 text-ink-inverse border-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:border-gold-500'}`}
+                >
+                  Aleatório
+                </button>
+                {CENARIOS_DEMO.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => setCenarioDemo(c.id)}
+                    className={`px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider border transition-colors ${cenarioDemo === c.id ? 'bg-gold-500 text-ink-inverse border-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:border-gold-500'}`}
+                  >
+                    {c.rotulo}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Vehicles Grid & Map */}
             <div className="w-full max-w-7xl px-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col">
@@ -1617,24 +1726,28 @@ export default function App() {
 
                   {/* Risk Classification */}
                   <div className={`p-4 rounded-xl border ${
-                    extractedData.risk === 'RED' ? 'bg-danger/10 border-danger/40' :
-                    extractedData.risk === 'YELLOW' ? 'bg-warn/10 border-warn/40' :
-                    'bg-surface border-border-subtle'
+                    (RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).box
                   } transition-colors duration-500`}>
                     <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-2">Classificação de Risco Sugerida</div>
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${
-                        extractedData.risk === 'RED' ? 'bg-danger shadow-[0_0_10px_rgba(229,57,53,0.8)]' :
-                        extractedData.risk === 'YELLOW' ? 'bg-warn shadow-[0_0_10px_rgba(253,216,53,0.8)]' :
-                        'bg-hover'
+                        (RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).dot
                       }`}></div>
-                      <span className={`text-lg font-bold font-disp ${
-                        extractedData.risk === 'RED' ? 'text-danger' :
-                        extractedData.risk === 'YELLOW' ? 'text-warn' :
-                        'text-ink-primary'
-                      }`}>
-                        {extractedData.protocol}
-                      </span>
+                      <div className="min-w-0">
+                        {/* O rótulo Manchester por extenso acompanha a cor — a
+                            classificação não pode depender de o operador ler o tom
+                            da borda (daltonismo, projetor ruim, sala clara). */}
+                        <div className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${
+                          (RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).text
+                        }`}>
+                          {RISCO_LABEL[extractedData.risk] || extractedData.risk}
+                        </div>
+                        <span className={`text-lg font-bold font-disp ${
+                          (RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).text
+                        }`}>
+                          {extractedData.protocol}
+                        </span>
+                      </div>
                     </div>
                     {(extractedData.symptoms.length > 0 || extractedData.comorbidities.length > 0) && (
                       <div className="mt-3 pt-3 border-t border-border-subtle">
@@ -1859,11 +1972,7 @@ export default function App() {
                   <Icon name="file-medical" className="text-gold-500 text-xs" />
                   <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Handoff do TARM</span>
                 </div>
-                <span className={`chip ${
-                  extractedData.risk === 'RED' ? 'chip-danger' :
-                  extractedData.risk === 'YELLOW' ? 'chip-warn' :
-                  'chip-ok'
-                } text-[0.6rem]`}>{RISCO_LABEL[extractedData.risk] || extractedData.risk}</span>
+                <span className={`chip ${(RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).chip} text-[0.6rem]`}>{RISCO_LABEL[extractedData.risk] || extractedData.risk}</span>
               </div>
               <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
                 {/* Patient Info */}
@@ -1955,7 +2064,7 @@ export default function App() {
                     <div className="flex flex-wrap gap-2">
                       <div className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle flex items-center gap-2">
                         <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Prioridade</span>
-                        <span className={`text-xs font-bold ${extractedData.risk === 'RED' ? 'text-danger' : extractedData.risk === 'YELLOW' ? 'text-warn' : 'text-ok'}`}>{RISCO_LABEL[extractedData.risk] || extractedData.risk}</span>
+                        <span className={`text-xs font-bold ${(RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).text}`}>{RISCO_LABEL[extractedData.risk] || extractedData.risk}</span>
                       </div>
                       <div className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle flex items-center gap-2">
                         <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Recurso</span>
@@ -2228,18 +2337,18 @@ export default function App() {
               {/* ZONA PACIENTE */}
               <div className="flex-[2] bg-surface border-t lg:border-t-0 lg:border-l border-border-subtle flex flex-col overflow-y-auto">
                 <div className={`px-5 py-4 flex items-center justify-between border-b border-border-subtle ${
-                  extractedData.risk === 'RED' ? 'bg-danger/10' : extractedData.risk === 'YELLOW' ? 'bg-warn/10' : 'bg-ok/10'
+                  (RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).bg
                 }`}>
                   <div>
                     <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-secondary mb-1">Classificação Manchester</div>
                     <div className={`text-2xl font-disp font-bold ${
-                      extractedData.risk === 'RED' ? 'text-danger' : extractedData.risk === 'YELLOW' ? 'text-warn' : 'text-ok'
+                      (RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).text
                     }`}>
-                      {extractedData.risk === 'RED' ? 'VERMELHO' : extractedData.risk === 'YELLOW' ? 'AMARELO' : 'VERDE'}
+                      {(RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).label}
                     </div>
                   </div>
                   <div className={`w-14 h-14 rounded-full border-4 ${
-                    extractedData.risk === 'RED' ? 'border-danger bg-danger/20' : extractedData.risk === 'YELLOW' ? 'border-warn bg-warn/20' : 'border-ok bg-ok/20'
+                    (RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).ring
                   }`}></div>
                 </div>
 
