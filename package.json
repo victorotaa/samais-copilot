@@ -9,7 +9,8 @@
     "build": "vite build && mkdir -p dist/lp && cp lp/index.html dist/lp/index.html && cp -r lp/assets dist/lp/assets && mkdir -p dist/apresentacao-ms && cp apresentacao-ms/index.html dist/apresentacao-ms/index.html",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "node tests/lint-vetado.mjs && node tests/e2e-cenarios.mjs && node tests/e2e-timer.mjs && node tests/e2e-mobile.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"

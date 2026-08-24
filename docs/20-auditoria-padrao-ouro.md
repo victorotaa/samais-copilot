@@ -200,6 +200,14 @@ nascem da doutrina de quem opera.
 
 ## 5. Verificação desta rodada
 
+**As baterias viraram CI (24/08):** `tests/` guarda o lint de vocabulário vetado
+(fronteira Unicode — "invólucro" não acusa "lucro") e as três baterias e2e
+(cenários · cronômetro · mobile), e `.github/workflows/ci.yml` roda typecheck,
+build, lint e as baterias em Chromium a cada push/PR, com capturas como artefato.
+Antes disso toda verificação vivia na sessão de quem auditava e morria com ela —
+agora cada afirmação deste documento é re-provada a cada commit. Local:
+`npm test` (dev server em :3000; `PW_CHROMIUM` aponta o binário se necessário).
+
 - `npx tsc --noEmit` e `npm run build` verdes.
 - Bateria v2 (Playwright/Chromium): médico aterrissa na regulação · 5 chips · despacho
   bloqueado→liberado→bloqueado por divergência→liberado por justificativa · viatura arma

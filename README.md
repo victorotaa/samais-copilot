@@ -62,6 +62,7 @@ Outros comandos:
 npm run build      # build de produção em dist/ (app + LP em dist/lp/)
 npm run preview    # preview do build
 npm run lint       # tsc --noEmit (typecheck)
+npm test           # lint de vocabulário vetado + 3 baterias e2e Playwright (exige dev server em :3000)
 npm run clean      # rm -rf dist
 ```
 
