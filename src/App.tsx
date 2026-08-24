@@ -1951,7 +1951,7 @@ export default function App() {
                     <div>
                       <p className="text-sm font-bold text-warn mb-1">Modo Manual Ativado</p>
                       <p className="text-xs text-ink-secondary leading-relaxed">
-                        A transcrição e extração por IA foram pausadas. Utilize o painel acima para preencher os dados clínicos manualmente.
+                        A transcrição e extração por IA foram pausadas. <strong className="text-ink-primary">A gravação da chamada continua</strong> — ela é obrigação normativa da central (CFM 2.110/2014) e não depende da IA. Utilize o painel acima para preencher os dados clínicos manualmente.
                       </p>
                     </div>
                   </div>

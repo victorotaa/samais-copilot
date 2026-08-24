@@ -80,6 +80,7 @@
 | 6.2 | Mapa real (Google Maps API key, ou Mapbox para custom theming) | bloqueado | 🔴 (credencial) |
 | 6.3 | Telemetria de viatura (MQTT broker, gateway, hardware) | bloqueado | 🔴 |
 | 6.4 | Câmera ao vivo da cena (atualmente só modal placeholder) | bloqueado | 🔴 |
+| 6.5 | Gravação WORM da chamada (media gateway → S3/R2, cadeia de custódia) — cópia probatória na fase shadow; opção "gravador oficial da central" com gate de conformidade (CFM 2.110/2014; requisito em `docs/05` §2) | não iniciado | 🔴 (depende de 6.1) |
 
 ## Sprint 7 — Qualidade
 

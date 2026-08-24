@@ -66,6 +66,28 @@ PABX/SBC ──RTP/SIPREC──▶ Media Gateway (forka o áudio)
   do fluxo de digitação do TARM: `docs/21-benchmark-software-cru.md`).
 - **Plano B de vendor:** abstrair o provider atrás de uma interface (`TranscriptProvider`) para poder trocar por Google Speech v2 ou Whisper streaming self-hosted (GPU) se contrato público exigir dado 100% on-prem.
 - **LGPD:** áudio é dado sensível. Gravação cifrada em repouso, retenção por política contratual, transcrição com PII minimizada no log.
+- **Gravação: obrigação normativa da central — e o CoPilot pode ser o instrumento
+  (requisito registrado em 24/08/2026).** A CFM 2.110/2014 (art. 8º, §2º) obriga a
+  gravação de todas as ocorrências **pela central de regulação**; o programa
+  arquitetônico do MS exige "sistema de gravação digital contínua" com acesso
+  protegido, "permitido apenas às pessoas autorizadas pela Coordenação do Serviço"
+  (fontes íntegras: `docs/21` §3.1). Duas posturas de produto, escolhidas por contrato:
+  1. **Cópia probatória (fase 1, shadow)** — a central mantém o gravador oficial dela
+     (PABX/gravador legado); o ramo WORM do diagrama acima guarda a **nossa** cópia
+     (lastro dos T0–T4, reprocessamento de STT, retreino), sem assumir a obrigação.
+  2. **Gravador oficial da central** — o CoPilot cumpre a obrigação como
+     funcionalidade. Vira função de conformidade crítica e os requisitos endurecem:
+     **disponibilidade com redundância** (se cair, a central descumpre norma — o SLA
+     desta função não é o do copiloto), WORM + cadeia de custódia, retenção por
+     política contratual, **controle de acesso nominal** com trilha auditada (a norma
+     restringe o acesso às pessoas autorizadas pela coordenação) e cláusula contratual
+     de autorização (LGPD: dado sensível).
+  Nos dois casos: 🔴 **o kill switch nunca desliga a gravação** — ele corta IA
+  (transcrição, extração, sugestão); o fork de mídia é camada da telefonia,
+  indiferente ao estado da IA (o banner do modo manual da demo afirma isso). Onde a
+  gravação atual da central for precária, a postura 2 é argumento direto de venda —
+  o diagnóstico de implantação já pergunta "a CRU já grava? sob qual amparo?"
+  (`docs/12`, pergunta 10).
 
 ## 3. Plug com o PABX das CRUs — como se faz na prática
 
