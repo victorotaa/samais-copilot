@@ -34,6 +34,19 @@ Encerramento + registro (desfecho) ──► estatística/faturamento/relatório
 
 **Postura do produto (decisão registrada):** o CoPilot é **100% passivo** — escuta a telefonia via SIPREC, não atende nem interfere. Gera dados, lastro, notificações e recomendações. Números de telefone só são exibidos após o atendimento (fila mascarada).
 
+**Gravação é obrigação normativa da central (requisito registrado em 24/08/2026):** a
+Resolução CFM 2.110/2014 (art. 8º, §2º) torna **obrigatória a gravação de todas as
+ocorrências médicas pela central de regulação**, e o programa arquitetônico do MS exige
+"sistema de gravação digital contínua" com acesso restrito às pessoas autorizadas pela
+coordenação do serviço (fontes íntegras: `docs/21` §3.1). Três implicações de produto:
+(a) o áudio que o CoPilot consome **já existe por obrigação** em toda CRU regular — o
+plug SIPREC recebe cópia, não cria gravação nova; (b) o CoPilot **pode ser o
+instrumento** dessa obrigação — o ramo WORM do media gateway (`docs/05` §2), com a
+postura escolhida por contrato; (c) 🔴 **o kill switch desliga a IA, nunca a
+gravação** — gravação não é recurso de IA, é obrigação da central: o modo manual
+congela transcrição e extração, e o fork de mídia continua. Requisito completo e as
+duas posturas: `docs/05` §2.
+
 ## 2. Dicionário de métricas (o que o produto mede e por quê)
 
 | Métrica | Definição | Onde vive no produto | Benchmark/observação |
@@ -51,7 +64,7 @@ Encerramento + registro (desfecho) ──► estatística/faturamento/relatório
 | **Desfecho** | Transportado / Orientação / Recusa / Óbito no local | 1 toque no encerramento (viatura) → `auditoria` | fecha o ciclo e alimenta o APH-BR |
 | **Divergência IA×Regulador** | Regulador discorda da sugestão | `ocorrencias.divergencia_justificativa` | base de retreino + acurácia auditável |
 
-**Relatório obrigatório:** a **Portaria GM/MS nº 1.010/2012** condiciona o incentivo financeiro qualificado ao envio **semestral** de relatório analítico de indicadores. O botão *Exportar PDF* do Dashboard já emite com cabeçalho de subsídio a esse relatório — é argumento direto de venda ao gestor.
+**Relatório obrigatório:** pelo texto vigente — **Portaria GM/MS nº 1.997/2023** (art. 929, alterando as Portarias de Consolidação 3 e 6/2017) — a manutenção do incentivo de unidade **qualificada** exige **relatório descritivo analítico anual**, e a qualificação vale por 3 anos (art. 928). *(Correção de 24/08/2026: este doc citava envio "semestral" com base na Portaria 1.010/2012; o texto de 2023, lido na íntegra, fixa periodicidade anual — fonte e ressalva em `docs/21` §3.1.)* O botão *Exportar PDF* do Dashboard já emite com cabeçalho de subsídio a esse relatório — é argumento direto de venda ao gestor, e serve a qualquer periodicidade que a norma ou o contrato local exijam.
 
 ## 3. Cruzamento com os sistemas atuais e dores de usuários
 

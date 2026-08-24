@@ -80,6 +80,7 @@
 | 6.2 | Mapa real (Google Maps API key, ou Mapbox para custom theming) | bloqueado | 🔴 (credencial) |
 | 6.3 | Telemetria de viatura (MQTT broker, gateway, hardware) | bloqueado | 🔴 |
 | 6.4 | Câmera ao vivo da cena (atualmente só modal placeholder) | bloqueado | 🔴 |
+| 6.5 | Gravação WORM da chamada (media gateway → S3/R2, cadeia de custódia) — cópia probatória na fase shadow; opção "gravador oficial da central" com gate de conformidade (CFM 2.110/2014; requisito em `docs/05` §2) | não iniciado | 🔴 (depende de 6.1) |
 
 ## Sprint 7 — Qualidade
 
@@ -103,3 +104,10 @@
    - Google Maps API key (ou trocar para Mapbox)
 4. **Decisão sobre PR #1** (Taboão proposal): merge na main como peça permanente do repo, ou manter em branch isolado/movida para um repo `samais-propostas`?
 5. **Aprovação da identidade visual unificada** depois que PEP OS for liberado — vou mandar comparativo lado a lado.
+
+---
+
+**Épico F1 — Painéis guiados pelo OS (23/08/2026):** frota-hora da transferência
+inter-hospitalar, cobertura de escala (FC implícito), metas contratuais com metodologia,
+ficha da operação, NEP, obrigações da operação, carga da central e aba de sustentação —
+fundamentos, fontes e os 5 campos de schema em `docs/20-auditoria-padrao-ouro.md` §4.

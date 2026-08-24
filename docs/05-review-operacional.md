@@ -47,8 +47,47 @@ PABX/SBC ──RTP/SIPREC──▶ Media Gateway (forka o áudio)
 ```
 
 - **Fallback degradado:** se o STT cair, a chamada continua (áudio nunca depende da IA); a UI marca "transcrição indisponível" e o TARM digita como hoje. Princípio: *a IA é copiloto, não piloto* — vale também para disponibilidade.
+- **Três modos de operação da IA (doutrina — nota do Ota, 24/08/2026).** O kill switch
+  não é binário; entre a IA plena e o manual total existe o modo que preserva o fluxo
+  que as centrais já operam hoje:
+  1. **IA plena** — escuta shadow da chamada atendida (SIPREC) + digitação do TARM;
+     transcrição, extração clínica e sugestão Manchester em tempo real.
+  2. **IA sobre digitação** — sem escuta. O TARM segue o fluxo habitual das CRUs:
+     digita em paralelo ao atendimento telefônico, como já faz no sistema próprio da
+     central. A IA faz o **mesmo** rankeamento e chaveamento de quadros/prioridades a
+     partir do texto digitado — mesma extração, outra fonte de entrada. É o fallback
+     natural do item acima e o caminho de menor atrito para pilotar **antes** do plug
+     SIPREC: nenhuma mudança no hábito do operador, nenhum toque na telefonia.
+  3. **Manual total** — kill switch integral, com janela sem IA marcada e auditada
+     (já implementado na demo).
+  **Regra:** desligar a escuta **nunca** pode degradar o atendimento abaixo do que a
+  central já faz sem nós — o modo 2 é a prova operacional disso, e é requisito de
+  convivência com os softwares de regulação em uso nas CRUs (benchmark dos sistemas e
+  do fluxo de digitação do TARM: `docs/21-benchmark-software-cru.md`).
 - **Plano B de vendor:** abstrair o provider atrás de uma interface (`TranscriptProvider`) para poder trocar por Google Speech v2 ou Whisper streaming self-hosted (GPU) se contrato público exigir dado 100% on-prem.
 - **LGPD:** áudio é dado sensível. Gravação cifrada em repouso, retenção por política contratual, transcrição com PII minimizada no log.
+- **Gravação: obrigação normativa da central — e o CoPilot pode ser o instrumento
+  (requisito registrado em 24/08/2026).** A CFM 2.110/2014 (art. 8º, §2º) obriga a
+  gravação de todas as ocorrências **pela central de regulação**; o programa
+  arquitetônico do MS exige "sistema de gravação digital contínua" com acesso
+  protegido, "permitido apenas às pessoas autorizadas pela Coordenação do Serviço"
+  (fontes íntegras: `docs/21` §3.1). Duas posturas de produto, escolhidas por contrato:
+  1. **Cópia probatória (fase 1, shadow)** — a central mantém o gravador oficial dela
+     (PABX/gravador legado); o ramo WORM do diagrama acima guarda a **nossa** cópia
+     (lastro dos T0–T4, reprocessamento de STT, retreino), sem assumir a obrigação.
+  2. **Gravador oficial da central** — o CoPilot cumpre a obrigação como
+     funcionalidade. Vira função de conformidade crítica e os requisitos endurecem:
+     **disponibilidade com redundância** (se cair, a central descumpre norma — o SLA
+     desta função não é o do copiloto), WORM + cadeia de custódia, retenção por
+     política contratual, **controle de acesso nominal** com trilha auditada (a norma
+     restringe o acesso às pessoas autorizadas pela coordenação) e cláusula contratual
+     de autorização (LGPD: dado sensível).
+  Nos dois casos: 🔴 **o kill switch nunca desliga a gravação** — ele corta IA
+  (transcrição, extração, sugestão); o fork de mídia é camada da telefonia,
+  indiferente ao estado da IA (o banner do modo manual da demo afirma isso). Onde a
+  gravação atual da central for precária, a postura 2 é argumento direto de venda —
+  o diagnóstico de implantação já pergunta "a CRU já grava? sob qual amparo?"
+  (`docs/12`, pergunta 10).
 
 ## 3. Plug com o PABX das CRUs — como se faz na prática
 
