@@ -25,7 +25,9 @@ const TypingMessage = ({ text }: { text: string }) => {
 
   const highlightKeywords = (text: string) => {
     if (!text) return null;
-    const regex = new RegExp(`(${KEYWORDS.join('|')})`, 'gi');
+    // Fronteira de palavra Unicode: sem isso "dor" acendia dentro de "regulador"
+    // e "braço" dentro de "abraço" (visto em produção, print do Ota 24/08).
+    const regex = new RegExp(`(?<![\\p{L}\\p{N}])(${KEYWORDS.join('|')})(?![\\p{L}\\p{N}])`, 'giu');
     const parts = text.split(regex);
     return parts.map((part, i) => {
       if (KEYWORDS.some(k => k.toLowerCase() === part.toLowerCase())) {
@@ -1119,7 +1121,7 @@ export default function App() {
       showToast('Handoff recebido do TARM-04', 'success');
       return;
     }
-    showToast('Chamada conectada com sucesso', 'success');
+    showToast('Chamada conectada — cronômetro da etapa iniciado (meta 1 min)', 'success');
     setChamadaInicio(Date.now());
     setCurrentModule('AML');
     
@@ -1327,7 +1329,7 @@ export default function App() {
       )}
 
       {/* GLOBAL HEADER */}
-      <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-3 sm:px-5 shrink-0 z-50 shadow-md relative">
+      <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-3 sm:px-5 shrink-0 z-50 shadow-md relative max-lg:sticky max-lg:top-0">
         <div className="flex items-center gap-4">
           <SamaisMonogram className="h-9 shrink-0 text-gold-500" />
           <div className="hidden sm:block">
@@ -1347,12 +1349,24 @@ export default function App() {
           const rotulo = role === 'GESTOR' ? 'GESTÃO'
             : role === 'VIATURA' && !currentCaller ? 'PRONTIDÃO'
             : currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA';
+          // Tempo da etapa corrente na própria pílula: no mobile o chip do chat
+          // rola para fora da tela — a pílula (header sticky) é o que fica à vista.
+          const etapaInicio = currentModule === 'REGULADOR' ? regulacaoInicio
+            : (currentModule === 'TARM' || currentModule === 'AML') ? chamadaInicio : null;
+          let tempoPill: React.ReactNode = null;
+          if (emChamada && etapaInicio) {
+            const seg = Math.max(0, Math.floor((time.getTime() - etapaInicio) / 1000));
+            const corTempo = seg >= META_CHAMADA_S.teto ? 'text-danger animate-pulse'
+              : seg >= META_CHAMADA_S.meta ? 'text-warn' : 'text-ink-primary';
+            tempoPill = <span className={`font-mono text-[0.65rem] font-bold tracking-widest ${corTempo}`}>{String(Math.floor(seg / 60)).padStart(2, '0')}:{String(seg % 60).padStart(2, '0')}</span>;
+          }
           return (
         <div className={`max-lg:static max-lg:translate-x-0 max-lg:mx-1.5 max-sm:px-2.5 max-lg:px-3 lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 whitespace-nowrap shrink-0 ${emChamada ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
           <Icon name="circle" className={`text-[7px] ${emChamada ? 'text-danger animate-pulse' : 'text-ink-secondary'}`} />
-          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${emChamada ? 'text-danger' : 'text-ink-secondary'}`}>
+          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${emChamada ? 'text-danger' : 'text-ink-secondary'} ${tempoPill ? 'max-[430px]:hidden' : ''}`}>
             {rotulo}
           </span>
+          {tempoPill}
         </div>
           );
         })()}
@@ -2351,7 +2365,7 @@ export default function App() {
                     href={`https://www.google.com/maps/dir/?api=1&destination=${amlData.lat},${amlData.lng}&travelmode=driving&dir_action=navigate`}
                     target="_blank"
                     rel="noopener"
-                    className="absolute top-4 right-4 z-10 px-4 py-3 min-h-[48px] rounded-xl bg-gold-500 text-ink-inverse text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(191,154,61,0.4)] hover:bg-gold-300 transition-colors whitespace-nowrap"
+                    className="absolute right-4 lg:top-4 max-lg:bottom-12 z-10 px-4 py-3 min-h-[48px] rounded-xl bg-gold-500 text-ink-inverse text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(191,154,61,0.4)] hover:bg-gold-300 transition-colors whitespace-nowrap"
                   >
                     <Icon name="location-arrow" /> Iniciar navegação
                   </a>
