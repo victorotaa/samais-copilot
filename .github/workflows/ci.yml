@@ -47,6 +47,9 @@ jobs:
       - name: Bateria e2e — cronômetro
         run: node tests/e2e-timer.mjs
 
+      - name: Bateria e2e — IA sobre digitação
+        run: node tests/e2e-digitacao.mjs
+
       - name: Bateria e2e — mobile
         run: node tests/e2e-mobile.mjs
 

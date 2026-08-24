@@ -64,6 +64,12 @@ PABX/SBC ──RTP/SIPREC──▶ Media Gateway (forka o áudio)
   central já faz sem nós — o modo 2 é a prova operacional disso, e é requisito de
   convivência com os softwares de regulação em uso nas CRUs (benchmark dos sistemas e
   do fluxo de digitação do TARM: `docs/21-benchmark-software-cru.md`).
+  ✅ **O modo 2 é demonstrável na demo (24/08):** o seletor Escuta · Digitação · Manual
+  vive no cabeçalho da transcrição; em Digitação a escuta congela com marca auditada,
+  o TARM digita num campo livre e a classificação reage ao texto — extração
+  **determinística por palavras-chave, rotulada como simulação** (sem modelo real;
+  texto sem sinal permanece pendente, nunca palpite). Verificado por bateria própria
+  no CI (`tests/e2e-digitacao.mjs`).
 - **Plano B de vendor:** abstrair o provider atrás de uma interface (`TranscriptProvider`) para poder trocar por Google Speech v2 ou Whisper streaming self-hosted (GPU) se contrato público exigir dado 100% on-prem.
 - **LGPD:** áudio é dado sensível. Gravação cifrada em repouso, retenção por política contratual, transcrição com PII minimizada no log.
 - **Gravação: obrigação normativa da central — e o CoPilot pode ser o instrumento

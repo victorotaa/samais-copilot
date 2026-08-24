@@ -68,6 +68,9 @@ como já faz no software próprio da CRU, e a IA faz o mesmo rankeamento e chave
 quadros a partir do texto digitado. Desligar a escuta nunca degrada o fluxo abaixo do
 que a central já opera sem nós. Registro doutrinário em `docs/05` §2; benchmark dos
 softwares em uso nas centrais e do fluxo de digitação do TARM em `docs/21`.
+✅ **Demonstrável desde 24/08**: seletor Escuta · Digitação · Manual no cabeçalho da
+transcrição — em Digitação o TARM digita e a classificação reage ao texto (extração
+determinística rotulada como simulação; sem sinal → pendente). Bateria própria no CI.
 
 ### 2a. Variabilidade de cenários — seletor de demonstração (24/08)
 
