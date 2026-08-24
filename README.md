@@ -43,6 +43,7 @@ disponível, o app cai em modo demonstração e os dados voltam a ser locais.
 | **[`docs/18-verificacao-parecer-hugo.md`](./docs/18-verificacao-parecer-hugo.md)** | **Verificação achado a achado do parecer: o que confirmou, o que corrigiu, o que mudou** |
 | [`docs/19-retorno-parecer-hugo.md`](./docs/19-retorno-parecer-hugo.md) | Resposta formal ao parecer — o documento que se envia ao Hugo |
 | **[`docs/20-auditoria-padrao-ouro.md`](./docs/20-auditoria-padrao-ouro.md)** | **Auditoria da demo: 15 defeitos corrigidos, cenários de estresse, UX e expansão guiada pelo OS** |
+| [`docs/21-benchmark-software-cru.md`](./docs/21-benchmark-software-cru.md) | Benchmark dos softwares que operam CRUs/SAMU: sistemas, fluxo de digitação do TARM, normas e números — base do modo "IA sobre digitação" |
 | [`SECURITY.md`](./SECURITY.md) | Postura de segurança e o que ainda é roadmap |
 
 ## Rodando local
@@ -77,7 +78,7 @@ Ver [`.env.example`](./.env.example). Nenhum segredo vive no código-fonte.
 
 ```
 samais-copilot/
-├── docs/                       # documentação estratégica e técnica (00–20)
+├── docs/                       # documentação estratégica e técnica (00–21)
 ├── apresentacao-ms/            # peça institucional (HTML único, servida em /apresentacao-ms/)
 ├── lp/                         # landing page B2B (servida em /lp)
 ├── master-plan-rota/           # documento institucional de outro vertical (ROTA)

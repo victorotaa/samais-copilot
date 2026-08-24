@@ -49,8 +49,8 @@ aparece com o mesmo destaque que o estresse da rua.
 existe o modo **IA sobre digitação** — sem escuta, o TARM digita em paralelo ao telefone
 como já faz no software próprio da CRU, e a IA faz o mesmo rankeamento e chaveamento de
 quadros a partir do texto digitado. Desligar a escuta nunca degrada o fluxo abaixo do
-que a central já opera sem nós. Registro doutrinário em `docs/05` §2; parâmetros do
-fluxo de digitação dos softwares em uso nas centrais em levantamento (`docs/22`).
+que a central já opera sem nós. Registro doutrinário em `docs/05` §2; benchmark dos
+softwares em uso nas centrais e do fluxo de digitação do TARM em `docs/21`.
 
 ### 2a. Variabilidade de cenários — seletor de demonstração (24/08)
 

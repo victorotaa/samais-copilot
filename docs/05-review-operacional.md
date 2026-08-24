@@ -62,8 +62,8 @@ PABX/SBC ──RTP/SIPREC──▶ Media Gateway (forka o áudio)
      (já implementado na demo).
   **Regra:** desligar a escuta **nunca** pode degradar o atendimento abaixo do que a
   central já faz sem nós — o modo 2 é a prova operacional disso, e é requisito de
-  convivência com os softwares de regulação em uso nas CRUs (parâmetros do fluxo de
-  digitação em levantamento — `docs/22`).
+  convivência com os softwares de regulação em uso nas CRUs (benchmark dos sistemas e
+  do fluxo de digitação do TARM: `docs/21-benchmark-software-cru.md`).
 - **Plano B de vendor:** abstrair o provider atrás de uma interface (`TranscriptProvider`) para poder trocar por Google Speech v2 ou Whisper streaming self-hosted (GPU) se contrato público exigir dado 100% on-prem.
 - **LGPD:** áudio é dado sensível. Gravação cifrada em repouso, retenção por política contratual, transcrição com PII minimizada no log.
 
