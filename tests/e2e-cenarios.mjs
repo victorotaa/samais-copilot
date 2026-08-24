@@ -78,6 +78,7 @@ const { ok, fim } = coletor();
   await loginTarmIdle(page);
   const overflow = await overflowScan(page);
   ok(overflow.length === 0, 'idle390: zero overflow com o seletor', overflow.join(','));
+  await page.screenshot({ path: `${ARTEFATOS}/idle-390.png`, fullPage: true });
   await page.close();
 }
 

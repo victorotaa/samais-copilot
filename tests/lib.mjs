@@ -56,7 +56,11 @@ export async function atenderCenario(page, chip, { confirmarAml = true } = {}) {
 }
 
 // Overflow horizontal real: ignora clipe deliberado (hidden/clip) e truncate.
+// Espera as fontes declaradas resolverem antes de medir — no CI a métrica do
+// fallback difere da webfont e uma medição precoce acusa estouro fantasma.
 export async function overflowScan(page) {
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(200);
   return page.evaluate(() =>
     [...document.querySelectorAll('*')].filter(e =>
       e.scrollWidth > e.clientWidth + 1 && !['HTML', 'BODY'].includes(e.tagName) &&

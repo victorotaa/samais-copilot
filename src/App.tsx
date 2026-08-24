@@ -1544,10 +1544,12 @@ export default function App() {
             {/* Vehicles Grid & Map */}
             <div className="w-full max-w-7xl px-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col">
-                <div className="flex items-center gap-3 mb-6 border-b border-border-subtle pb-3">
+                {/* flex-wrap: com fonte fallback (SO sem as webfonts — cenário real
+                    de CRU) o título + chips estouravam a 390px; quebrando, nunca. */}
+                <div className="flex flex-wrap items-center gap-3 gap-y-2 mb-6 border-b border-border-subtle pb-3">
                   <Icon name="truck-medical" className="text-gold-500 text-xl" />
                   <h3 className="text-lg font-disp font-bold text-ink-primary uppercase tracking-widest">Status da Frota</h3>
-                  <div className="ml-auto flex gap-2">
+                  <div className="ml-auto flex gap-2 shrink-0">
                      <span className="chip chip-ok text-[0.6rem]">3 DISPONÍVEIS</span>
                      <span className="chip chip-danger text-[0.6rem]">1 EM ATENDIMENTO</span>
                   </div>
