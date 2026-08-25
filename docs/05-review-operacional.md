@@ -116,6 +116,7 @@ O que a interface pode afirmar depende da FONTE, e são duas — ambas só-leitu
 | **SIPREC** (espelho de mídia) | Chamadas **atendidas**: áudio + metadados + **início/fim de sessão em tempo real** (sinalização SIP, sub-segundo) | Transcrição shadow; cronômetro da etapa; detecção de fim de chamada (a UI corresponde ativamente à linha de voz para *que terminou e quando*) |
 | **Eventos do PABX em modo leitura** (AMI read-only no Asterisk/Issabel — a maioria das CRUs; feeds equivalentes em SBCs comerciais) | Fila de espera (entrou/saiu/abandonou), novo canal, desligamento **com HangupCause** (normal × anormal) | Painel de fila ao vivo, tempo de espera, abandono; distinção queda × desligamento intencional |
 | Nenhuma das duas | — | O painel **declara** "sinalização de fila indisponível nesta central" — a UI nunca inventa fila |
+| **AML** (localização do aparelho) — 🔮 **implementação futura** (decisão do Ota, 24/08/2026) | SMS/HTTPS do dispositivo ao discar 192 | Painel de localização auto-preenchido. Adotamos quando regulamentação e infra das centrais amadurecerem; **hoje o padrão é endereço por voz** (+ sugestão pelo histórico da nossa base). A demo antecipa o cenário rotulado como simulação |
 
 Regras derivadas: a **distribuição** de chamadas é do ACD da central (critério é configuração
 de cada PABX — pergunta do diagnóstico de implantação, `docs/12` §2); **queda × desligamento**

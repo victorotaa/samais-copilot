@@ -1799,9 +1799,12 @@ export default function App() {
                       <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary flex items-center gap-1.5">
                         <Icon name="location-crosshairs" className={!currentCaller?.aml ? 'text-warn' : 'text-gold-500'} /> Localização &amp; Origem
                       </div>
+                      {/* AML é IMPLEMENTAÇÃO FUTURA (decisão do Ota, 24/08): o
+                          produto adota quando regulamentação e infra das centrais
+                          amadurecerem. A demo antecipa o cenário — rotulado. */}
                       {currentCaller?.aml
                         ? (amlData
-                            ? <span className="chip chip-ok text-[0.6rem]"><Icon name="satellite-dish" /> AML ±5m</span>
+                            ? <span className="chip chip-ai text-[0.6rem]"><Icon name="satellite-dish" /> AML · futuro (simulado)</span>
                             : <span className="chip chip-nude text-[0.6rem]"><Icon name="circle-notch" className="animate-spin" /> AML…</span>)
                         : <span className="chip chip-warn text-[0.6rem]">Colher por voz</span>}
                     </div>
@@ -1818,7 +1821,7 @@ export default function App() {
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-2.5 flex-wrap">
                       <span className="text-[0.55rem] font-mono text-ink-tertiary">
-                        {amlData ? `AML ${amlData.lat}°, ${amlData.lng}° · ±5m` : currentCaller?.aml ? 'aguardando sinalização…' : 'sem AML nesta linha (fixo/VoIP)'}
+                        {amlData ? `AML simulado (implementação futura) · ${amlData.lat}°, ${amlData.lng}°` : currentCaller?.aml ? 'aguardando sinalização…' : 'sem AML nesta linha (fixo/VoIP) — endereço por voz é o padrão de hoje'}
                       </span>
                       <button
                         onClick={() => { audit('LOCALIZACAO_CONFIRMADA', { fonte: amlData ? 'aml' : 'voz' }); showToast('Localização confirmada — registrada em auditoria', 'success'); }}
