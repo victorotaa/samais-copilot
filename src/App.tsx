@@ -533,7 +533,7 @@ export default function App() {
     soundEnabledRef.current = soundEnabled;
   }, [soundEnabled]);
 
-  const [currentModule, setCurrentModule] = useState<'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD' | 'GESTOR' | 'FROTA' | 'ESCALAS'>('IDLE');
+  const [currentModule, setCurrentModule] = useState<'IDLE' | 'TARM' | 'REGULADOR' | 'VIATURA' | 'DASHBOARD' | 'GESTOR' | 'FROTA' | 'ESCALAS'>('IDLE');
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -566,6 +566,15 @@ export default function App() {
     confidence: { patientName: 0, symptoms: 0, protocol: 0 }
   });
   const [justification, setJustification] = useState<string | null>(null);
+  // Tipificação do encerramento (taxonomia dos sistemas reais — docs/21 §2.2a):
+  // quem decide o motivo é o operador, em um toque; o sistema registra.
+  const [encerrarArm, setEncerrarArm] = useState(false);
+  // Queda de ligação NUNCA perde contexto (docs/21 §2.3-2.4): o rascunho fica
+  // preservado na espera e reassocia pela anti-duplicidade quando o número volta.
+  const [quedaPendente, setQuedaPendente] = useState<{
+    caller: typeof MOCK_CALLERS[0]; chat: typeof tarmChat; dados: typeof extractedData; em: number;
+  } | null>(null);
+  const [headerFora, setHeaderFora] = useState(false);
   // Cronômetros de etapa: nascem no ATENDER (nunca antes — shadow) e no handoff.
   const [chamadaInicio, setChamadaInicio] = useState<number | null>(null);
   const [regulacaoInicio, setRegulacaoInicio] = useState<number | null>(null);
@@ -771,13 +780,42 @@ export default function App() {
   }, [GMAPS_KEY, mapFilter]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Rola SÓ o container do chat: scrollIntoView subia pelos ancestrais e
+    // brigava com o auto-hide do header (e arrastava a tela no mobile).
+    const fim = chatEndRef.current;
+    if (fim?.parentElement) fim.parentElement.scrollTop = fim.parentElement.scrollHeight;
   }, [tarmChat]);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Header fino no mobile: o layout é h-screen (a página não rola — os blocos
+  // de tela rolam por dentro), então "fixo" era o estado permanente. O header
+  // agora se ESCONDE quando o operador rola o conteúdo para baixo e volta ao
+  // rolar para cima (padrão dos browsers mobile); o mini-chip do cronômetro
+  // flutua enquanto ele está fora. Capture pega o scroll dos containers de
+  // tela (filhos diretos do main) e ignora scrolls internos como o do chat.
+  const ultimoScrollRef = useRef<{ el: EventTarget | null; top: number; acum: number }>({ el: null, top: 0, acum: 0 });
+  useEffect(() => {
+    const onScroll = (e: Event) => {
+      const el = e.target;
+      if (!(el instanceof HTMLElement) || el.parentElement?.tagName !== 'MAIN') return;
+      const r = ultimoScrollRef.current;
+      const anterior = r.el === el ? r.top : el.scrollTop;
+      const delta = el.scrollTop - anterior;
+      // acumula na direção corrente: rolagem suave entrega deltas minúsculos
+      const acum = delta === 0 ? r.acum : (delta > 0) === (r.acum > 0) ? r.acum + delta : delta;
+      ultimoScrollRef.current = { el, top: el.scrollTop, acum };
+      if (el.scrollTop < 24) setHeaderFora(false);
+      else if (acum > 24) setHeaderFora(true);
+      else if (acum < -24) setHeaderFora(false);
+    };
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => window.removeEventListener('scroll', onScroll, { capture: true } as any);
+  }, []);
+  useEffect(() => { setHeaderFora(false); }, [currentModule]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -1132,7 +1170,7 @@ export default function App() {
     if (role !== 'VIATURA') setCurrentModule('IDLE');
   };
 
-  const jumpToStage = (stage: 'IDLE' | 'AML' | 'TARM' | 'REGULADOR' | 'VIATURA') => {
+  const jumpToStage = (stage: 'IDLE' | 'TARM' | 'REGULADOR' | 'VIATURA') => {
     if (stage !== 'IDLE' && !currentCaller) applyDemoSnapshot();
     if (stage === 'REGULADOR' && !selectedVehicleId) setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
     setCurrentModule(stage);
@@ -1171,6 +1209,23 @@ export default function App() {
     }
   };
 
+  const encerrarSemRegulacao = (motivo: 'trote' | 'engano' | 'queda') => {
+    audit('CHAMADA_ENCERRADA_SEM_REGULACAO', { motivo, extracao: extractedData.risk });
+    scriptTimersRef.current.forEach(clearTimeout);
+    scriptTimersRef.current = [];
+    if (motivo === 'queda' && currentCaller) {
+      // Queda: o rascunho sobrevive à volta ao IDLE — protocolo real manda
+      // retornar a ligação, e o retorno reassocia à MESMA ocorrência.
+      setQuedaPendente({ caller: currentCaller, chat: tarmChat, dados: extractedData, em: Date.now() });
+      showToast('Queda registrada — contexto preservado; retorne a ligação', 'warn');
+    } else {
+      showToast(`Encerrada sem regulação (${motivo}) — registrada em auditoria`, 'info');
+    }
+    setEncerrarArm(false);
+    setIncomingCall(false);
+    setCurrentModule('IDLE');
+  };
+
   const acceptCall = () => {
     setIncomingCall(false);
     if (currentCaller) abrirOcorrencia(currentCaller);
@@ -1182,9 +1237,21 @@ export default function App() {
       showToast('Handoff recebido do TARM-04', 'success');
       return;
     }
-    showToast('Chamada conectada — cronômetro da etapa iniciado (meta 1 min)', 'success');
+    showToast('Chamada atendida na central — triagem aberta · cronômetro da etapa iniciado', 'success');
     setChamadaInicio(Date.now());
-    setCurrentModule('AML');
+    setCurrentModule('TARM');
+    // Reassociação: o mesmo número religando complementa a ocorrência da queda
+    // em vez de abrir outra (mecanismo dos sistemas reais — docs/21 §2.4).
+    if (quedaPendente && currentCaller && quedaPendente.caller.phone === currentCaller.phone) {
+      const q = quedaPendente;
+      setTimeout(() => {
+        setTarmChat(q.chat);
+        setExtractedData(q.dados);
+        marcadorSistema('— retorno da ligação: contexto reassociado à ocorrência da queda (anti-duplicidade por telefone) —');
+      }, 400);
+      setQuedaPendente(null);
+      showToast('Mesmo número religou — contexto da queda reassociado', 'success');
+    }
     
     setTimeout(() => {
       if (currentCaller) {
@@ -1234,22 +1301,34 @@ export default function App() {
       >
         <Icon name="user-doctor" className="text-base shrink-0" /> <span className="truncate">Handoff & Ir p/ Regulador</span>
       </button>
-      {/* Sempre habilitado: chamada sem extração conclusiva (trote, engano, queda)
-          não pode TRAVAR o TARM — os dois botões acima exigem risco definido.
-          Quem decide que é trote é o operador; o sistema só registra e audita. */}
-      <button
-        onClick={() => {
-          audit('CHAMADA_ENCERRADA_SEM_REGULACAO', { motivo: 'trote_engano_queda', extracao: extractedData.risk });
-          scriptTimersRef.current.forEach(clearTimeout);
-          scriptTimersRef.current = [];
-          showToast('Chamada encerrada sem regulação — registrada em auditoria', 'info');
-          setIncomingCall(false);
-          setCurrentModule('IDLE');
-        }}
-        className="w-full py-2 text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary hover:text-warn transition-colors flex items-center justify-center gap-2"
-      >
-        <Icon name="mask" /> Encerrar sem regulação · trote / engano / queda
-      </button>
+      {/* Sempre habilitado: chamada sem extração conclusiva não pode TRAVAR o
+          TARM — os dois botões acima exigem risco definido. O MOTIVO é decisão
+          explícita do operador (taxonomia dos sistemas reais, docs/21 §2.2a);
+          QUEDA preserva o contexto para reassociação quando o número religa. */}
+      {!encerrarArm ? (
+        <button
+          onClick={() => setEncerrarArm(true)}
+          className="w-full py-2 text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary hover:text-warn transition-colors flex items-center justify-center gap-2"
+        >
+          <Icon name="mask" /> Encerrar sem regulação · trote / engano / queda
+        </button>
+      ) : (
+        <div className="w-full flex items-center justify-center gap-2 py-1.5 fu flex-wrap">
+          <span className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary shrink-0">Motivo:</span>
+          {([['trote', 'Trote'], ['engano', 'Engano'], ['queda', 'Queda']] as const).map(([m, rot]) => (
+            <button
+              key={m}
+              onClick={() => encerrarSemRegulacao(m)}
+              className={`px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-widest border transition-colors ${m === 'queda' ? 'border-warn/40 text-warn hover:bg-warn/10' : 'border-border-subtle text-ink-secondary hover:border-danger hover:text-danger'}`}
+            >
+              {rot}
+            </button>
+          ))}
+          <button onClick={() => setEncerrarArm(false)} className="px-3 py-1.5 rounded-full text-[0.65rem] font-mono uppercase tracking-widest text-ink-tertiary hover:text-ink-primary">
+            Cancelar
+          </button>
+        </div>
+      )}
     </>
   );
 
@@ -1372,25 +1451,37 @@ export default function App() {
                 do áudio da chamada atendida (shadow) e NUNCA escuta ou transcreve
                 pré-atendimento. O box "Transcrição Prévia" que existia aqui violava
                 essa premissa e foi removido (22/08). */}
-            <div className="md:hidden w-full px-4 py-3 bg-elevated/50 border border-border-subtle rounded-2xl mb-8 flex items-center gap-2 justify-center">
-              <Icon name="circle" className="text-[6px] text-ink-secondary animate-pulse" />
-              <span className="text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary">Sinalização do PABX · transcrição inicia ao atender</span>
+            <div className="w-full px-4 py-3 bg-elevated/50 border border-border-subtle rounded-2xl mb-8 flex items-center gap-2 justify-center text-center">
+              <Icon name="circle" className="text-[6px] text-ink-secondary animate-pulse shrink-0" />
+              <span className="text-[0.6rem] md:text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary">Sinalização do PABX · no produto a triagem abre sozinha quando o TARM atende na central</span>
             </div>
 
             <div className="flex gap-4 w-full">
-              <button onClick={ignoreCall} className="flex-1 px-4 py-3 rounded-xl border border-border-subtle text-ink-secondary font-bold tracking-widest hover:bg-elevated transition-all text-xs md:text-sm">
-                IGNORAR
+              <button onClick={ignoreCall} className="flex-1 px-4 py-3 rounded-xl border border-border-subtle text-ink-secondary font-bold tracking-widest hover:bg-elevated transition-all text-xs md:text-sm whitespace-nowrap">
+                DISPENSAR · DEMO
               </button>
-              <button onClick={acceptCall} className="flex-[1.5] px-4 py-3 bg-ok text-ink-inverse font-extrabold font-disp text-sm md:text-lg rounded-xl shadow-[0_0_30px_rgba(67,160,71,0.4)] hover:scale-105 transition-all flex items-center justify-center gap-2 md:gap-3">
-                <Icon name="headset" /> ATENDER
+              <button onClick={acceptCall} className="flex-[1.7] px-4 py-3 bg-ok text-ink-inverse font-extrabold font-disp text-xs md:text-base rounded-xl shadow-[0_0_30px_rgba(67,160,71,0.4)] hover:scale-105 transition-all flex items-center justify-center gap-2 md:gap-3">
+                <Icon name="headset" /> <span className="leading-tight">SIMULAR ATENDIMENTO NA CENTRAL</span>
               </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Cronômetro flutuante: o header rola livre (nada de barra fixa
+          grosseira); quando ele sai da viewport EM CHAMADA, só o tempo flutua. */}
+      {(() => {
+        const etapa = currentModule === 'REGULADOR' ? regulacaoInicio : currentModule === 'TARM' ? chamadaInicio : null;
+        if (!headerFora || !etapa || !isAuthenticated) return null;
+        return (
+          <div className="fixed top-2 right-3 z-40 fu bg-canvas rounded-full shadow-lg">
+            <CronometroMeta inicio={etapa} agora={time} />
+          </div>
+        );
+      })()}
+
       {/* GLOBAL HEADER */}
-      <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-3 sm:px-5 shrink-0 z-50 shadow-md relative max-lg:sticky max-lg:top-0">
+      <header className={`h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-3 sm:px-5 shrink-0 z-50 shadow-md relative max-lg:transition-[margin-top] max-lg:duration-300 ${headerFora ? 'max-lg:mt-[-3.75rem]' : 'max-lg:mt-0'}`}>
         <div className="flex items-center gap-4">
           <SamaisMonogram className="h-9 shrink-0 text-gold-500" />
           <div className="hidden sm:block">
@@ -1413,7 +1504,7 @@ export default function App() {
           // Tempo da etapa corrente na própria pílula: no mobile o chip do chat
           // rola para fora da tela — a pílula (header sticky) é o que fica à vista.
           const etapaInicio = currentModule === 'REGULADOR' ? regulacaoInicio
-            : (currentModule === 'TARM' || currentModule === 'AML') ? chamadaInicio : null;
+            : currentModule === 'TARM' ? chamadaInicio : null;
           let tempoPill: React.ReactNode = null;
           if (emChamada && etapaInicio) {
             const seg = Math.max(0, Math.floor((time.getTime() - etapaInicio) / 1000));
@@ -1497,7 +1588,7 @@ export default function App() {
             </div>
           </div>
         )}
-        {(currentModule === 'AML' || currentModule === 'TARM' || currentModule === 'REGULADOR') && !currentCaller && (
+        {(currentModule === 'TARM' || currentModule === 'REGULADOR') && !currentCaller && (
           <div className="flex-1 flex flex-col items-center justify-center text-ink-secondary/50">
             <Icon name="headset" className="text-4xl mb-4 animate-pulse" />
             <p className="font-mono text-sm uppercase tracking-widest">Aguardando chamada entrante...</p>
@@ -1540,6 +1631,50 @@ export default function App() {
                 ))}
               </div>
             </div>
+
+            {/* Ocorrência em aberto após QUEDA: o contexto não se perde — o
+                protocolo real manda retornar a ligação (docs/21 §2.3) e o mesmo
+                número religando reassocia automaticamente (anti-duplicidade). */}
+            {quedaPendente && (
+              <div className="w-full max-w-7xl px-5 mb-8 fu">
+                <div className="gp rounded-xl px-4 py-3 border-l-4 border-l-warn flex items-center gap-3 flex-wrap">
+                  <Icon name="phone-slash" className="text-warn shrink-0" />
+                  <div className="flex-1 min-w-[200px]">
+                    <div className="text-xs font-bold uppercase tracking-widest text-warn">Ocorrência em aberto · queda de ligação</div>
+                    <div className="text-[0.7rem] font-mono text-ink-secondary mt-0.5">
+                      {quedaPendente.caller.phone} · há {Math.max(0, Math.floor((time.getTime() - quedaPendente.em) / 60000))} min · contexto preservado — retorne a ligação; o mesmo número religando reassocia sozinho
+                    </div>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => {
+                        const q = quedaPendente;
+                        setQuedaPendente(null);
+                        setCurrentCaller(q.caller);
+                        setChamadaInicio(q.em);
+                        setModoIA('manual');
+                        setAiActive(false);
+                        setCurrentModule('TARM');
+                        setTimeout(() => {
+                          setTarmChat(q.chat);
+                          setExtractedData(q.dados);
+                          marcadorSistema('— contexto restaurado após queda · aguardando retorno da ligação —');
+                        }, 300);
+                      }}
+                      className="px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-widest bg-warn/10 border border-warn/40 text-warn hover:bg-warn hover:text-ink-inverse transition-colors"
+                    >
+                      Retomar contexto
+                    </button>
+                    <button
+                      onClick={() => { audit('OCORRENCIA_ARQUIVADA_QUEDA', { telefone: quedaPendente.caller.phone }); setQuedaPendente(null); showToast('Ocorrência da queda arquivada — registrada em auditoria', 'info'); }}
+                      className="px-3 py-1.5 rounded-full text-[0.65rem] font-mono uppercase tracking-widest text-ink-tertiary hover:text-ink-primary"
+                    >
+                      Arquivar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Vehicles Grid & Map */}
             <div className="w-full max-w-7xl px-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1606,193 +1741,10 @@ export default function App() {
           </div>
         )}
 
-        {currentModule === 'AML' && currentCaller && (
-          <div className="flex-1 flex flex-col gap-4 fu min-h-0 overflow-y-auto lg:overflow-hidden pb-6 lg:pb-0 pr-2 -mr-2 lg:pr-0 lg:mr-0">
-            {/* Top row: caller + anti-trote */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 shrink-0 order-2 lg:order-1">
-              <div className="lg:col-span-2 gp rounded-2xl p-4 flex items-center gap-5 border-l-4 border-l-gold-500">
-                <div className="w-12 h-12 rounded-full bg-elevated flex items-center justify-center border border-border-subtle text-lg text-gold-500 shrink-0">
-                  <Icon name="user" />
-                </div>
-                <div className="flex-1">
-                  <div className="lbl">Origem da Chamada</div>
-                  <div className="text-xl font-mono font-bold text-ink-primary">{currentCaller.phone}</div>
-                  <div className="text-[0.65rem] text-ink-secondary font-mono mt-0.5">
-                    Histórico 30d: <span className={currentCaller.hasHistory ? (currentCaller.historyCount > 0 ? "text-warn font-bold" : "text-ok font-bold") : "text-ink-secondary font-bold"}>
-                      {currentCaller.hasHistory ? `${currentCaller.historyCount} ocorrência(s)` : "Número Desconhecido"}
-                    </span>
-                  </div>
-                </div>
-                <div className="h-10 w-px bg-hover"></div>
-                <div className="text-right">
-                  <div className="lbl">Tipo de Linha</div>
-                  <div className="text-sm font-bold text-ink-primary">Celular 4G</div>
-                  <div className="text-[0.65rem] text-ink-secondary font-mono">Operadora: Vivo</div>
-                </div>
-              </div>
-              
-              {/* Anti-trote */}
-              <div className={`gp rounded-2xl p-4 flex items-center gap-4 ${currentCaller.hasHistory ? 'bg-ok/8 border-ok/30 shadow-[0_0_20px_rgba(67,160,71,0.1)]' : 'bg-elevated border-border-subtle'}`}>
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center border text-lg shrink-0 ${currentCaller.hasHistory ? 'bg-ok/15 border-ok/40 text-ok' : 'bg-surface border-border-subtle text-ink-secondary'}`}>
-                  <Icon name="shield-halved" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className={`lbl ${currentCaller.hasHistory ? 'text-ok' : 'text-ink-secondary'}`}>Score Anti-Trote</div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg font-bold text-ink-primary">{currentCaller.hasHistory ? '98%' : 'N/A'}</span>
-                    <span className={`chip ${currentCaller.hasHistory ? 'chip-ok' : 'chip-nude'} text-[0.6rem]`}>
-                      {currentCaller.hasHistory ? 'Autêntica' : 'Análise Pendente'}
-                    </span>
-                  </div>
-                  <div className="bg-canvas rounded-full h-1.5 overflow-hidden">
-                    <div className={`h-full rounded-full ${currentCaller.hasHistory ? 'bg-ok' : 'bg-ink-secondary/30'}`} style={{ width: currentCaller.hasHistory ? '98%' : '10%', transition: 'width 1s ease-in-out' }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Map + Form */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-[600px] lg:min-h-0">
-              {/* Form */}
-              <div className="gp rounded-2xl flex flex-col overflow-hidden order-2 lg:order-1">
-                <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
-                  <div className="flex items-center gap-2">
-                    <Icon name="file-lines" className="text-gold-500 text-xs" />
-                    <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Dados do Solicitante</span>
-                  </div>
-                  {currentCaller.hasHistory ? (
-                    <span className="chip chip-ai text-[0.6rem]"><Icon name="bolt" /> CAD AUTO-FILL</span>
-                  ) : (
-                    <span className="chip chip-warn text-[0.6rem]"><Icon name="bolt" /> SEM HISTÓRICO · TELA RÁPIDA</span>
-                  )}
-                </div>
-                <div className="p-5 flex flex-col gap-4 overflow-y-auto max-h-[40vh] lg:max-h-none">
-                  {/* Cenário real: fixo/VoIP sem AML. O caminho manual É o produto
-                      funcionando — a triagem nunca depende da localização automática. */}
-                  {currentCaller && !currentCaller.aml && (
-                    <div className="fu p-4 rounded-xl bg-warn/10 border border-warn/40 flex items-start gap-3">
-                      <Icon name="location-crosshairs" className="text-warn mt-0.5" />
-                      <div>
-                        <p className="text-sm font-bold text-ink-primary">Sem localização automática nesta chamada</p>
-                        <p className="text-xs text-ink-secondary leading-relaxed">Linha fixa ou VoIP — o AML não se aplica. Colete o endereço por voz durante a triagem; os campos ficam editáveis e nada aqui bloqueia o atendimento.</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Renderização Condicional do Nome */}
-                  {currentCaller.hasHistory ? (
-                    <div className="fu">
-                      <span className="lbl">Nome do Solicitante (CAD)</span>
-                      <input 
-                        type="text" 
-                        className="inp bg-ai/5 border-ai/40 text-ai font-bold cursor-not-allowed opacity-90" 
-                        value={currentCaller.name} 
-                        readOnly 
-                      />
-                    </div>
-                  ) : (
-                    <div className="fu p-4 rounded-xl bg-elevated border border-border-subtle flex items-start gap-3">
-                      <Icon name="circle-info" className="text-warn mt-0.5" />
-                      <div>
-                        <p className="text-sm font-bold text-ink-primary">Número sem histórico na CRU</p>
-                        <p className="text-[0.7rem] text-ink-secondary font-mono leading-relaxed mt-1">
-                          Identificação e dados do paciente serão extraídos pela triagem por voz (IA) no próximo passo. Esta tela dura segundos — siga para a triagem.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <span className="lbl">Município</span>
-                      <input className="inp bg-ok/5 border-ok/40 text-ok font-bold cursor-not-allowed opacity-80" value={amlData ? amlData.city : "..."} readOnly />
-                    </div>
-                    <div>
-                      <span className="lbl">CEP (AML)</span>
-                      <input className="inp bg-ok/5 border-ok/40 text-ok font-bold cursor-not-allowed opacity-80" value={amlData ? amlData.cep : "..."} readOnly />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div className="sm:col-span-3">
-                      <span className="lbl">Endereço (GPS Capturado)</span>
-                      <input className="inp bg-ok/5 border-ok/40 text-ok font-bold cursor-not-allowed" value={amlData ? amlData.address : "Buscando..."} readOnly />
-                    </div>
-                    <div>
-                      <span className="lbl">Nº</span>
-                      <input className="inp bg-ok/5 border-ok/40 text-ok font-bold cursor-not-allowed text-center" value={amlData ? amlData.number : "..."} readOnly />
-                    </div>
-                  </div>
-                  <div>
-                    <span className="lbl">Bairro / Referência</span>
-                    <input className="inp cursor-not-allowed opacity-70" value={amlData ? amlData.neighborhood : ""} readOnly />
-                  </div>
-                  <div className="mt-auto pt-3 border-t border-border-subtle">
-                    <div className="flex items-center gap-2 text-[0.65rem] font-mono text-ok">
-                      {amlData ? (
-                        <>
-                          <Icon name="circle-check" />
-                          <span>Coordenadas AML fixadas: <span className="font-bold">{amlData.lat}°, {amlData.lng}°</span> · Precisão: ±5m</span>
-                        </>
-                      ) : (
-                        <>
-                          <Icon name="circle-notch" className="animate-spin" />
-                          <span>Interceptando sinal GPS via operadora...</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Google Maps iframe simulation */}
-              <div className="gp rounded-2xl flex flex-col lg:overflow-hidden relative flex-1 min-h-[300px] lg:min-h-0">
-                <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between z-10 relative shrink-0">
-                  <div className="flex items-center gap-2">
-                    <Icon name="map-location-dot" className="text-gold-500 text-xs" />
-                    <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Google Maps API</span>
-                  </div>
-                  {amlData && <span className="chip chip-ok text-[0.6rem] animate-pulse"><Icon name="satellite-dish" /> FIXADO ±5M</span>}
-                </div>
-                
-                <div className="flex-1 relative bg-elevated overflow-hidden">
-                  {MapIframe || (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-ink-secondary/50">
-                      <Icon name="satellite-dish" className="text-4xl mb-3 animate-pulse" />
-                      <p className="font-mono text-xs uppercase tracking-widest">Aguardando triangulação...</p>
-                    </div>
-                  )}
-                  {amlData && (
-                    <>
-                      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(0,0,0,0.35)]"></div>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10 flex flex-col items-center pointer-events-none">
-                        <div className="w-8 h-8 bg-danger border-2 border-white rounded-[50%_50%_50%_0] -rotate-45 shadow-[0_0_20px_rgba(229,57,53,0.7)] flex items-center justify-center">
-                          <Icon name="truck-medical" className="text-white text-[0.6rem] rotate-45" />
-                        </div>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 border-2 border-danger/60 rounded-full animate-ping" style={{ animationDuration: '2s' }}></div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* CTA */}
-            <div className="flex justify-center shrink-0 mt-2 order-3">
-              <button 
-                onClick={() => {
-                  showToast('Dados de localização salvos e AML confirmado', 'success');
-                  setCurrentModule('TARM');
-                }}
-                disabled={!amlData && !!currentCaller?.aml}
-                className="px-10 py-4 bg-gradient-to-r from-gold-500 to-gold-700 text-ink-inverse font-extrabold font-sans uppercase tracking-widest text-sm rounded-xl shadow-[0_0_40px_rgba(191,154,61,0.35)] hover:scale-[1.02] transition-transform flex items-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
-              >
-                <Icon name="check-double" className="text-lg" /> {currentCaller?.aml ? 'Confirmar AML & Iniciar Triagem' : 'Iniciar Triagem — endereço por voz'}
-                <Icon name="arrow-right" className="text-lg" />
-              </button>
-            </div>
-          </div>
-        )}
-
+        {/* A tela-gate de AML morreu (decisão do Ota, 24/08 — fidelidade shadow):
+            quando o TARM atende na central, a transcrição JÁ começa. A localização
+            vive como painel dentro da triagem — auto-preenchida, editável, nunca
+            bloqueia (docs/10 §5). */}
         {currentModule === 'TARM' && currentCaller && (
           <div className="flex-1 flex flex-col lg:flex-row gap-4 fu min-h-0 overflow-y-auto lg:overflow-hidden pb-6 lg:pb-0 pr-2 -mr-2 lg:pr-0 lg:mr-0">
             {/* Left Panel: Call Queue (Hidden on Mobile) */}
@@ -1800,7 +1752,7 @@ export default function App() {
               <div className="p-3.5 border-b border-border-subtle bg-elevated flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
                   <Icon name="list-ol" className="text-gold-500 text-xs" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Fila no PABX</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-ink-primary">Fila no PABX<span className="block text-[0.55rem] font-mono font-normal text-ink-tertiary normal-case tracking-normal mt-0.5">sinalização colhida · leitura passiva</span></span>
                 </div>
                 <span className="chip chip-warn text-[0.6rem]">{queue.length} aguardando</span>
               </div>
@@ -1836,6 +1788,45 @@ export default function App() {
                 <div className="p-5 flex flex-col gap-5 lg:overflow-y-auto">
                   <div className="text-[0.6rem] font-mono text-ink-tertiary flex items-center gap-2 flex-wrap">
                     <Icon name="server" className="text-ink-tertiary" /> Triagem assistida em simulação · roteiro de demonstração (sem transcrição real)
+                  </div>
+
+                  {/* Localização & origem — o gate AML morreu (fidelidade shadow,
+                      decisão do Ota 24/08): a triagem abre no atendimento e a
+                      localização é painel auto-preenchido pela sinalização,
+                      editável, que NUNCA bloqueia o atendimento. */}
+                  <div className={`p-4 rounded-xl border ${!currentCaller?.aml ? 'bg-warn/10 border-warn/40' : 'bg-surface border-border-subtle'}`}>
+                    <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                      <div className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary flex items-center gap-1.5">
+                        <Icon name="location-crosshairs" className={!currentCaller?.aml ? 'text-warn' : 'text-gold-500'} /> Localização &amp; Origem
+                      </div>
+                      {currentCaller?.aml
+                        ? (amlData
+                            ? <span className="chip chip-ok text-[0.6rem]"><Icon name="satellite-dish" /> AML ±5m</span>
+                            : <span className="chip chip-nude text-[0.6rem]"><Icon name="circle-notch" className="animate-spin" /> AML…</span>)
+                        : <span className="chip chip-warn text-[0.6rem]">Colher por voz</span>}
+                    </div>
+                    <div className="text-[0.7rem] font-mono text-ink-secondary mb-2.5">
+                      {currentCaller?.phone} · {currentCaller?.hasHistory ? `${currentCaller.historyCount} ocorrência(s) 30d` : 'sem histórico na CRU'}
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      <input className="inp col-span-3 text-xs py-2" placeholder="Endereço — colete por voz" defaultValue={amlData?.address || ''} key={`end-${amlData?.address || 'v'}`} />
+                      <input className="inp text-xs py-2 text-center" placeholder="Nº" defaultValue={amlData?.number || ''} key={`num-${amlData?.number || 'v'}`} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <input className="inp text-xs py-2" placeholder="Bairro / referência" defaultValue={amlData?.neighborhood || ''} key={`bai-${amlData?.neighborhood || 'v'}`} />
+                      <input className="inp text-xs py-2" placeholder="Município" defaultValue={amlData?.city || ''} key={`mun-${amlData?.city || 'v'}`} />
+                    </div>
+                    <div className="flex items-center justify-between gap-2 mt-2.5 flex-wrap">
+                      <span className="text-[0.55rem] font-mono text-ink-tertiary">
+                        {amlData ? `AML ${amlData.lat}°, ${amlData.lng}° · ±5m` : currentCaller?.aml ? 'aguardando sinalização…' : 'sem AML nesta linha (fixo/VoIP)'}
+                      </span>
+                      <button
+                        onClick={() => { audit('LOCALIZACAO_CONFIRMADA', { fonte: amlData ? 'aml' : 'voz' }); showToast('Localização confirmada — registrada em auditoria', 'success'); }}
+                        className="text-[0.6rem] font-bold uppercase tracking-widest text-gold-500 hover:text-gold-300 transition-colors"
+                      >
+                        Confirmar localização
+                      </button>
+                    </div>
                   </div>
 
                   {/* Risk Classification */}
@@ -2425,7 +2416,7 @@ export default function App() {
                 {isDispatching ? (
                   <><Icon name="circle-notch" className="animate-spin text-lg" /> Acionando...</>
                 ) : (
-                  <><Icon name="truck-fast" className="text-base shrink-0" /> <span className="truncate">Confirmar Despacho · {selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01'}</span></>
+                  <><Icon name="truck-fast" className="text-base shrink-0" /> <span className="whitespace-normal leading-snug text-center">Confirmar Despacho · {selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01'}</span></>
                 )}
               </button>
               {!podeDespachar && !isDispatching && (
@@ -2539,7 +2530,7 @@ export default function App() {
             {/* BARRA DE MISSÃO — status de 1 toque, alvos grandes (luva), alimenta T0–T4 */}
             {missionStatus === 'NO HOSPITAL' ? (
               <div className="shrink-0 bg-canvas border-t border-border-subtle p-3 pb-14 md:pb-16">
-                <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-2 text-center">Desfecho do atendimento · 1 toque encerra e registra</div>
+                <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-2 text-center">Desfecho operacional · 1 toque libera a viatura — a conclusão clínica é da regulação</div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {([
                     { d: 'TRANSPORTADO', cls: 'bg-ok/15 border-ok/50 text-ok hover:bg-ok/25' },
@@ -3184,12 +3175,6 @@ export default function App() {
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'IDLE' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
           >
             <Icon name="house-signal" /> Home
-          </button>
-          <button 
-            onClick={() => jumpToStage('AML')}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest font-sans flex items-center gap-2 transition-all shrink-0 snap-center ${currentModule === 'AML' ? 'bg-gold-500 text-ink-inverse shadow-[0_0_20px_rgba(191,154,61,0.6)]' : 'text-ink-secondary hover:bg-hover'}`}
-          >
-            <Icon name="location-crosshairs" /> Ligação
           </button>
           <button 
             onClick={() => jumpToStage('TARM')}

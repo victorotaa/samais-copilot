@@ -107,6 +107,23 @@ As CRUs brasileiras rodam majoritariamente Asterisk/Issabel, Khomp ou PABX legad
 
 Importante: o CoPilot **não substitui** a telefonia da CRU na fase 1 — ele escuta. Isso reduz o risco percebido pelo gestor e elimina objeção de "e se o sistema de vocês cair?".
 
+### Fontes de sinalização em shadow (registrado em 24/08/2026 — perguntas do Ota)
+
+O que a interface pode afirmar depende da FONTE, e são duas — ambas só-leitura:
+
+| Fonte | O que entrega | O que habilita na UI |
+|---|---|---|
+| **SIPREC** (espelho de mídia) | Chamadas **atendidas**: áudio + metadados + **início/fim de sessão em tempo real** (sinalização SIP, sub-segundo) | Transcrição shadow; cronômetro da etapa; detecção de fim de chamada (a UI corresponde ativamente à linha de voz para *que terminou e quando*) |
+| **Eventos do PABX em modo leitura** (AMI read-only no Asterisk/Issabel — a maioria das CRUs; feeds equivalentes em SBCs comerciais) | Fila de espera (entrou/saiu/abandonou), novo canal, desligamento **com HangupCause** (normal × anormal) | Painel de fila ao vivo, tempo de espera, abandono; distinção queda × desligamento intencional |
+| Nenhuma das duas | — | O painel **declara** "sinalização de fila indisponível nesta central" — a UI nunca inventa fila |
+
+Regras derivadas: a **distribuição** de chamadas é do ACD da central (critério é configuração
+de cada PABX — pergunta do diagnóstico de implantação, `docs/12` §2); **queda × desligamento**
+sem HangupCause é inferência, e **quem tipifica é o TARM em um toque** (o sistema sugere,
+não afirma); queda **preserva o contexto** e o mesmo número religando **reassocia** à
+ocorrência aberta (anti-duplicidade por telefone — mecanismo dos sistemas reais,
+`docs/21` §2.4). ✅ O fluxo pós-queda com reassociação está demonstrável na demo (24/08).
+
 ## 4. Tela de viatura — redesenho IMPLEMENTADO (jun/2026)
 
 > O layout abaixo está em produção na demo: rota 60% + ETA gigante, painel do paciente 40% com badge Manchester, e barra de missão com 4 botões de status de 1 toque (alvos ≥60px). Briefing TTS e deep link de navegação seguem como evolução de produto.
