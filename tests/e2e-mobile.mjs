@@ -29,18 +29,24 @@ const { ok, fim } = coletor();
   // esconde ao rolar para baixo e volta ao rolar para cima (auto-hide)
   await page.mouse.move(195, 420);
   await page.mouse.wheel(0, 900);
-  await page.waitForTimeout(1100);
+  // espera o ESTADO (runner rola o wheel em passos lentos — relógio não serve)
+  await page.waitForFunction(() => {
+    const h = document.querySelector('header');
+    return !!h && h.getBoundingClientRect().y < -40;
+  }, undefined, { timeout: 6000 });
   const hbox = await header.boundingBox();
-  ok(hbox && hbox.y < -10, 'header se esconde ao rolar para baixo (auto-hide)', `y=${hbox?.y}`);
+  ok(hbox && hbox.y < -40, 'header se esconde ao rolar para baixo (auto-hide)', `y=${hbox?.y}`);
   const flutuante = page.locator('div.fixed span[title*="Meta da etapa"]').first();
   await flutuante.waitFor({ state: 'visible', timeout: 3000 });
   ok(true, 'mini-chip do cronômetro flutua com o header escondido');
   const fbox = await flutuante.boundingBox();
   ok(fbox && fbox.y < 60 && fbox.x + fbox.width <= 391, 'mini-chip no canto superior, dentro da tela', JSON.stringify(fbox));
   await page.mouse.wheel(0, -900);
-  await page.waitForTimeout(1100);
-  const hbox2 = await header.boundingBox();
-  ok(hbox2 && Math.abs(hbox2.y) < 2, 'header volta ao rolar para cima', `y=${hbox2?.y}`);
+  await page.waitForFunction(() => {
+    const h = document.querySelector('header');
+    return !!h && Math.abs(h.getBoundingClientRect().y) < 2;
+  }, undefined, { timeout: 6000 });
+  ok(true, 'header volta ao rolar para cima');
   ok((await overflowScan(page)).length === 0, 'zero overflow a 390', (await overflowScan(page)).join(','));
   await page.waitForFunction(() => document.body.innerText.includes('fique na linha'), undefined, { timeout: 60000 });
   await page.waitForTimeout(800);
