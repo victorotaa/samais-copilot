@@ -31,6 +31,23 @@
 | G11 | "Equipe em Plantão **0**/8" — o seed dava FOLGA geral no fim de semana (SAMU é 24/7) | Baixa | Escala 12×36: metade da equipe operacional por dia, fim de semana incluído |
 | G12 | `ERR_CONNECTION_RESET` no console em demo puro | Baixa | Era o iframe do mapa tentando rede — resolvido por G7; demo pura agora não toca a rede |
 
+### 1a. Prints de produção no celular (Ota, 24/08) — 3 defeitos de view corrigidos
+
+- **P1 · Realce por substring**: "dor" acendia dentro de "regula**dor**" no chat (e
+  "braço" acenderia dentro de "abraço"). Causa: regex de keywords sem fronteira de
+  palavra — e `\b` do JavaScript falha com acento, então a correção usa lookaround
+  Unicode (`\p{L}`). Verificado: "regulador" íntegro, "dor no peito" e "braço"
+  continuam acendendo como palavras inteiras.
+- **P2 · Viatura mobile: ETA sobre o botão de navegação**: os dois viviam no topo do
+  mapa (`top-4` esquerda/direita) e a 390px se sobrepunham. O botão desceu ao pé do
+  mapa no mobile (`bottom-12`, livre do selo de demonstração); no desktop segue no topo.
+- **P3 · Cronômetro discreto demais no celular**: o chip do cabeçalho do chat rola
+  para fora da tela. Agora o **tempo vive também na pílula do header**, que ficou
+  **sticky no mobile** — sempre à vista, com a cor do estado (neutro → âmbar → vermelho);
+  em tela ≤430px o tempo substitui o rótulo "EM CHAMADA" para não estourar. E o toast
+  do ATENDER anuncia "cronômetro da etapa iniciado (meta 1 min)" — o pop-up pedido,
+  sem modal no meio do atendimento (fadiga de alarme, §3).
+
 ## 2. Cenários de estresse — implementados na demo
 
 O princípio: a demo mostra o produto **sob o pior dia**, não só o roteiro feliz — e o
@@ -51,6 +68,9 @@ como já faz no software próprio da CRU, e a IA faz o mesmo rankeamento e chave
 quadros a partir do texto digitado. Desligar a escuta nunca degrada o fluxo abaixo do
 que a central já opera sem nós. Registro doutrinário em `docs/05` §2; benchmark dos
 softwares em uso nas centrais e do fluxo de digitação do TARM em `docs/21`.
+✅ **Demonstrável desde 24/08**: seletor Escuta · Digitação · Manual no cabeçalho da
+transcrição — em Digitação o TARM digita e a classificação reage ao texto (extração
+determinística rotulada como simulação; sem sinal → pendente). Bateria própria no CI.
 
 ### 2a. Variabilidade de cenários — seletor de demonstração (24/08)
 
@@ -182,6 +202,14 @@ que o produto já faz nos cinco painéis que nenhum concorrente tem como sustent
 nascem da doutrina de quem opera.
 
 ## 5. Verificação desta rodada
+
+**As baterias viraram CI (24/08):** `tests/` guarda o lint de vocabulário vetado
+(fronteira Unicode — "invólucro" não acusa "lucro") e as três baterias e2e
+(cenários · cronômetro · mobile), e `.github/workflows/ci.yml` roda typecheck,
+build, lint e as baterias em Chromium a cada push/PR, com capturas como artefato.
+Antes disso toda verificação vivia na sessão de quem auditava e morria com ela —
+agora cada afirmação deste documento é re-provada a cada commit. Local:
+`npm test` (dev server em :3000; `PW_CHROMIUM` aponta o binário se necessário).
 
 - `npx tsc --noEmit` e `npm run build` verdes.
 - Bateria v2 (Playwright/Chromium): médico aterrissa na regulação · 5 chips · despacho

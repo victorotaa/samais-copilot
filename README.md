@@ -44,6 +44,7 @@ disponível, o app cai em modo demonstração e os dados voltam a ser locais.
 | [`docs/19-retorno-parecer-hugo.md`](./docs/19-retorno-parecer-hugo.md) | Resposta formal ao parecer — o documento que se envia ao Hugo |
 | **[`docs/20-auditoria-padrao-ouro.md`](./docs/20-auditoria-padrao-ouro.md)** | **Auditoria da demo: 15 defeitos corrigidos, cenários de estresse, UX e expansão guiada pelo OS** |
 | [`docs/21-benchmark-software-cru.md`](./docs/21-benchmark-software-cru.md) | Benchmark dos softwares que operam CRUs/SAMU: sistemas, fluxo de digitação do TARM, normas e números — base do modo "IA sobre digitação" |
+| [`docs/22-roteiro-demonstracao.md`](./docs/22-roteiro-demonstracao.md) | Roteiro de demonstração: capacidade → cenário → o que apontar, e as respostas honestas a "isso é real?" |
 | [`SECURITY.md`](./SECURITY.md) | Postura de segurança e o que ainda é roadmap |
 
 ## Rodando local
@@ -62,6 +63,7 @@ Outros comandos:
 npm run build      # build de produção em dist/ (app + LP em dist/lp/)
 npm run preview    # preview do build
 npm run lint       # tsc --noEmit (typecheck)
+npm test           # lint de vocabulário vetado + 4 baterias e2e Playwright (exige dev server em :3000)
 npm run clean      # rm -rf dist
 ```
 
@@ -78,7 +80,7 @@ Ver [`.env.example`](./.env.example). Nenhum segredo vive no código-fonte.
 
 ```
 samais-copilot/
-├── docs/                       # documentação estratégica e técnica (00–21)
+├── docs/                       # documentação estratégica e técnica (00–22)
 ├── apresentacao-ms/            # peça institucional (HTML único, servida em /apresentacao-ms/)
 ├── lp/                         # landing page B2B (servida em /lp)
 ├── master-plan-rota/           # documento institucional de outro vertical (ROTA)

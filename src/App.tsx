@@ -25,7 +25,9 @@ const TypingMessage = ({ text }: { text: string }) => {
 
   const highlightKeywords = (text: string) => {
     if (!text) return null;
-    const regex = new RegExp(`(${KEYWORDS.join('|')})`, 'gi');
+    // Fronteira de palavra Unicode: sem isso "dor" acendia dentro de "regulador"
+    // e "braço" dentro de "abraço" (visto em produção, print do Ota 24/08).
+    const regex = new RegExp(`(?<![\\p{L}\\p{N}])(${KEYWORDS.join('|')})(?![\\p{L}\\p{N}])`, 'giu');
     const parts = text.split(regex);
     return parts.map((part, i) => {
       if (KEYWORDS.some(k => k.toLowerCase() === part.toLowerCase())) {
@@ -450,6 +452,37 @@ function CronometroMeta({ inicio, agora, rotulo }: { inicio: number | null; agor
   );
 }
 
+// ── IA sobre digitação (modo 2 da doutrina — docs/05 §2) ──────────────────
+// Extração DETERMINÍSTICA por palavras-chave sobre o texto que o TARM digita.
+// É simulação rotulada (sem modelo real): demonstra o fluxo — o TARM digita
+// como no sistema próprio da central e a IA rankeia/chaveia o quadro a partir
+// do texto. Sem sinal identificado → PENDING; nunca palpite (Princípio da
+// Realidade). Ordem das regras = prioridade clínica (vermelho primeiro).
+const normalizar = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const REGRAS_TEXTO: { sinais: RegExp; symptoms: string[]; risk: 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN'; protocol: string }[] = [
+  { sinais: /(dor no peito|aperto no peito|infarto)/, symptoms: ['Dor torácica'], risk: 'RED', protocol: 'Suspeita de IAM (Infarto)' },
+  { sinais: /(engasg|asfixia|nao respira|sem respirar|parada)/, symptoms: ['Obstrução de vias aéreas / apneia'], risk: 'RED', protocol: 'OVACE / Parada — resposta imediata' },
+  { sinais: /(inconsciente|desmaiad|nao acorda|sem sentidos)/, symptoms: ['Inconsciência'], risk: 'RED', protocol: 'Rebaixamento de consciência' },
+  { sinais: /(boca torta|fala enrolada|derrame|\bavc\b|sem forca no braco|braco nao obedece)/, symptoms: ['Déficit neurológico agudo'], risk: 'ORANGE', protocol: 'Suspeita de AVC — janela terapêutica' },
+  { sinais: /(trabalho de parto|contraco|bolsa (estourou|rompeu|rota))/, symptoms: ['Trabalho de parto ativo'], risk: 'ORANGE', protocol: 'Obstétrico — parto iminente' },
+  { sinais: /(acidente|atropel|colisao|capot|queda de (moto|andaime|altura)|fratura)/, symptoms: ['Vítima de trauma'], risk: 'YELLOW', protocol: 'Trauma — avaliação' },
+  { sinais: /(dor nas costas|lombalgia|gripe|resfriado|receita|dor de garganta)/, symptoms: ['Queixa de baixa complexidade'], risk: 'GREEN', protocol: 'Orientação — rede básica (UBS)' },
+];
+const SINAIS_EXTRA: { re: RegExp; s: string }[] = [
+  { re: /(suando|sudorese|suor frio)/, s: 'Sudorese fria' },
+  { re: /(falta de ar|dispneia|nao consegue respirar)/, s: 'Dispneia' },
+  { re: /(sangra|sangue|hemorragia)/, s: 'Sangramento ativo' },
+  { re: /(gravida|gestante|\d+ semanas)/, s: 'Gestante' },
+  { re: /(muita dor|dor forte|dor intensa)/, s: 'Dor intensa' },
+];
+function extrairDeTexto(texto: string): { symptoms: string[]; risk: 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN'; protocol: string } | null {
+  const t = normalizar(texto);
+  const regra = REGRAS_TEXTO.find(r => r.sinais.test(t));
+  if (!regra) return null;
+  const extras = SINAIS_EXTRA.filter(x => x.re.test(t)).map(x => x.s);
+  return { symptoms: [...new Set([...regra.symptoms, ...extras])], risk: regra.risk, protocol: regra.protocol };
+}
+
 // Mapa esquemático local — usado no modo demonstração (sem backend): a demo é
 // aberta em sala de reunião, pen drive e rede hostil, e um iframe de mapa sem
 // rede vira ícone de imagem quebrada no meio da tela. Zero requisição externa;
@@ -536,6 +569,11 @@ export default function App() {
   // Cronômetros de etapa: nascem no ATENDER (nunca antes — shadow) e no handoff.
   const [chamadaInicio, setChamadaInicio] = useState<number | null>(null);
   const [regulacaoInicio, setRegulacaoInicio] = useState<number | null>(null);
+  // Três modos da doutrina: escuta (shadow) · digitação (sem escuta, IA sobre o
+  // texto do TARM) · manual total. aiActive continua sendo "a escuta está viva".
+  const [modoIA, setModoIA] = useState<'escuta' | 'digitacao' | 'manual'>('escuta');
+  const [textoDigitado, setTextoDigitado] = useState('');
+  const digitacaoTimerRef = useRef<NodeJS.Timeout | null>(null);
   // Classificação de risco é DECISÃO EXPLÍCITA do regulador — nunca default.
   // null = ainda não classificado; o despacho fica bloqueado até a escolha.
   const [riscoFinal, setRiscoFinal] = useState<'RED' | 'ORANGE' | 'YELLOW' | 'GREEN' | 'BLUE' | null>(null);
@@ -768,6 +806,8 @@ export default function App() {
       setJustification(null);
       setChamadaInicio(null);
       setRegulacaoInicio(null);
+      setModoIA('escuta');
+      setTextoDigitado('');
       setOccId(null);
       setDispatchId(null);
 
@@ -867,26 +907,49 @@ export default function App() {
     setTarmChat(prev => [...prev, { speaker: 'SYS' as any, text: texto, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }]);
   };
 
-  // Kill switch com o comportamento do modo degradado real (docs/17 §A.2.6):
-  // desligar CONGELA a transcrição com marca visível e registra a janela sem IA;
-  // religar marca a retomada e reagenda só o que ainda não apareceu.
-  const toggleIA = () => {
+  // Três modos (doutrina docs/05 §2), com o comportamento do modo degradado real
+  // (docs/17 §A.2.6): sair da escuta CONGELA a transcrição com marca visível e
+  // registra a janela; voltar reagenda só o que ainda não apareceu. A GRAVAÇÃO
+  // da chamada não passa por aqui — é obrigação normativa da central (docs/09 §1).
+  const definirModoIA = (novo: 'escuta' | 'digitacao' | 'manual') => {
+    if (novo === modoIA) return;
     const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    if (aiActive) {
-      scriptTimersRef.current.forEach(clearTimeout);
-      scriptTimersRef.current = [];
-      if (currentModule === 'TARM' && tarmChat.length > 0) marcadorSistema(`— transcrição interrompida às ${agora} · IA desligada pelo operador —`);
-      audit('IA_DESLIGADA', { em: agora, modulo: currentModule });
-      setAiActive(false);
-    } else {
+    if (novo === 'escuta') {
       if (currentModule === 'TARM' && tarmChat.length > 0) {
-        marcadorSistema(`— IA religada às ${agora} · transcrição retomada; a janela sem IA fica registrada na auditoria —`);
+        marcadorSistema(`— escuta religada às ${agora} · transcrição retomada; a janela fica registrada na auditoria —`);
         agendarRoteiro(MOCK_SCRIPTS[activeScriptIndex], i => 1800 + i * 2600);
       }
-      audit('IA_RELIGADA', { em: agora, modulo: currentModule });
+      audit('IA_RELIGADA', { em: agora, modulo: currentModule, de: modoIA });
       setAiActive(true);
+    } else {
+      scriptTimersRef.current.forEach(clearTimeout);
+      scriptTimersRef.current = [];
+      if (currentModule === 'TARM' && tarmChat.length > 0) {
+        marcadorSistema(novo === 'digitacao'
+          ? `— escuta desligada às ${agora} · IA sobre digitação: a classificação passa a vir do texto do TARM —`
+          : `— transcrição interrompida às ${agora} · IA desligada pelo operador —`);
+      }
+      audit(novo === 'digitacao' ? 'IA_MODO_DIGITACAO' : 'IA_DESLIGADA', { em: agora, modulo: currentModule });
+      setAiActive(false);
     }
+    setModoIA(novo);
   };
+
+  // IA sobre digitação: reavalia o TEXTO INTEIRO a cada pausa — o campo é a
+  // fonte de verdade; texto sem sinal volta a PENDING, nunca palpite.
+  useEffect(() => {
+    if (modoIA !== 'digitacao') return;
+    if (digitacaoTimerRef.current) clearTimeout(digitacaoTimerRef.current);
+    digitacaoTimerRef.current = setTimeout(() => {
+      const r = extrairDeTexto(textoDigitado);
+      if (r) {
+        setExtractedData(prev => ({ ...prev, symptoms: r.symptoms, risk: r.risk, protocol: r.protocol, confidence: { ...prev.confidence, symptoms: 0.75, protocol: 0.75 } }));
+      } else {
+        setExtractedData(prev => ({ ...prev, symptoms: [], risk: 'PENDING', protocol: textoDigitado.trim() ? 'Sem sinal identificado no texto' : 'Analisando...', confidence: { ...prev.confidence, symptoms: 0, protocol: 0 } }));
+      }
+    }, 450);
+    return () => { if (digitacaoTimerRef.current) clearTimeout(digitacaoTimerRef.current); };
+  }, [textoDigitado, modoIA]);
 
   useEffect(() => {
     if (currentModule === 'TARM' && aiActive && tarmChat.length === 0) {
@@ -1119,7 +1182,7 @@ export default function App() {
       showToast('Handoff recebido do TARM-04', 'success');
       return;
     }
-    showToast('Chamada conectada com sucesso', 'success');
+    showToast('Chamada conectada — cronômetro da etapa iniciado (meta 1 min)', 'success');
     setChamadaInicio(Date.now());
     setCurrentModule('AML');
     
@@ -1327,7 +1390,7 @@ export default function App() {
       )}
 
       {/* GLOBAL HEADER */}
-      <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-3 sm:px-5 shrink-0 z-50 shadow-md relative">
+      <header className="h-[3.75rem] border-b border-border-subtle bg-surface flex items-center justify-between px-3 sm:px-5 shrink-0 z-50 shadow-md relative max-lg:sticky max-lg:top-0">
         <div className="flex items-center gap-4">
           <SamaisMonogram className="h-9 shrink-0 text-gold-500" />
           <div className="hidden sm:block">
@@ -1347,12 +1410,24 @@ export default function App() {
           const rotulo = role === 'GESTOR' ? 'GESTÃO'
             : role === 'VIATURA' && !currentCaller ? 'PRONTIDÃO'
             : currentModule !== 'IDLE' ? 'EM CHAMADA' : 'EM ESPERA';
+          // Tempo da etapa corrente na própria pílula: no mobile o chip do chat
+          // rola para fora da tela — a pílula (header sticky) é o que fica à vista.
+          const etapaInicio = currentModule === 'REGULADOR' ? regulacaoInicio
+            : (currentModule === 'TARM' || currentModule === 'AML') ? chamadaInicio : null;
+          let tempoPill: React.ReactNode = null;
+          if (emChamada && etapaInicio) {
+            const seg = Math.max(0, Math.floor((time.getTime() - etapaInicio) / 1000));
+            const corTempo = seg >= META_CHAMADA_S.teto ? 'text-danger animate-pulse'
+              : seg >= META_CHAMADA_S.meta ? 'text-warn' : 'text-ink-primary';
+            tempoPill = <span className={`font-mono text-[0.65rem] font-bold tracking-widest ${corTempo}`}>{String(Math.floor(seg / 60)).padStart(2, '0')}:{String(seg % 60).padStart(2, '0')}</span>;
+          }
           return (
         <div className={`max-lg:static max-lg:translate-x-0 max-lg:mx-1.5 max-sm:px-2.5 max-lg:px-3 lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-3 px-5 py-1.5 rounded-full border transition-all duration-300 whitespace-nowrap shrink-0 ${emChamada ? 'bg-danger/10 border-danger/50' : 'bg-elevated border-border-subtle'} shadow-inner`}>
           <Icon name="circle" className={`text-[7px] ${emChamada ? 'text-danger animate-pulse' : 'text-ink-secondary'}`} />
-          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${emChamada ? 'text-danger' : 'text-ink-secondary'}`}>
+          <span className={`text-[0.65rem] font-mono font-bold uppercase tracking-widest ${emChamada ? 'text-danger' : 'text-ink-secondary'} ${tempoPill ? 'max-[430px]:hidden' : ''}`}>
             {rotulo}
           </span>
+          {tempoPill}
         </div>
           );
         })()}
@@ -1469,10 +1544,12 @@ export default function App() {
             {/* Vehicles Grid & Map */}
             <div className="w-full max-w-7xl px-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 flex flex-col">
-                <div className="flex items-center gap-3 mb-6 border-b border-border-subtle pb-3">
+                {/* flex-wrap: com fonte fallback (SO sem as webfonts — cenário real
+                    de CRU) o título + chips estouravam a 390px; quebrando, nunca. */}
+                <div className="flex flex-wrap items-center gap-3 gap-y-2 mb-6 border-b border-border-subtle pb-3">
                   <Icon name="truck-medical" className="text-gold-500 text-xl" />
                   <h3 className="text-lg font-disp font-bold text-ink-primary uppercase tracking-widest">Status da Frota</h3>
-                  <div className="ml-auto flex gap-2">
+                  <div className="ml-auto flex gap-2 shrink-0">
                      <span className="chip chip-ok text-[0.6rem]">3 DISPONÍVEIS</span>
                      <span className="chip chip-danger text-[0.6rem]">1 EM ATENDIMENTO</span>
                   </div>
@@ -1896,25 +1973,31 @@ export default function App() {
                       <AudioWaveform active={aiActive} />
                     </div>
                     <div className="text-[0.6rem] text-ai font-mono flex items-center gap-1.5 mt-0.5">
-                      <Icon name="circle" className="text-[5px] animate-pulse" /> STT Engine Ativo
+                      <Icon name="circle" className={`text-[5px] ${modoIA === 'escuta' ? 'animate-pulse' : ''}`} /> {modoIA === 'escuta' ? 'STT Engine Ativo' : modoIA === 'digitacao' ? 'Sem escuta · IA sobre o texto digitado' : 'IA desligada — modo manual'}
                     </div>
                   </div>
                 </div>
 
                 <CronometroMeta inicio={chamadaInicio} agora={time} />
 
-                {/* Kill Switch */}
-                <button 
-                  onClick={toggleIA}
-                  className={`px-4 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-widest flex items-center gap-2 transition-all border ${
-                    aiActive 
-                      ? 'bg-danger/10 border-danger/30 text-danger hover:bg-danger hover:text-white' 
-                      : 'bg-surface border-border-subtle text-ink-secondary hover:bg-elevated'
-                  }`}
-                >
-                  <Icon name="power-off" />
-                  {aiActive ? 'Pausar IA' : 'IA Pausada'}
-                </button>
+                {/* Três modos (doutrina docs/05 §2): escuta · digitação · manual.
+                    O MANUAL é o kill switch integral; a gravação da chamada não
+                    depende de nenhum destes estados. */}
+                <div className="flex items-center gap-1 rounded-full border border-border-subtle bg-surface p-1 shrink-0">
+                  {([['escuta', 'Escuta'], ['digitacao', 'Digitação'], ['manual', 'Manual']] as const).map(([m, rot]) => (
+                    <button
+                      key={m}
+                      onClick={() => definirModoIA(m)}
+                      className={`px-2.5 py-1 rounded-full text-[0.6rem] font-bold uppercase tracking-widest transition-colors ${
+                        modoIA === m
+                          ? m === 'manual' ? 'bg-danger text-white' : m === 'digitacao' ? 'bg-gold-500 text-ink-inverse' : 'bg-ai/15 text-ai'
+                          : 'text-ink-secondary hover:text-ink-primary'
+                      }`}
+                    >
+                      {rot}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="flex-1 p-5 lg:overflow-y-auto flex flex-col gap-4 bg-surface">
@@ -1945,7 +2028,7 @@ export default function App() {
                   </div>
                 ))}
                 
-                {!aiActive && (
+                {modoIA === 'manual' && (
                   <div className="mt-4 p-4 bg-warn/10 border border-warn/30 rounded-xl flex items-start gap-3 fu">
                     <Icon name="triangle-exclamation" className="text-warn mt-0.5" />
                     <div>
@@ -1958,6 +2041,27 @@ export default function App() {
                 )}
                 <div ref={chatEndRef} />
               </div>
+
+              {/* IA sobre digitação: o TARM digita como no sistema da central e a
+                  classificação ao lado reage ao texto. Extração de DEMONSTRAÇÃO
+                  por palavras-chave — rotulada; sem modelo real (SEC-20). */}
+              {modoIA === 'digitacao' && (
+                <div className="p-3.5 border-t border-border-subtle bg-elevated shrink-0">
+                  <div className="text-[0.6rem] font-mono font-bold uppercase tracking-widest text-gold-500 mb-1.5 flex items-center gap-1.5">
+                    <Icon name="keyboard" /> IA sobre digitação — sem escuta
+                  </div>
+                  <textarea
+                    value={textoDigitado}
+                    onChange={e => setTextoDigitado(e.target.value)}
+                    placeholder="Digite a ocorrência como no sistema da central — a classificação ao lado reage ao texto…"
+                    rows={3}
+                    className="w-full bg-surface border border-border-subtle rounded-xl p-3 text-sm text-ink-primary placeholder:text-ink-tertiary focus:outline-none focus:border-gold-500 resize-none"
+                  />
+                  <div className="text-[0.55rem] font-mono text-ink-tertiary mt-1.5">
+                    Extração de demonstração por palavras-chave — sem modelo real. Sem sinal no texto, a classificação permanece pendente.
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Handoff CTAs (Mobile) */}
@@ -2351,7 +2455,7 @@ export default function App() {
                     href={`https://www.google.com/maps/dir/?api=1&destination=${amlData.lat},${amlData.lng}&travelmode=driving&dir_action=navigate`}
                     target="_blank"
                     rel="noopener"
-                    className="absolute top-4 right-4 z-10 px-4 py-3 min-h-[48px] rounded-xl bg-gold-500 text-ink-inverse text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(191,154,61,0.4)] hover:bg-gold-300 transition-colors whitespace-nowrap"
+                    className="absolute right-4 lg:top-4 max-lg:bottom-12 z-10 px-4 py-3 min-h-[48px] rounded-xl bg-gold-500 text-ink-inverse text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(191,154,61,0.4)] hover:bg-gold-300 transition-colors whitespace-nowrap"
                   >
                     <Icon name="location-arrow" /> Iniciar navegação
                   </a>

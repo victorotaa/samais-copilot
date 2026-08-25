@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verifica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Dependências
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run lint
+
+      - name: Build de produção
+        run: npm run build
+
+      - name: Lint de vocabulário vetado
+        run: node tests/lint-vetado.mjs
+
+      - name: Chromium do Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Sobe a demo
+        run: |
+          npm run dev &
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:3000/ > /dev/null && break
+            sleep 1
+          done
+          curl -sf http://localhost:3000/ > /dev/null
+
+      - name: Bateria e2e — cenários
+        run: node tests/e2e-cenarios.mjs
+
+      - name: Bateria e2e — cronômetro
+        run: node tests/e2e-timer.mjs
+
+      - name: Bateria e2e — IA sobre digitação
+        run: node tests/e2e-digitacao.mjs
+
+      - name: Bateria e2e — mobile
+        run: node tests/e2e-mobile.mjs
+
+      - name: Capturas (sempre)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capturas-e2e
+          path: tests/artifacts/
+          if-no-files-found: ignore

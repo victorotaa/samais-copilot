@@ -128,6 +128,8 @@ Ordenadas por severidade operacional. "Fase" = onde entram no programa de `docs/
   do texto — fallback natural do STT e modo de convivência com o software existente) ·
   manual total (kill switch, janela auditada). Doutrina: desligar a IA nunca degrada o
   fluxo abaixo do que a central já opera sem nós. Registro completo em `docs/05` §2.
+  ✅ Os três modos são **demonstráveis** na demo desde 24/08 (seletor no cabeçalho da
+  transcrição; no modo digitação a extração é por palavras-chave, rotulada simulação).
 - **Tier 1 — antes do 1º contrato com dado real:** cofre PII (SEC-10/11), TSA (SEC-12),
   WAF (SEC-13), CI seguro (SEC-14), pentest (SEC-15), DPO+DPIA+runbook ANPD (SEC-16),
   DPA com sub-processadores (SEC-17), MDM (SEC-18).
