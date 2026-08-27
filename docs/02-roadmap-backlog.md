@@ -67,7 +67,7 @@
 
 | # | Item | Status | Tipo |
 |---|------|--------|------|
-| 5.1 | Quebrar `App.tsx` em módulos (`features/{auth,idle,aml,tarm,regulador,viatura,dashboard}`) | a fazer | 🟢 |
+| 5.1 | Quebrar `App.tsx` em módulos (`features/{auth,idle,tarm,regulador,viatura,dashboard}`) | **Fase 1 ✅** — núcleo × demo separados (tipos, contratos, `src/demo/`, build de operação com guarda; `docs/24`); Fase 2 (telas em componentes) a fazer | 🟢 |
 | 5.2 | Extrair design system para `src/ui/` (Button, Chip, Panel, Input, etc.) | a fazer | 🟢 |
 | 5.3 | Adicionar Zustand ou Jotai para estado global da chamada | a fazer | 🟢 |
 | 5.4 | Router (TanStack Router ou React Router 7) — substituir state machine manual | a fazer | 🟢 |
