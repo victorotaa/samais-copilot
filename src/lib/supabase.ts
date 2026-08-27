@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Veiculo } from '../core/tipos';
 
 /**
  * Backend Samais (Supabase) — configurado EXCLUSIVAMENTE por env.
@@ -47,7 +48,7 @@ const VEHICLE_TIPO_LABEL: Record<string, string> = {
   MOTOLANCIA: 'MOTOLÂNCIA',
 };
 
-export function mapDbVehicle(row: { codigo: string; tipo: string; status: string }, statusColor: Record<string, string>) {
+export function mapDbVehicle(row: { codigo: string; tipo: string; status: string }, statusColor: Record<string, string>): Veiculo {
   const status = VEHICLE_STATUS_DB_TO_UI[row.status] || row.status;
   return {
     id: row.codigo,

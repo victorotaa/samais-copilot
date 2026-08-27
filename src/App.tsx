@@ -4,6 +4,8 @@ import { useTheme } from './lib/theme';
 import { Icon } from './ui/Icon';
 import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
 import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_ID, hasBackend } from './lib/supabase';
+import type { Chamador, DadosAml, ExtracaoClinica, FalaRoteiro, Veiculo, MembroEquipe, ItemFilaPabx, MensagemChat, ChamadaRecente, Risco, Papel, Escala } from './core/tipos';
+import { startOfWeek, addDays, isoDate, WEEKDAYS, MAX_WEEKS_AHEAD, TURNO_CYCLE, TURNO_BADGE } from './core/calendario';
 
 const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
 
@@ -57,7 +59,7 @@ const AudioWaveform = ({ active }: { active: boolean }) => (
 );
 
 // Base de dados simulada para randomização (5 endereços reais em São Paulo)
-const MOCK_CALLERS = [
+const MOCK_CALLERS: Chamador[] = [
   {
     phone: "(11) 98765-4321",
     hasHistory: true,
@@ -101,11 +103,11 @@ const MOCK_CALLERS = [
     hasHistory: false,
     name: "",
     historyCount: 0,
-    aml: null as null | { lat: number; lng: number; address: string; number: string; neighborhood: string; city: string; cep: string }
+    aml: null
   }
 ];
 
-const MOCK_VEHICLES = [
+const MOCK_VEHICLES: Veiculo[] = [
   { id: 'USA-01', type: 'USA (Avançada)', status: 'DISPONÍVEL', base: 'Base Central', color: 'ok', eta: 8 },
   { id: 'USB-04', type: 'USB (Básica)', status: 'DISPONÍVEL', base: 'Base Leste', color: 'ok', eta: 12 },
   { id: 'MOT-01', type: 'MOTOLÂNCIA', status: 'DISPONÍVEL', base: 'Base Central', color: 'ok', eta: 5 },
@@ -115,7 +117,8 @@ const MOCK_VEHICLES = [
 ];
 
 // Handoffs aguardando regulação — o médico alterna entre casos antes de decidir.
-const MEDICO_CASES = [
+// `caller` é índice em MOCK_CALLERS (resolvido ao expor como CasoRegulacao).
+const MEDICO_CASES: { num: string; caller: number; label: string; data: ExtracaoClinica }[] = [
   { num: '#4017', caller: 0, label: 'João da Silva · 65', data: {
     patientName: 'João da Silva', age: '65 anos', gender: 'Masculino',
     symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)'],
@@ -153,36 +156,9 @@ const CENARIOS_DEMO = [
   { id: 'sem-aml',    rotulo: 'Sem localização (AML)', script: 0, caller: 5 },
 ] as const;
 
-// ── Calendário de escalas (planner do Gestor + Minha Escala) ──
-function startOfWeek(d: Date) {
-  const x = new Date(d);
-  x.setHours(12, 0, 0, 0);
-  x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); // segunda-feira
-  return x;
-}
-function addDays(d: Date, n: number) {
-  const x = new Date(d);
-  x.setDate(x.getDate() + n);
-  return x;
-}
-function isoDate(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-const MAX_WEEKS_AHEAD = 4; // consulta/criação até 1 mês à frente
-
-const TURNO_CYCLE = ['DIURNO', 'NOTURNO', 'FOLGA'];
-const TURNO_BADGE: Record<string, { label: string; full: string; hours: string; cls: string }> = {
-  DIURNO: { label: 'D', full: 'Diurno', hours: '07:00–19:00', cls: 'bg-gold-500/15 border-gold-500/50 text-gold-500' },
-  NOTURNO: { label: 'N', full: 'Noturno', hours: '19:00–07:00', cls: 'bg-info/10 border-info/40 text-info' },
-  ADMINISTRATIVO: { label: 'A', full: 'Administrativo', hours: '08:00–18:00', cls: 'bg-ai/10 border-ai/40 text-ai' },
-  SOBREAVISO: { label: 'S', full: 'Sobreaviso', hours: '—', cls: 'bg-elevated border-border-default text-ink-secondary' },
-  FOLGA: { label: 'F', full: 'Folga', hours: '—', cls: 'bg-elevated border-border-subtle text-ink-tertiary' },
-};
-
 // Semana corrente pré-povoada pelo padrão de turno de cada colaborador (demo).
 function buildInitialRoster() {
-  const r: Record<string, Record<string, string>> = {};
+  const r: Escala = {};
   const start = startOfWeek(new Date());
   MOCK_TEAM.forEach(m => {
     r[m.id] = {};
@@ -200,7 +176,7 @@ function buildInitialRoster() {
   return r;
 }
 
-const MOCK_TEAM = [
+const MOCK_TEAM: MembroEquipe[] = [
   { id: 'TARM-04', name: 'Mariana S.', role: 'TARM', shift: 'Diurno', status: 'EM PLANTÃO' },
   { id: 'TARM-07', name: 'Rafael O.', role: 'TARM', shift: 'Noturno', status: 'FOLGA' },
   { id: 'REG-02', name: 'Dr. Almeida', role: 'Médico Regulador', shift: 'Diurno', status: 'EM PLANTÃO' },
@@ -245,7 +221,7 @@ const MANCHESTER_DIST = [
   { name: 'Azul', value: 120, color: '#1E88E5' },
 ];
 
-const MOCK_RECENT_CALLS = [
+const MOCK_RECENT_CALLS: ChamadaRecente[] = [
   { id: '1042', phone: '(11) 98765-4321', time: '08:12', type: 'Parada Cardiorrespiratória', status: 'Despachada (USA)', statusColor: 'danger' },
   { id: '1041', phone: '(11) 91234-5678', time: '08:05', type: 'Crise Convulsiva', status: 'Despachada (USB)', statusColor: 'warn' },
   { id: '1040', phone: '(11) 99876-5432', time: '07:58', type: 'Dúvida Médica', status: 'Resolvida (Telemedicina)', statusColor: 'ok' },
@@ -253,13 +229,13 @@ const MOCK_RECENT_CALLS = [
   { id: '1038', phone: '(11) 93333-2222', time: '07:30', type: 'Queda de Própria Altura', status: 'Despachada (USB)', statusColor: 'warn' },
 ];
 
-const MOCK_QUEUE = [
+const MOCK_QUEUE: ItemFilaPabx[] = [
   { id: 'Q1', phone: '(11) 98765-4321', waitTime: '01:42', priority: 'high' },
   { id: 'Q2', phone: '(11) 91234-5678', waitTime: '00:55', priority: 'normal' },
   { id: 'Q3', phone: '(11) 99999-8888', waitTime: '00:12', priority: 'normal' },
 ];
 
-const MOCK_SCRIPTS = [
+const MOCK_SCRIPTS: FalaRoteiro[][] = [
   // Scenario 1: IAM (Infarto)
   [
     { speaker: 'SYS', text: 'Gravação e transcrição iniciadas.', delay: 500 },
@@ -539,29 +515,15 @@ export default function App() {
   const [time, setTime] = useState(new Date());
   
   // Estado para armazenar os dados do chamador atual
-  const [currentCaller, setCurrentCaller] = useState<typeof MOCK_CALLERS[0] | null>(null);
-  
-  const [amlData, setAmlData] = useState<typeof MOCK_CALLERS[0]['aml'] | null>(null);
+  const [currentCaller, setCurrentCaller] = useState<Chamador | null>(null);
+
+  const [amlData, setAmlData] = useState<DadosAml | null>(null);
 
   // TARM States
   const [aiActive, setAiActive] = useState(true);
   const [activeScriptIndex, setActiveScriptIndex] = useState(0);
-  const [tarmChat, setTarmChat] = useState<{speaker: 'TARM' | 'CALLER' | 'SYS', text: string, time: string}[]>([]);
-  const [extractedData, setExtractedData] = useState<{
-    patientName: string;
-    age: string;
-    gender: string;
-    symptoms: string[];
-    comorbidities: string[];
-    risk: 'PENDING' | 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN' | 'BLUE';
-    protocol: string;
-    observations: string;
-    confidence: {
-      patientName: number;
-      symptoms: number;
-      protocol: number;
-    }
-  }>({
+  const [tarmChat, setTarmChat] = useState<MensagemChat[]>([]);
+  const [extractedData, setExtractedData] = useState<ExtracaoClinica>({
     patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '',
     confidence: { patientName: 0, symptoms: 0, protocol: 0 }
   });
@@ -572,7 +534,7 @@ export default function App() {
   // Queda de ligação NUNCA perde contexto (docs/21 §2.3-2.4): o rascunho fica
   // preservado na espera e reassocia pela anti-duplicidade quando o número volta.
   const [quedaPendente, setQuedaPendente] = useState<{
-    caller: typeof MOCK_CALLERS[0]; chat: typeof tarmChat; dados: typeof extractedData; em: number;
+    caller: Chamador; chat: MensagemChat[]; dados: ExtracaoClinica; em: number;
   } | null>(null);
   const [headerFora, setHeaderFora] = useState(false);
   // Cronômetros de etapa: nascem no ATENDER (nunca antes — shadow) e no handoff.
@@ -585,7 +547,7 @@ export default function App() {
   const digitacaoTimerRef = useRef<NodeJS.Timeout | null>(null);
   // Classificação de risco é DECISÃO EXPLÍCITA do regulador — nunca default.
   // null = ainda não classificado; o despacho fica bloqueado até a escolha.
-  const [riscoFinal, setRiscoFinal] = useState<'RED' | 'ORANGE' | 'YELLOW' | 'GREEN' | 'BLUE' | null>(null);
+  const [riscoFinal, setRiscoFinal] = useState<Risco | null>(null);
   // T1–T4: horário de cada marca; a barra de missão só habilita o PRÓXIMO passo,
   // pulo exige confirmação (2 toques) e marca feita é imutável — tempo probatório
   // não se sobrescreve em silêncio.
@@ -604,8 +566,8 @@ export default function App() {
 
   const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'info' | 'warn'} | null>(null);
   const [isDispatching, setIsDispatching] = useState(false);
-  const [vehicles, setVehicles] = useState(MOCK_VEHICLES);
-  const [role, setRole] = useState<'TARM' | 'MEDICO' | 'VIATURA' | 'GESTOR'>('TARM');
+  const [vehicles, setVehicles] = useState<Veiculo[]>(MOCK_VEHICLES);
+  const [role, setRole] = useState<Papel>('TARM');
   const [team] = useState(MOCK_TEAM);
   const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>({ 'MOT-02': '2026-06-14' });
   const [missionStatus, setMissionStatus] = useState('A CAMINHO');
@@ -614,7 +576,7 @@ export default function App() {
   const [operatorId, setOperatorId] = useState('TARM-04');
   const [loginMatricula, setLoginMatricula] = useState('TARM-04');
   const [loginPassword, setLoginPassword] = useState('');
-  const [roster, setRoster] = useState<Record<string, Record<string, string>>>(buildInitialRoster);
+  const [roster, setRoster] = useState<Escala>(buildInitialRoster);
   const [userIds, setUserIds] = useState<Record<string, string>>({});
   const [myWeek, setMyWeek] = useState(0);
   const [showEscala, setShowEscala] = useState(false);
@@ -627,7 +589,7 @@ export default function App() {
   const [selectedBase, setSelectedBase] = useState('Consórcio (geral)');
   const BASE_FACTOR: Record<string, number> = { 'Consórcio (geral)': 1, 'Base Central': 0.52, 'Base Leste': 0.29, 'Base Norte': 0.19 };
   const bf = BASE_FACTOR[selectedBase] ?? 1;
-  const [fhirRecord, setFhirRecord] = useState<typeof MOCK_RECENT_CALLS[number] | null>(null);
+  const [fhirRecord, setFhirRecord] = useState<ChamadaRecente | null>(null);
   const [gWeek, setGWeek] = useState(0);
   const [queue, setQueue] = useState(() => MOCK_QUEUE.map(q => {
     const [m, sec] = q.waitTime.split(':').map(Number);
@@ -913,7 +875,7 @@ export default function App() {
   // Simulação do TARM (Chat e Extração). Todos os timers ficam registrados para o
   // kill switch poder CANCELAR de verdade — sem isso a transcrição continuaria
   // chegando com a IA desligada, e o modo degradado seria só cosmético.
-  const agendarRoteiro = (itens: (typeof MOCK_SCRIPTS)[number], atraso: (i: number, item: { delay: number }) => number) => {
+  const agendarRoteiro = (itens: FalaRoteiro[], atraso: (i: number, item: { delay: number }) => number) => {
     itens.forEach((item, i) => {
       if (scriptShownRef.current.has(item.text)) return;
       const id = setTimeout(() => {
@@ -921,19 +883,19 @@ export default function App() {
         setTarmChat(prev => {
           // Evita duplicatas caso o componente re-renderize
           if (prev.some(msg => msg.text === item.text)) return prev;
-          return [...prev, { speaker: item.speaker as any, text: item.text, time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) }];
+          return [...prev, { speaker: item.speaker, text: item.text, time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) }];
         });
 
         if (item.extract) {
-          const extract = item.extract as any;
+          const extract = item.extract;
           if (extract.patientName) {
-            setExtractedData(prev => ({ ...prev, patientName: extract.patientName, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
+            setExtractedData(prev => ({ ...prev, patientName: extract.patientName!, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
           }
           if (extract.symptoms) {
-            setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
+            setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms!])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
           }
           if (extract.risk) {
-            setExtractedData(prev => ({ ...prev, risk: extract.risk as any, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
+            setExtractedData(prev => ({ ...prev, risk: extract.risk!, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
           }
         }
       }, atraso(i, item));
@@ -942,7 +904,7 @@ export default function App() {
   };
 
   const marcadorSistema = (texto: string) => {
-    setTarmChat(prev => [...prev, { speaker: 'SYS' as any, text: texto, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }]);
+    setTarmChat(prev => [...prev, { speaker: 'SYS', text: texto, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }]);
   };
 
   // Três modos (doutrina docs/05 §2), com o comportamento do modo degradado real
@@ -1042,7 +1004,7 @@ export default function App() {
       const { data } = await supabase.from('viaturas').select('id, codigo, tipo, status, manutencao_prevista');
       if (data) setVehicleIds(Object.fromEntries(data.map(r => [r.codigo, r.id])));
       if (!active || !data || data.length === 0) return;
-      setVehicles(data.map(r => mapDbVehicle(r, VEHICLE_STATUS_COLOR)) as typeof MOCK_VEHICLES);
+      setVehicles(data.map(r => mapDbVehicle(r, VEHICLE_STATUS_COLOR)));
       const maint: Record<string, string> = {};
       data.forEach(r => { if (r.manutencao_prevista) maint[r.codigo] = r.manutencao_prevista; });
       setMaintSchedule(maint);
@@ -1100,7 +1062,7 @@ export default function App() {
     setMissionMarks({});
     setSkipArm(null);
     setTarmChat(prev => prev.length > 0 ? prev : MOCK_SCRIPTS[0].slice(0, 7).map(i => ({
-      speaker: i.speaker as any, text: i.text,
+      speaker: i.speaker, text: i.text,
       time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     })));
   };
@@ -1143,7 +1105,7 @@ export default function App() {
     supabase.from('auditoria').insert({ tenant_id: TENANT_ID, usuario_id: authUserId, acao, alvo }).then();
   };
 
-  const abrirOcorrencia = (caller: (typeof MOCK_CALLERS)[number]) => {
+  const abrirOcorrencia = (caller: Chamador) => {
     if (!connected) return;
     supabase.from('ocorrencias')
       .insert({ tenant_id: TENANT_ID, telefone: caller.phone, aml: caller.aml, tarm_id: role === 'TARM' ? authUserId : null })
@@ -2084,7 +2046,7 @@ export default function App() {
                             const caller = MOCK_CALLERS[c.caller];
                             setCurrentCaller(caller);
                             setAmlData(caller.aml);
-                            setExtractedData(c.data as any);
+                            setExtractedData(c.data);
                             setSelectedVehicleId(null);
                             setRiscoFinal(null);
                             setJustification(null);
