@@ -48,6 +48,7 @@ os cronômetros de etapa e o T0.
 | T13 | Kill switch / modos de IA | — | Escuta · Digitação · Manual, janela auditada; gravação da central intocada | ✅ demonstrável |
 | T14 | Central sem NENHUMA fonte de eventos | Só SIPREC | Fila indisponível declarada; todo o resto funciona | ✅ registrado (docs/05 §3) |
 | T15 | Divergência entre o nosso registro e o do sistema da central | — | Conciliação por telefone+horário no relatório (nunca em tempo real — não tocamos o CAD da central) | Análise · Go Live |
+| T16 | **PCR presenciada — RCP guiada por telefone (T-CPR)** | Fala relata inconsciência sem respiração; o operador guia compressões pela linha da central | Protocolo passo a passo na tela + **marco da 1ª compressão carimbado** (tempo-até-compressão, indicador AHA), visível na triagem, na regulação e na viatura | ✅ demonstrável (roteiro 8 · docs/26 M-1) |
 
 ## 3. Cenários — etapa da REGULAÇÃO MÉDICA
 
@@ -78,6 +79,10 @@ cena, com hospitais. Em shadow, a linha dele é tão escutável quanto a do TARM
 4. **Flag AMV** (T11) — chip + alerta; pequeno.
 5. **Tempo-vaga** (M4) — registrar como argumento de produto para o Go Live
    (docs/01/09) — nasce da mesma esteira de transcrição, custo marginal.
+
+**Entregues em 27/08 (auditoria de seis visões, `docs/26`):** T16 (PCR/T-CPR com
+tempo-até-1ª-compressão), relógio de **janela clínica** a partir do início dos
+sintomas relatado (AVC 4h30) e instruções pré-chegada por protocolo.
 
 ## Registro
 

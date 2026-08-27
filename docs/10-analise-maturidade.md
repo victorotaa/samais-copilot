@@ -104,6 +104,7 @@ Ordenadas por severidade operacional. "Fase" = onde entram no programa de `docs/
 | 4.10 | **Instrumentação de metas contratuais** | O roteiro de implantação do Samais-OS exige "como cada meta é MEDIDA" (item crítico). O produto deve emitir os indicadores do contrato com procedência — é a "prova de entrega". | F2 |
 | 4.11 | **Psiquiátrica nos roteiros de triagem** | O mix real de demanda é ~55–60% clínico, 25–30% trauma, 8–12% psiquiátrico, 2–4% obstétrico. Os roteiros da demo hoje são 7 (IAM, trauma, OVACE, trote, AVC, obstétrico, verde — obstétrico e AVC entraram em ago/2026); o psiquiátrico segue de fora. Vale para o backtest da IA também. | F1 |
 | 4.12 | **Console ADMIN Samais** | Cadastrar tenant/bases/usuários/viaturas sem tocar no banco à mão (hierarquia em `docs/05` §7). | F2 |
+| 4.13 | **Papel ENTE (transparência do contratante)** | Secretário/prefeito/assessor com acesso próprio read-only: indicadores do contrato e atendimentos como eventos anonimizados — **sem PII por construção** (nem escala nominal da equipe). O RLS comporta o papel; regra de ouro: o gestor Samais vê o mesmo painel e recebe o alerta antes. Desenho em `docs/26` G-5. | F2 |
 
 **O que NÃO entra** (decisões registradas que permanecem): live view de cena
 (descartado, `docs/05` §5); substituir a telefonia da CRU (o CoPilot escuta — postura

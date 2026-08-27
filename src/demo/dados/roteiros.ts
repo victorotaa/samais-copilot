@@ -74,7 +74,7 @@ export const MOCK_SCRIPTS: FalaRoteiro[][] = [
     { speaker: 'CALLER', text: 'Moço, minha mãe acordou com a boca torta e não consegue falar direito. Ela tá muito estranha.', delay: 1500 },
     { speaker: 'TARM', text: 'Vou te ajudar. Qual o nome e a idade dela? E a que horas você percebeu isso?', delay: 5000 },
     { speaker: 'CALLER', text: 'Terezinha, 68 anos. Foi agora, faz uns vinte minutos. Ela tentou levantar e o braço esquerdo não obedece.', delay: 9500,
-      extract: { patientName: 'Terezinha Almeida', age: '68 anos', gender: 'Feminino' } },
+      extract: { patientName: 'Terezinha Almeida', age: '68 anos', gender: 'Feminino', inicioSintomasMinutos: 20 } },
     { speaker: 'TARM', text: 'Peça para ela sorrir. O sorriso está torto? E peça para repetir uma frase simples.', delay: 14000 },
     { speaker: 'CALLER', text: 'Tá torto sim, só um lado mexe. E a fala sai toda enrolada, não dá pra entender nada.', delay: 18500,
       extract: { symptoms: ['Desvio de rima labial', 'Fraqueza em braço esquerdo', 'Fala arrastada (disartria)'], risk: 'ORANGE', protocol: 'Suspeita de AVC — janela terapêutica' } },
@@ -108,5 +108,24 @@ export const MOCK_SCRIPTS: FalaRoteiro[][] = [
     { speaker: 'TARM', text: 'Entendi. Pelo que o senhor descreve, não é uma emergência — e a ambulância precisa ficar livre para risco de vida. O caminho certo é a UBS do seu bairro. Se surgir perda de força, febre alta ou a dor mudar de repente, ligue de novo na hora.', delay: 22500 },
     { speaker: 'CALLER', text: 'Ah, entendi. Vou na UBS amanhã cedo então. Obrigado, viu?', delay: 28000 },
     { speaker: 'TARM', text: 'Às ordens. Melhoras para o senhor.', delay: 31000 }
+  ],
+  // 8 · PCR — RCP guiada por telefone (T-CPR): O caso da regulação. O operador
+  // guia as compressões pela linha da CENTRAL (shadow: nós nunca falamos); o
+  // CoPilot mostra o protocolo e CARIMBA o tempo até a 1ª compressão —
+  // indicador de sobrevida (AHA). Cenário T16 do docs/23; origem docs/26.
+  [
+    { speaker: 'SYS', text: 'Gravação e transcrição iniciadas.', delay: 500 },
+    { speaker: 'TARM', text: 'SAMU 192, qual a sua emergência?', delay: 1500 },
+    { speaker: 'CALLER', text: 'Meu pai desmaiou e não acorda! Ele não tá respirando, pelo amor de Deus!', delay: 4000,
+      extract: { symptoms: ['Inconsciência', 'Ausência de respiração'], risk: 'RED', protocol: 'PCR — parada cardiorrespiratória' } },
+    { speaker: 'TARM', text: 'A ambulância já está sendo acionada. Qual o nome e a idade dele? Ele está deitado de costas?', delay: 7000 },
+    { speaker: 'CALLER', text: 'Roberto, 58 anos. Tá de costas no chão da sala.', delay: 10000,
+      extract: { patientName: 'Roberto Nunes', age: '58 anos', gender: 'Masculino' } },
+    { speaker: 'TARM', text: 'Ajoelhe do lado dele, mãos sobrepostas no centro do peito, braços esticados — comprima forte e rápido, no meu ritmo: um, dois, três, quatro…', delay: 13500,
+      extract: { marco: 'rcp_iniciada' } },
+    { speaker: 'CALLER', text: 'Tô comprimindo! Um, dois, três… assim?', delay: 17500 },
+    { speaker: 'TARM', text: 'Perfeito, não pare. Se tiver mais alguém aí, peça para buscar o desfibrilador (DEA) da portaria e revezar com você a cada 2 minutos.', delay: 21500 },
+    { speaker: 'CALLER', text: 'Minha mãe foi buscar! Continuo aqui, não vou parar.', delay: 25500 },
+    { speaker: 'TARM', text: 'A equipe está chegando. Continue no meu ritmo e me avise qualquer mudança — estou na linha com você.', delay: 29000 }
   ]
 ];
