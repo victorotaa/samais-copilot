@@ -49,6 +49,15 @@ Em ordem de chegada, com onde ler e onde está o código:
    (nenhum marcador de teatro no build de operação E todos vivos no build
    demo) e **smoke** provando a recusa honesta de login sem backend.
 
+7. **Auditoria de seis visões + primeira leva clínica** (`docs/26`) — o produto
+   auditado pelas batas de socorrista, médico, TARM, gestor+ente, designer e
+   dev, cada achado com estado. Entregues na mesma rodada: **cenário PCR com
+   RCP guiada por telefone (T-CPR)** e o **tempo até a 1ª compressão** carimbado
+   por marco de fala, **relógio de janela clínica** (decorrido desde o início
+   dos sintomas relatado — AVC 4h30) e **instruções pré-chegada por protocolo**.
+   Os campos novos do `ExtratoFala` (`marco`, `inicioSintomasMinutos`) são o
+   shape que o STT real entregará.
+
 **O que NÃO mudou** — continua não existindo STT/LLM real (a IA segue roteiro
 determinístico rotulado), integração de telefonia, GPS real, offline-first. O
 deploy demo (`main` → Vercel) segue intocado. A matriz real × simulação vigente
@@ -74,8 +83,9 @@ deploy demo (`main` → Vercel) segue intocado. A matriz real × simulação vig
 2. `docs/10` — real × simulação vigente (com §6, correções de registro)
 3. `docs/24` — arquitetura núcleo × demo (contratos, alias, guardas)
 4. `docs/23` — cenários shadow (o que o produto fará sobre esse seam)
-5. `docs/22` — roteiro de demonstração (o arco que a demo conta)
-6. Código, nesta ordem: `src/core/teatro.ts` (contratos) →
+5. `docs/26` — auditoria de seis visões (backlog por persona e ordem de ataque)
+6. `docs/22` — roteiro de demonstração (o arco que a demo conta)
+7. Código, nesta ordem: `src/core/teatro.ts` (contratos) →
    `src/demo/index.tsx` + `src/demo/inerte.tsx` (os dois pacotes) →
    `src/demo/fonte-roteiro.ts` (a fonte) → `src/App.tsx` (orquestração) →
    `tests/*.mjs` → `.github/workflows/ci.yml`.
@@ -116,8 +126,9 @@ primeira análise.
 
 CONTEXTO OBRIGATÓRIO (leia antes de opinar, nesta ordem):
 README.md · docs/10 (real × simulação — inclui §6 com correções de registro) ·
-docs/24 (arquitetura núcleo × demo) · docs/23 (cenários shadow) · docs/25 §1
-(o delta). Código: src/core/teatro.ts → src/demo/index.tsx e inerte.tsx →
+docs/24 (arquitetura núcleo × demo) · docs/23 (cenários shadow) · docs/26
+(auditoria de seis visões — o backlog por persona) · docs/25 §1 (o delta).
+Código: src/core/teatro.ts → src/demo/index.tsx e inerte.tsx →
 src/demo/fonte-roteiro.ts → src/App.tsx → tests/*.mjs → .github/workflows/ci.yml.
 
 PREMISSAS QUE VOCÊ DEVE RESPEITAR (decisões registradas, não bugs):

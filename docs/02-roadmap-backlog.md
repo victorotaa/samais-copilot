@@ -112,3 +112,9 @@
 inter-hospitalar, cobertura de escala (FC implícito), metas contratuais com metodologia,
 ficha da operação, NEP, obrigações da operação, carga da central e aba de sustentação —
 fundamentos, fontes e os 5 campos de schema em `docs/20-auditoria-padrao-ouro.md` §4.
+
+**Auditoria de seis visões (27/08/2026):** socorrista · médico · TARM · gestor+ente ·
+designer · dev — achados com estado e ordem de ataque em `docs/26`. Primeira leva
+entregue no mesmo dia (PCR/T-CPR, janela clínica, instruções por protocolo); o corte
+contratual do gestor e o papel ENTE (lacuna 4.13 do `docs/10`) são os próximos de
+maior valor de venda; `strict` + tratamento de erro são a fundação antes da Fase 2.

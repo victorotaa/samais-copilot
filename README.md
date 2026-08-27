@@ -48,6 +48,7 @@ disponível, o app cai em modo demonstração e os dados voltam a ser locais.
 | [`docs/23-cenarios-shadow.md`](./docs/23-cenarios-shadow.md) | Cenários da operação em shadow (TARM e regulação): o que o shadow vê, como o CoPilot responde, o que é demonstrável × futuro (AML = implementação futura) |
 | [`docs/24-arquitetura-nucleo-demo.md`](./docs/24-arquitetura-nucleo-demo.md) | Separação núcleo × demo (Fase 1): contratos, alias por modo de build, guarda de bundle e smoke do modo operação |
 | [`docs/25-handoff-atualizacao-hugo.md`](./docs/25-handoff-atualizacao-hugo.md) | Handoff de atualização para análise independente: o delta desde o parecer, o rumo, e o prompt de revisão pronto para IA (Claude/Codex) |
+| [`docs/26-auditoria-seis-visoes.md`](./docs/26-auditoria-seis-visoes.md) | Auditoria por persona (socorrista, médico, TARM, gestor+ente, designer, dev): achados com estado e ordem de ataque — origem do cenário PCR/T-CPR e da janela clínica |
 | [`SECURITY.md`](./SECURITY.md) | Postura de segurança e o que ainda é roadmap |
 
 ## Rodando local
@@ -85,7 +86,7 @@ Ver [`.env.example`](./.env.example). Nenhum segredo vive no código-fonte.
 
 ```
 samais-copilot/
-├── docs/                       # documentação estratégica e técnica (00–25)
+├── docs/                       # documentação estratégica e técnica (00–26)
 ├── apresentacao-ms/            # peça institucional (HTML único, servida em /apresentacao-ms/)
 ├── lp/                         # landing page B2B (servida em /lp)
 ├── master-plan-rota/           # documento institucional de outro vertical (ROTA)
