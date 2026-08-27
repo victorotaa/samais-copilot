@@ -7,9 +7,10 @@ import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_I
 import type { Chamador, DadosAml, ExtracaoClinica, Veiculo, MembroEquipe, ItemFilaPabx, MensagemChat, ChamadaRecente, Risco, Papel, Escala } from './core/tipos';
 import type { FalaTranscrita } from './core/teatro';
 import { startOfWeek, addDays, isoDate, WEEKDAYS, MAX_WEEKS_AHEAD, TURNO_CYCLE, TURNO_BADGE } from './core/calendario';
-// Único ponto de entrada do TEATRO no núcleo — vira alias '@demo' no build,
-// e o modo operação troca o pacote pelo plugue inerte (docs/24).
-import { demo } from './demo';
+// Único ponto de entrada do TEATRO no núcleo. O alias resolve por modo de
+// build: demo (default) → src/demo/index.tsx; operação → src/demo/inerte.tsx,
+// e o pacote de demonstração fica fora do grafo de módulos (docs/24).
+import { demo } from '@demo';
 
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
 
@@ -902,9 +903,26 @@ export default function App() {
     </>
   );
 
+  // Toast global: renderiza nos DOIS estados — a recusa honesta de login em
+  // operação ("Backend indisponível") acontece ANTES de autenticar, e um toast
+  // que só existe no layout autenticado seria aviso que ninguém vê.
+  const toastEl = toast && (
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
+      <div className={`px-4 py-3 rounded-xl shadow-2xl border flex items-center gap-3 backdrop-blur-md ${
+        toast.type === 'success' ? 'bg-ok/20 border-ok/40 text-ok' :
+        toast.type === 'warn' ? 'bg-warn/20 border-warn/40 text-warn' :
+        'bg-ai/20 border-ai/40 text-ai'
+      }`}>
+        <Icon name={toast.type === 'success' ? 'circle-check' : toast.type === 'warn' ? 'triangle-exclamation' : 'circle-info'} />
+        <span className="text-sm font-bold">{toast.message}</span>
+      </div>
+    </div>
+  );
+
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-canvas relative overflow-hidden transition-colors">
+        {toastEl}
         <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-gold-500/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-ai/5 rounded-full blur-3xl"></div>
         
@@ -985,18 +1003,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen w-screen bg-canvas transition-colors">
       {/* Toast Notification */}
-      {toast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className={`px-4 py-3 rounded-xl shadow-2xl border flex items-center gap-3 backdrop-blur-md ${
-            toast.type === 'success' ? 'bg-ok/20 border-ok/40 text-ok' :
-            toast.type === 'warn' ? 'bg-warn/20 border-warn/40 text-warn' :
-            'bg-ai/20 border-ai/40 text-ai'
-          }`}>
-            <Icon name={toast.type === 'success' ? 'circle-check' : toast.type === 'warn' ? 'triangle-exclamation' : 'circle-info'} />
-            <span className="text-sm font-bold">{toast.message}</span>
-          </div>
-        </div>
-      )}
+      {toastEl}
 
       {/* INCOMING CALL OVERLAY — teatro do pacote demo: no produto a triagem
           abre sozinha quando o TARM atende na central (shadow, docs/09 §1). */}

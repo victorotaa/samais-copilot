@@ -7,10 +7,12 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build && mkdir -p dist/lp && cp lp/index.html dist/lp/index.html && cp -r lp/assets dist/lp/assets && mkdir -p dist/apresentacao-ms && cp apresentacao-ms/index.html dist/apresentacao-ms/index.html",
+    "build:operacao": "vite build --mode operacao --outDir dist-operacao",
     "preview": "vite preview",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist dist-operacao",
     "lint": "tsc --noEmit",
-    "test": "node tests/lint-vetado.mjs && node tests/e2e-cenarios.mjs && node tests/e2e-timer.mjs && node tests/e2e-digitacao.mjs && node tests/e2e-mobile.mjs"
+    "test": "node tests/lint-vetado.mjs && node tests/e2e-cenarios.mjs && node tests/e2e-timer.mjs && node tests/e2e-digitacao.mjs && node tests/e2e-mobile.mjs",
+    "test:operacao": "npm run build:operacao && node tests/guarda-operacao.mjs && node tests/smoke-operacao.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",
