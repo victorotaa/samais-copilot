@@ -7,17 +7,13 @@ import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_I
 import type { Chamador, DadosAml, ExtracaoClinica, Veiculo, MembroEquipe, ItemFilaPabx, MensagemChat, ChamadaRecente, Risco, Papel, Escala } from './core/tipos';
 import type { FalaTranscrita } from './core/teatro';
 import { startOfWeek, addDays, isoDate, WEEKDAYS, MAX_WEEKS_AHEAD, TURNO_CYCLE, TURNO_BADGE } from './core/calendario';
-import { MOCK_CALLERS } from './demo/dados/chamadores';
-import { MOCK_SCRIPTS } from './demo/dados/roteiros';
 import { CENARIOS_DEMO } from './demo/dados/cenarios';
-import { MOCK_VEHICLES, MANUTENCAO_INICIAL } from './demo/dados/frota';
-import { MOCK_TEAM, buildInitialRoster } from './demo/dados/equipe';
-import { MEDICO_CASES } from './demo/dados/regulacao';
-import { MOCK_QUEUE } from './demo/dados/fila';
 import { HOURLY_STATS, MANCHESTER_DIST, MOCK_RECENT_CALLS } from './demo/dados/estatisticas';
 import { TypingMessage, AudioWaveform, MapaEsquematico } from './demo/componentes';
-import { analisadorDeTexto } from './demo/analise-texto';
-import { fonteRoteiro } from './demo/fonte-roteiro';
+// Único ponto de entrada do TEATRO no núcleo (vira alias '@demo' no build de
+// operação — docs/24). Os imports diretos acima migram para o pacote na
+// sequência da Fase 1.
+import { demo } from './demo';
 
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
 
@@ -174,26 +170,26 @@ export default function App() {
   // não se sobrescreve em silêncio.
   const [missionMarks, setMissionMarks] = useState<Record<string, string>>({});
   const [skipArm, setSkipArm] = useState<string | null>(null);
-  // Seletor de cenário da demonstração (IDLE): 'aleatorio' sorteia da bolsa.
+  // Seletor de cenário da demonstração (IDLE): 'aleatorio' sorteia da bolsa
+  // (a bolsa vive dentro do pacote demo — prepararCenario).
   const [cenarioDemo, setCenarioDemo] = useState<string>('aleatorio');
-  const bolsaCenariosRef = useRef<string[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('Hoje');
 
   const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'info' | 'warn'} | null>(null);
   const [isDispatching, setIsDispatching] = useState(false);
-  const [vehicles, setVehicles] = useState<Veiculo[]>(MOCK_VEHICLES);
+  const [vehicles, setVehicles] = useState<Veiculo[]>(demo.frotaInicial);
   const [role, setRole] = useState<Papel>('TARM');
-  const [team] = useState(MOCK_TEAM);
-  const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>(MANUTENCAO_INICIAL);
+  const [team] = useState<MembroEquipe[]>(demo.equipeInicial);
+  const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>(demo.manutencaoInicial);
   const [missionStatus, setMissionStatus] = useState('A CAMINHO');
   const [connected, setConnected] = useState(false);
-  const [operatorName, setOperatorName] = useState('Mariana S.');
-  const [operatorId, setOperatorId] = useState('TARM-04');
-  const [loginMatricula, setLoginMatricula] = useState('TARM-04');
+  const [operatorName, setOperatorName] = useState(demo.personaLogin('TARM')?.nome ?? '');
+  const [operatorId, setOperatorId] = useState(demo.personaLogin('TARM')?.matricula ?? '');
+  const [loginMatricula, setLoginMatricula] = useState(demo.personaLogin('TARM')?.matricula ?? '');
   const [loginPassword, setLoginPassword] = useState('');
-  const [roster, setRoster] = useState<Escala>(buildInitialRoster);
+  const [roster, setRoster] = useState<Escala>(demo.escalaInicial);
   const [userIds, setUserIds] = useState<Record<string, string>>({});
   const [myWeek, setMyWeek] = useState(0);
   const [showEscala, setShowEscala] = useState(false);
@@ -208,7 +204,7 @@ export default function App() {
   const bf = BASE_FACTOR[selectedBase] ?? 1;
   const [fhirRecord, setFhirRecord] = useState<ChamadaRecente | null>(null);
   const [gWeek, setGWeek] = useState(0);
-  const [queue, setQueue] = useState(() => MOCK_QUEUE.map(q => {
+  const [queue, setQueue] = useState(() => demo.filaInicial.map(q => {
     const [m, sec] = q.waitTime.split(':').map(Number);
     return { ...q, seconds: m * 60 + sec };
   }));
@@ -261,6 +257,7 @@ export default function App() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!demo.ativo) return; // operação: ETA real virá da telemetria, nunca de jitter
     const interval = setInterval(() => {
       let updated = false;
       setVehicles(prev => prev.map(v => {
@@ -397,23 +394,15 @@ export default function App() {
   useEffect(() => { setHeaderFora(false); }, [currentModule]);
 
   useEffect(() => {
+    if (!demo.ativo) return; // operação: a chamada chega pela integração, não por sorteio
     let timer: NodeJS.Timeout;
     if (isAuthenticated && currentModule === 'IDLE' && !incomingCall) {
       // Reset TARM states when going back to IDLE
-      fonteRoteiro.encerrar();
+      demo.transcricao.encerrar();
       setTarmChat([]);
       setExtractedData({ patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '', confidence: { patientName: 0, symptoms: 0, protocol: 0 } });
       setAiActive(true);
-      let escolhido = CENARIOS_DEMO.find(c => c.id === cenarioDemo);
-      if (!escolhido) {
-        if (bolsaCenariosRef.current.length === 0) {
-          bolsaCenariosRef.current = CENARIOS_DEMO.map(c => c.id).sort(() => Math.random() - 0.5);
-        }
-        const proximo = bolsaCenariosRef.current.pop()!;
-        escolhido = CENARIOS_DEMO.find(c => c.id === proximo)!;
-      }
-      const cenario = escolhido;
-      fonteRoteiro.selecionar(cenario.script);
+      const preparado = demo.prepararCenario(cenarioDemo);
       setMissionStatus('A CAMINHO');
       setMissionMarks({});
       setSkipArm(null);
@@ -426,18 +415,20 @@ export default function App() {
       setOccId(null);
       setDispatchId(null);
 
-      timer = setTimeout(() => {
-        setCurrentCaller(MOCK_CALLERS[cenario.caller]);
-        setAmlData(null);
-        setIncomingCall(true);
-      }, 10000);
+      if (preparado) {
+        timer = setTimeout(() => {
+          setCurrentCaller(preparado.chamador);
+          setAmlData(null);
+          setIncomingCall(true);
+        }, 10000);
+      }
     }
     return () => clearTimeout(timer);
   }, [isAuthenticated, currentModule, incomingCall, cenarioDemo]);
 
   // Fila de espera viva: tempos sobem em tempo real; chamadas entram e são atendidas.
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!demo.ativo || !isAuthenticated) return; // operação: fila só com eventos do PABX (fonte 2)
     let tick = 0;
     const interval = setInterval(() => {
       tick += 1;
@@ -464,6 +455,7 @@ export default function App() {
 
   // Espera da viatura: tablet em prontidão até receber um despacho (demo).
   useEffect(() => {
+    if (!demo.ativo) return; // operação: o despacho vem da regulação, nunca de timer
     if (!(isAuthenticated && role === 'VIATURA' && currentModule === 'VIATURA' && !currentCaller)) return;
     const t = setTimeout(() => {
       applyDemoSnapshot();
@@ -525,12 +517,12 @@ export default function App() {
     if (novo === 'escuta') {
       if (currentModule === 'TARM' && tarmChat.length > 0) {
         marcadorSistema(`— escuta religada às ${agora} · transcrição retomada; a janela fica registrada na auditoria —`);
-        fonteRoteiro.retomar(aoItemTranscricao);
+        demo.transcricao.retomar(aoItemTranscricao);
       }
       audit('IA_RELIGADA', { em: agora, modulo: currentModule, de: modoIA });
       setAiActive(true);
     } else {
-      fonteRoteiro.pausar();
+      demo.transcricao.pausar();
       if (currentModule === 'TARM' && tarmChat.length > 0) {
         marcadorSistema(novo === 'digitacao'
           ? `— escuta desligada às ${agora} · IA sobre digitação: a classificação passa a vir do texto do TARM —`
@@ -548,7 +540,7 @@ export default function App() {
     if (modoIA !== 'digitacao') return;
     if (digitacaoTimerRef.current) clearTimeout(digitacaoTimerRef.current);
     digitacaoTimerRef.current = setTimeout(() => {
-      const r = analisadorDeTexto.analisar(textoDigitado);
+      const r = demo.analisadorDeTexto?.analisar(textoDigitado) ?? null;
       if (r) {
         setExtractedData(prev => ({ ...prev, symptoms: r.symptoms, risk: r.risk, protocol: r.protocol, confidence: { ...prev.confidence, symptoms: 0.75, protocol: 0.75 } }));
       } else {
@@ -560,7 +552,7 @@ export default function App() {
 
   useEffect(() => {
     if (currentModule === 'TARM' && aiActive && tarmChat.length === 0) {
-      fonteRoteiro.iniciar(aoItemTranscricao);
+      demo.transcricao.iniciar(aoItemTranscricao);
     }
   }, [currentModule, aiActive]);
 
@@ -582,12 +574,19 @@ export default function App() {
       showToast(`Conectado ao backend Samais · ${perfil.matricula}`, 'success');
       return;
     }
-    // Backend indisponível ou credencial não semeada: a demo nunca trava.
+    // Backend indisponível ou credencial não semeada: na DEMONSTRAÇÃO entra a
+    // persona do papel (a demo nunca trava); em OPERAÇÃO a recusa é honesta —
+    // console operacional não abre sessão anônima sem backend.
+    const persona = demo.personaLogin(role);
+    if (!persona) {
+      setIsAuthenticating(false);
+      showToast('Backend indisponível — esta instalação exige o backend Samais configurado', 'warn');
+      return;
+    }
     setTimeout(() => {
       setConnected(false);
-      const demo = { TARM: ['Mariana S.', 'TARM-04'], MEDICO: ['Dr. Almeida', 'REG-02'], VIATURA: ['Equipe USA-01', 'USA-01'], GESTOR: ['Carlos M.', 'GESTOR-01'] }[role];
-      setOperatorName(demo[0]);
-      setOperatorId(demo[1]);
+      setOperatorName(persona.nome);
+      setOperatorId(persona.matricula);
       setIsAuthenticated(true);
       setIsAuthenticating(false);
       if (role === 'MEDICO') {
@@ -599,7 +598,7 @@ export default function App() {
       } else {
         setCurrentModule(role === 'GESTOR' ? 'GESTOR' : role === 'VIATURA' ? 'VIATURA' : 'IDLE');
       }
-      showToast('Modo demonstração — backend offline', 'info');
+      showToast(persona.aviso, 'info');
     }, 1200);
   };
 
@@ -652,26 +651,20 @@ export default function App() {
 
   // Snapshot de demonstração: permite "pular" para qualquer estágio do fluxo
   // sem precisar atender uma chamada (navegação da demo, não do produto real).
+  // Em operação snapshotRegulacao() é null e isto é no-op — as telas caem no
+  // empty state honesto ("Aguardando chamada entrante...").
   const applyDemoSnapshot = () => {
-    const caller = MOCK_CALLERS[0];
-    setCurrentCaller(caller);
-    setAmlData(caller.aml);
-    setExtractedData({
-      patientName: 'João da Silva', age: '65 anos', gender: 'Masculino',
-      symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)'],
-      comorbidities: ['Hipertensão (HAS)', 'Diabetes (DM)'],
-      risk: 'RED', protocol: 'Suspeita de IAM (Infarto)', observations: '',
-      confidence: { patientName: 0.96, symptoms: 0.89, protocol: 0.92 },
-    });
+    const s = demo.snapshotRegulacao();
+    if (!s) return;
+    setCurrentCaller(s.chamador);
+    setAmlData(s.chamador.aml);
+    setExtractedData(s.extracao);
     setAiActive(false);
     setRiscoFinal(null);
     setJustification(null);
     setMissionMarks({});
     setSkipArm(null);
-    setTarmChat(prev => prev.length > 0 ? prev : MOCK_SCRIPTS[0].slice(0, 7).map(i => ({
-      speaker: i.speaker, text: i.text,
-      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-    })));
+    setTarmChat(prev => prev.length > 0 ? prev : s.transcricaoParcial);
   };
 
   // O sistema designa a viatura recomendada ao entrar na regulação (médico pode trocar).
@@ -683,7 +676,8 @@ export default function App() {
 
   // Simuladores de viatura sobre o mapa: ativas se deslocam, base fica fixa,
   // em ocorrência pulsa em vermelho — mesmo padrão em todas as telas de espera.
-  const FleetMarkers = (
+  // GPS SIMULADO: nunca renderiza sobre frota real (só com o teatro ativo).
+  const FleetMarkers = demo.ativo && (
     <>
       {vehicles.slice(0, 4).map((v, i) => {
         const moving = v.status === 'DISPONÍVEL' || v.status === 'RETORNO' || v.status === 'EM ATENDIMENTO';
@@ -780,7 +774,7 @@ export default function App() {
 
   const encerrarSemRegulacao = (motivo: 'trote' | 'engano' | 'queda') => {
     audit('CHAMADA_ENCERRADA_SEM_REGULACAO', { motivo, extracao: extractedData.risk });
-    fonteRoteiro.pausar();
+    demo.transcricao.pausar();
     if (motivo === 'queda' && currentCaller) {
       // Queda: o rascunho sobrevive à volta ao IDLE — protocolo real manda
       // retornar a ligação, e o retorno reassocia à MESMA ocorrência.
@@ -802,7 +796,7 @@ export default function App() {
       setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
       setRegulacaoInicio(Date.now());
       setCurrentModule('REGULADOR');
-      showToast('Handoff recebido do TARM-04', 'success');
+      showToast(`Handoff recebido do ${demo.personaLogin('TARM')?.matricula ?? 'TARM'}`, 'success');
       return;
     }
     showToast('Chamada atendida na central — triagem aberta · cronômetro da etapa iniciado', 'success');
@@ -820,8 +814,9 @@ export default function App() {
       setQuedaPendente(null);
       showToast('Mesmo número religou — contexto da queda reassociado', 'success');
     }
-    
-    setTimeout(() => {
+
+    // Triangulação AML simulada (implementação futura — docs/23 T8f): só no teatro.
+    if (demo.ativo) setTimeout(() => {
       if (currentCaller) {
         setAmlData(currentCaller.aml);
         if (currentCaller.aml) showToast('Localização AML triangulada', 'info');
@@ -923,15 +918,15 @@ export default function App() {
               <label className="lbl">Perfil de Acesso</label>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  { r: 'TARM', label: 'TARM', icon: 'headset', mat: 'TARM-04' },
-                  { r: 'MEDICO', label: 'Médico', icon: 'user-doctor', mat: 'REG-02' },
-                  { r: 'VIATURA', label: 'Viatura', icon: 'truck-medical', mat: 'USA-01' },
-                  { r: 'GESTOR', label: 'Gestor', icon: 'chart-simple', mat: 'GESTOR-01' },
+                  { r: 'TARM', label: 'TARM', icon: 'headset' },
+                  { r: 'MEDICO', label: 'Médico', icon: 'user-doctor' },
+                  { r: 'VIATURA', label: 'Viatura', icon: 'truck-medical' },
+                  { r: 'GESTOR', label: 'Gestor', icon: 'chart-simple' },
                 ] as const).map(o => (
                   <button
                     key={o.r}
                     type="button"
-                    onClick={() => { setRole(o.r); setLoginMatricula(o.mat); }}
+                    onClick={() => { setRole(o.r); setLoginMatricula(demo.personaLogin(o.r)?.matricula ?? ''); }}
                     className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === o.r ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
                   >
                     <Icon name={o.icon} /> {o.label}
@@ -1636,20 +1631,20 @@ export default function App() {
           <div className="flex-1 flex flex-col lg:flex-row gap-4 fu min-h-0 overflow-y-auto lg:overflow-hidden pb-6 lg:pb-0">
             {/* Left Panel: Handoff Summary & Chat */}
             <div className="w-full lg:w-[300px] gp rounded-2xl flex flex-col overflow-hidden shrink-0">
-              {role === 'MEDICO' && (
+              {role === 'MEDICO' && demo.casosRegulacao.length > 0 && (
                 <div className="border-b border-border-subtle bg-elevated/60 p-3 shrink-0">
                   <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-2 flex items-center gap-1.5">
                     <Icon name="list-ol" className="text-gold-500" /> Atendimentos em espera
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    {[...MEDICO_CASES].sort((a, b) => (a.data.risk === 'RED' ? 0 : 1) - (b.data.risk === 'RED' ? 0 : 1)).map((c, qi) => {
+                    {[...demo.casosRegulacao].sort((a, b) => (a.data.risk === 'RED' ? 0 : 1) - (b.data.risk === 'RED' ? 0 : 1)).map((c, qi) => {
                       const espera = [512, 341, 129][qi] + Math.floor((time.getTime() - mountTs) / 1000);
                       const active = extractedData.protocol === c.data.protocol;
                       return (
                         <button
                           key={c.num}
                           onClick={() => {
-                            const caller = MOCK_CALLERS[c.caller];
+                            const caller = c.chamador;
                             setCurrentCaller(caller);
                             setAmlData(caller.aml);
                             setExtractedData(c.data);
