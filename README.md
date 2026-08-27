@@ -45,6 +45,7 @@ disponível, o app cai em modo demonstração e os dados voltam a ser locais.
 | **[`docs/20-auditoria-padrao-ouro.md`](./docs/20-auditoria-padrao-ouro.md)** | **Auditoria da demo: 15 defeitos corrigidos, cenários de estresse, UX e expansão guiada pelo OS** |
 | [`docs/21-benchmark-software-cru.md`](./docs/21-benchmark-software-cru.md) | Benchmark dos softwares que operam CRUs/SAMU: sistemas, fluxo de digitação do TARM, normas e números — base do modo "IA sobre digitação" |
 | [`docs/22-roteiro-demonstracao.md`](./docs/22-roteiro-demonstracao.md) | Roteiro de demonstração: capacidade → cenário → o que apontar, e as respostas honestas a "isso é real?" |
+| [`docs/23-cenarios-shadow.md`](./docs/23-cenarios-shadow.md) | Cenários da operação em shadow (TARM e regulação): o que o shadow vê, como o CoPilot responde, o que é demonstrável × futuro (AML = implementação futura) |
 | [`SECURITY.md`](./SECURITY.md) | Postura de segurança e o que ainda é roadmap |
 
 ## Rodando local
@@ -80,7 +81,7 @@ Ver [`.env.example`](./.env.example). Nenhum segredo vive no código-fonte.
 
 ```
 samais-copilot/
-├── docs/                       # documentação estratégica e técnica (00–22)
+├── docs/                       # documentação estratégica e técnica (00–23)
 ├── apresentacao-ms/            # peça institucional (HTML único, servida em /apresentacao-ms/)
 ├── lp/                         # landing page B2B (servida em /lp)
 ├── master-plan-rota/           # documento institucional de outro vertical (ROTA)

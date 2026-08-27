@@ -38,20 +38,15 @@ export async function loginTarmIdle(page) {
   await page.waitForSelector('text=Demonstração · próxima chamada', { timeout: 15000 });
 }
 
-// Escolhe um cenário no seletor do IDLE, atende e (se pedido) confirma o AML.
-export async function atenderCenario(page, chip, { confirmarAml = true } = {}) {
+// Escolhe um cenário no seletor do IDLE e simula o atendimento na central —
+// fidelidade shadow: a triagem abre direto, sem gate de AML (decisão de 24/08).
+export async function atenderCenario(page, chip) {
   await page.click(`button:has-text("${chip}")`);
   await page.waitForSelector('text=EMERGÊNCIA 192', { timeout: 14000 });
   await page.waitForTimeout(600);
   const overlay = await page.evaluate(() => document.body.innerText);
-  await page.click('button:has-text("ATENDER")');
-  if (confirmarAml) {
-    // Clique REAL do Playwright: o botão nasce desabilitado até a busca de AML
-    // simulada devolver (~1,5s) — a actionability espera habilitar; um .click()
-    // via evaluate dispararia no botão disabled e morreria em silêncio.
-    await page.locator('button:has-text("Confirmar AML"):visible').first().click({ timeout: 15000 });
-    await page.waitForSelector('text=Transcrição em Tempo Real', { timeout: 12000 });
-  }
+  await page.click('button:has-text("SIMULAR ATENDIMENTO")');
+  await page.waitForSelector('text=Transcrição em Tempo Real', { timeout: 12000 });
   return overlay;
 }
 

@@ -48,6 +48,9 @@
 9. **NTP** entre PABX, gravador e aplicação — sem relógio comum, T0 e áudio divergem e a
    trilha perde valor probatório.
 10. **Base legal da gravação hoje**: a CRU já grava? Sob qual amparo? Aviso ao chamador?
+11. **Eventos de telefonia em modo leitura**: o PABX expõe eventos de fila/canal
+    (AMI read-only, feed do SBC)? Qual o critério de distribuição do ACD entre os
+    TARMs? Sem essa fonte, o painel de fila declara indisponibilidade (docs/05 §3).
     Retenção, cifragem, quem pode ouvir? (Herdar consentimento inexistente é erro que só
     aparece na fiscalização.)
 

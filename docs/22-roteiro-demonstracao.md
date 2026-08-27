@@ -20,11 +20,12 @@
 
 | # | Cenário (chip) | Capacidade demonstrada | O que apontar |
 |---|---|---|---|
-| 1 | **IAM · vermelho** | O ciclo inteiro: shadow na chamada atendida → extração → classificação → handoff → despacho → T0–T4 → desfecho | O **cronômetro nasce no ATENDER** (nunca antes — o sistema não antecipa fala); a caixa de classificação com **"por que esta classificação"** (pesos); o handoff que substitui o resumo verbal |
+| 1 | **IAM · vermelho** | O ciclo inteiro: atendimento na central → triagem shadow já aberta → extração → classificação → handoff → despacho → T0–T4 → desfecho | O botão da demo diz **"Simular atendimento na central"** — no produto a triagem abre sozinha; o **cronômetro nasce no atendimento**; o painel de **localização dentro da triagem** (sem gate); a caixa com **"por que esta classificação"** |
 | 2 | **AVC · laranja** | Paleta Manchester completa e tempo-crítico | O rótulo **LARANJA por extenso** (a cor nunca é o único sinal); a hora de início do déficit registrada — janela terapêutica; o chip "EM REGULAÇÃO" contando desde o handoff |
 | 3 | (na chamada) **Escuta · Digitação · Manual** | Os **três modos da doutrina** — convivência com o software que a central já usa | Trocar para **Digitação**: a escuta congela com marca auditada e você digita "dor no peito, suando frio" → a classificação reage ao texto. Trocar para **Manual**: o banner afirma **"a gravação da chamada continua"** (obrigação normativa — CFM 2.110/2014) |
-| 4 | **Trote** | O que o sistema NÃO faz: detecção automática de trote | Risco permanece **pendente** (nenhuma classificação sem sinal); o encerramento sem regulação é **decisão do operador**, auditada |
-| 5 | **Sem localização (AML)** | Caminho manual digno | Linha fixa, sem localização automática: banner pede o endereço por voz e a triagem **não bloqueia** |
+| 4 | **Trote** | O que o sistema NÃO faz: detecção automática de trote | Risco permanece **pendente**; o encerramento exige **motivo explícito** (trote · engano · queda) — decisão do operador, auditada |
+| 4b | **Queda** (encerrar → Queda) | Contexto nunca se perde | O card "ocorrência em aberto" na espera; escolher o **mesmo cenário** de novo → o número religa e o contexto **reassocia sozinho** (anti-duplicidade por telefone, como nos sistemas reais) |
+| 5 | **Sem localização (AML)** | Caminho manual digno | Linha fixa: o painel de localização abre em **"colher por voz"** com a triagem **já rodando** — nada bloqueia |
 | 6 | **Verde · orientação** | O sistema também protege a frota | Encaminhamento à UBS **sem despacho** — chamador recorrente com histórico na tela; ambulância fica livre para risco de vida |
 | 7 | Perfil **Viatura** (tablet) | Execução na rua | Barra T de um toque, ≥60px, com **horário carimbado no próprio botão**; passo fora de ordem exige confirmação; marca não se sobrescreve |
 | 8 | Perfil **Gestor** | Gestão **sem dado pessoal** por construção | A view agregada (não é filtro de tela); export do relatório que mira o descritivo **anual** da Portaria 1.997/2023 |
@@ -37,7 +38,9 @@
 |---|---|
 | A transcrição é IA de verdade? | **Não nesta demo** — são roteiros determinísticos que simulam o comportamento-alvo. A arquitetura real (STT streaming + extração) está especificada em `docs/05`; a demo é a especificação viva da UX. O rodapé da triagem diz isso na tela |
 | E o modo Digitação? | A **classificação por texto é simulada** (palavras-chave, rotulada na tela). O que ela demonstra é o fluxo-doutrina: o TARM digita como no sistema da central e a IA rankeia — sem exigir clique novo durante a chamada |
-| O sistema atende a ligação? | **Nunca.** O CoPilot é 100% passivo (shadow via SIPREC): recebe cópia do áudio da chamada **atendida**. Não toca na telefonia do 192 |
+| O sistema atende a ligação? | **Nunca.** O CoPilot é 100% passivo (shadow via SIPREC): recebe cópia do áudio da chamada **atendida**. Não toca na telefonia do 192 — por isso o botão da demo diz "simular atendimento na central" |
+| E a localização automática (AML)? | **Implementação futura** — adotamos quando regulamentação e infra amadurecerem; hoje o padrão real é o endereço por voz. A demo antecipa o cenário e o rotula "futuro (simulado)" no próprio painel (docs/23) |
+| E a fila que aparece? | **Leitura passiva** da sinalização do PABX (a distribuição é do ACD da central). Onde a central não expõe eventos, o painel declara indisponibilidade — nunca inventa (docs/05 §3) |
 | Vocês gravam a chamada? | A gravação é **obrigação normativa da central** (CFM 2.110/2014, art. 8º §2º) — o áudio já existe em toda CRU regular. O CoPilot pode ser o instrumento dela (duas posturas por contrato, `docs/05` §2). E o kill switch **nunca** desliga gravação — só IA |
 | Esse tempo/meta é norma nacional? | O limiar é **parâmetro da central** (o tooltip do cronômetro declara). 1 min/3 min é protocolo local de Fortaleza; a meta nacional de 30s–1min é da etapa do médico (`docs/21` §3.3) |
 | Os dados persistem? | Com backend conectado, sim — login por perfil, ocorrência ponta a ponta, trilha de auditoria, RLS multi-tenant (Supabase). A demo pública roda **sem** backend por design; a versão conectada se apresenta em ambiente controlado |

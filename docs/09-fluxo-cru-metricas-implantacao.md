@@ -34,6 +34,21 @@ Encerramento + registro (desfecho) ──► estatística/faturamento/relatório
 
 **Postura do produto (decisão registrada):** o CoPilot é **100% passivo** — escuta a telefonia via SIPREC, não atende nem interfere. Gera dados, lastro, notificações e recomendações. Números de telefone só são exibidos após o atendimento (fila mascarada).
 
+**Fluxo em shadow — decisões registradas (perguntas do Ota, 24/08/2026):**
+(a) **não existe gate nosso entre atender e triar** — quando o TARM atende no sistema
+da central, a transcrição shadow já começa; a localização (AML) é painel dentro da
+triagem, auto-preenchido e editável, nunca bloqueante (a tela-gate de AML da demo foi
+removida por fidelidade); (b) **a fila é do PABX/ACD** — colhemos por leitura de
+eventos quando a central expõe (docs/05 §3), e o painel declara indisponibilidade
+quando não; o critério de distribuição do ACD é configuração de cada central;
+(c) **queda de ligação preserva contexto** — o TARM tipifica o encerramento em um
+toque (trote · engano · queda), o rascunho da queda fica em aberto na espera com o
+protocolo de retornar a ligação, e o mesmo número religando reassocia à mesma
+ocorrência (anti-duplicidade por telefone); (d) **desfecho operacional é da equipe
+embarcada** (um toque libera a viatura) e a **conclusão clínica é da regulação**;
+(e) **tela de espera é única e parametrizada por tenant** (frota, escala, fila e
+metas daquela central via RLS) — não se constrói tela por central.
+
 **Gravação é obrigação normativa da central (requisito registrado em 24/08/2026):** a
 Resolução CFM 2.110/2014 (art. 8º, §2º) torna **obrigatória a gravação de todas as
 ocorrências médicas pela central de regulação**, e o programa arquitetônico do MS exige

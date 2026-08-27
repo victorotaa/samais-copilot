@@ -130,6 +130,14 @@ Ordenadas por severidade operacional. "Fase" = onde entram no programa de `docs/
   fluxo abaixo do que a central já opera sem nós. Registro completo em `docs/05` §2.
   ✅ Os três modos são **demonstráveis** na demo desde 24/08 (seletor no cabeçalho da
   transcrição; no modo digitação a extração é por palavras-chave, rotulada simulação).
+- **Fidelidade shadow do fluxo (24/08, decisão do Ota):** a demo encenava DOIS
+  controles que o produto não tem — a tela-gate "Confirmar AML & Iniciar Triagem"
+  (em shadow a triagem abre quando o TARM atende na central; a localização virou
+  painel dentro da triagem) e o botão "ATENDER" (nós nunca atendemos — o rótulo
+  virou "Simular atendimento na central", com a sinalização honesta ao lado). A fila
+  do PABX ganhou o rótulo "sinalização colhida · leitura passiva". Mesma família da
+  regra da pré-chamada de 23/08: a demo não encena comportamento que o produto não
+  terá por doutrina.
 - **Tier 1 — antes do 1º contrato com dado real:** cofre PII (SEC-10/11), TSA (SEC-12),
   WAF (SEC-13), CI seguro (SEC-14), pentest (SEC-15), DPO+DPIA+runbook ANPD (SEC-16),
   DPA com sub-processadores (SEC-17), MDM (SEC-18).

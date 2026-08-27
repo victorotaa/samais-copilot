@@ -48,6 +48,31 @@
   do ATENDER anuncia "cronômetro da etapa iniciado (meta 1 min)" — o pop-up pedido,
   sem modal no meio do atendimento (fadiga de alarme, §3).
 
+### 1b. Rodada fidelidade shadow (Ota, 24/08 — pós-#38)
+
+- **F1 · Gate de AML removido**: "Confirmar AML & Iniciar Triagem" encenava um passo
+  que o produto não tem — em shadow a triagem abre no atendimento. A localização
+  virou painel dentro da triagem (auto-preenchida, editável, com "Confirmar
+  localização" opcional e auditado). O cenário sem-AML abre o painel em "colher por
+  voz", com a triagem já rodando.
+- **F2 · Semântica do atender**: o botão dizia "ATENDER" — mas nós nunca atendemos.
+  Virou "Simular atendimento na central" (com "Dispensar · demo"), e a nota do
+  overlay explica que no produto a triagem abre sozinha. A fila ganhou "sinalização
+  colhida · leitura passiva".
+- **F3 · Encerramento tipificado + queda com contexto**: o motivo virou escolha
+  explícita (trote · engano · queda — taxonomia e-SUS, saiu do backlog). Queda
+  preserva o rascunho na espera ("ocorrência em aberto"), com retomar/arquivar
+  auditados — e o **mesmo número religando reassocia automaticamente** (o
+  complemento dos sistemas reais, vivo na demo).
+- **F4 · Botão de despacho truncava a viatura** (print do Ota): "CONFIRMAR DESPACHO ·
+  USA-…" com reticências num CTA de despacho é inaceitável — o código da viatura
+  agora quebra linha e fica sempre integral.
+- **F5 · Header fixo era grosseiro** (feedback do Ota): o header voltou a rolar; um
+  mini-chip flutuante do cronômetro aparece no canto quando o header sai da tela,
+  só em chamada.
+- **F6 · Desfecho com o nome certo**: "Desfecho operacional · 1 toque libera a
+  viatura — a conclusão clínica é da regulação".
+
 ## 2. Cenários de estresse — implementados na demo
 
 O princípio: a demo mostra o produto **sob o pior dia**, não só o roteiro feliz — e o
