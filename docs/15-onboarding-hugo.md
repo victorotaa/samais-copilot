@@ -1,5 +1,10 @@
 # Onboarding — Hugo (desenvolvimento, treinamento e implantação)
 
+> ⚠️ **Atualização (27/08):** este onboarding retrata o repo de 13/08. O delta desde o
+> parecer — CI + suíte e2e, fidelidade shadow, três modos de IA, separação núcleo ×
+> demo — está em **`docs/25-handoff-atualizacao-hugo.md`**, que inclui o prompt de
+> revisão pronto para IA (Claude/Codex). Leia o 25 antes de reanalisar.
+
 > **Este documento é público.** O repositório `samais-copilot` é público, então tudo
 > aqui pode ser lido por qualquer pessoa. Nada de dado pessoal, contato, valor de
 > contrato, estratégia comercial ou bastidor entra neste arquivo — isso vive fora do
@@ -129,7 +134,8 @@ cd samais-copilot
 npm ci
 cp .env.example .env      # preencha o que tiver
 npm run dev               # app em :3000, LP em /lp
-npx tsc --noEmit          # typecheck (não há ESLint nem teste ainda — é dívida)
+npx tsc --noEmit          # typecheck (ESLint segue dívida)
+npm test                  # desde ago/2026: lint de vocabulário + 4 baterias e2e (exige dev server)
 ```
 
 Sem `VITE_SUPABASE_URL`/`VITE_SUPABASE_KEY` o app roda em **modo demo puro**: roteiro

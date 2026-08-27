@@ -6,7 +6,7 @@
 Protótipo navegável de alta fidelidade + backend inicial no Supabase. **~15–20% do caminho** para produto. A tese (IA copiloto no APH) é sólida; a parte difícil (IA real sobre áudio de emergência) **ainda não existe** — é mock determinístico.
 
 ## Stack
-- **Front:** React 19 + Vite 6 + TS + Tailwind v4. App quase todo em `src/App.tsx` (monolito ~2k linhas — modularização é dívida conhecida, "Sprint 5").
+- **Front:** React 19 + Vite 6 + TS + Tailwind v4. Telas ainda em `src/App.tsx` (~2,7k linhas), mas com **fronteira física núcleo × demo** desde ago/2026: produto em `src/core/` (tipos + contratos), teatro em `src/demo/`, build de operação sem teatro por alias de modo (`docs/24`). Fase 2 (telas em componentes) é a dívida que resta.
 - **Backend:** Supabase (Postgres + Auth + RLS + Realtime). Cliente em `src/lib/supabase.ts`.
 - **Deploy:** Vercel. Produção = branch `main` → `samais-copilot-demo.vercel.app`. LP servida em `/lp/` no mesmo deploy.
 - **Mapas:** Google Maps Embed API (chave de demo, restrita por referrer).
@@ -25,10 +25,14 @@ Protótipo navegável de alta fidelidade + backend inicial no Supabase. **~15–
 ## Rodando localmente
 ```
 npm ci
-npm run dev            # app + /lp
-npm run build          # vite build + copia lp/ e assets para dist/
-npx tsc --noEmit       # typecheck (não há ESLint/test ainda — dívida)
+npm run dev            # app + /lp (porta 3000)
+npm run build          # build DEMO + copia lp/ e apresentacao-ms/ para dist/
+npm run build:operacao # build SEM teatro (dist-operacao/) — docs/24
+npm run lint           # tsc --noEmit (ESLint ainda é dívida)
+npm test               # lint de vocabulário vetado + 4 baterias e2e Playwright (exige dev server)
+npm run test:operacao  # guarda de bundle + smoke do modo operação (não usa dev server)
 ```
+O CI (`.github/workflows/ci.yml`) roda tudo isso em cada push/PR.
 Variáveis (`.env`, ver `.env.example`): `VITE_GOOGLE_MAPS_API_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY`. A chave `publishable`/anon do Supabase vai ao cliente **por design** — a segurança vem do RLS. Nunca colocar `service_role` no front.
 
 ## Banco
@@ -40,13 +44,13 @@ Variáveis (`.env`, ver `.env.example`): `VITE_GOOGLE_MAPS_API_KEY`, `VITE_SUPAB
 1. **Tier 0 de segurança** (`docs/07`) — inclui rotacionar a senha do banco (foi exposta em chat no desenvolvimento) e aplicar a migration 0001.
 2. **IA real** substituindo `MOCK_SCRIPTS` — Deepgram (STT streaming) + LLM para extração/Manchester, com fallback degradado (arquitetura em `docs/05` §2). É o que tira o produto do "teatro".
 3. **Persistir ocorrências ponta a ponta** → desbloqueia métricas reais no Dashboard (view já existe) e o lastro do APH-BR.
-4. **Modularizar `App.tsx`** + ESLint + testes (Vitest/Playwright) + CI seguro (SEC-14).
+4. **Fase 2 da modularização** (telas em componentes + estado por ocorrência — a Fase 1 núcleo × demo, o CI e a suíte Playwright já existem, `docs/24`) + ESLint + Vitest unitário.
 
 ## Riscos conhecidos (ditos na cara)
 - **Segredo exposto:** senha do banco passou por chat — rotacionar (SEC-01).
 - **Claims sem lastro:** banner LGPD afirma controles não implementados (SEC-20).
 - **Defensabilidade baixa hoje:** o moat real é dado (APH-BR), que é circular (precisa operar p/ ter dado). Ver doc de valuation no vault.
-- **Monolito `App.tsx`:** dificulta evolução; refator é dívida priorizada mas não-bloqueante.
+- **Telas concentradas no `App.tsx`:** a Fase 1 (núcleo × demo) saiu; a Fase 2 (componentes + estado por ocorrência) é pré-requisito da fila multi-caso (F1) — dívida priorizada mas não-bloqueante.
 
 ## Contexto estratégico (vault Obsidian, pasta Samais)
 - "Valuation honesto (com e sem APH-BR)"

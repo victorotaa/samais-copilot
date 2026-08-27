@@ -47,6 +47,7 @@ disponível, o app cai em modo demonstração e os dados voltam a ser locais.
 | [`docs/22-roteiro-demonstracao.md`](./docs/22-roteiro-demonstracao.md) | Roteiro de demonstração: capacidade → cenário → o que apontar, e as respostas honestas a "isso é real?" |
 | [`docs/23-cenarios-shadow.md`](./docs/23-cenarios-shadow.md) | Cenários da operação em shadow (TARM e regulação): o que o shadow vê, como o CoPilot responde, o que é demonstrável × futuro (AML = implementação futura) |
 | [`docs/24-arquitetura-nucleo-demo.md`](./docs/24-arquitetura-nucleo-demo.md) | Separação núcleo × demo (Fase 1): contratos, alias por modo de build, guarda de bundle e smoke do modo operação |
+| [`docs/25-handoff-atualizacao-hugo.md`](./docs/25-handoff-atualizacao-hugo.md) | Handoff de atualização para análise independente: o delta desde o parecer, o rumo, e o prompt de revisão pronto para IA (Claude/Codex) |
 | [`SECURITY.md`](./SECURITY.md) | Postura de segurança e o que ainda é roadmap |
 
 ## Rodando local
@@ -84,7 +85,7 @@ Ver [`.env.example`](./.env.example). Nenhum segredo vive no código-fonte.
 
 ```
 samais-copilot/
-├── docs/                       # documentação estratégica e técnica (00–24)
+├── docs/                       # documentação estratégica e técnica (00–25)
 ├── apresentacao-ms/            # peça institucional (HTML único, servida em /apresentacao-ms/)
 ├── lp/                         # landing page B2B (servida em /lp)
 ├── master-plan-rota/           # documento institucional de outro vertical (ROTA)
@@ -104,9 +105,10 @@ samais-copilot/
 
 ## Módulos do app
 
-`LOGIN → IDLE → AML → TARM → REGULADOR → VIATURA` e, para o perfil de gestão,
-`GESTOR → FROTA · ESCALAS · DASHBOARD`. O ciclo completo e o dicionário de métricas
-estão em [`docs/09`](./docs/09-fluxo-cru-metricas-implantacao.md).
+`LOGIN → IDLE → TARM → REGULADOR → VIATURA` e, para o perfil de gestão,
+`GESTOR → FROTA · ESCALAS · DASHBOARD`. A tela-gate de AML morreu na fidelidade
+shadow (24/08): a localização é painel dentro da triagem. O ciclo completo e o
+dicionário de métricas estão em [`docs/09`](./docs/09-fluxo-cru-metricas-implantacao.md).
 
 ## Deploy
 
