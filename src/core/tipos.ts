@@ -79,6 +79,13 @@ export interface ExtratoFala {
   comorbidities?: string[];
   risk?: Risco;
   protocol?: string;
+  /** Marco operacional carimbado pela fala — ex.: a instrução de compressão
+   *  numa RCP guiada por telefone (T-CPR): vira o tempo-até-1ª-compressão. */
+  marco?: 'rcp_iniciada';
+  /** Início dos sintomas relatado, em MINUTOS antes desta fala. O motor real
+   *  converte o relato ("faz vinte minutos", "começou 7h40") para este campo;
+   *  alimenta o relógio de JANELA CLÍNICA (AVC 4h30 — docs/26). */
+  inicioSintomasMinutos?: number;
 }
 
 /** Uma fala de roteiro de demonstração: o que o STT entregaria, com cadência. */

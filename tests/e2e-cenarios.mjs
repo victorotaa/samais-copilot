@@ -66,6 +66,8 @@ const { ok, fim } = coletor();
     return r;
   });
   ok(cor.real !== null && cor.real === cor.probe, 'avc: LARANJA renderiza laranja de verdade', String(cor.real));
+  // janela clínica: o relato "faz uns vinte minutos" vira relógio do PACIENTE
+  ok(body.includes('JANELA 00h'), 'avc: relógio de janela clínica a partir do relato', body.match(/JANELA \S+/)?.[0] || '');
   await page.screenshot({ path: `${ARTEFATOS}/cen-avc.png` });
   const handoff = page.locator('button:has-text("Handoff & Ir p/ Regulador"):visible').first();
   if (await handoff.count() && await handoff.isEnabled()) {
@@ -80,6 +82,30 @@ const { ok, fim } = coletor();
     ok(desp !== null && /Confirmar Despacho · (USA|USB|MOT)-\d\d/.test(desp.texto) && !desp.clipa && !desp.ellipsis, 'avc: botão de despacho com a viatura INTEGRAL (sem truncar)', JSON.stringify(desp));
   }
   ok(errs.length === 0, 'avc: zero pageerror', errs[0] || '');
+  await page.close();
+}
+
+// ── PCR: RCP guiada por telefone (T-CPR) — marco carimbado + instruções certas ──
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const errs = []; page.on('pageerror', e => errs.push(String(e)));
+  await loginTarmIdle(page);
+  await atenderCenario(page, 'PCR');
+  // o marco chega na fala da instrução de compressão (~13,5s do roteiro)
+  await page.waitForFunction(() => document.body.innerText.includes('1ª COMPRESSÃO'), undefined, { timeout: 30000 });
+  const corpo = await page.evaluate(() => document.body.innerText);
+  ok(/1ª COMPRESSÃO \d\d:\d\d/.test(corpo), 'pcr: chip com tempo até a 1ª compressão carimbado', corpo.match(/1ª COMPRESSÃO \S+/)?.[0] || '');
+  ok(corpo.toLowerCase().includes('parada cardiorrespirat'), 'pcr: protocolo em foco');
+  ok(corpo.includes('VERMELHO'), 'pcr: classificação VERMELHO');
+  await page.locator('button:has-text("Handoff & Ir p/ Regulador"):visible').first().click();
+  await page.waitForTimeout(2500);
+  const reg = await page.evaluate(() => document.body.innerText);
+  ok(reg.includes('1ª COMPRESSÃO'), 'pcr: chip da RCP persiste na regulação');
+  ok(reg.includes('DEA'), 'pcr: instruções pré-chegada específicas de PCR (DEA/compressões)');
+  ok(!reg.includes('Afrouxe roupas'), 'pcr: instruções de clínico geral NÃO aparecem numa parada');
+  ok((await overflowScan(page)).length === 0, 'pcr: zero overflow');
+  await page.screenshot({ path: `${ARTEFATOS}/cen-pcr.png` });
+  ok(errs.length === 0, 'pcr: zero pageerror', errs[0] || '');
   await page.close();
 }
 

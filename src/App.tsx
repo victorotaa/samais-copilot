@@ -110,6 +110,72 @@ function CronometroMeta({ inicio, agora, rotulo }: { inicio: number | null; agor
   );
 }
 
+// RCP guiada por telefone (T-CPR): o operador guia as compressões pela linha
+// da CENTRAL; o sistema só MOSTRA o protocolo e CARIMBA o tempo até a 1ª
+// compressão — indicador de sobrevida (AHA). Nasce do marco da fala, nunca de
+// inferência (docs/23 T16 · docs/26).
+function ChipRcp({ inicio, chamada }: { inicio: number | null; chamada: number | null }) {
+  if (!inicio) return null;
+  const seg = chamada ? Math.max(0, Math.round((inicio - chamada) / 1000)) : null;
+  return (
+    <span
+      title="RCP guiada por telefone (T-CPR): tempo do atendimento até a primeira compressão — indicador de sobrevida (AHA). O operador guia; o sistema mede."
+      className="px-2.5 py-1 rounded-full border font-mono text-[0.65rem] font-bold tracking-widest whitespace-nowrap shrink-0 inline-flex items-center gap-1.5 bg-danger/10 border-danger/40 text-danger"
+    >
+      <Icon name="heart-pulse" /> RCP GUIADA{seg !== null && <span>· 1ª COMPRESSÃO {String(Math.floor(seg / 60)).padStart(2, '0')}:{String(seg % 60).padStart(2, '0')}</span>}
+    </span>
+  );
+}
+
+// Relógio de JANELA CLÍNICA — o tempo do PACIENTE, não o da nossa etapa:
+// decorrido desde o início dos sintomas relatado. A janela por protocolo é
+// parâmetro clínico (AVC: 4h30 — trombólise); a decisão de destino é da
+// regulação. Sem relato, o chip não existe — lacuna declarada, nunca inventada.
+const JANELAS_CLINICAS: { re: RegExp; rotulo: string; minutos: number }[] = [
+  { re: /AVC/i, rotulo: 'AVC · 4h30', minutos: 270 },
+];
+function JanelaClinica({ inicioTs, protocolo, agora }: { inicioTs: number | null; protocolo: string; agora: Date }) {
+  if (!inicioTs) return null;
+  const janela = JANELAS_CLINICAS.find(j => j.re.test(protocolo));
+  const decorridoMin = Math.max(0, (agora.getTime() - inicioTs) / 60000);
+  const frac = janela ? decorridoMin / janela.minutos : 0;
+  const estilo = janela && frac >= 1 ? 'bg-danger/10 border-danger/40 text-danger animate-pulse'
+    : janela && frac >= 0.6 ? 'bg-warn/10 border-warn/40 text-warn'
+    : 'bg-elevated border-border-subtle text-ink-secondary';
+  const mm = Math.floor(decorridoMin);
+  const inicioFmt = new Date(inicioTs).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return (
+    <span
+      title={`Janela clínica${janela ? ` do protocolo (${janela.rotulo})` : ''} — decorrido desde o início dos sintomas relatado (${inicioFmt}). A decisão é da regulação.`}
+      className={`px-2.5 py-1 rounded-full border font-mono text-[0.65rem] font-bold tracking-widest whitespace-nowrap shrink-0 inline-flex items-center gap-1.5 ${estilo}`}
+    >
+      <Icon name="stopwatch" /> JANELA {String(Math.floor(mm / 60)).padStart(2, '0')}h{String(mm % 60).padStart(2, '0')}
+      {janela && frac >= 1 && <span className="hidden min-[480px]:inline">· VENCIDA</span>}
+    </span>
+  );
+}
+
+// Instruções pré-chegada VARIAM pelo protocolo em foco — instrução de IAM lida
+// numa parada seria erro clínico (visão médica, docs/26). Sem casamento, vale o
+// conjunto clínico geral (o padrão anterior).
+const INSTRUCOES_PRE_CHEGADA: { re: RegExp; passos: string[] }[] = [
+  { re: /PCR|parada cardio/i, passos: [
+    'Mantenha as compressões no centro do peito, fortes e rápidas (100–120/min) — sem parar até a equipe assumir.',
+    'Se houver outra pessoa no local, mande buscar o DEA mais próximo e reveze as compressões a cada 2 minutos.',
+    'Não dê água, comida nem medicação; deixe o acesso livre até a vítima para a chegada da equipe.',
+  ] },
+  { re: /AVC/i, passos: [
+    'Deite a pessoa de lado, sem oferecer água, comida ou medicação — há risco de engasgo.',
+    'Anote a hora exata do início dos sintomas e informe à equipe assim que chegar.',
+    'Separe documentos e a lista de medicamentos em uso para levar ao hospital.',
+  ] },
+];
+const INSTRUCOES_PADRAO: string[] = [
+  'Mantenha a vítima em repouso absoluto, de preferência sentada ou semi-sentada se estiver consciente.',
+  'Afrouxe roupas apertadas, cintos e colarinhos para facilitar a respiração.',
+  'Se ele usar algum remédio para o coração (como AAS ou isordil) e estiver acordado, pode ajudar a tomar.',
+];
+
 export default function App() {
   const { theme, toggleTheme } = useTheme();
   const chartTheme = theme === 'dark'
@@ -154,6 +220,10 @@ export default function App() {
   // Cronômetros de etapa: nascem no ATENDER (nunca antes — shadow) e no handoff.
   const [chamadaInicio, setChamadaInicio] = useState<number | null>(null);
   const [regulacaoInicio, setRegulacaoInicio] = useState<number | null>(null);
+  // T-CPR: instante da 1ª compressão da RCP guiada (marco da fala) e início dos
+  // sintomas relatado (janela clínica) — ambos carimbo, nunca inferência.
+  const [rcpInicio, setRcpInicio] = useState<number | null>(null);
+  const [inicioSintomasTs, setInicioSintomasTs] = useState<number | null>(null);
   // Três modos da doutrina: escuta (shadow) · digitação (sem escuta, IA sobre o
   // texto do TARM) · manual total. aiActive continua sendo "a escuta está viva".
   const [modoIA, setModoIA] = useState<'escuta' | 'digitacao' | 'manual'>('escuta');
@@ -418,6 +488,8 @@ export default function App() {
       setJustification(null);
       setChamadaInicio(null);
       setRegulacaoInicio(null);
+      setRcpInicio(null);
+      setInicioSintomasTs(null);
       setModoIA('escuta');
       setTextoDigitado('');
       setOccId(null);
@@ -508,8 +580,25 @@ export default function App() {
       if (extract.risk) {
         setExtractedData(prev => ({ ...prev, risk: extract.risk!, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
       }
+      // Marcos operacionais: updaters idempotentes (a entrega pode duplicar em
+      // dev/StrictMode — o primeiro carimbo vence, nunca se sobrescreve).
+      if (extract.marco === 'rcp_iniciada') {
+        setRcpInicio(prev => prev ?? Date.now());
+      }
+      if (extract.inicioSintomasMinutos !== undefined) {
+        const min = extract.inicioSintomasMinutos;
+        setInicioSintomasTs(prev => prev ?? Date.now() - min * 60000);
+      }
     }
   };
+
+  // O carimbo da RCP guiada é evento auditável e merece o aviso sonoro do
+  // operador (dispara UMA vez por chamada — o estado só sai de null uma vez).
+  useEffect(() => {
+    if (rcpInicio === null) return;
+    showToast('RCP guiada iniciada — tempo até a 1ª compressão carimbado', 'warn');
+    audit('RCP_GUIADA_INICIADA', { apos_seg: chamadaInicio ? Math.round((rcpInicio - chamadaInicio) / 1000) : null });
+  }, [rcpInicio]);
 
   const marcadorSistema = (texto: string) => {
     setTarmChat(prev => [...prev, { speaker: 'SYS', text: texto, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }]);
@@ -731,6 +820,8 @@ export default function App() {
     showToast(`Atendimento encerrado · ${desfecho}`, 'success');
     setCurrentCaller(null);
     setAmlData(null);
+    setRcpInicio(null);
+    setInicioSintomasTs(null);
     setMissionStatus('A CAMINHO');
     setMissionMarks({});
     setSkipArm(null);
@@ -1378,6 +1469,12 @@ export default function App() {
                         </span>
                       </div>
                     </div>
+                    {(rcpInicio !== null || inicioSintomasTs !== null) && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <ChipRcp inicio={rcpInicio} chamada={chamadaInicio} />
+                        <JanelaClinica inicioTs={inicioSintomasTs} protocolo={extractedData.protocol} agora={time} />
+                      </div>
+                    )}
                     {(extractedData.symptoms.length > 0 || extractedData.comorbidities.length > 0) && (
                       <div className="mt-3 pt-3 border-t border-border-subtle">
                         <div className="text-[0.6rem] font-mono font-bold uppercase tracking-widest text-ai mb-2 flex items-center gap-1.5">
@@ -1725,6 +1822,8 @@ export default function App() {
                         <span className={`text-xs font-bold ${(RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).text}`}>{RISCO_LABEL[extractedData.risk] || extractedData.risk}</span>
                       </div>
                       <CronometroMeta inicio={regulacaoInicio} agora={time} rotulo="EM REGULAÇÃO" />
+                      <ChipRcp inicio={rcpInicio} chamada={chamadaInicio} />
+                      <JanelaClinica inicioTs={inicioSintomasTs} protocolo={extractedData.protocol} agora={time} />
                       <div className="px-3 py-1.5 rounded-lg bg-surface border border-border-subtle flex items-center gap-2">
                         <span className="text-[0.65rem] text-ink-secondary uppercase tracking-widest">Recurso</span>
                         <span className="text-xs font-bold text-ink-primary">USA (UTI Móvel)</span>
@@ -1823,22 +1922,18 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Pre-arrival Instructions */}
+                {/* Pre-arrival Instructions — o conjunto segue o PROTOCOLO em
+                    foco (PCR ≠ AVC ≠ clínico geral): instrução de IAM lida numa
+                    parada seria erro clínico (docs/26, visão médica). */}
                 <div>
                   <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3">Instruções Pré-Chegada (Ler para o Solicitante)</h3>
                   <div className="flex flex-col gap-2">
-                    <div className="p-3 bg-surface border border-border-subtle rounded-xl flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-elevated border border-border-subtle flex items-center justify-center text-[0.6rem] font-bold text-gold-500 shrink-0">1</div>
-                      <p className="text-sm text-ink-primary">Mantenha a vítima em repouso absoluto, de preferência sentada ou semi-sentada se estiver consciente.</p>
-                    </div>
-                    <div className="p-3 bg-surface border border-border-subtle rounded-xl flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-elevated border border-border-subtle flex items-center justify-center text-[0.6rem] font-bold text-gold-500 shrink-0">2</div>
-                      <p className="text-sm text-ink-primary">Afrouxe roupas apertadas, cintos e colarinhos para facilitar a respiração.</p>
-                    </div>
-                    <div className="p-3 bg-surface border border-border-subtle rounded-xl flex gap-3 items-start">
-                      <div className="w-5 h-5 rounded-full bg-elevated border border-border-subtle flex items-center justify-center text-[0.6rem] font-bold text-gold-500 shrink-0">3</div>
-                      <p className="text-sm text-ink-primary">Se ele usar algum remédio para o coração (como AAS ou isordil) e estiver acordado, pode ajudar a tomar.</p>
-                    </div>
+                    {(INSTRUCOES_PRE_CHEGADA.find(i => i.re.test(extractedData.protocol))?.passos ?? INSTRUCOES_PADRAO).map((passo, i) => (
+                      <div key={i} className="p-3 bg-surface border border-border-subtle rounded-xl flex gap-3 items-start">
+                        <div className="w-5 h-5 rounded-full bg-elevated border border-border-subtle flex items-center justify-center text-[0.6rem] font-bold text-gold-500 shrink-0">{i + 1}</div>
+                        <p className="text-sm text-ink-primary">{passo}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -2021,6 +2116,12 @@ export default function App() {
                     <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-1">Suspeita / Protocolo</div>
                     <div className="text-base font-bold text-danger">{extractedData.protocol}</div>
                   </div>
+                  {(rcpInicio !== null || inicioSintomasTs !== null) && (
+                    <div className="flex flex-wrap gap-1.5">
+                      <ChipRcp inicio={rcpInicio} chamada={chamadaInicio} />
+                      <JanelaClinica inicioTs={inicioSintomasTs} protocolo={extractedData.protocol} agora={time} />
+                    </div>
+                  )}
                   <div>
                     <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-1.5">Queixa relatada</div>
                     <div className="flex flex-wrap gap-1.5">
