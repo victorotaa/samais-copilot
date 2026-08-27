@@ -29,6 +29,12 @@ jobs:
       - name: Lint de vocabulário vetado
         run: node tests/lint-vetado.mjs
 
+      - name: Build de operação (sem teatro)
+        run: npm run build:operacao
+
+      - name: Guarda de bundle — marcadores de demo
+        run: node tests/guarda-operacao.mjs
+
       - name: Chromium do Playwright
         run: npx playwright install --with-deps chromium
 
@@ -52,6 +58,9 @@ jobs:
 
       - name: Bateria e2e — mobile
         run: node tests/e2e-mobile.mjs
+
+      - name: Smoke do build de operação
+        run: node tests/smoke-operacao.mjs
 
       - name: Capturas (sempre)
         if: always()

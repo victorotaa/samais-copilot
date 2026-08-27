@@ -4,212 +4,15 @@ import { useTheme } from './lib/theme';
 import { Icon } from './ui/Icon';
 import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
 import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_ID, hasBackend } from './lib/supabase';
-
-const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
-
-const TypingMessage = ({ text }: { text: string }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      setDisplayedText(text.slice(0, i));
-      i += 2;
-      if (i > text.length) {
-        setDisplayedText(text);
-        clearInterval(interval);
-      }
-    }, 15);
-    return () => clearInterval(interval);
-  }, [text]);
-
-  const highlightKeywords = (text: string) => {
-    if (!text) return null;
-    // Fronteira de palavra Unicode: sem isso "dor" acendia dentro de "regulador"
-    // e "braço" dentro de "abraço" (visto em produção, print do Ota 24/08).
-    const regex = new RegExp(`(?<![\\p{L}\\p{N}])(${KEYWORDS.join('|')})(?![\\p{L}\\p{N}])`, 'giu');
-    const parts = text.split(regex);
-    return parts.map((part, i) => {
-      if (KEYWORDS.some(k => k.toLowerCase() === part.toLowerCase())) {
-        return <span key={i} className="text-danger font-bold bg-danger/10 px-1 rounded">{part}</span>;
-      }
-      return <span key={i}>{part}</span>;
-    });
-  };
-
-  return <>{highlightKeywords(displayedText)}</>;
-};
-
-const AudioWaveform = ({ active }: { active: boolean }) => (
-  <div className="flex items-end gap-[2px] h-4">
-    {[1, 2, 3, 4, 5].map((i) => (
-      <div
-        key={i}
-        className={`w-1 bg-ai rounded-full transition-all duration-75 ${active ? 'animate-pulse' : 'h-1 opacity-30'}`}
-        style={{ 
-          height: active ? `${Math.max(20, Math.random() * 100)}%` : '20%',
-          animationDelay: `${i * 0.15}s`,
-          animationDuration: '0.5s'
-        }}
-      ></div>
-    ))}
-  </div>
-);
-
-// Base de dados simulada para randomização (5 endereços reais em São Paulo)
-const MOCK_CALLERS = [
-  {
-    phone: "(11) 98765-4321",
-    hasHistory: true,
-    name: "Ana Paula (Esposa)",
-    historyCount: 0,
-    aml: { lat: -23.5472, lng: -46.6388, address: "Rua Direita", number: "120", neighborhood: "Sé", city: "São Paulo — SP", cep: "01002-020" }
-  },
-  {
-    phone: "(11) 91234-5678",
-    hasHistory: false,
-    name: "",
-    historyCount: 0,
-    aml: { lat: -23.5615, lng: -46.6559, address: "Avenida Paulista", number: "1578", neighborhood: "Bela Vista", city: "São Paulo — SP", cep: "01310-200" }
-  },
-  {
-    phone: "(11) 97777-8888",
-    hasHistory: true,
-    name: "Carlos Eduardo (Filho)",
-    historyCount: 2,
-    aml: { lat: -23.5874, lng: -46.6332, address: "Rua Domingos de Morais", number: "2500", neighborhood: "Vila Mariana", city: "São Paulo — SP", cep: "04036-100" }
-  },
-  {
-    phone: "(11) 95555-4444",
-    hasHistory: false,
-    name: "",
-    historyCount: 0,
-    aml: { lat: -23.5365, lng: -46.6461, address: "Avenida Ipiranga", number: "344", neighborhood: "República", city: "São Paulo — SP", cep: "01046-010" }
-  },
-  {
-    phone: "(11) 93333-2222",
-    hasHistory: true,
-    name: "Antônio Ribeiro (Paciente)",
-    historyCount: 5,
-    aml: { lat: -23.5505, lng: -46.6333, address: "Praça da Sé", number: "S/N", neighborhood: "Sé", city: "São Paulo — SP", cep: "01001-000" }
-  },
-  // Cenário de estresse: chamada SEM localização automática (telefone fixo/VoIP,
-  // AML indisponível). O caminho manual — coletar endereço por voz — é o produto
-  // funcionando, não uma falha; a demo precisa mostrá-lo.
-  {
-    phone: "(11) 3222-0000",
-    hasHistory: false,
-    name: "",
-    historyCount: 0,
-    aml: null as null | { lat: number; lng: number; address: string; number: string; neighborhood: string; city: string; cep: string }
-  }
-];
-
-const MOCK_VEHICLES = [
-  { id: 'USA-01', type: 'USA (Avançada)', status: 'DISPONÍVEL', base: 'Base Central', color: 'ok', eta: 8 },
-  { id: 'USB-04', type: 'USB (Básica)', status: 'DISPONÍVEL', base: 'Base Leste', color: 'ok', eta: 12 },
-  { id: 'MOT-01', type: 'MOTOLÂNCIA', status: 'DISPONÍVEL', base: 'Base Central', color: 'ok', eta: 5 },
-  { id: 'USA-02', type: 'USA (Avançada)', status: 'EM ATENDIMENTO', base: 'Base Sul', color: 'danger', eta: 25 },
-  { id: 'USB-05', type: 'USB (Básica)', status: 'RETORNO', base: 'Base Norte', color: 'warn', eta: 18 },
-  { id: 'MOT-02', type: 'MOTOLÂNCIA', status: 'MANUTENÇÃO', base: 'Base Oeste', color: 'nude', eta: 0 },
-];
-
-// Handoffs aguardando regulação — o médico alterna entre casos antes de decidir.
-const MEDICO_CASES = [
-  { num: '#4017', caller: 0, label: 'João da Silva · 65', data: {
-    patientName: 'João da Silva', age: '65 anos', gender: 'Masculino',
-    symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)'],
-    comorbidities: ['Hipertensão (HAS)', 'Diabetes (DM)'], risk: 'RED',
-    protocol: 'Suspeita de IAM (Infarto)', observations: '',
-    confidence: { patientName: 0.96, symptoms: 0.89, protocol: 0.92 } } },
-  { num: '#4015', caller: 1, label: 'Acidente moto × carro', data: {
-    patientName: 'Carlos Pereira', age: '31 anos', gender: 'Masculino',
-    symptoms: ['Trauma em MMII', 'Sangramento moderado', 'Consciente e orientado'],
-    comorbidities: [], risk: 'YELLOW',
-    protocol: 'Trauma — acidente de trânsito', observations: '',
-    confidence: { patientName: 0.91, symptoms: 0.87, protocol: 0.9 } } },
-  { num: '#4012', caller: 2, label: 'OVACE · lactente', data: {
-    patientName: 'Bebê de Ana Souza', age: '8 meses', gender: 'Feminino',
-    symptoms: ['Engasgo com corpo estranho', 'Cianose revertida', 'Choro presente'],
-    comorbidities: [], risk: 'RED',
-    protocol: 'OVACE em lactente', observations: '',
-    confidence: { patientName: 0.88, symptoms: 0.93, protocol: 0.95 } } },
-];
+import type { Chamador, DadosAml, ExtracaoClinica, Veiculo, MembroEquipe, ItemFilaPabx, MensagemChat, ChamadaRecente, Risco, Papel, Escala } from './core/tipos';
+import type { FalaTranscrita } from './core/teatro';
+import { startOfWeek, addDays, isoDate, WEEKDAYS, MAX_WEEKS_AHEAD, TURNO_CYCLE, TURNO_BADGE } from './core/calendario';
+// Único ponto de entrada do TEATRO no núcleo. O alias resolve por modo de
+// build: demo (default) → src/demo/index.tsx; operação → src/demo/inerte.tsx,
+// e o pacote de demonstração fica fora do grafo de módulos (docs/24).
+import { demo } from '@demo';
 
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
-
-// Cenários de demonstração: pares COERENTES roteiro ↔ chamador (o sorteio antigo
-// combinava qualquer script com qualquer telefone — trote saindo de número com 5
-// ocorrências de histórico). O seletor do IDLE permite demonstração dirigida; o
-// aleatório usa bolsa embaralhada (percorre todos antes de repetir qualquer um).
-const CENARIOS_DEMO = [
-  { id: 'iam',        rotulo: 'IAM · vermelho',        script: 0, caller: 0 },
-  { id: 'trauma',     rotulo: 'Trauma · amarelo',      script: 1, caller: 3 },
-  { id: 'ovace',      rotulo: 'OVACE · reversão',      script: 2, caller: 1 },
-  { id: 'avc',        rotulo: 'AVC · laranja',         script: 4, caller: 2 },
-  { id: 'obstetrico', rotulo: 'Obstétrico · laranja',  script: 5, caller: 1 },
-  { id: 'verde',      rotulo: 'Verde · orientação',    script: 6, caller: 4 },
-  { id: 'trote',      rotulo: 'Trote',                 script: 3, caller: 3 },
-  { id: 'sem-aml',    rotulo: 'Sem localização (AML)', script: 0, caller: 5 },
-] as const;
-
-// ── Calendário de escalas (planner do Gestor + Minha Escala) ──
-function startOfWeek(d: Date) {
-  const x = new Date(d);
-  x.setHours(12, 0, 0, 0);
-  x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); // segunda-feira
-  return x;
-}
-function addDays(d: Date, n: number) {
-  const x = new Date(d);
-  x.setDate(x.getDate() + n);
-  return x;
-}
-function isoDate(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-const MAX_WEEKS_AHEAD = 4; // consulta/criação até 1 mês à frente
-
-const TURNO_CYCLE = ['DIURNO', 'NOTURNO', 'FOLGA'];
-const TURNO_BADGE: Record<string, { label: string; full: string; hours: string; cls: string }> = {
-  DIURNO: { label: 'D', full: 'Diurno', hours: '07:00–19:00', cls: 'bg-gold-500/15 border-gold-500/50 text-gold-500' },
-  NOTURNO: { label: 'N', full: 'Noturno', hours: '19:00–07:00', cls: 'bg-info/10 border-info/40 text-info' },
-  ADMINISTRATIVO: { label: 'A', full: 'Administrativo', hours: '08:00–18:00', cls: 'bg-ai/10 border-ai/40 text-ai' },
-  SOBREAVISO: { label: 'S', full: 'Sobreaviso', hours: '—', cls: 'bg-elevated border-border-default text-ink-secondary' },
-  FOLGA: { label: 'F', full: 'Folga', hours: '—', cls: 'bg-elevated border-border-subtle text-ink-tertiary' },
-};
-
-// Semana corrente pré-povoada pelo padrão de turno de cada colaborador (demo).
-function buildInitialRoster() {
-  const r: Record<string, Record<string, string>> = {};
-  const start = startOfWeek(new Date());
-  MOCK_TEAM.forEach(m => {
-    r[m.id] = {};
-    for (let i = 0; i < 7; i++) {
-      const dia = isoDate(addDays(start, i));
-      if (m.status === 'FÉRIAS' || m.status === 'ATESTADO') { r[m.id][dia] = 'FOLGA'; continue; }
-      if (m.id === 'GESTOR-01') { r[m.id][dia] = i < 5 ? 'ADMINISTRATIVO' : i === 5 ? 'SOBREAVISO' : 'FOLGA'; continue; }
-      // Escala 12×36: metade da equipe operacional em plantão a cada dia, fim de
-      // semana incluído — SAMU é 24/7; a versão anterior dava FOLGA geral no sábado
-      // e domingo e o painel do gestor mostrava "Equipe em Plantão 0/8".
-      const idx = MOCK_TEAM.indexOf(m);
-      r[m.id][dia] = (i + idx) % 2 === 0 ? (m.shift === 'Noturno' ? 'NOTURNO' : 'DIURNO') : 'FOLGA';
-    }
-  });
-  return r;
-}
-
-const MOCK_TEAM = [
-  { id: 'TARM-04', name: 'Mariana S.', role: 'TARM', shift: 'Diurno', status: 'EM PLANTÃO' },
-  { id: 'TARM-07', name: 'Rafael O.', role: 'TARM', shift: 'Noturno', status: 'FOLGA' },
-  { id: 'REG-02', name: 'Dr. Almeida', role: 'Médico Regulador', shift: 'Diurno', status: 'EM PLANTÃO' },
-  { id: 'REG-05', name: 'Dra. Costa', role: 'Médico Regulador', shift: 'Noturno', status: 'FOLGA' },
-  { id: 'COND-11', name: 'José P.', role: 'Condutor', shift: 'Diurno', status: 'EM PLANTÃO' },
-  { id: 'ENF-09', name: 'Paula R.', role: 'Enfermeira', shift: 'Diurno', status: 'EM PLANTÃO' },
-  { id: 'COND-14', name: 'Marcos T.', role: 'Condutor', shift: 'Noturno', status: 'ATESTADO' },
-  { id: 'ENF-12', name: 'Bruno L.', role: 'Enfermeiro', shift: 'Noturno', status: 'FÉRIAS' },
-];
 
 const VEHICLE_STATUS_COLOR: Record<string, string> = {
   'DISPONÍVEL': 'ok',
@@ -224,151 +27,6 @@ const TEAM_STATUS_COLOR: Record<string, string> = {
   'FÉRIAS': 'ai',
   'ATESTADO': 'warn',
 };
-
-// Série horária de demonstração (volume de chamadas e tempo de resposta em min).
-const HOURLY_STATS = [
-  { time: '06h', volume: 45, resposta: 6 },
-  { time: '08h', volume: 80, resposta: 8 },
-  { time: '10h', volume: 110, resposta: 12 },
-  { time: '12h', volume: 95, resposta: 10 },
-  { time: '14h', volume: 105, resposta: 9 },
-  { time: '16h', volume: 130, resposta: 14 },
-  { time: '18h', volume: 150, resposta: 15 },
-  { time: '20h', volume: 120, resposta: 11 },
-];
-
-// Distribuição por classificação — cores de protocolo Manchester (status, com rótulo direto).
-const MANCHESTER_DIST = [
-  { name: 'Vermelho', value: 94, color: '#E53935' },
-  { name: 'Amarelo', value: 150, color: '#FDD835' },
-  { name: 'Verde', value: 250, color: '#43A047' },
-  { name: 'Azul', value: 120, color: '#1E88E5' },
-];
-
-const MOCK_RECENT_CALLS = [
-  { id: '1042', phone: '(11) 98765-4321', time: '08:12', type: 'Parada Cardiorrespiratória', status: 'Despachada (USA)', statusColor: 'danger' },
-  { id: '1041', phone: '(11) 91234-5678', time: '08:05', type: 'Crise Convulsiva', status: 'Despachada (USB)', statusColor: 'warn' },
-  { id: '1040', phone: '(11) 99876-5432', time: '07:58', type: 'Dúvida Médica', status: 'Resolvida (Telemedicina)', statusColor: 'ok' },
-  { id: '1039', phone: '(11) 95555-4444', time: '07:45', type: 'Acidente de Trânsito', status: 'Despachada (USA + Moto)', statusColor: 'danger' },
-  { id: '1038', phone: '(11) 93333-2222', time: '07:30', type: 'Queda de Própria Altura', status: 'Despachada (USB)', statusColor: 'warn' },
-];
-
-const MOCK_QUEUE = [
-  { id: 'Q1', phone: '(11) 98765-4321', waitTime: '01:42', priority: 'high' },
-  { id: 'Q2', phone: '(11) 91234-5678', waitTime: '00:55', priority: 'normal' },
-  { id: 'Q3', phone: '(11) 99999-8888', waitTime: '00:12', priority: 'normal' },
-];
-
-const MOCK_SCRIPTS = [
-  // Scenario 1: IAM (Infarto)
-  [
-    { speaker: 'SYS', text: 'Gravação e transcrição iniciadas.', delay: 500 },
-    { speaker: 'TARM', text: 'SAMU 192, qual a sua emergência?', delay: 1500 },
-    { speaker: 'CALLER', text: 'Moça, pelo amor de Deus, meu pai tá passando mal! Ele tá com muita dor no peito e suando frio!', delay: 4000, 
-      extract: { symptoms: ['Dor no peito irradiante', 'Sudorese fria'], risk: 'RED', protocol: 'Suspeita de IAM (Infarto)' } },
-    { speaker: 'TARM', text: 'Calma, o socorro já está sendo providenciado. Qual o nome e a idade dele? Ele tem algum problema de saúde?', delay: 7000 },
-    { speaker: 'CALLER', text: 'O nome dele é João da Silva. Ele tem 65 anos. Ele tem pressão alta e diabetes.', delay: 10000,
-      extract: { patientName: 'João da Silva', age: '65 anos', gender: 'Masculino', comorbidities: ['Hipertensão (HAS)', 'Diabetes (DM)'] } },
-    { speaker: 'TARM', text: 'Ele está consciente? Ele consegue falar com você?', delay: 13000 },
-    { speaker: 'CALLER', text: 'Tá consciente, mas tá com muita falta de ar, não consegue falar direito. A dor tá indo pro braço esquerdo.', delay: 16000,
-      extract: { symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)', 'Dor irradiando para MSE'] } },
-    { speaker: 'TARM', text: 'Certo. O endereço é Rua Direita, 120, correto?', delay: 19000 },
-    { speaker: 'CALLER', text: 'Isso, apartamento 42. O porteiro já tá avisado pra liberar a ambulância.', delay: 22000 },
-    { speaker: 'TARM', text: 'Ótimo. Mantenha ele sentado e calmo. Não dê água nem comida. O médico vai falar com você agora para mais orientações enquanto a UTI móvel chega.', delay: 26000 },
-    { speaker: 'CALLER', text: 'Tá bom, tô aguardando na linha. Por favor, pede pra eles virem rápido!', delay: 30000 },
-    { speaker: 'TARM', text: 'Eles já estão a caminho. Transferindo para o médico regulador.', delay: 33000 }
-  ],
-  // Scenario 2: Trauma (Acidente de Moto)
-  [
-    { speaker: 'SYS', text: 'Gravação e transcrição iniciadas.', delay: 500 },
-    { speaker: 'TARM', text: 'SAMU 192, qual a sua emergência?', delay: 1500 },
-    { speaker: 'CALLER', text: 'Teve um acidente aqui na avenida! Um motoqueiro bateu num carro.', delay: 4000, 
-      extract: { symptoms: ['Vítima de trauma', 'Acidente de trânsito'], risk: 'YELLOW', protocol: 'Trauma - Colisão Auto x Moto' } },
-    { speaker: 'TARM', text: 'Entendi. O endereço é Avenida Paulista, na altura do número 1578?', delay: 7000 },
-    { speaker: 'CALLER', text: 'Isso, sentido Consolação.', delay: 10000 },
-    { speaker: 'TARM', text: 'O socorro está a caminho. Você sabe o nome da vítima? Qual a idade aparente?', delay: 13000 },
-    { speaker: 'CALLER', text: 'Não sei o nome, acho que uns 30 anos. Ele tá de capacete no chão.', delay: 16000,
-      extract: { age: '~30 anos', gender: 'Masculino', patientName: 'Desconhecido' } },
-    { speaker: 'TARM', text: 'Ele está acordado? Tem algum sangramento visível?', delay: 19000 },
-    { speaker: 'CALLER', text: 'Tá acordado, gemendo de dor na perna. A perna parece quebrada, mas não vejo muito sangue.', delay: 22000,
-      extract: { symptoms: ['Vítima de trauma', 'Acidente de trânsito', 'Dor intensa em MMII', 'Suspeita de fratura fechada'] } },
-    { speaker: 'TARM', text: 'Por favor, não tente tirar o capacete dele e peça para ele não se mover. Tem vazamento de combustível na pista?', delay: 26000 },
-    { speaker: 'CALLER', text: 'Não, não tô sentindo cheiro de gasolina. Tem gente sinalizando a via.', delay: 30000 },
-    { speaker: 'TARM', text: 'Perfeito. A ambulância já foi despachada. Vou passar para o médico regulador para orientações adicionais.', delay: 34000 }
-  ],
-  // Scenario 3: OVACE (Engasgo Bebê) - Longo
-  [
-    { speaker: 'SYS', text: 'Gravação e transcrição iniciadas.', delay: 500 },
-    { speaker: 'TARM', text: 'SAMU 192, qual a sua emergência?', delay: 1500 },
-    { speaker: 'CALLER', text: 'Meu bebê! Meu bebê não tá respirando! Ele engasgou com o leite!', delay: 4000, 
-      extract: { symptoms: ['Asfixia', 'Engasgo com líquido'], risk: 'RED', protocol: 'OVACE - Lactente' } },
-    { speaker: 'TARM', text: 'Senhora, mantenha a calma, a ambulância já está saindo. Qual o nome do bebê e quantos meses ele tem?', delay: 7000 },
-    { speaker: 'CALLER', text: 'É o Lucas! Ele tem 8 meses! Pelo amor de Deus, me ajuda!', delay: 10000,
-      extract: { patientName: 'Lucas', age: '8 meses', gender: 'Masculino' } },
-    { speaker: 'TARM', text: 'Vou te ajudar agora. O bebê está chorando ou tossindo? Qual a cor da pele dele?', delay: 13000 },
-    { speaker: 'CALLER', text: 'Não tá chorando! Ele tá ficando roxinho! Ele não faz barulho!', delay: 16000,
-      extract: { symptoms: ['Asfixia', 'Engasgo com líquido', 'Cianose', 'Ausência de choro/tosse'] } },
-    { speaker: 'TARM', text: 'Ok, coloque o Lucas de bruços no seu antebraço, com a cabeça mais baixa que o corpo. Segure a cabecinha dele.', delay: 19000 },
-    { speaker: 'CALLER', text: 'Tá, coloquei! E agora?', delay: 22000 },
-    { speaker: 'TARM', text: 'Dê 5 tapinhas nas costas dele, entre as escápulas. Com o calcanhar da mão.', delay: 25000 },
-    { speaker: 'CALLER', text: 'Um, dois, três, quatro, cinco! Ele chorou! Ele chorou! Saiu um monte de leite!', delay: 28000,
-      extract: { symptoms: ['Asfixia revertida', 'Choro presente', 'Desobstrução de vias aéreas'], risk: 'YELLOW', protocol: 'OVACE Revertido - Avaliação' } },
-    { speaker: 'TARM', text: 'Graças a Deus. A cor dele está voltando ao normal?', delay: 31000 },
-    { speaker: 'CALLER', text: 'Tá sim, ele tá chorando forte agora. Muito obrigada!', delay: 34000 },
-    { speaker: 'TARM', text: 'A ambulância continua a caminho para avaliar ele. Vou transferir para o médico para acompanhamento.', delay: 38000 }
-  ],
-  // Cenário de estresse: TROTE. Nenhuma extração clínica acontece (o risco permanece
-  // PENDING) e o encerramento correto é o botão "Encerrar · trote / engano" — sem
-  // regulação, com registro em auditoria. A detecção NÃO é automática: quem decide
-  // que é trote é o operador; o sistema só registra.
-  [
-    { speaker: 'TARM', text: 'SAMU, emergência. Qual é a ocorrência?', delay: 1500 },
-    { speaker: 'CALLER', text: '(risadas ao fundo) Alô? É da pizzaria?', delay: 4500 },
-    { speaker: 'TARM', text: 'Aqui é o SAMU 192, serviço de emergência médica. Há alguma emergência no local?', delay: 8000 },
-    { speaker: 'CALLER', text: '(mais risadas) Manda uma ambulância de pepperoni… (desliga)', delay: 12000 },
-    { speaker: 'TARM', text: 'Senhor, trote ao 192 mantém a linha ocupada e pode custar uma vida. A ligação fica registrada.', delay: 15500 }
-  ],
-  // 5 · AVC — LARANJA: a janela terapêutica é o argumento vivo do tempo medido.
-  [
-    { speaker: 'CALLER', text: 'Moço, minha mãe acordou com a boca torta e não consegue falar direito. Ela tá muito estranha.', delay: 1500 },
-    { speaker: 'TARM', text: 'Vou te ajudar. Qual o nome e a idade dela? E a que horas você percebeu isso?', delay: 5000 },
-    { speaker: 'CALLER', text: 'Terezinha, 68 anos. Foi agora, faz uns vinte minutos. Ela tentou levantar e o braço esquerdo não obedece.', delay: 9500,
-      extract: { patientName: 'Terezinha Almeida', age: '68 anos', gender: 'Feminino' } },
-    { speaker: 'TARM', text: 'Peça para ela sorrir. O sorriso está torto? E peça para repetir uma frase simples.', delay: 14000 },
-    { speaker: 'CALLER', text: 'Tá torto sim, só um lado mexe. E a fala sai toda enrolada, não dá pra entender nada.', delay: 18500,
-      extract: { symptoms: ['Desvio de rima labial', 'Fraqueza em braço esquerdo', 'Fala arrastada (disartria)'], risk: 'ORANGE', protocol: 'Suspeita de AVC — janela terapêutica' } },
-    { speaker: 'TARM', text: 'Entendi. Deite ela de lado, não dê água nem comida, e anote a hora em que começou — isso é muito importante para o tratamento. O socorro já está sendo acionado.', delay: 23000 },
-    { speaker: 'CALLER', text: 'Anotei: começou 7h40. Por favor, venham rápido.', delay: 27500 },
-    { speaker: 'TARM', text: 'O horário ficou registrado. Vou passar para o médico regulador agora — fique na linha.', delay: 31000 }
-  ],
-  // 6 · Obstétrico — LARANJA: docs/12 exige o caso representado; a demo espelha.
-  [
-    { speaker: 'CALLER', text: 'Minha esposa tá em trabalho de parto! As contrações tão muito perto uma da outra!', delay: 1500 },
-    { speaker: 'TARM', text: 'Calma, vou te orientar. Qual o nome dela, quantas semanas de gestação, e de quanto em quanto tempo vêm as contrações?', delay: 5500 },
-    { speaker: 'CALLER', text: 'Luana, 27 anos, tá de 39 semanas. As contrações vêm de 4 em 4 minutos, e a bolsa estourou faz meia hora.', delay: 10500,
-      extract: { patientName: 'Luana Ferreira', age: '27 anos', gender: 'Feminino', symptoms: ['Trabalho de parto ativo', 'Bolsa rota há 30 min', 'Contrações 4/4 min'], risk: 'ORANGE', protocol: 'Obstétrico — parto iminente' } },
-    { speaker: 'TARM', text: 'É o primeiro filho dela? Ela sente vontade de fazer força?', delay: 15500 },
-    { speaker: 'CALLER', text: 'É o segundo. E ela tá dizendo que a pressão tá aumentando muito!', delay: 19500,
-      extract: { symptoms: ['Multípara — evolução rápida'] } },
-    { speaker: 'TARM', text: 'Deite ela do lado esquerdo, separe toalhas limpas e não deixe ela ir ao banheiro sozinha. A equipe já está sendo acionada com prioridade.', delay: 24000 },
-    { speaker: 'CALLER', text: 'Tá certo, já deitei ela. Vem logo, por favor!', delay: 28500 },
-    { speaker: 'TARM', text: 'Transferindo agora para o médico regulador. Continue na linha comigo.', delay: 32000 }
-  ],
-  // 7 · VERDE — orientação sem despacho: o sistema também protege a frota do
-  // acionamento desnecessário; o desfecho digno é o encaminhamento certo.
-  [
-    { speaker: 'CALLER', text: 'Boa tarde. Tô com uma dor nas costas que não passa, já faz uns dias. Queria uma ambulância pra ir ao hospital.', delay: 1500 },
-    { speaker: 'TARM', text: 'Boa tarde. Vou entender o seu caso. A dor começou quando? O senhor consegue andar e se mover normalmente?', delay: 5500 },
-    { speaker: 'CALLER', text: 'Faz umas duas semanas. Ando sim, só incomoda quando fico muito tempo sentado.', delay: 10000,
-      extract: { patientName: 'Antônio Ribeiro', age: '52 anos', gender: 'Masculino', symptoms: ['Lombalgia há 2 semanas', 'Deambulando normalmente'] } },
-    { speaker: 'TARM', text: 'O senhor tem febre, perda de força nas pernas ou dificuldade para urinar?', delay: 14500 },
-    { speaker: 'CALLER', text: 'Não, nada disso. É só a dor mesmo.', delay: 18000,
-      extract: { risk: 'GREEN', protocol: 'Orientação — rede básica (UBS)' } },
-    { speaker: 'TARM', text: 'Entendi. Pelo que o senhor descreve, não é uma emergência — e a ambulância precisa ficar livre para risco de vida. O caminho certo é a UBS do seu bairro. Se surgir perda de força, febre alta ou a dor mudar de repente, ligue de novo na hora.', delay: 22500 },
-    { speaker: 'CALLER', text: 'Ah, entendi. Vou na UBS amanhã cedo então. Obrigado, viu?', delay: 28000 },
-    { speaker: 'TARM', text: 'Às ordens. Melhoras para o senhor.', delay: 31000 }
-  ]
-];
 
 const playSound = (type: 'call' | 'vehicle' | 'alert', enabled: boolean) => {
   if (!enabled) return;
@@ -452,73 +110,6 @@ function CronometroMeta({ inicio, agora, rotulo }: { inicio: number | null; agor
   );
 }
 
-// ── IA sobre digitação (modo 2 da doutrina — docs/05 §2) ──────────────────
-// Extração DETERMINÍSTICA por palavras-chave sobre o texto que o TARM digita.
-// É simulação rotulada (sem modelo real): demonstra o fluxo — o TARM digita
-// como no sistema próprio da central e a IA rankeia/chaveia o quadro a partir
-// do texto. Sem sinal identificado → PENDING; nunca palpite (Princípio da
-// Realidade). Ordem das regras = prioridade clínica (vermelho primeiro).
-const normalizar = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-const REGRAS_TEXTO: { sinais: RegExp; symptoms: string[]; risk: 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN'; protocol: string }[] = [
-  { sinais: /(dor no peito|aperto no peito|infarto)/, symptoms: ['Dor torácica'], risk: 'RED', protocol: 'Suspeita de IAM (Infarto)' },
-  { sinais: /(engasg|asfixia|nao respira|sem respirar|parada)/, symptoms: ['Obstrução de vias aéreas / apneia'], risk: 'RED', protocol: 'OVACE / Parada — resposta imediata' },
-  { sinais: /(inconsciente|desmaiad|nao acorda|sem sentidos)/, symptoms: ['Inconsciência'], risk: 'RED', protocol: 'Rebaixamento de consciência' },
-  { sinais: /(boca torta|fala enrolada|derrame|\bavc\b|sem forca no braco|braco nao obedece)/, symptoms: ['Déficit neurológico agudo'], risk: 'ORANGE', protocol: 'Suspeita de AVC — janela terapêutica' },
-  { sinais: /(trabalho de parto|contraco|bolsa (estourou|rompeu|rota))/, symptoms: ['Trabalho de parto ativo'], risk: 'ORANGE', protocol: 'Obstétrico — parto iminente' },
-  { sinais: /(acidente|atropel|colisao|capot|queda de (moto|andaime|altura)|fratura)/, symptoms: ['Vítima de trauma'], risk: 'YELLOW', protocol: 'Trauma — avaliação' },
-  { sinais: /(dor nas costas|lombalgia|gripe|resfriado|receita|dor de garganta)/, symptoms: ['Queixa de baixa complexidade'], risk: 'GREEN', protocol: 'Orientação — rede básica (UBS)' },
-];
-const SINAIS_EXTRA: { re: RegExp; s: string }[] = [
-  { re: /(suando|sudorese|suor frio)/, s: 'Sudorese fria' },
-  { re: /(falta de ar|dispneia|nao consegue respirar)/, s: 'Dispneia' },
-  { re: /(sangra|sangue|hemorragia)/, s: 'Sangramento ativo' },
-  { re: /(gravida|gestante|\d+ semanas)/, s: 'Gestante' },
-  { re: /(muita dor|dor forte|dor intensa)/, s: 'Dor intensa' },
-];
-function extrairDeTexto(texto: string): { symptoms: string[]; risk: 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN'; protocol: string } | null {
-  const t = normalizar(texto);
-  const regra = REGRAS_TEXTO.find(r => r.sinais.test(t));
-  if (!regra) return null;
-  const extras = SINAIS_EXTRA.filter(x => x.re.test(t)).map(x => x.s);
-  return { symptoms: [...new Set([...regra.symptoms, ...extras])], risk: regra.risk, protocol: regra.protocol };
-}
-
-// Mapa esquemático local — usado no modo demonstração (sem backend): a demo é
-// aberta em sala de reunião, pen drive e rede hostil, e um iframe de mapa sem
-// rede vira ícone de imagem quebrada no meio da tela. Zero requisição externa;
-// cores pelos tokens do tema (currentColor/classes), nunca hex novo.
-function MapaEsquematico({ pino, rota }: { pino?: boolean; rota?: boolean }) {
-  return (
-    <div className="relative w-full h-full bg-elevated overflow-hidden">
-      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className="w-full h-full text-ink-secondary/25" aria-hidden="true">
-        {/* malha viária */}
-        {[40, 90, 140, 190, 240].map(y => <line key={`h${y}`} x1="0" y1={y} x2="400" y2={y} stroke="currentColor" strokeWidth="1" />)}
-        {[60, 120, 180, 240, 300, 360].map(x => <line key={`v${x}`} x1={x} y1="0" x2={x} y2="300" stroke="currentColor" strokeWidth="1" />)}
-        {/* avenidas */}
-        <line x1="0" y1="270" x2="400" y2="150" stroke="currentColor" strokeWidth="2.5" />
-        <line x1="30" y1="0" x2="250" y2="300" stroke="currentColor" strokeWidth="2.5" />
-        {/* quadras de referência */}
-        <rect x="70" y="50" width="38" height="28" rx="3" fill="currentColor" opacity=".35" />
-        <rect x="200" y="100" width="46" height="30" rx="3" fill="currentColor" opacity=".35" />
-        <rect x="300" y="200" width="40" height="26" rx="3" fill="currentColor" opacity=".35" />
-        <rect x="130" y="200" width="34" height="24" rx="3" fill="currentColor" opacity=".35" />
-        {rota && (
-          <path d="M60,260 L120,220 L180,190 L200,150 L200,150" className="text-gold-500" stroke="currentColor" strokeWidth="2.5" strokeDasharray="7 6" fill="none" strokeLinecap="round" />
-        )}
-        {pino && (
-          <g className="text-danger">
-            <circle cx="200" cy="150" r="16" fill="currentColor" opacity=".18" />
-            <circle cx="200" cy="150" r="6" fill="currentColor" />
-          </g>
-        )}
-      </svg>
-      <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-canvas/80 border border-border-subtle text-[0.55rem] font-mono uppercase tracking-widest text-ink-secondary">
-        Mapa esquemático · demonstração
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const { theme, toggleTheme } = useTheme();
   const chartTheme = theme === 'dark'
@@ -539,29 +130,14 @@ export default function App() {
   const [time, setTime] = useState(new Date());
   
   // Estado para armazenar os dados do chamador atual
-  const [currentCaller, setCurrentCaller] = useState<typeof MOCK_CALLERS[0] | null>(null);
-  
-  const [amlData, setAmlData] = useState<typeof MOCK_CALLERS[0]['aml'] | null>(null);
+  const [currentCaller, setCurrentCaller] = useState<Chamador | null>(null);
+
+  const [amlData, setAmlData] = useState<DadosAml | null>(null);
 
   // TARM States
   const [aiActive, setAiActive] = useState(true);
-  const [activeScriptIndex, setActiveScriptIndex] = useState(0);
-  const [tarmChat, setTarmChat] = useState<{speaker: 'TARM' | 'CALLER' | 'SYS', text: string, time: string}[]>([]);
-  const [extractedData, setExtractedData] = useState<{
-    patientName: string;
-    age: string;
-    gender: string;
-    symptoms: string[];
-    comorbidities: string[];
-    risk: 'PENDING' | 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN' | 'BLUE';
-    protocol: string;
-    observations: string;
-    confidence: {
-      patientName: number;
-      symptoms: number;
-      protocol: number;
-    }
-  }>({
+  const [tarmChat, setTarmChat] = useState<MensagemChat[]>([]);
+  const [extractedData, setExtractedData] = useState<ExtracaoClinica>({
     patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '',
     confidence: { patientName: 0, symptoms: 0, protocol: 0 }
   });
@@ -572,7 +148,7 @@ export default function App() {
   // Queda de ligação NUNCA perde contexto (docs/21 §2.3-2.4): o rascunho fica
   // preservado na espera e reassocia pela anti-duplicidade quando o número volta.
   const [quedaPendente, setQuedaPendente] = useState<{
-    caller: typeof MOCK_CALLERS[0]; chat: typeof tarmChat; dados: typeof extractedData; em: number;
+    caller: Chamador; chat: MensagemChat[]; dados: ExtracaoClinica; em: number;
   } | null>(null);
   const [headerFora, setHeaderFora] = useState(false);
   // Cronômetros de etapa: nascem no ATENDER (nunca antes — shadow) e no handoff.
@@ -585,36 +161,32 @@ export default function App() {
   const digitacaoTimerRef = useRef<NodeJS.Timeout | null>(null);
   // Classificação de risco é DECISÃO EXPLÍCITA do regulador — nunca default.
   // null = ainda não classificado; o despacho fica bloqueado até a escolha.
-  const [riscoFinal, setRiscoFinal] = useState<'RED' | 'ORANGE' | 'YELLOW' | 'GREEN' | 'BLUE' | null>(null);
+  const [riscoFinal, setRiscoFinal] = useState<Risco | null>(null);
   // T1–T4: horário de cada marca; a barra de missão só habilita o PRÓXIMO passo,
   // pulo exige confirmação (2 toques) e marca feita é imutável — tempo probatório
   // não se sobrescreve em silêncio.
   const [missionMarks, setMissionMarks] = useState<Record<string, string>>({});
   const [skipArm, setSkipArm] = useState<string | null>(null);
-  // Timers do roteiro de transcrição: o kill switch precisa CANCELÁ-los de fato —
-  // sem isso a "transcrição" continuaria chegando com a IA desligada.
-  const scriptTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const scriptShownRef = useRef<Set<string>>(new Set());
-  // Seletor de cenário da demonstração (IDLE): 'aleatorio' sorteia da bolsa.
+  // Seletor de cenário da demonstração (IDLE): 'aleatorio' sorteia da bolsa
+  // (a bolsa vive dentro do pacote demo — prepararCenario).
   const [cenarioDemo, setCenarioDemo] = useState<string>('aleatorio');
-  const bolsaCenariosRef = useRef<string[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('Hoje');
 
   const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'info' | 'warn'} | null>(null);
   const [isDispatching, setIsDispatching] = useState(false);
-  const [vehicles, setVehicles] = useState(MOCK_VEHICLES);
-  const [role, setRole] = useState<'TARM' | 'MEDICO' | 'VIATURA' | 'GESTOR'>('TARM');
-  const [team] = useState(MOCK_TEAM);
-  const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>({ 'MOT-02': '2026-06-14' });
+  const [vehicles, setVehicles] = useState<Veiculo[]>(demo.frotaInicial);
+  const [role, setRole] = useState<Papel>('TARM');
+  const [team] = useState<MembroEquipe[]>(demo.equipeInicial);
+  const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>(demo.manutencaoInicial);
   const [missionStatus, setMissionStatus] = useState('A CAMINHO');
   const [connected, setConnected] = useState(false);
-  const [operatorName, setOperatorName] = useState('Mariana S.');
-  const [operatorId, setOperatorId] = useState('TARM-04');
-  const [loginMatricula, setLoginMatricula] = useState('TARM-04');
+  const [operatorName, setOperatorName] = useState(demo.personaLogin('TARM')?.nome ?? '');
+  const [operatorId, setOperatorId] = useState(demo.personaLogin('TARM')?.matricula ?? '');
+  const [loginMatricula, setLoginMatricula] = useState(demo.personaLogin('TARM')?.matricula ?? '');
   const [loginPassword, setLoginPassword] = useState('');
-  const [roster, setRoster] = useState<Record<string, Record<string, string>>>(buildInitialRoster);
+  const [roster, setRoster] = useState<Escala>(demo.escalaInicial);
   const [userIds, setUserIds] = useState<Record<string, string>>({});
   const [myWeek, setMyWeek] = useState(0);
   const [showEscala, setShowEscala] = useState(false);
@@ -627,9 +199,12 @@ export default function App() {
   const [selectedBase, setSelectedBase] = useState('Consórcio (geral)');
   const BASE_FACTOR: Record<string, number> = { 'Consórcio (geral)': 1, 'Base Central': 0.52, 'Base Leste': 0.29, 'Base Norte': 0.19 };
   const bf = BASE_FACTOR[selectedBase] ?? 1;
-  const [fhirRecord, setFhirRecord] = useState<typeof MOCK_RECENT_CALLS[number] | null>(null);
+  // Indicadores do dashboard: teatro do pacote; em operação, null → '—' e
+  // gráficos vazios até os dados reais do backend cobrirem cada série.
+  const ind = demo.indicadores;
+  const [fhirRecord, setFhirRecord] = useState<ChamadaRecente | null>(null);
   const [gWeek, setGWeek] = useState(0);
-  const [queue, setQueue] = useState(() => MOCK_QUEUE.map(q => {
+  const [queue, setQueue] = useState(() => demo.filaInicial.map(q => {
     const [m, sec] = q.waitTime.split(':').map(Number);
     return { ...q, seconds: m * 60 + sec };
   }));
@@ -682,6 +257,7 @@ export default function App() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!demo.ativo) return; // operação: ETA real virá da telemetria, nunca de jitter
     const interval = setInterval(() => {
       let updated = false;
       setVehicles(prev => prev.map(v => {
@@ -718,9 +294,17 @@ export default function App() {
   const GMAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
   const mapFilter = theme === 'dark' ? 'invert(90%) hue-rotate(180deg) contrast(110%)' : 'none';
 
+  // Fallback do NÚCLEO quando não há mapa (sem backend e sem o teatro do mapa
+  // esquemático): declara a indisponibilidade em vez de encenar.
+  const avisoSemMapa = (
+    <div className="w-full h-full flex items-center justify-center text-ink-secondary text-xs font-mono px-4 text-center">
+      Mapa indisponível — configure a chave de mapas ou o backend
+    </div>
+  );
+
   const MapIframe = useMemo(() => {
     if (!amlData) return <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>;
-    if (!hasBackend) return <MapaEsquematico pino />;
+    if (!hasBackend) return demo.MapaLocal ? <demo.MapaLocal pino /> : avisoSemMapa;
     const src = GMAPS_KEY
       ? `https://www.google.com/maps/embed/v1/place?key=${GMAPS_KEY}&q=${amlData.lat},${amlData.lng}&zoom=16`
       : `https://maps.google.com/maps?q=${amlData.lat},${amlData.lng}&z=16&output=embed`;
@@ -740,7 +324,7 @@ export default function App() {
   // Rota da viatura: base operacional → local da ocorrência.
   const RouteMapIframe = useMemo(() => {
     if (!amlData) return null;
-    if (!hasBackend) return <MapaEsquematico pino rota />;
+    if (!hasBackend) return demo.MapaLocal ? <demo.MapaLocal pino rota /> : avisoSemMapa;
     const origin = '-23.5505,-46.6333'; // Base Central (config do tenant no futuro)
     const dest = `${amlData.lat},${amlData.lng}`;
     const src = GMAPS_KEY
@@ -762,7 +346,7 @@ export default function App() {
   // Mapa da tela de espera — base operacional (centro de São Paulo por ora;
   // vira configuração do tenant quando houver backend).
   const IdleMapIframe = useMemo(() => {
-    if (!hasBackend) return <MapaEsquematico />;
+    if (!hasBackend) return demo.MapaLocal ? <demo.MapaLocal /> : avisoSemMapa;
     const src = GMAPS_KEY
       ? `https://www.google.com/maps/embed/v1/view?key=${GMAPS_KEY}&center=-23.5505,-46.6333&zoom=13&maptype=roadmap`
       : `https://maps.google.com/maps?q=-23.5505,-46.6333&z=13&output=embed`;
@@ -818,25 +402,15 @@ export default function App() {
   useEffect(() => { setHeaderFora(false); }, [currentModule]);
 
   useEffect(() => {
+    if (!demo.ativo) return; // operação: a chamada chega pela integração, não por sorteio
     let timer: NodeJS.Timeout;
     if (isAuthenticated && currentModule === 'IDLE' && !incomingCall) {
       // Reset TARM states when going back to IDLE
-      scriptTimersRef.current.forEach(clearTimeout);
-      scriptTimersRef.current = [];
-      scriptShownRef.current = new Set();
+      demo.transcricao.encerrar();
       setTarmChat([]);
       setExtractedData({ patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '', confidence: { patientName: 0, symptoms: 0, protocol: 0 } });
       setAiActive(true);
-      let escolhido = CENARIOS_DEMO.find(c => c.id === cenarioDemo);
-      if (!escolhido) {
-        if (bolsaCenariosRef.current.length === 0) {
-          bolsaCenariosRef.current = CENARIOS_DEMO.map(c => c.id).sort(() => Math.random() - 0.5);
-        }
-        const proximo = bolsaCenariosRef.current.pop()!;
-        escolhido = CENARIOS_DEMO.find(c => c.id === proximo)!;
-      }
-      const cenario = escolhido;
-      setActiveScriptIndex(cenario.script);
+      const preparado = demo.prepararCenario(cenarioDemo);
       setMissionStatus('A CAMINHO');
       setMissionMarks({});
       setSkipArm(null);
@@ -849,18 +423,20 @@ export default function App() {
       setOccId(null);
       setDispatchId(null);
 
-      timer = setTimeout(() => {
-        setCurrentCaller(MOCK_CALLERS[cenario.caller]);
-        setAmlData(null);
-        setIncomingCall(true);
-      }, 10000);
+      if (preparado) {
+        timer = setTimeout(() => {
+          setCurrentCaller(preparado.chamador);
+          setAmlData(null);
+          setIncomingCall(true);
+        }, 10000);
+      }
     }
     return () => clearTimeout(timer);
   }, [isAuthenticated, currentModule, incomingCall, cenarioDemo]);
 
   // Fila de espera viva: tempos sobem em tempo real; chamadas entram e são atendidas.
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!demo.ativo || !isAuthenticated) return; // operação: fila só com eventos do PABX (fonte 2)
     let tick = 0;
     const interval = setInterval(() => {
       tick += 1;
@@ -887,6 +463,7 @@ export default function App() {
 
   // Espera da viatura: tablet em prontidão até receber um despacho (demo).
   useEffect(() => {
+    if (!demo.ativo) return; // operação: o despacho vem da regulação, nunca de timer
     if (!(isAuthenticated && role === 'VIATURA' && currentModule === 'VIATURA' && !currentCaller)) return;
     const t = setTimeout(() => {
       applyDemoSnapshot();
@@ -910,39 +487,32 @@ export default function App() {
     };
   }, [incomingCall]);
 
-  // Simulação do TARM (Chat e Extração). Todos os timers ficam registrados para o
-  // kill switch poder CANCELAR de verdade — sem isso a transcrição continuaria
-  // chegando com a IA desligada, e o modo degradado seria só cosmético.
-  const agendarRoteiro = (itens: (typeof MOCK_SCRIPTS)[number], atraso: (i: number, item: { delay: number }) => number) => {
-    itens.forEach((item, i) => {
-      if (scriptShownRef.current.has(item.text)) return;
-      const id = setTimeout(() => {
-        scriptShownRef.current.add(item.text);
-        setTarmChat(prev => {
-          // Evita duplicatas caso o componente re-renderize
-          if (prev.some(msg => msg.text === item.text)) return prev;
-          return [...prev, { speaker: item.speaker as any, text: item.text, time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) }];
-        });
-
-        if (item.extract) {
-          const extract = item.extract as any;
-          if (extract.patientName) {
-            setExtractedData(prev => ({ ...prev, patientName: extract.patientName, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
-          }
-          if (extract.symptoms) {
-            setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
-          }
-          if (extract.risk) {
-            setExtractedData(prev => ({ ...prev, risk: extract.risk as any, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
-          }
-        }
-      }, atraso(i, item));
-      scriptTimersRef.current.push(id);
+  // O que uma fala transcrita FAZ no estado é produto — o STT real entregará o
+  // mesmo shape (contrato FonteDeTranscricao). Cadência e dedup de entrega são
+  // da fonte; aqui fica só o dedup de render e a extração incremental.
+  const aoItemTranscricao = (fala: FalaTranscrita) => {
+    setTarmChat(prev => {
+      // Evita duplicatas caso o componente re-renderize
+      if (prev.some(msg => msg.text === fala.text)) return prev;
+      return [...prev, { speaker: fala.speaker, text: fala.text, time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) }];
     });
+
+    if (fala.extract) {
+      const extract = fala.extract;
+      if (extract.patientName) {
+        setExtractedData(prev => ({ ...prev, patientName: extract.patientName!, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
+      }
+      if (extract.symptoms) {
+        setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms!])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
+      }
+      if (extract.risk) {
+        setExtractedData(prev => ({ ...prev, risk: extract.risk!, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
+      }
+    }
   };
 
   const marcadorSistema = (texto: string) => {
-    setTarmChat(prev => [...prev, { speaker: 'SYS' as any, text: texto, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }]);
+    setTarmChat(prev => [...prev, { speaker: 'SYS', text: texto, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }]);
   };
 
   // Três modos (doutrina docs/05 §2), com o comportamento do modo degradado real
@@ -955,13 +525,12 @@ export default function App() {
     if (novo === 'escuta') {
       if (currentModule === 'TARM' && tarmChat.length > 0) {
         marcadorSistema(`— escuta religada às ${agora} · transcrição retomada; a janela fica registrada na auditoria —`);
-        agendarRoteiro(MOCK_SCRIPTS[activeScriptIndex], i => 1800 + i * 2600);
+        demo.transcricao.retomar(aoItemTranscricao);
       }
       audit('IA_RELIGADA', { em: agora, modulo: currentModule, de: modoIA });
       setAiActive(true);
     } else {
-      scriptTimersRef.current.forEach(clearTimeout);
-      scriptTimersRef.current = [];
+      demo.transcricao.pausar();
       if (currentModule === 'TARM' && tarmChat.length > 0) {
         marcadorSistema(novo === 'digitacao'
           ? `— escuta desligada às ${agora} · IA sobre digitação: a classificação passa a vir do texto do TARM —`
@@ -979,7 +548,7 @@ export default function App() {
     if (modoIA !== 'digitacao') return;
     if (digitacaoTimerRef.current) clearTimeout(digitacaoTimerRef.current);
     digitacaoTimerRef.current = setTimeout(() => {
-      const r = extrairDeTexto(textoDigitado);
+      const r = demo.analisadorDeTexto?.analisar(textoDigitado) ?? null;
       if (r) {
         setExtractedData(prev => ({ ...prev, symptoms: r.symptoms, risk: r.risk, protocol: r.protocol, confidence: { ...prev.confidence, symptoms: 0.75, protocol: 0.75 } }));
       } else {
@@ -991,7 +560,7 @@ export default function App() {
 
   useEffect(() => {
     if (currentModule === 'TARM' && aiActive && tarmChat.length === 0) {
-      agendarRoteiro(MOCK_SCRIPTS[activeScriptIndex], (_i, item) => item.delay);
+      demo.transcricao.iniciar(aoItemTranscricao);
     }
   }, [currentModule, aiActive]);
 
@@ -1013,12 +582,19 @@ export default function App() {
       showToast(`Conectado ao backend Samais · ${perfil.matricula}`, 'success');
       return;
     }
-    // Backend indisponível ou credencial não semeada: a demo nunca trava.
+    // Backend indisponível ou credencial não semeada: na DEMONSTRAÇÃO entra a
+    // persona do papel (a demo nunca trava); em OPERAÇÃO a recusa é honesta —
+    // console operacional não abre sessão anônima sem backend.
+    const persona = demo.personaLogin(role);
+    if (!persona) {
+      setIsAuthenticating(false);
+      showToast('Backend indisponível — esta instalação exige o backend Samais configurado', 'warn');
+      return;
+    }
     setTimeout(() => {
       setConnected(false);
-      const demo = { TARM: ['Mariana S.', 'TARM-04'], MEDICO: ['Dr. Almeida', 'REG-02'], VIATURA: ['Equipe USA-01', 'USA-01'], GESTOR: ['Carlos M.', 'GESTOR-01'] }[role];
-      setOperatorName(demo[0]);
-      setOperatorId(demo[1]);
+      setOperatorName(persona.nome);
+      setOperatorId(persona.matricula);
       setIsAuthenticated(true);
       setIsAuthenticating(false);
       if (role === 'MEDICO') {
@@ -1030,7 +606,7 @@ export default function App() {
       } else {
         setCurrentModule(role === 'GESTOR' ? 'GESTOR' : role === 'VIATURA' ? 'VIATURA' : 'IDLE');
       }
-      showToast('Modo demonstração — backend offline', 'info');
+      showToast(persona.aviso, 'info');
     }, 1200);
   };
 
@@ -1042,7 +618,7 @@ export default function App() {
       const { data } = await supabase.from('viaturas').select('id, codigo, tipo, status, manutencao_prevista');
       if (data) setVehicleIds(Object.fromEntries(data.map(r => [r.codigo, r.id])));
       if (!active || !data || data.length === 0) return;
-      setVehicles(data.map(r => mapDbVehicle(r, VEHICLE_STATUS_COLOR)) as typeof MOCK_VEHICLES);
+      setVehicles(data.map(r => mapDbVehicle(r, VEHICLE_STATUS_COLOR)));
       const maint: Record<string, string> = {};
       data.forEach(r => { if (r.manutencao_prevista) maint[r.codigo] = r.manutencao_prevista; });
       setMaintSchedule(maint);
@@ -1083,26 +659,20 @@ export default function App() {
 
   // Snapshot de demonstração: permite "pular" para qualquer estágio do fluxo
   // sem precisar atender uma chamada (navegação da demo, não do produto real).
+  // Em operação snapshotRegulacao() é null e isto é no-op — as telas caem no
+  // empty state honesto ("Aguardando chamada entrante...").
   const applyDemoSnapshot = () => {
-    const caller = MOCK_CALLERS[0];
-    setCurrentCaller(caller);
-    setAmlData(caller.aml);
-    setExtractedData({
-      patientName: 'João da Silva', age: '65 anos', gender: 'Masculino',
-      symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)'],
-      comorbidities: ['Hipertensão (HAS)', 'Diabetes (DM)'],
-      risk: 'RED', protocol: 'Suspeita de IAM (Infarto)', observations: '',
-      confidence: { patientName: 0.96, symptoms: 0.89, protocol: 0.92 },
-    });
+    const s = demo.snapshotRegulacao();
+    if (!s) return;
+    setCurrentCaller(s.chamador);
+    setAmlData(s.chamador.aml);
+    setExtractedData(s.extracao);
     setAiActive(false);
     setRiscoFinal(null);
     setJustification(null);
     setMissionMarks({});
     setSkipArm(null);
-    setTarmChat(prev => prev.length > 0 ? prev : MOCK_SCRIPTS[0].slice(0, 7).map(i => ({
-      speaker: i.speaker as any, text: i.text,
-      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-    })));
+    setTarmChat(prev => prev.length > 0 ? prev : s.transcricaoParcial);
   };
 
   // O sistema designa a viatura recomendada ao entrar na regulação (médico pode trocar).
@@ -1114,7 +684,8 @@ export default function App() {
 
   // Simuladores de viatura sobre o mapa: ativas se deslocam, base fica fixa,
   // em ocorrência pulsa em vermelho — mesmo padrão em todas as telas de espera.
-  const FleetMarkers = (
+  // GPS SIMULADO: nunca renderiza sobre frota real (só com o teatro ativo).
+  const FleetMarkers = demo.ativo && (
     <>
       {vehicles.slice(0, 4).map((v, i) => {
         const moving = v.status === 'DISPONÍVEL' || v.status === 'RETORNO' || v.status === 'EM ATENDIMENTO';
@@ -1143,7 +714,7 @@ export default function App() {
     supabase.from('auditoria').insert({ tenant_id: TENANT_ID, usuario_id: authUserId, acao, alvo }).then();
   };
 
-  const abrirOcorrencia = (caller: (typeof MOCK_CALLERS)[number]) => {
+  const abrirOcorrencia = (caller: Chamador) => {
     if (!connected) return;
     supabase.from('ocorrencias')
       .insert({ tenant_id: TENANT_ID, telefone: caller.phone, aml: caller.aml, tarm_id: role === 'TARM' ? authUserId : null })
@@ -1211,8 +782,7 @@ export default function App() {
 
   const encerrarSemRegulacao = (motivo: 'trote' | 'engano' | 'queda') => {
     audit('CHAMADA_ENCERRADA_SEM_REGULACAO', { motivo, extracao: extractedData.risk });
-    scriptTimersRef.current.forEach(clearTimeout);
-    scriptTimersRef.current = [];
+    demo.transcricao.pausar();
     if (motivo === 'queda' && currentCaller) {
       // Queda: o rascunho sobrevive à volta ao IDLE — protocolo real manda
       // retornar a ligação, e o retorno reassocia à MESMA ocorrência.
@@ -1234,7 +804,7 @@ export default function App() {
       setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
       setRegulacaoInicio(Date.now());
       setCurrentModule('REGULADOR');
-      showToast('Handoff recebido do TARM-04', 'success');
+      showToast(`Handoff recebido do ${demo.personaLogin('TARM')?.matricula ?? 'TARM'}`, 'success');
       return;
     }
     showToast('Chamada atendida na central — triagem aberta · cronômetro da etapa iniciado', 'success');
@@ -1252,8 +822,9 @@ export default function App() {
       setQuedaPendente(null);
       showToast('Mesmo número religou — contexto da queda reassociado', 'success');
     }
-    
-    setTimeout(() => {
+
+    // Triangulação AML simulada (implementação futura — docs/23 T8f): só no teatro.
+    if (demo.ativo) setTimeout(() => {
       if (currentCaller) {
         setAmlData(currentCaller.aml);
         if (currentCaller.aml) showToast('Localização AML triangulada', 'info');
@@ -1332,9 +903,26 @@ export default function App() {
     </>
   );
 
+  // Toast global: renderiza nos DOIS estados — a recusa honesta de login em
+  // operação ("Backend indisponível") acontece ANTES de autenticar, e um toast
+  // que só existe no layout autenticado seria aviso que ninguém vê.
+  const toastEl = toast && (
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
+      <div className={`px-4 py-3 rounded-xl shadow-2xl border flex items-center gap-3 backdrop-blur-md ${
+        toast.type === 'success' ? 'bg-ok/20 border-ok/40 text-ok' :
+        toast.type === 'warn' ? 'bg-warn/20 border-warn/40 text-warn' :
+        'bg-ai/20 border-ai/40 text-ai'
+      }`}>
+        <Icon name={toast.type === 'success' ? 'circle-check' : toast.type === 'warn' ? 'triangle-exclamation' : 'circle-info'} />
+        <span className="text-sm font-bold">{toast.message}</span>
+      </div>
+    </div>
+  );
+
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-canvas relative overflow-hidden transition-colors">
+        {toastEl}
         <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-gold-500/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-ai/5 rounded-full blur-3xl"></div>
         
@@ -1355,15 +943,15 @@ export default function App() {
               <label className="lbl">Perfil de Acesso</label>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  { r: 'TARM', label: 'TARM', icon: 'headset', mat: 'TARM-04' },
-                  { r: 'MEDICO', label: 'Médico', icon: 'user-doctor', mat: 'REG-02' },
-                  { r: 'VIATURA', label: 'Viatura', icon: 'truck-medical', mat: 'USA-01' },
-                  { r: 'GESTOR', label: 'Gestor', icon: 'chart-simple', mat: 'GESTOR-01' },
+                  { r: 'TARM', label: 'TARM', icon: 'headset' },
+                  { r: 'MEDICO', label: 'Médico', icon: 'user-doctor' },
+                  { r: 'VIATURA', label: 'Viatura', icon: 'truck-medical' },
+                  { r: 'GESTOR', label: 'Gestor', icon: 'chart-simple' },
                 ] as const).map(o => (
                   <button
                     key={o.r}
                     type="button"
-                    onClick={() => { setRole(o.r); setLoginMatricula(o.mat); }}
+                    onClick={() => { setRole(o.r); setLoginMatricula(demo.personaLogin(o.r)?.matricula ?? ''); }}
                     className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors flex items-center justify-center gap-2 ${role === o.r ? 'bg-gold-500/15 border-gold-500 text-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:text-ink-primary'}`}
                   >
                     <Icon name={o.icon} /> {o.label}
@@ -1415,57 +1003,12 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen w-screen bg-canvas transition-colors">
       {/* Toast Notification */}
-      {toast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className={`px-4 py-3 rounded-xl shadow-2xl border flex items-center gap-3 backdrop-blur-md ${
-            toast.type === 'success' ? 'bg-ok/20 border-ok/40 text-ok' :
-            toast.type === 'warn' ? 'bg-warn/20 border-warn/40 text-warn' :
-            'bg-ai/20 border-ai/40 text-ai'
-          }`}>
-            <Icon name={toast.type === 'success' ? 'circle-check' : toast.type === 'warn' ? 'triangle-exclamation' : 'circle-info'} />
-            <span className="text-sm font-bold">{toast.message}</span>
-          </div>
-        </div>
-      )}
+      {toastEl}
 
-      {/* INCOMING CALL OVERLAY */}
-      {incomingCall && currentCaller && (
-        <div className="fixed inset-0 bg-canvas/95 z-[500] flex flex-col items-center justify-center fu backdrop-blur-md px-6">
-          <div className="relative w-32 h-32 md:w-44 md:h-44 flex items-center justify-center mb-6 md:mb-8">
-            <div className="absolute inset-0 rounded-full bg-danger/15 animate-ping" style={{ animationDuration: '2s' }}></div>
-            <div className="absolute inset-3 rounded-full bg-danger/25 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }}></div>
-            <div className="relative z-10 w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-danger to-red-900 flex items-center justify-center shadow-[0_0_60px_rgba(229,57,53,0.8)] text-3xl md:text-4xl text-white">
-              <Icon name="phone-volume" className="animate-pulse" />
-            </div>
-          </div>
-          <div className="text-center w-full max-w-sm">
-            <div className="text-[0.6rem] md:text-[0.65rem] font-mono font-bold tracking-widest text-danger/70 mb-2 uppercase">Chamada Entrante — 192</div>
-            <h2 className="text-3xl md:text-4xl font-disp font-bold text-danger tracking-widest mb-4" style={{ textShadow: '0 0 30px rgba(229,57,53,0.5)' }}>EMERGÊNCIA 192</h2>
-            
-            <div className="inline-flex items-center gap-3 px-6 md:px-8 py-3 bg-surface border border-border-subtle rounded-full mb-6 md:mb-8 shadow-lg w-full justify-center">
-              <Icon name="mobile-screen" className="text-lg md:text-xl text-ink-secondary" />
-              <span className="text-ink-primary font-mono text-xl md:text-2xl font-bold truncate">{currentCaller.phone}</span>
-            </div>
-
-            {/* Antes do ATENDER só existe sinalização do PABX — o sistema recebe cópia
-                do áudio da chamada atendida (shadow) e NUNCA escuta ou transcreve
-                pré-atendimento. O box "Transcrição Prévia" que existia aqui violava
-                essa premissa e foi removido (22/08). */}
-            <div className="w-full px-4 py-3 bg-elevated/50 border border-border-subtle rounded-2xl mb-8 flex items-center gap-2 justify-center text-center">
-              <Icon name="circle" className="text-[6px] text-ink-secondary animate-pulse shrink-0" />
-              <span className="text-[0.6rem] md:text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary">Sinalização do PABX · no produto a triagem abre sozinha quando o TARM atende na central</span>
-            </div>
-
-            <div className="flex gap-4 w-full">
-              <button onClick={ignoreCall} className="flex-1 px-4 py-3 rounded-xl border border-border-subtle text-ink-secondary font-bold tracking-widest hover:bg-elevated transition-all text-xs md:text-sm whitespace-nowrap">
-                DISPENSAR · DEMO
-              </button>
-              <button onClick={acceptCall} className="flex-[1.7] px-4 py-3 bg-ok text-ink-inverse font-extrabold font-disp text-xs md:text-base rounded-xl shadow-[0_0_30px_rgba(67,160,71,0.4)] hover:scale-105 transition-all flex items-center justify-center gap-2 md:gap-3">
-                <Icon name="headset" /> <span className="leading-tight">SIMULAR ATENDIMENTO NA CENTRAL</span>
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* INCOMING CALL OVERLAY — teatro do pacote demo: no produto a triagem
+          abre sozinha quando o TARM atende na central (shadow, docs/09 §1). */}
+      {incomingCall && currentCaller && demo.OverlayChamada && (
+        <demo.OverlayChamada telefone={currentCaller.phone} aoAtender={acceptCall} aoDispensar={ignoreCall} />
       )}
 
       {/* Cronômetro flutuante: o header rola livre (nada de barra fixa
@@ -1608,29 +1151,9 @@ export default function App() {
               </div>
             </div>
 
-            {/* Seletor de cenário — ferramenta de APRESENTAÇÃO: permite dirigir a
-                próxima chamada (IAM, AVC, trote, sem AML…) em vez de torcer pelo
-                sorteio. Aleatório usa bolsa: todos os cenários antes de repetir. */}
-            <div className="w-full max-w-7xl px-5 mb-8">
-              <div className="gp rounded-xl px-4 py-3 flex flex-wrap items-center gap-2">
-                <span className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mr-1 shrink-0">Demonstração · próxima chamada</span>
-                <button
-                  onClick={() => setCenarioDemo('aleatorio')}
-                  className={`px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider border transition-colors ${cenarioDemo === 'aleatorio' ? 'bg-gold-500 text-ink-inverse border-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:border-gold-500'}`}
-                >
-                  Aleatório
-                </button>
-                {CENARIOS_DEMO.map(c => (
-                  <button
-                    key={c.id}
-                    onClick={() => setCenarioDemo(c.id)}
-                    className={`px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider border transition-colors ${cenarioDemo === c.id ? 'bg-gold-500 text-ink-inverse border-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:border-gold-500'}`}
-                  >
-                    {c.rotulo}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Seletor de cenário — ferramenta de APRESENTAÇÃO (componente do
+                pacote demo; em operação não existe). */}
+            <demo.SeletorDeCenarios valor={cenarioDemo} aoEscolher={setCenarioDemo} />
 
             {/* Ocorrência em aberto após QUEDA: o contexto não se perde — o
                 protocolo real manda retornar a ligação (docs/21 §2.3) e o mesmo
@@ -1685,8 +1208,8 @@ export default function App() {
                   <Icon name="truck-medical" className="text-gold-500 text-xl" />
                   <h3 className="text-lg font-disp font-bold text-ink-primary uppercase tracking-widest">Status da Frota</h3>
                   <div className="ml-auto flex gap-2 shrink-0">
-                     <span className="chip chip-ok text-[0.6rem]">3 DISPONÍVEIS</span>
-                     <span className="chip chip-danger text-[0.6rem]">1 EM ATENDIMENTO</span>
+                     <span className="chip chip-ok text-[0.6rem]">{vehicles.filter(v => v.status === 'DISPONÍVEL').length} DISPONÍVEIS</span>
+                     <span className="chip chip-danger text-[0.6rem]">{vehicles.filter(v => v.status === 'EM ATENDIMENTO').length} EM ATENDIMENTO</span>
                   </div>
                 </div>
                 
@@ -1786,9 +1309,7 @@ export default function App() {
                 </div>
                 
                 <div className="p-5 flex flex-col gap-5 lg:overflow-y-auto">
-                  <div className="text-[0.6rem] font-mono text-ink-tertiary flex items-center gap-2 flex-wrap">
-                    <Icon name="server" className="text-ink-tertiary" /> Triagem assistida em simulação · roteiro de demonstração (sem transcrição real)
-                  </div>
+                  {demo.SeloSimulacao && <demo.SeloSimulacao />}
 
                   {/* Localização & origem — o gate AML morreu (fidelidade shadow,
                       decisão do Ota 24/08): a triagem abre no atendimento e a
@@ -1964,7 +1485,7 @@ export default function App() {
                   <div>
                     <div className="text-xs font-bold uppercase tracking-widest text-ink-primary flex items-center gap-3">
                       Transcrição em Tempo Real
-                      <AudioWaveform active={aiActive} />
+                      <demo.Waveform active={aiActive} />
                     </div>
                     <div className="text-[0.6rem] text-ai font-mono flex items-center gap-1.5 mt-0.5">
                       <Icon name="circle" className={`text-[5px] ${modoIA === 'escuta' ? 'animate-pulse' : ''}`} /> {modoIA === 'escuta' ? 'STT Engine Ativo' : modoIA === 'digitacao' ? 'Sem escuta · IA sobre o texto digitado' : 'IA desligada — modo manual'}
@@ -2005,17 +1526,17 @@ export default function App() {
                       <div className={`max-w-[80%] flex flex-col ${msg.speaker === 'TARM' ? 'items-end' : 'items-start'}`}>
                         <div className="text-[0.6rem] font-mono text-ink-secondary mb-1 flex items-center gap-2">
                           {msg.speaker === 'TARM' ? (
-                            <><span className="text-gold-500">TARM-04</span> • {msg.time}</>
+                            <><span className="text-gold-500">{operatorId}</span> • {msg.time}</>
                           ) : (
                             <>{msg.time} • <span className="text-ink-primary">Solicitante</span></>
                           )}
                         </div>
                         <div className={`p-3.5 rounded-2xl text-sm leading-relaxed ${
-                          msg.speaker === 'TARM' 
-                            ? 'bg-elevated border border-border-subtle text-ink-primary rounded-tr-sm' 
+                          msg.speaker === 'TARM'
+                            ? 'bg-elevated border border-border-subtle text-ink-primary rounded-tr-sm'
                             : 'bg-ai/10 border border-ai/20 text-ink-primary rounded-tl-sm'
                         }`}>
-                          <TypingMessage text={msg.text} />
+                          <demo.MensagemTranscrita text={msg.text} />
                         </div>
                       </div>
                     )}
@@ -2068,23 +1589,23 @@ export default function App() {
           <div className="flex-1 flex flex-col lg:flex-row gap-4 fu min-h-0 overflow-y-auto lg:overflow-hidden pb-6 lg:pb-0">
             {/* Left Panel: Handoff Summary & Chat */}
             <div className="w-full lg:w-[300px] gp rounded-2xl flex flex-col overflow-hidden shrink-0">
-              {role === 'MEDICO' && (
+              {role === 'MEDICO' && demo.casosRegulacao.length > 0 && (
                 <div className="border-b border-border-subtle bg-elevated/60 p-3 shrink-0">
                   <div className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mb-2 flex items-center gap-1.5">
                     <Icon name="list-ol" className="text-gold-500" /> Atendimentos em espera
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    {[...MEDICO_CASES].sort((a, b) => (a.data.risk === 'RED' ? 0 : 1) - (b.data.risk === 'RED' ? 0 : 1)).map((c, qi) => {
+                    {[...demo.casosRegulacao].sort((a, b) => (a.data.risk === 'RED' ? 0 : 1) - (b.data.risk === 'RED' ? 0 : 1)).map((c, qi) => {
                       const espera = [512, 341, 129][qi] + Math.floor((time.getTime() - mountTs) / 1000);
                       const active = extractedData.protocol === c.data.protocol;
                       return (
                         <button
                           key={c.num}
                           onClick={() => {
-                            const caller = MOCK_CALLERS[c.caller];
+                            const caller = c.chamador;
                             setCurrentCaller(caller);
                             setAmlData(caller.aml);
-                            setExtractedData(c.data as any);
+                            setExtractedData(c.data);
                             setSelectedVehicleId(null);
                             setRiscoFinal(null);
                             setJustification(null);
@@ -2267,7 +1788,7 @@ export default function App() {
                 {/* Divergent Decision Justification — obrigatória quando o risco
                     escolhido difere da sugestão (gate do despacho), e também exibida
                     quando a viatura escolhida não é a recomendada. */}
-                {(riscoDiverge || (selectedVehicleId && selectedVehicleId !== MOCK_VEHICLES.filter(v => v.type.includes('USA'))[0]?.id)) && (
+                {(riscoDiverge || (selectedVehicleId && selectedVehicleId !== vehicles.filter(v => v.type.includes('USA'))[0]?.id)) && (
                   <div className={`p-4 bg-surface border rounded-xl shrink-0 ${riscoDiverge && !justification ? 'border-warn/60 shadow-[0_0_16px_rgba(240,180,41,0.12)]' : 'border-border-subtle'}`}>
                     <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center gap-2">
                       <Icon name="code-branch" /> Decisão Divergente {riscoDiverge && <span className="chip chip-warn text-[0.55rem]">justificativa obrigatória</span>}
@@ -2967,22 +2488,22 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ink-secondary">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS RECEBIDAS</div>
-                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">{(realStats?.chamadas ?? Math.round(1432 * bf)).toLocaleString('pt-BR')}</div>
+                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">{realStats ? realStats.chamadas.toLocaleString('pt-BR') : ind ? Math.round(ind.kpis.chamadas * bf).toLocaleString('pt-BR') : '—'}</div>
                 <div className="text-xs text-ok"><Icon name="arrow-trend-up" /> {realStats ? 'dados reais do backend' : '+5% vs período anterior'}</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-gold-500 relative overflow-hidden">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
-                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{Math.round(118 * bf)}</div>
+                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{ind ? Math.round(ind.kpis.trotes * bf) : '—'}</div>
                 <div className="text-xs text-gold-500/70">8,2% do total · faixa nacional 5,8–9,7%</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ok">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">T. MÉDIO REGULAÇÃO</div>
-                <div className="text-4xl font-disp font-bold text-ok mb-2">1m 12s</div>
+                <div className="text-4xl font-disp font-bold text-ok mb-2">{ind?.kpis.tMedioRegulacao ?? '—'}</div>
                 <div className="text-xs text-ok/70">da chamada atendida à decisão do regulador · demonstração</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-danger">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">DESPACHOS USA (VERMELHO)</div>
-                <div className="text-4xl font-disp font-bold text-danger mb-2">{Math.round(94 * bf)}</div>
+                <div className="text-4xl font-disp font-bold text-danger mb-2">{ind ? Math.round(ind.kpis.despachosUsa * bf) : '—'}</div>
                 <div className="text-xs text-ink-secondary">Meta de acurácia da classificação: <span className="text-ok">&ge;90%</span> · critério de go-live</div>
               </div>
             </div>
@@ -2994,7 +2515,7 @@ export default function App() {
                 <div className="text-4xl font-mono font-medium text-ink-primary mb-1">
                   {realStats?.tRespostaSeg
                     ? `${Math.floor(realStats.tRespostaSeg / 60)}m ${String(realStats.tRespostaSeg % 60).padStart(2, '0')}s`
-                    : '14m 06s'}
+                    : (ind?.kpis.tResposta ?? '—')}
                 </div>
                 <div className="text-xs text-ink-tertiary">do despacho à chegada à cena{realStats?.tRespostaSeg ? ' · real' : ' · demonstração'}</div>
               </div>
@@ -3007,7 +2528,7 @@ export default function App() {
               </div>
               <div className="card-data p-5">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS ABANDONADAS</div>
-                <div className="text-4xl font-mono font-medium text-warn mb-1">4,1%</div>
+                <div className="text-4xl font-mono font-medium text-warn mb-1">{ind?.kpis.abandono ?? '—'}</div>
                 <div className="text-xs text-ink-tertiary">desligaram antes do atendimento · sinalização do PABX</div>
               </div>
             </div>
@@ -3019,7 +2540,7 @@ export default function App() {
                 <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">por faixa horária · hoje</div>
                 <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={HOURLY_STATS.map(h => ({ ...h, volume: Math.round(h.volume * bf) }))}>
+                    <BarChart data={(ind?.porHora ?? []).map(h => ({ ...h, volume: Math.round(h.volume * bf) }))}>
                       <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
                       <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} width={30} />
@@ -3040,7 +2561,7 @@ export default function App() {
                 <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">minutos · por faixa horária</div>
                 <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={HOURLY_STATS}>
+                    <LineChart data={ind?.porHora ?? []}>
                       <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
                       <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} width={30} unit="m" />
@@ -3060,7 +2581,7 @@ export default function App() {
                 <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">protocolo Manchester · rótulo direto</div>
                 <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart layout="vertical" data={MANCHESTER_DIST.map(d => ({ ...d, value: Math.round(d.value * bf) }))} margin={{ left: 4, right: 40 }}>
+                    <BarChart layout="vertical" data={(ind?.manchester ?? []).map(d => ({ ...d, value: Math.round(d.value * bf) }))} margin={{ left: 4, right: 40 }}>
                       <XAxis type="number" hide />
                       <YAxis type="category" dataKey="name" stroke={chartTheme.axis} fontSize={11} tickLine={false} axisLine={false} width={68} />
                       <Tooltip
@@ -3070,7 +2591,7 @@ export default function App() {
                         labelStyle={{ fontSize: '12px', color: chartTheme.axis, marginBottom: '4px' }}
                       />
                       <Bar dataKey="value" name="Despachos" radius={[0, 4, 4, 0]} barSize={18}>
-                        {MANCHESTER_DIST.map(e => <Cell key={e.name} fill={e.color} />)}
+                        {(ind?.manchester ?? []).map(e => <Cell key={e.name} fill={e.color} />)}
                         <LabelList dataKey="value" position="right" fill={chartTheme.axis} fontSize={11} fontFamily="'JetBrains Mono', monospace" />
                       </Bar>
                     </BarChart>
@@ -3095,7 +2616,7 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {MOCK_RECENT_CALLS.map((call, idx) => (
+                    {(ind?.recentes ?? []).map((call, idx) => (
                       <tr key={idx} onClick={() => setFhirRecord(call)} className="border-b border-border-subtle/50 hover:bg-elevated/50 transition-colors cursor-pointer" title="Abrir registro de atendimento (FHIR R4)">
                         <td className="py-3 text-[0.65rem] font-mono text-ink-secondary">#{call.id}</td>
                         <td className="py-3 text-sm font-mono font-bold text-ink-primary">{call.phone}</td>

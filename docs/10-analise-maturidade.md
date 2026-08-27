@@ -58,12 +58,18 @@ Legenda: ✅ real e funcionando · 🎭 simulado na UI (teatro de demo) · ❌ a
 
 ## 3. Dívidas técnicas (impedem evoluir com segurança)
 
-1. **`src/App.tsx` monolítico (~2.7k linhas)** — sem router (state machine manual, sem
-   URL/deep link), sem estado global (~35 `useState` no mesmo componente), qualquer
-   `setState` re-renderiza tudo. Modularização = Sprint 5 e **pré-requisito da fila
-   multi-ocorrência** (§4.1).
-2. **Zero testes, zero CI** — sem Vitest/Playwright/ESLint/Prettier; `lint` = `tsc
-   --noEmit`; sem `.github/workflows` (SEC-14). Refactor hoje é feito no escuro.
+1. **`src/App.tsx` ainda concentra as telas (~2,7k linhas)** — sem router (state
+   machine manual, sem URL/deep link), sem estado global (~35 `useState` no mesmo
+   componente), qualquer `setState` re-renderiza tudo. ✅ **Fase 1 da modularização
+   entregue (ago/2026, `docs/24`)**: núcleo × demo separados fisicamente (tipos,
+   contratos, `src/demo/`, build de operação com guarda de bundle). Falta a
+   **Fase 2** (telas em componentes + estado por ocorrência) — segue sendo o
+   **pré-requisito da fila multi-ocorrência** (§4.1).
+2. ~~Zero testes, zero CI~~ → ✅ **resolvida em ago/2026**: GitHub Actions
+   (`.github/workflows/ci.yml`) roda typecheck, build (demo + operação), lint de
+   vocabulário vetado, guarda de bundle, 4 baterias e2e Playwright (~72 asserts) e
+   smoke do modo operação em todo push/PR. Segue faltando: teste unitário
+   (Vitest), ESLint/Prettier e TS `strict` (item 3).
 3. **TypeScript sem `strict`** — sem `strictNullChecks`/`noImplicitAny`; `as any`
    espalhados.
 4. **Mutações sem `.catch`** — a maioria dos writes Supabase usa `.then()` sem
@@ -74,9 +80,11 @@ Legenda: ✅ real e funcionando · 🎭 simulado na UI (teatro de demo) · ❌ a
    reconstruído a cada segundo; fontes por CDN sem subset.
 7. **Acessibilidade** — `user-scalable=no` (viola WCAG 1.4.4); modais sem focus trap/
    `role="dialog"`/Esc; `<div onClick>` sem teclado; 8 `aria-label` no app inteiro.
-8. **Hardcodes de demo** — inventário completo no histórico da análise: operadora "Vivo",
-   precisão "±5m", ETA "08min · 4.2 km", date picker travado em "Abril 2026", tempos da
-   fila do médico `[512, 341, 129]`, chips de disponibilidade fixos.
+8. **Hardcodes de demo** — inventário completo no histórico da análise: precisão
+   "±2.5m", ETA "08min · 4.2 km", date picker travado em "Abril 2026", tempos da fila
+   do médico `[512, 341, 129]`. (Chips de disponibilidade fixos → computados da frota
+   viva em ago/2026; o restante permanece e hoje mora rotulado — o que é dado de
+   demonstração vive em `src/demo/` e fica FORA do build de operação, `docs/24`.)
 
 ## 4. Lacunas funcionais para uma CRU real
 
@@ -94,7 +102,7 @@ Ordenadas por severidade operacional. "Fase" = onde entram no programa de `docs/
 | 4.8 | **Destino hospitalar / vaga zero / grade de leitos** | A regulação real negocia destino (CROSS em SP, regulação estadual alhures). Registro do hospital de destino é o mínimo; integração é evolução. | F3 |
 | 4.9 | **Export e-SUS SAMU / interoperabilidade oficial** | O MS referencia o e-SUS SAMU (DATASUS). Exportar no formato oficial evita duplo registro — argumento decisivo para o gestor público. Detalhar em agenda técnica com o DATASUS. | F3 |
 | 4.10 | **Instrumentação de metas contratuais** | O roteiro de implantação do Samais-OS exige "como cada meta é MEDIDA" (item crítico). O produto deve emitir os indicadores do contrato com procedência — é a "prova de entrega". | F2 |
-| 4.11 | **Obstetrícia/psiquiátrica nos roteiros de triagem** | O mix real de demanda é ~55–60% clínico, 25–30% trauma, 8–12% psiquiátrico, 2–4% obstétrico; os 3 roteiros da demo cobrem só clínico/trauma/OVACE. Vale para o backtest da IA também. | F1 |
+| 4.11 | **Psiquiátrica nos roteiros de triagem** | O mix real de demanda é ~55–60% clínico, 25–30% trauma, 8–12% psiquiátrico, 2–4% obstétrico. Os roteiros da demo hoje são 7 (IAM, trauma, OVACE, trote, AVC, obstétrico, verde — obstétrico e AVC entraram em ago/2026); o psiquiátrico segue de fora. Vale para o backtest da IA também. | F1 |
 | 4.12 | **Console ADMIN Samais** | Cadastrar tenant/bases/usuários/viaturas sem tocar no banco à mão (hierarquia em `docs/05` §7). | F2 |
 
 **O que NÃO entra** (decisões registradas que permanecem): live view de cena
@@ -156,6 +164,8 @@ Ordenadas por severidade operacional. "Fase" = onde entram no programa de `docs/
 | `docs/08` (Real×Mock) | "Ocorrências ponta a ponta ❌ não persistem" | persistem desde o commit `c8ae646`; linha corrigida |
 | `docs/08` (seed) | "logins TARM-04/REG-02/USA-01/GESTOR-01" | seed só tinha 2; REG-02 e USA-01 adicionados em ago/2026 — **aplicar no projeto Supabase** |
 | `docs/09` §5 | "LP ainda cita 29%" | LP já está em 8,2% (faixa nacional); pendência restante era o 96.8% — higienizado |
+| Este doc §3.2 (27/08) | "Zero testes, zero CI" | CI + 4 baterias e2e + lint vetado + guarda de bundle + smoke existem desde ago/2026 — dívida marcada resolvida |
+| Este doc §3.1/§3.8/§4.11 (27/08) | monolito sem fronteira; chips fixos; "3 roteiros" | Fase 1 núcleo × demo entregue (`docs/24`); chips computados; roteiros são 7 |
 
 ## 7. O que está bom e se preserva
 

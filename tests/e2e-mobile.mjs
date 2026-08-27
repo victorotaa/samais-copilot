@@ -29,13 +29,17 @@ const { ok, fim } = coletor();
   // esconde ao rolar para baixo e volta ao rolar para cima (auto-hide)
   await page.mouse.move(195, 420);
   await page.mouse.wheel(0, 900);
-  // espera o ESTADO (runner rola o wheel em passos lentos — relógio não serve)
+  // espera o ESTADO (runner rola o wheel em passos lentos — relógio não serve).
+  // O waitForFunction É o assert (timeout falharia); re-medir um frame depois
+  // flakeia: um passo tardio do wheel pode disparar a volta no meio da
+  // transição (perto do topo → mostrar é comportamento desenhado) — visto no
+  // runner do CI (y=-34,7 logo após o gate de -40 passar). O assert da volta
+  // logo abaixo já segue este padrão.
   await page.waitForFunction(() => {
     const h = document.querySelector('header');
     return !!h && h.getBoundingClientRect().y < -40;
   }, undefined, { timeout: 6000 });
-  const hbox = await header.boundingBox();
-  ok(hbox && hbox.y < -40, 'header se esconde ao rolar para baixo (auto-hide)', `y=${hbox?.y}`);
+  ok(true, 'header se esconde ao rolar para baixo (auto-hide)');
   const flutuante = page.locator('div.fixed span[title*="Meta da etapa"]').first();
   await flutuante.waitFor({ state: 'visible', timeout: 3000 });
   ok(true, 'mini-chip do cronômetro flutua com o header escondido');
