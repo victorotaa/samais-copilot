@@ -6,186 +6,18 @@ import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
 import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_ID, hasBackend } from './lib/supabase';
 import type { Chamador, DadosAml, ExtracaoClinica, FalaRoteiro, Veiculo, MembroEquipe, ItemFilaPabx, MensagemChat, ChamadaRecente, Risco, Papel, Escala } from './core/tipos';
 import { startOfWeek, addDays, isoDate, WEEKDAYS, MAX_WEEKS_AHEAD, TURNO_CYCLE, TURNO_BADGE } from './core/calendario';
-
-const KEYWORDS = ['dor no peito', 'falta de ar', 'infarto', 'parada', 'sangramento', 'desmaio', 'pressão', 'suando', 'formigamento', 'braço', 'cabeça', 'tontura', 'consciente', 'inconsciente', 'respirando', 'coração', 'dor', 'sangue'];
-
-const TypingMessage = ({ text }: { text: string }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      setDisplayedText(text.slice(0, i));
-      i += 2;
-      if (i > text.length) {
-        setDisplayedText(text);
-        clearInterval(interval);
-      }
-    }, 15);
-    return () => clearInterval(interval);
-  }, [text]);
-
-  const highlightKeywords = (text: string) => {
-    if (!text) return null;
-    // Fronteira de palavra Unicode: sem isso "dor" acendia dentro de "regulador"
-    // e "braço" dentro de "abraço" (visto em produção, print do Ota 24/08).
-    const regex = new RegExp(`(?<![\\p{L}\\p{N}])(${KEYWORDS.join('|')})(?![\\p{L}\\p{N}])`, 'giu');
-    const parts = text.split(regex);
-    return parts.map((part, i) => {
-      if (KEYWORDS.some(k => k.toLowerCase() === part.toLowerCase())) {
-        return <span key={i} className="text-danger font-bold bg-danger/10 px-1 rounded">{part}</span>;
-      }
-      return <span key={i}>{part}</span>;
-    });
-  };
-
-  return <>{highlightKeywords(displayedText)}</>;
-};
-
-const AudioWaveform = ({ active }: { active: boolean }) => (
-  <div className="flex items-end gap-[2px] h-4">
-    {[1, 2, 3, 4, 5].map((i) => (
-      <div
-        key={i}
-        className={`w-1 bg-ai rounded-full transition-all duration-75 ${active ? 'animate-pulse' : 'h-1 opacity-30'}`}
-        style={{ 
-          height: active ? `${Math.max(20, Math.random() * 100)}%` : '20%',
-          animationDelay: `${i * 0.15}s`,
-          animationDuration: '0.5s'
-        }}
-      ></div>
-    ))}
-  </div>
-);
-
-// Base de dados simulada para randomização (5 endereços reais em São Paulo)
-const MOCK_CALLERS: Chamador[] = [
-  {
-    phone: "(11) 98765-4321",
-    hasHistory: true,
-    name: "Ana Paula (Esposa)",
-    historyCount: 0,
-    aml: { lat: -23.5472, lng: -46.6388, address: "Rua Direita", number: "120", neighborhood: "Sé", city: "São Paulo — SP", cep: "01002-020" }
-  },
-  {
-    phone: "(11) 91234-5678",
-    hasHistory: false,
-    name: "",
-    historyCount: 0,
-    aml: { lat: -23.5615, lng: -46.6559, address: "Avenida Paulista", number: "1578", neighborhood: "Bela Vista", city: "São Paulo — SP", cep: "01310-200" }
-  },
-  {
-    phone: "(11) 97777-8888",
-    hasHistory: true,
-    name: "Carlos Eduardo (Filho)",
-    historyCount: 2,
-    aml: { lat: -23.5874, lng: -46.6332, address: "Rua Domingos de Morais", number: "2500", neighborhood: "Vila Mariana", city: "São Paulo — SP", cep: "04036-100" }
-  },
-  {
-    phone: "(11) 95555-4444",
-    hasHistory: false,
-    name: "",
-    historyCount: 0,
-    aml: { lat: -23.5365, lng: -46.6461, address: "Avenida Ipiranga", number: "344", neighborhood: "República", city: "São Paulo — SP", cep: "01046-010" }
-  },
-  {
-    phone: "(11) 93333-2222",
-    hasHistory: true,
-    name: "Antônio Ribeiro (Paciente)",
-    historyCount: 5,
-    aml: { lat: -23.5505, lng: -46.6333, address: "Praça da Sé", number: "S/N", neighborhood: "Sé", city: "São Paulo — SP", cep: "01001-000" }
-  },
-  // Cenário de estresse: chamada SEM localização automática (telefone fixo/VoIP,
-  // AML indisponível). O caminho manual — coletar endereço por voz — é o produto
-  // funcionando, não uma falha; a demo precisa mostrá-lo.
-  {
-    phone: "(11) 3222-0000",
-    hasHistory: false,
-    name: "",
-    historyCount: 0,
-    aml: null
-  }
-];
-
-const MOCK_VEHICLES: Veiculo[] = [
-  { id: 'USA-01', type: 'USA (Avançada)', status: 'DISPONÍVEL', base: 'Base Central', color: 'ok', eta: 8 },
-  { id: 'USB-04', type: 'USB (Básica)', status: 'DISPONÍVEL', base: 'Base Leste', color: 'ok', eta: 12 },
-  { id: 'MOT-01', type: 'MOTOLÂNCIA', status: 'DISPONÍVEL', base: 'Base Central', color: 'ok', eta: 5 },
-  { id: 'USA-02', type: 'USA (Avançada)', status: 'EM ATENDIMENTO', base: 'Base Sul', color: 'danger', eta: 25 },
-  { id: 'USB-05', type: 'USB (Básica)', status: 'RETORNO', base: 'Base Norte', color: 'warn', eta: 18 },
-  { id: 'MOT-02', type: 'MOTOLÂNCIA', status: 'MANUTENÇÃO', base: 'Base Oeste', color: 'nude', eta: 0 },
-];
-
-// Handoffs aguardando regulação — o médico alterna entre casos antes de decidir.
-// `caller` é índice em MOCK_CALLERS (resolvido ao expor como CasoRegulacao).
-const MEDICO_CASES: { num: string; caller: number; label: string; data: ExtracaoClinica }[] = [
-  { num: '#4017', caller: 0, label: 'João da Silva · 65', data: {
-    patientName: 'João da Silva', age: '65 anos', gender: 'Masculino',
-    symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)'],
-    comorbidities: ['Hipertensão (HAS)', 'Diabetes (DM)'], risk: 'RED',
-    protocol: 'Suspeita de IAM (Infarto)', observations: '',
-    confidence: { patientName: 0.96, symptoms: 0.89, protocol: 0.92 } } },
-  { num: '#4015', caller: 1, label: 'Acidente moto × carro', data: {
-    patientName: 'Carlos Pereira', age: '31 anos', gender: 'Masculino',
-    symptoms: ['Trauma em MMII', 'Sangramento moderado', 'Consciente e orientado'],
-    comorbidities: [], risk: 'YELLOW',
-    protocol: 'Trauma — acidente de trânsito', observations: '',
-    confidence: { patientName: 0.91, symptoms: 0.87, protocol: 0.9 } } },
-  { num: '#4012', caller: 2, label: 'OVACE · lactente', data: {
-    patientName: 'Bebê de Ana Souza', age: '8 meses', gender: 'Feminino',
-    symptoms: ['Engasgo com corpo estranho', 'Cianose revertida', 'Choro presente'],
-    comorbidities: [], risk: 'RED',
-    protocol: 'OVACE em lactente', observations: '',
-    confidence: { patientName: 0.88, symptoms: 0.93, protocol: 0.95 } } },
-];
+import { MOCK_CALLERS } from './demo/dados/chamadores';
+import { MOCK_SCRIPTS } from './demo/dados/roteiros';
+import { CENARIOS_DEMO } from './demo/dados/cenarios';
+import { MOCK_VEHICLES, MANUTENCAO_INICIAL } from './demo/dados/frota';
+import { MOCK_TEAM, buildInitialRoster } from './demo/dados/equipe';
+import { MEDICO_CASES } from './demo/dados/regulacao';
+import { MOCK_QUEUE } from './demo/dados/fila';
+import { HOURLY_STATS, MANCHESTER_DIST, MOCK_RECENT_CALLS } from './demo/dados/estatisticas';
+import { TypingMessage, AudioWaveform, MapaEsquematico } from './demo/componentes';
+import { extrairDeTexto } from './demo/analise-texto';
 
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
-
-// Cenários de demonstração: pares COERENTES roteiro ↔ chamador (o sorteio antigo
-// combinava qualquer script com qualquer telefone — trote saindo de número com 5
-// ocorrências de histórico). O seletor do IDLE permite demonstração dirigida; o
-// aleatório usa bolsa embaralhada (percorre todos antes de repetir qualquer um).
-const CENARIOS_DEMO = [
-  { id: 'iam',        rotulo: 'IAM · vermelho',        script: 0, caller: 0 },
-  { id: 'trauma',     rotulo: 'Trauma · amarelo',      script: 1, caller: 3 },
-  { id: 'ovace',      rotulo: 'OVACE · reversão',      script: 2, caller: 1 },
-  { id: 'avc',        rotulo: 'AVC · laranja',         script: 4, caller: 2 },
-  { id: 'obstetrico', rotulo: 'Obstétrico · laranja',  script: 5, caller: 1 },
-  { id: 'verde',      rotulo: 'Verde · orientação',    script: 6, caller: 4 },
-  { id: 'trote',      rotulo: 'Trote',                 script: 3, caller: 3 },
-  { id: 'sem-aml',    rotulo: 'Sem localização (AML)', script: 0, caller: 5 },
-] as const;
-
-// Semana corrente pré-povoada pelo padrão de turno de cada colaborador (demo).
-function buildInitialRoster() {
-  const r: Escala = {};
-  const start = startOfWeek(new Date());
-  MOCK_TEAM.forEach(m => {
-    r[m.id] = {};
-    for (let i = 0; i < 7; i++) {
-      const dia = isoDate(addDays(start, i));
-      if (m.status === 'FÉRIAS' || m.status === 'ATESTADO') { r[m.id][dia] = 'FOLGA'; continue; }
-      if (m.id === 'GESTOR-01') { r[m.id][dia] = i < 5 ? 'ADMINISTRATIVO' : i === 5 ? 'SOBREAVISO' : 'FOLGA'; continue; }
-      // Escala 12×36: metade da equipe operacional em plantão a cada dia, fim de
-      // semana incluído — SAMU é 24/7; a versão anterior dava FOLGA geral no sábado
-      // e domingo e o painel do gestor mostrava "Equipe em Plantão 0/8".
-      const idx = MOCK_TEAM.indexOf(m);
-      r[m.id][dia] = (i + idx) % 2 === 0 ? (m.shift === 'Noturno' ? 'NOTURNO' : 'DIURNO') : 'FOLGA';
-    }
-  });
-  return r;
-}
-
-const MOCK_TEAM: MembroEquipe[] = [
-  { id: 'TARM-04', name: 'Mariana S.', role: 'TARM', shift: 'Diurno', status: 'EM PLANTÃO' },
-  { id: 'TARM-07', name: 'Rafael O.', role: 'TARM', shift: 'Noturno', status: 'FOLGA' },
-  { id: 'REG-02', name: 'Dr. Almeida', role: 'Médico Regulador', shift: 'Diurno', status: 'EM PLANTÃO' },
-  { id: 'REG-05', name: 'Dra. Costa', role: 'Médico Regulador', shift: 'Noturno', status: 'FOLGA' },
-  { id: 'COND-11', name: 'José P.', role: 'Condutor', shift: 'Diurno', status: 'EM PLANTÃO' },
-  { id: 'ENF-09', name: 'Paula R.', role: 'Enfermeira', shift: 'Diurno', status: 'EM PLANTÃO' },
-  { id: 'COND-14', name: 'Marcos T.', role: 'Condutor', shift: 'Noturno', status: 'ATESTADO' },
-  { id: 'ENF-12', name: 'Bruno L.', role: 'Enfermeiro', shift: 'Noturno', status: 'FÉRIAS' },
-];
 
 const VEHICLE_STATUS_COLOR: Record<string, string> = {
   'DISPONÍVEL': 'ok',
@@ -200,151 +32,6 @@ const TEAM_STATUS_COLOR: Record<string, string> = {
   'FÉRIAS': 'ai',
   'ATESTADO': 'warn',
 };
-
-// Série horária de demonstração (volume de chamadas e tempo de resposta em min).
-const HOURLY_STATS = [
-  { time: '06h', volume: 45, resposta: 6 },
-  { time: '08h', volume: 80, resposta: 8 },
-  { time: '10h', volume: 110, resposta: 12 },
-  { time: '12h', volume: 95, resposta: 10 },
-  { time: '14h', volume: 105, resposta: 9 },
-  { time: '16h', volume: 130, resposta: 14 },
-  { time: '18h', volume: 150, resposta: 15 },
-  { time: '20h', volume: 120, resposta: 11 },
-];
-
-// Distribuição por classificação — cores de protocolo Manchester (status, com rótulo direto).
-const MANCHESTER_DIST = [
-  { name: 'Vermelho', value: 94, color: '#E53935' },
-  { name: 'Amarelo', value: 150, color: '#FDD835' },
-  { name: 'Verde', value: 250, color: '#43A047' },
-  { name: 'Azul', value: 120, color: '#1E88E5' },
-];
-
-const MOCK_RECENT_CALLS: ChamadaRecente[] = [
-  { id: '1042', phone: '(11) 98765-4321', time: '08:12', type: 'Parada Cardiorrespiratória', status: 'Despachada (USA)', statusColor: 'danger' },
-  { id: '1041', phone: '(11) 91234-5678', time: '08:05', type: 'Crise Convulsiva', status: 'Despachada (USB)', statusColor: 'warn' },
-  { id: '1040', phone: '(11) 99876-5432', time: '07:58', type: 'Dúvida Médica', status: 'Resolvida (Telemedicina)', statusColor: 'ok' },
-  { id: '1039', phone: '(11) 95555-4444', time: '07:45', type: 'Acidente de Trânsito', status: 'Despachada (USA + Moto)', statusColor: 'danger' },
-  { id: '1038', phone: '(11) 93333-2222', time: '07:30', type: 'Queda de Própria Altura', status: 'Despachada (USB)', statusColor: 'warn' },
-];
-
-const MOCK_QUEUE: ItemFilaPabx[] = [
-  { id: 'Q1', phone: '(11) 98765-4321', waitTime: '01:42', priority: 'high' },
-  { id: 'Q2', phone: '(11) 91234-5678', waitTime: '00:55', priority: 'normal' },
-  { id: 'Q3', phone: '(11) 99999-8888', waitTime: '00:12', priority: 'normal' },
-];
-
-const MOCK_SCRIPTS: FalaRoteiro[][] = [
-  // Scenario 1: IAM (Infarto)
-  [
-    { speaker: 'SYS', text: 'Gravação e transcrição iniciadas.', delay: 500 },
-    { speaker: 'TARM', text: 'SAMU 192, qual a sua emergência?', delay: 1500 },
-    { speaker: 'CALLER', text: 'Moça, pelo amor de Deus, meu pai tá passando mal! Ele tá com muita dor no peito e suando frio!', delay: 4000, 
-      extract: { symptoms: ['Dor no peito irradiante', 'Sudorese fria'], risk: 'RED', protocol: 'Suspeita de IAM (Infarto)' } },
-    { speaker: 'TARM', text: 'Calma, o socorro já está sendo providenciado. Qual o nome e a idade dele? Ele tem algum problema de saúde?', delay: 7000 },
-    { speaker: 'CALLER', text: 'O nome dele é João da Silva. Ele tem 65 anos. Ele tem pressão alta e diabetes.', delay: 10000,
-      extract: { patientName: 'João da Silva', age: '65 anos', gender: 'Masculino', comorbidities: ['Hipertensão (HAS)', 'Diabetes (DM)'] } },
-    { speaker: 'TARM', text: 'Ele está consciente? Ele consegue falar com você?', delay: 13000 },
-    { speaker: 'CALLER', text: 'Tá consciente, mas tá com muita falta de ar, não consegue falar direito. A dor tá indo pro braço esquerdo.', delay: 16000,
-      extract: { symptoms: ['Dor no peito irradiante', 'Sudorese fria', 'Dispneia (Falta de ar)', 'Dor irradiando para MSE'] } },
-    { speaker: 'TARM', text: 'Certo. O endereço é Rua Direita, 120, correto?', delay: 19000 },
-    { speaker: 'CALLER', text: 'Isso, apartamento 42. O porteiro já tá avisado pra liberar a ambulância.', delay: 22000 },
-    { speaker: 'TARM', text: 'Ótimo. Mantenha ele sentado e calmo. Não dê água nem comida. O médico vai falar com você agora para mais orientações enquanto a UTI móvel chega.', delay: 26000 },
-    { speaker: 'CALLER', text: 'Tá bom, tô aguardando na linha. Por favor, pede pra eles virem rápido!', delay: 30000 },
-    { speaker: 'TARM', text: 'Eles já estão a caminho. Transferindo para o médico regulador.', delay: 33000 }
-  ],
-  // Scenario 2: Trauma (Acidente de Moto)
-  [
-    { speaker: 'SYS', text: 'Gravação e transcrição iniciadas.', delay: 500 },
-    { speaker: 'TARM', text: 'SAMU 192, qual a sua emergência?', delay: 1500 },
-    { speaker: 'CALLER', text: 'Teve um acidente aqui na avenida! Um motoqueiro bateu num carro.', delay: 4000, 
-      extract: { symptoms: ['Vítima de trauma', 'Acidente de trânsito'], risk: 'YELLOW', protocol: 'Trauma - Colisão Auto x Moto' } },
-    { speaker: 'TARM', text: 'Entendi. O endereço é Avenida Paulista, na altura do número 1578?', delay: 7000 },
-    { speaker: 'CALLER', text: 'Isso, sentido Consolação.', delay: 10000 },
-    { speaker: 'TARM', text: 'O socorro está a caminho. Você sabe o nome da vítima? Qual a idade aparente?', delay: 13000 },
-    { speaker: 'CALLER', text: 'Não sei o nome, acho que uns 30 anos. Ele tá de capacete no chão.', delay: 16000,
-      extract: { age: '~30 anos', gender: 'Masculino', patientName: 'Desconhecido' } },
-    { speaker: 'TARM', text: 'Ele está acordado? Tem algum sangramento visível?', delay: 19000 },
-    { speaker: 'CALLER', text: 'Tá acordado, gemendo de dor na perna. A perna parece quebrada, mas não vejo muito sangue.', delay: 22000,
-      extract: { symptoms: ['Vítima de trauma', 'Acidente de trânsito', 'Dor intensa em MMII', 'Suspeita de fratura fechada'] } },
-    { speaker: 'TARM', text: 'Por favor, não tente tirar o capacete dele e peça para ele não se mover. Tem vazamento de combustível na pista?', delay: 26000 },
-    { speaker: 'CALLER', text: 'Não, não tô sentindo cheiro de gasolina. Tem gente sinalizando a via.', delay: 30000 },
-    { speaker: 'TARM', text: 'Perfeito. A ambulância já foi despachada. Vou passar para o médico regulador para orientações adicionais.', delay: 34000 }
-  ],
-  // Scenario 3: OVACE (Engasgo Bebê) - Longo
-  [
-    { speaker: 'SYS', text: 'Gravação e transcrição iniciadas.', delay: 500 },
-    { speaker: 'TARM', text: 'SAMU 192, qual a sua emergência?', delay: 1500 },
-    { speaker: 'CALLER', text: 'Meu bebê! Meu bebê não tá respirando! Ele engasgou com o leite!', delay: 4000, 
-      extract: { symptoms: ['Asfixia', 'Engasgo com líquido'], risk: 'RED', protocol: 'OVACE - Lactente' } },
-    { speaker: 'TARM', text: 'Senhora, mantenha a calma, a ambulância já está saindo. Qual o nome do bebê e quantos meses ele tem?', delay: 7000 },
-    { speaker: 'CALLER', text: 'É o Lucas! Ele tem 8 meses! Pelo amor de Deus, me ajuda!', delay: 10000,
-      extract: { patientName: 'Lucas', age: '8 meses', gender: 'Masculino' } },
-    { speaker: 'TARM', text: 'Vou te ajudar agora. O bebê está chorando ou tossindo? Qual a cor da pele dele?', delay: 13000 },
-    { speaker: 'CALLER', text: 'Não tá chorando! Ele tá ficando roxinho! Ele não faz barulho!', delay: 16000,
-      extract: { symptoms: ['Asfixia', 'Engasgo com líquido', 'Cianose', 'Ausência de choro/tosse'] } },
-    { speaker: 'TARM', text: 'Ok, coloque o Lucas de bruços no seu antebraço, com a cabeça mais baixa que o corpo. Segure a cabecinha dele.', delay: 19000 },
-    { speaker: 'CALLER', text: 'Tá, coloquei! E agora?', delay: 22000 },
-    { speaker: 'TARM', text: 'Dê 5 tapinhas nas costas dele, entre as escápulas. Com o calcanhar da mão.', delay: 25000 },
-    { speaker: 'CALLER', text: 'Um, dois, três, quatro, cinco! Ele chorou! Ele chorou! Saiu um monte de leite!', delay: 28000,
-      extract: { symptoms: ['Asfixia revertida', 'Choro presente', 'Desobstrução de vias aéreas'], risk: 'YELLOW', protocol: 'OVACE Revertido - Avaliação' } },
-    { speaker: 'TARM', text: 'Graças a Deus. A cor dele está voltando ao normal?', delay: 31000 },
-    { speaker: 'CALLER', text: 'Tá sim, ele tá chorando forte agora. Muito obrigada!', delay: 34000 },
-    { speaker: 'TARM', text: 'A ambulância continua a caminho para avaliar ele. Vou transferir para o médico para acompanhamento.', delay: 38000 }
-  ],
-  // Cenário de estresse: TROTE. Nenhuma extração clínica acontece (o risco permanece
-  // PENDING) e o encerramento correto é o botão "Encerrar · trote / engano" — sem
-  // regulação, com registro em auditoria. A detecção NÃO é automática: quem decide
-  // que é trote é o operador; o sistema só registra.
-  [
-    { speaker: 'TARM', text: 'SAMU, emergência. Qual é a ocorrência?', delay: 1500 },
-    { speaker: 'CALLER', text: '(risadas ao fundo) Alô? É da pizzaria?', delay: 4500 },
-    { speaker: 'TARM', text: 'Aqui é o SAMU 192, serviço de emergência médica. Há alguma emergência no local?', delay: 8000 },
-    { speaker: 'CALLER', text: '(mais risadas) Manda uma ambulância de pepperoni… (desliga)', delay: 12000 },
-    { speaker: 'TARM', text: 'Senhor, trote ao 192 mantém a linha ocupada e pode custar uma vida. A ligação fica registrada.', delay: 15500 }
-  ],
-  // 5 · AVC — LARANJA: a janela terapêutica é o argumento vivo do tempo medido.
-  [
-    { speaker: 'CALLER', text: 'Moço, minha mãe acordou com a boca torta e não consegue falar direito. Ela tá muito estranha.', delay: 1500 },
-    { speaker: 'TARM', text: 'Vou te ajudar. Qual o nome e a idade dela? E a que horas você percebeu isso?', delay: 5000 },
-    { speaker: 'CALLER', text: 'Terezinha, 68 anos. Foi agora, faz uns vinte minutos. Ela tentou levantar e o braço esquerdo não obedece.', delay: 9500,
-      extract: { patientName: 'Terezinha Almeida', age: '68 anos', gender: 'Feminino' } },
-    { speaker: 'TARM', text: 'Peça para ela sorrir. O sorriso está torto? E peça para repetir uma frase simples.', delay: 14000 },
-    { speaker: 'CALLER', text: 'Tá torto sim, só um lado mexe. E a fala sai toda enrolada, não dá pra entender nada.', delay: 18500,
-      extract: { symptoms: ['Desvio de rima labial', 'Fraqueza em braço esquerdo', 'Fala arrastada (disartria)'], risk: 'ORANGE', protocol: 'Suspeita de AVC — janela terapêutica' } },
-    { speaker: 'TARM', text: 'Entendi. Deite ela de lado, não dê água nem comida, e anote a hora em que começou — isso é muito importante para o tratamento. O socorro já está sendo acionado.', delay: 23000 },
-    { speaker: 'CALLER', text: 'Anotei: começou 7h40. Por favor, venham rápido.', delay: 27500 },
-    { speaker: 'TARM', text: 'O horário ficou registrado. Vou passar para o médico regulador agora — fique na linha.', delay: 31000 }
-  ],
-  // 6 · Obstétrico — LARANJA: docs/12 exige o caso representado; a demo espelha.
-  [
-    { speaker: 'CALLER', text: 'Minha esposa tá em trabalho de parto! As contrações tão muito perto uma da outra!', delay: 1500 },
-    { speaker: 'TARM', text: 'Calma, vou te orientar. Qual o nome dela, quantas semanas de gestação, e de quanto em quanto tempo vêm as contrações?', delay: 5500 },
-    { speaker: 'CALLER', text: 'Luana, 27 anos, tá de 39 semanas. As contrações vêm de 4 em 4 minutos, e a bolsa estourou faz meia hora.', delay: 10500,
-      extract: { patientName: 'Luana Ferreira', age: '27 anos', gender: 'Feminino', symptoms: ['Trabalho de parto ativo', 'Bolsa rota há 30 min', 'Contrações 4/4 min'], risk: 'ORANGE', protocol: 'Obstétrico — parto iminente' } },
-    { speaker: 'TARM', text: 'É o primeiro filho dela? Ela sente vontade de fazer força?', delay: 15500 },
-    { speaker: 'CALLER', text: 'É o segundo. E ela tá dizendo que a pressão tá aumentando muito!', delay: 19500,
-      extract: { symptoms: ['Multípara — evolução rápida'] } },
-    { speaker: 'TARM', text: 'Deite ela do lado esquerdo, separe toalhas limpas e não deixe ela ir ao banheiro sozinha. A equipe já está sendo acionada com prioridade.', delay: 24000 },
-    { speaker: 'CALLER', text: 'Tá certo, já deitei ela. Vem logo, por favor!', delay: 28500 },
-    { speaker: 'TARM', text: 'Transferindo agora para o médico regulador. Continue na linha comigo.', delay: 32000 }
-  ],
-  // 7 · VERDE — orientação sem despacho: o sistema também protege a frota do
-  // acionamento desnecessário; o desfecho digno é o encaminhamento certo.
-  [
-    { speaker: 'CALLER', text: 'Boa tarde. Tô com uma dor nas costas que não passa, já faz uns dias. Queria uma ambulância pra ir ao hospital.', delay: 1500 },
-    { speaker: 'TARM', text: 'Boa tarde. Vou entender o seu caso. A dor começou quando? O senhor consegue andar e se mover normalmente?', delay: 5500 },
-    { speaker: 'CALLER', text: 'Faz umas duas semanas. Ando sim, só incomoda quando fico muito tempo sentado.', delay: 10000,
-      extract: { patientName: 'Antônio Ribeiro', age: '52 anos', gender: 'Masculino', symptoms: ['Lombalgia há 2 semanas', 'Deambulando normalmente'] } },
-    { speaker: 'TARM', text: 'O senhor tem febre, perda de força nas pernas ou dificuldade para urinar?', delay: 14500 },
-    { speaker: 'CALLER', text: 'Não, nada disso. É só a dor mesmo.', delay: 18000,
-      extract: { risk: 'GREEN', protocol: 'Orientação — rede básica (UBS)' } },
-    { speaker: 'TARM', text: 'Entendi. Pelo que o senhor descreve, não é uma emergência — e a ambulância precisa ficar livre para risco de vida. O caminho certo é a UBS do seu bairro. Se surgir perda de força, febre alta ou a dor mudar de repente, ligue de novo na hora.', delay: 22500 },
-    { speaker: 'CALLER', text: 'Ah, entendi. Vou na UBS amanhã cedo então. Obrigado, viu?', delay: 28000 },
-    { speaker: 'TARM', text: 'Às ordens. Melhoras para o senhor.', delay: 31000 }
-  ]
-];
 
 const playSound = (type: 'call' | 'vehicle' | 'alert', enabled: boolean) => {
   if (!enabled) return;
@@ -428,73 +115,6 @@ function CronometroMeta({ inicio, agora, rotulo }: { inicio: number | null; agor
   );
 }
 
-// ── IA sobre digitação (modo 2 da doutrina — docs/05 §2) ──────────────────
-// Extração DETERMINÍSTICA por palavras-chave sobre o texto que o TARM digita.
-// É simulação rotulada (sem modelo real): demonstra o fluxo — o TARM digita
-// como no sistema próprio da central e a IA rankeia/chaveia o quadro a partir
-// do texto. Sem sinal identificado → PENDING; nunca palpite (Princípio da
-// Realidade). Ordem das regras = prioridade clínica (vermelho primeiro).
-const normalizar = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-const REGRAS_TEXTO: { sinais: RegExp; symptoms: string[]; risk: 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN'; protocol: string }[] = [
-  { sinais: /(dor no peito|aperto no peito|infarto)/, symptoms: ['Dor torácica'], risk: 'RED', protocol: 'Suspeita de IAM (Infarto)' },
-  { sinais: /(engasg|asfixia|nao respira|sem respirar|parada)/, symptoms: ['Obstrução de vias aéreas / apneia'], risk: 'RED', protocol: 'OVACE / Parada — resposta imediata' },
-  { sinais: /(inconsciente|desmaiad|nao acorda|sem sentidos)/, symptoms: ['Inconsciência'], risk: 'RED', protocol: 'Rebaixamento de consciência' },
-  { sinais: /(boca torta|fala enrolada|derrame|\bavc\b|sem forca no braco|braco nao obedece)/, symptoms: ['Déficit neurológico agudo'], risk: 'ORANGE', protocol: 'Suspeita de AVC — janela terapêutica' },
-  { sinais: /(trabalho de parto|contraco|bolsa (estourou|rompeu|rota))/, symptoms: ['Trabalho de parto ativo'], risk: 'ORANGE', protocol: 'Obstétrico — parto iminente' },
-  { sinais: /(acidente|atropel|colisao|capot|queda de (moto|andaime|altura)|fratura)/, symptoms: ['Vítima de trauma'], risk: 'YELLOW', protocol: 'Trauma — avaliação' },
-  { sinais: /(dor nas costas|lombalgia|gripe|resfriado|receita|dor de garganta)/, symptoms: ['Queixa de baixa complexidade'], risk: 'GREEN', protocol: 'Orientação — rede básica (UBS)' },
-];
-const SINAIS_EXTRA: { re: RegExp; s: string }[] = [
-  { re: /(suando|sudorese|suor frio)/, s: 'Sudorese fria' },
-  { re: /(falta de ar|dispneia|nao consegue respirar)/, s: 'Dispneia' },
-  { re: /(sangra|sangue|hemorragia)/, s: 'Sangramento ativo' },
-  { re: /(gravida|gestante|\d+ semanas)/, s: 'Gestante' },
-  { re: /(muita dor|dor forte|dor intensa)/, s: 'Dor intensa' },
-];
-function extrairDeTexto(texto: string): { symptoms: string[]; risk: 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN'; protocol: string } | null {
-  const t = normalizar(texto);
-  const regra = REGRAS_TEXTO.find(r => r.sinais.test(t));
-  if (!regra) return null;
-  const extras = SINAIS_EXTRA.filter(x => x.re.test(t)).map(x => x.s);
-  return { symptoms: [...new Set([...regra.symptoms, ...extras])], risk: regra.risk, protocol: regra.protocol };
-}
-
-// Mapa esquemático local — usado no modo demonstração (sem backend): a demo é
-// aberta em sala de reunião, pen drive e rede hostil, e um iframe de mapa sem
-// rede vira ícone de imagem quebrada no meio da tela. Zero requisição externa;
-// cores pelos tokens do tema (currentColor/classes), nunca hex novo.
-function MapaEsquematico({ pino, rota }: { pino?: boolean; rota?: boolean }) {
-  return (
-    <div className="relative w-full h-full bg-elevated overflow-hidden">
-      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className="w-full h-full text-ink-secondary/25" aria-hidden="true">
-        {/* malha viária */}
-        {[40, 90, 140, 190, 240].map(y => <line key={`h${y}`} x1="0" y1={y} x2="400" y2={y} stroke="currentColor" strokeWidth="1" />)}
-        {[60, 120, 180, 240, 300, 360].map(x => <line key={`v${x}`} x1={x} y1="0" x2={x} y2="300" stroke="currentColor" strokeWidth="1" />)}
-        {/* avenidas */}
-        <line x1="0" y1="270" x2="400" y2="150" stroke="currentColor" strokeWidth="2.5" />
-        <line x1="30" y1="0" x2="250" y2="300" stroke="currentColor" strokeWidth="2.5" />
-        {/* quadras de referência */}
-        <rect x="70" y="50" width="38" height="28" rx="3" fill="currentColor" opacity=".35" />
-        <rect x="200" y="100" width="46" height="30" rx="3" fill="currentColor" opacity=".35" />
-        <rect x="300" y="200" width="40" height="26" rx="3" fill="currentColor" opacity=".35" />
-        <rect x="130" y="200" width="34" height="24" rx="3" fill="currentColor" opacity=".35" />
-        {rota && (
-          <path d="M60,260 L120,220 L180,190 L200,150 L200,150" className="text-gold-500" stroke="currentColor" strokeWidth="2.5" strokeDasharray="7 6" fill="none" strokeLinecap="round" />
-        )}
-        {pino && (
-          <g className="text-danger">
-            <circle cx="200" cy="150" r="16" fill="currentColor" opacity=".18" />
-            <circle cx="200" cy="150" r="6" fill="currentColor" />
-          </g>
-        )}
-      </svg>
-      <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-canvas/80 border border-border-subtle text-[0.55rem] font-mono uppercase tracking-widest text-ink-secondary">
-        Mapa esquemático · demonstração
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const { theme, toggleTheme } = useTheme();
   const chartTheme = theme === 'dark'
@@ -569,7 +189,7 @@ export default function App() {
   const [vehicles, setVehicles] = useState<Veiculo[]>(MOCK_VEHICLES);
   const [role, setRole] = useState<Papel>('TARM');
   const [team] = useState(MOCK_TEAM);
-  const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>({ 'MOT-02': '2026-06-14' });
+  const [maintSchedule, setMaintSchedule] = useState<Record<string, string>>(MANUTENCAO_INICIAL);
   const [missionStatus, setMissionStatus] = useState('A CAMINHO');
   const [connected, setConnected] = useState(false);
   const [operatorName, setOperatorName] = useState('Mariana S.');
@@ -2229,7 +1849,7 @@ export default function App() {
                 {/* Divergent Decision Justification — obrigatória quando o risco
                     escolhido difere da sugestão (gate do despacho), e também exibida
                     quando a viatura escolhida não é a recomendada. */}
-                {(riscoDiverge || (selectedVehicleId && selectedVehicleId !== MOCK_VEHICLES.filter(v => v.type.includes('USA'))[0]?.id)) && (
+                {(riscoDiverge || (selectedVehicleId && selectedVehicleId !== vehicles.filter(v => v.type.includes('USA'))[0]?.id)) && (
                   <div className={`p-4 bg-surface border rounded-xl shrink-0 ${riscoDiverge && !justification ? 'border-warn/60 shadow-[0_0_16px_rgba(240,180,41,0.12)]' : 'border-border-subtle'}`}>
                     <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-3 flex items-center gap-2">
                       <Icon name="code-branch" /> Decisão Divergente {riscoDiverge && <span className="chip chip-warn text-[0.55rem]">justificativa obrigatória</span>}
