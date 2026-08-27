@@ -71,4 +71,7 @@ export interface PacoteDemo {
   MensagemTranscrita: ComponentType<{ text: string }>;
   Waveform: ComponentType<{ active: boolean }>;
   MapaLocal: ComponentType<{ pino?: boolean; rota?: boolean }> | null;
+  SeletorDeCenarios: ComponentType<{ valor: string; aoEscolher: (id: string) => void }>;
+  SeloSimulacao: ComponentType | null;
+  OverlayChamada: ComponentType<{ telefone: string; aoAtender: () => void; aoDispensar: () => void }> | null;
 }

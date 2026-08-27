@@ -13,7 +13,7 @@ import { HOURLY_STATS, MANCHESTER_DIST, MOCK_RECENT_CALLS } from './dados/estati
 import { MOCK_SCRIPTS } from './dados/roteiros';
 import { fonteRoteiro } from './fonte-roteiro';
 import { analisadorDeTexto } from './analise-texto';
-import { TypingMessage, AudioWaveform, MapaEsquematico } from './componentes';
+import { TypingMessage, AudioWaveform, MapaEsquematico, SeletorDeCenarios, SeloSimulacaoTriagem, OverlayChamada } from './componentes';
 
 // Personas de login por papel (fallback sem backend — a demo nunca trava).
 const PERSONAS_LOGIN: Record<Papel, { nome: string; matricula: string }> = {
@@ -68,4 +68,7 @@ export const demo: PacoteDemo = {
   MensagemTranscrita: TypingMessage,
   Waveform: AudioWaveform,
   MapaLocal: MapaEsquematico,
+  SeletorDeCenarios,
+  SeloSimulacao: SeloSimulacaoTriagem,
+  OverlayChamada,
 };

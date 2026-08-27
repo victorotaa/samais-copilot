@@ -7,12 +7,8 @@ import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_I
 import type { Chamador, DadosAml, ExtracaoClinica, Veiculo, MembroEquipe, ItemFilaPabx, MensagemChat, ChamadaRecente, Risco, Papel, Escala } from './core/tipos';
 import type { FalaTranscrita } from './core/teatro';
 import { startOfWeek, addDays, isoDate, WEEKDAYS, MAX_WEEKS_AHEAD, TURNO_CYCLE, TURNO_BADGE } from './core/calendario';
-import { CENARIOS_DEMO } from './demo/dados/cenarios';
-import { HOURLY_STATS, MANCHESTER_DIST, MOCK_RECENT_CALLS } from './demo/dados/estatisticas';
-import { TypingMessage, AudioWaveform, MapaEsquematico } from './demo/componentes';
-// Único ponto de entrada do TEATRO no núcleo (vira alias '@demo' no build de
-// operação — docs/24). Os imports diretos acima migram para o pacote na
-// sequência da Fase 1.
+// Único ponto de entrada do TEATRO no núcleo — vira alias '@demo' no build,
+// e o modo operação troca o pacote pelo plugue inerte (docs/24).
 import { demo } from './demo';
 
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
@@ -202,6 +198,9 @@ export default function App() {
   const [selectedBase, setSelectedBase] = useState('Consórcio (geral)');
   const BASE_FACTOR: Record<string, number> = { 'Consórcio (geral)': 1, 'Base Central': 0.52, 'Base Leste': 0.29, 'Base Norte': 0.19 };
   const bf = BASE_FACTOR[selectedBase] ?? 1;
+  // Indicadores do dashboard: teatro do pacote; em operação, null → '—' e
+  // gráficos vazios até os dados reais do backend cobrirem cada série.
+  const ind = demo.indicadores;
   const [fhirRecord, setFhirRecord] = useState<ChamadaRecente | null>(null);
   const [gWeek, setGWeek] = useState(0);
   const [queue, setQueue] = useState(() => demo.filaInicial.map(q => {
@@ -294,9 +293,17 @@ export default function App() {
   const GMAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
   const mapFilter = theme === 'dark' ? 'invert(90%) hue-rotate(180deg) contrast(110%)' : 'none';
 
+  // Fallback do NÚCLEO quando não há mapa (sem backend e sem o teatro do mapa
+  // esquemático): declara a indisponibilidade em vez de encenar.
+  const avisoSemMapa = (
+    <div className="w-full h-full flex items-center justify-center text-ink-secondary text-xs font-mono px-4 text-center">
+      Mapa indisponível — configure a chave de mapas ou o backend
+    </div>
+  );
+
   const MapIframe = useMemo(() => {
     if (!amlData) return <div className="w-full h-full flex items-center justify-center text-ink-secondary">Sem dados de localização</div>;
-    if (!hasBackend) return <MapaEsquematico pino />;
+    if (!hasBackend) return demo.MapaLocal ? <demo.MapaLocal pino /> : avisoSemMapa;
     const src = GMAPS_KEY
       ? `https://www.google.com/maps/embed/v1/place?key=${GMAPS_KEY}&q=${amlData.lat},${amlData.lng}&zoom=16`
       : `https://maps.google.com/maps?q=${amlData.lat},${amlData.lng}&z=16&output=embed`;
@@ -316,7 +323,7 @@ export default function App() {
   // Rota da viatura: base operacional → local da ocorrência.
   const RouteMapIframe = useMemo(() => {
     if (!amlData) return null;
-    if (!hasBackend) return <MapaEsquematico pino rota />;
+    if (!hasBackend) return demo.MapaLocal ? <demo.MapaLocal pino rota /> : avisoSemMapa;
     const origin = '-23.5505,-46.6333'; // Base Central (config do tenant no futuro)
     const dest = `${amlData.lat},${amlData.lng}`;
     const src = GMAPS_KEY
@@ -338,7 +345,7 @@ export default function App() {
   // Mapa da tela de espera — base operacional (centro de São Paulo por ora;
   // vira configuração do tenant quando houver backend).
   const IdleMapIframe = useMemo(() => {
-    if (!hasBackend) return <MapaEsquematico />;
+    if (!hasBackend) return demo.MapaLocal ? <demo.MapaLocal /> : avisoSemMapa;
     const src = GMAPS_KEY
       ? `https://www.google.com/maps/embed/v1/view?key=${GMAPS_KEY}&center=-23.5505,-46.6333&zoom=13&maptype=roadmap`
       : `https://maps.google.com/maps?q=-23.5505,-46.6333&z=13&output=embed`;
@@ -991,44 +998,10 @@ export default function App() {
         </div>
       )}
 
-      {/* INCOMING CALL OVERLAY */}
-      {incomingCall && currentCaller && (
-        <div className="fixed inset-0 bg-canvas/95 z-[500] flex flex-col items-center justify-center fu backdrop-blur-md px-6">
-          <div className="relative w-32 h-32 md:w-44 md:h-44 flex items-center justify-center mb-6 md:mb-8">
-            <div className="absolute inset-0 rounded-full bg-danger/15 animate-ping" style={{ animationDuration: '2s' }}></div>
-            <div className="absolute inset-3 rounded-full bg-danger/25 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }}></div>
-            <div className="relative z-10 w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-danger to-red-900 flex items-center justify-center shadow-[0_0_60px_rgba(229,57,53,0.8)] text-3xl md:text-4xl text-white">
-              <Icon name="phone-volume" className="animate-pulse" />
-            </div>
-          </div>
-          <div className="text-center w-full max-w-sm">
-            <div className="text-[0.6rem] md:text-[0.65rem] font-mono font-bold tracking-widest text-danger/70 mb-2 uppercase">Chamada Entrante — 192</div>
-            <h2 className="text-3xl md:text-4xl font-disp font-bold text-danger tracking-widest mb-4" style={{ textShadow: '0 0 30px rgba(229,57,53,0.5)' }}>EMERGÊNCIA 192</h2>
-            
-            <div className="inline-flex items-center gap-3 px-6 md:px-8 py-3 bg-surface border border-border-subtle rounded-full mb-6 md:mb-8 shadow-lg w-full justify-center">
-              <Icon name="mobile-screen" className="text-lg md:text-xl text-ink-secondary" />
-              <span className="text-ink-primary font-mono text-xl md:text-2xl font-bold truncate">{currentCaller.phone}</span>
-            </div>
-
-            {/* Antes do ATENDER só existe sinalização do PABX — o sistema recebe cópia
-                do áudio da chamada atendida (shadow) e NUNCA escuta ou transcreve
-                pré-atendimento. O box "Transcrição Prévia" que existia aqui violava
-                essa premissa e foi removido (22/08). */}
-            <div className="w-full px-4 py-3 bg-elevated/50 border border-border-subtle rounded-2xl mb-8 flex items-center gap-2 justify-center text-center">
-              <Icon name="circle" className="text-[6px] text-ink-secondary animate-pulse shrink-0" />
-              <span className="text-[0.6rem] md:text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary">Sinalização do PABX · no produto a triagem abre sozinha quando o TARM atende na central</span>
-            </div>
-
-            <div className="flex gap-4 w-full">
-              <button onClick={ignoreCall} className="flex-1 px-4 py-3 rounded-xl border border-border-subtle text-ink-secondary font-bold tracking-widest hover:bg-elevated transition-all text-xs md:text-sm whitespace-nowrap">
-                DISPENSAR · DEMO
-              </button>
-              <button onClick={acceptCall} className="flex-[1.7] px-4 py-3 bg-ok text-ink-inverse font-extrabold font-disp text-xs md:text-base rounded-xl shadow-[0_0_30px_rgba(67,160,71,0.4)] hover:scale-105 transition-all flex items-center justify-center gap-2 md:gap-3">
-                <Icon name="headset" /> <span className="leading-tight">SIMULAR ATENDIMENTO NA CENTRAL</span>
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* INCOMING CALL OVERLAY — teatro do pacote demo: no produto a triagem
+          abre sozinha quando o TARM atende na central (shadow, docs/09 §1). */}
+      {incomingCall && currentCaller && demo.OverlayChamada && (
+        <demo.OverlayChamada telefone={currentCaller.phone} aoAtender={acceptCall} aoDispensar={ignoreCall} />
       )}
 
       {/* Cronômetro flutuante: o header rola livre (nada de barra fixa
@@ -1171,29 +1144,9 @@ export default function App() {
               </div>
             </div>
 
-            {/* Seletor de cenário — ferramenta de APRESENTAÇÃO: permite dirigir a
-                próxima chamada (IAM, AVC, trote, sem AML…) em vez de torcer pelo
-                sorteio. Aleatório usa bolsa: todos os cenários antes de repetir. */}
-            <div className="w-full max-w-7xl px-5 mb-8">
-              <div className="gp rounded-xl px-4 py-3 flex flex-wrap items-center gap-2">
-                <span className="text-[0.6rem] font-mono uppercase tracking-widest text-ink-tertiary mr-1 shrink-0">Demonstração · próxima chamada</span>
-                <button
-                  onClick={() => setCenarioDemo('aleatorio')}
-                  className={`px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider border transition-colors ${cenarioDemo === 'aleatorio' ? 'bg-gold-500 text-ink-inverse border-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:border-gold-500'}`}
-                >
-                  Aleatório
-                </button>
-                {CENARIOS_DEMO.map(c => (
-                  <button
-                    key={c.id}
-                    onClick={() => setCenarioDemo(c.id)}
-                    className={`px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider border transition-colors ${cenarioDemo === c.id ? 'bg-gold-500 text-ink-inverse border-gold-500' : 'bg-elevated border-border-subtle text-ink-secondary hover:border-gold-500'}`}
-                  >
-                    {c.rotulo}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Seletor de cenário — ferramenta de APRESENTAÇÃO (componente do
+                pacote demo; em operação não existe). */}
+            <demo.SeletorDeCenarios valor={cenarioDemo} aoEscolher={setCenarioDemo} />
 
             {/* Ocorrência em aberto após QUEDA: o contexto não se perde — o
                 protocolo real manda retornar a ligação (docs/21 §2.3) e o mesmo
@@ -1248,8 +1201,8 @@ export default function App() {
                   <Icon name="truck-medical" className="text-gold-500 text-xl" />
                   <h3 className="text-lg font-disp font-bold text-ink-primary uppercase tracking-widest">Status da Frota</h3>
                   <div className="ml-auto flex gap-2 shrink-0">
-                     <span className="chip chip-ok text-[0.6rem]">3 DISPONÍVEIS</span>
-                     <span className="chip chip-danger text-[0.6rem]">1 EM ATENDIMENTO</span>
+                     <span className="chip chip-ok text-[0.6rem]">{vehicles.filter(v => v.status === 'DISPONÍVEL').length} DISPONÍVEIS</span>
+                     <span className="chip chip-danger text-[0.6rem]">{vehicles.filter(v => v.status === 'EM ATENDIMENTO').length} EM ATENDIMENTO</span>
                   </div>
                 </div>
                 
@@ -1349,9 +1302,7 @@ export default function App() {
                 </div>
                 
                 <div className="p-5 flex flex-col gap-5 lg:overflow-y-auto">
-                  <div className="text-[0.6rem] font-mono text-ink-tertiary flex items-center gap-2 flex-wrap">
-                    <Icon name="server" className="text-ink-tertiary" /> Triagem assistida em simulação · roteiro de demonstração (sem transcrição real)
-                  </div>
+                  {demo.SeloSimulacao && <demo.SeloSimulacao />}
 
                   {/* Localização & origem — o gate AML morreu (fidelidade shadow,
                       decisão do Ota 24/08): a triagem abre no atendimento e a
@@ -1527,7 +1478,7 @@ export default function App() {
                   <div>
                     <div className="text-xs font-bold uppercase tracking-widest text-ink-primary flex items-center gap-3">
                       Transcrição em Tempo Real
-                      <AudioWaveform active={aiActive} />
+                      <demo.Waveform active={aiActive} />
                     </div>
                     <div className="text-[0.6rem] text-ai font-mono flex items-center gap-1.5 mt-0.5">
                       <Icon name="circle" className={`text-[5px] ${modoIA === 'escuta' ? 'animate-pulse' : ''}`} /> {modoIA === 'escuta' ? 'STT Engine Ativo' : modoIA === 'digitacao' ? 'Sem escuta · IA sobre o texto digitado' : 'IA desligada — modo manual'}
@@ -1568,17 +1519,17 @@ export default function App() {
                       <div className={`max-w-[80%] flex flex-col ${msg.speaker === 'TARM' ? 'items-end' : 'items-start'}`}>
                         <div className="text-[0.6rem] font-mono text-ink-secondary mb-1 flex items-center gap-2">
                           {msg.speaker === 'TARM' ? (
-                            <><span className="text-gold-500">TARM-04</span> • {msg.time}</>
+                            <><span className="text-gold-500">{operatorId}</span> • {msg.time}</>
                           ) : (
                             <>{msg.time} • <span className="text-ink-primary">Solicitante</span></>
                           )}
                         </div>
                         <div className={`p-3.5 rounded-2xl text-sm leading-relaxed ${
-                          msg.speaker === 'TARM' 
-                            ? 'bg-elevated border border-border-subtle text-ink-primary rounded-tr-sm' 
+                          msg.speaker === 'TARM'
+                            ? 'bg-elevated border border-border-subtle text-ink-primary rounded-tr-sm'
                             : 'bg-ai/10 border border-ai/20 text-ink-primary rounded-tl-sm'
                         }`}>
-                          <TypingMessage text={msg.text} />
+                          <demo.MensagemTranscrita text={msg.text} />
                         </div>
                       </div>
                     )}
@@ -2530,22 +2481,22 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ink-secondary">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS RECEBIDAS</div>
-                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">{(realStats?.chamadas ?? Math.round(1432 * bf)).toLocaleString('pt-BR')}</div>
+                <div className="text-4xl font-disp font-bold text-ink-primary mb-2">{realStats ? realStats.chamadas.toLocaleString('pt-BR') : ind ? Math.round(ind.kpis.chamadas * bf).toLocaleString('pt-BR') : '—'}</div>
                 <div className="text-xs text-ok"><Icon name="arrow-trend-up" /> {realStats ? 'dados reais do backend' : '+5% vs período anterior'}</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-gold-500 relative overflow-hidden">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">TROTES FILTRADOS (SCORE IA)</div>
-                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{Math.round(118 * bf)}</div>
+                <div className="text-4xl font-disp font-bold text-gold-500 mb-2">{ind ? Math.round(ind.kpis.trotes * bf) : '—'}</div>
                 <div className="text-xs text-gold-500/70">8,2% do total · faixa nacional 5,8–9,7%</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-ok">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">T. MÉDIO REGULAÇÃO</div>
-                <div className="text-4xl font-disp font-bold text-ok mb-2">1m 12s</div>
+                <div className="text-4xl font-disp font-bold text-ok mb-2">{ind?.kpis.tMedioRegulacao ?? '—'}</div>
                 <div className="text-xs text-ok/70">da chamada atendida à decisão do regulador · demonstração</div>
               </div>
               <div className="gp p-5 rounded-2xl border-l-4 border-l-danger">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">DESPACHOS USA (VERMELHO)</div>
-                <div className="text-4xl font-disp font-bold text-danger mb-2">{Math.round(94 * bf)}</div>
+                <div className="text-4xl font-disp font-bold text-danger mb-2">{ind ? Math.round(ind.kpis.despachosUsa * bf) : '—'}</div>
                 <div className="text-xs text-ink-secondary">Meta de acurácia da classificação: <span className="text-ok">&ge;90%</span> · critério de go-live</div>
               </div>
             </div>
@@ -2557,7 +2508,7 @@ export default function App() {
                 <div className="text-4xl font-mono font-medium text-ink-primary mb-1">
                   {realStats?.tRespostaSeg
                     ? `${Math.floor(realStats.tRespostaSeg / 60)}m ${String(realStats.tRespostaSeg % 60).padStart(2, '0')}s`
-                    : '14m 06s'}
+                    : (ind?.kpis.tResposta ?? '—')}
                 </div>
                 <div className="text-xs text-ink-tertiary">do despacho à chegada à cena{realStats?.tRespostaSeg ? ' · real' : ' · demonstração'}</div>
               </div>
@@ -2570,7 +2521,7 @@ export default function App() {
               </div>
               <div className="card-data p-5">
                 <div className="text-[0.65rem] font-bold text-ink-secondary uppercase tracking-widest mb-2">CHAMADAS ABANDONADAS</div>
-                <div className="text-4xl font-mono font-medium text-warn mb-1">4,1%</div>
+                <div className="text-4xl font-mono font-medium text-warn mb-1">{ind?.kpis.abandono ?? '—'}</div>
                 <div className="text-xs text-ink-tertiary">desligaram antes do atendimento · sinalização do PABX</div>
               </div>
             </div>
@@ -2582,7 +2533,7 @@ export default function App() {
                 <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">por faixa horária · hoje</div>
                 <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={HOURLY_STATS.map(h => ({ ...h, volume: Math.round(h.volume * bf) }))}>
+                    <BarChart data={(ind?.porHora ?? []).map(h => ({ ...h, volume: Math.round(h.volume * bf) }))}>
                       <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
                       <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} width={30} />
@@ -2603,7 +2554,7 @@ export default function App() {
                 <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">minutos · por faixa horária</div>
                 <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={HOURLY_STATS}>
+                    <LineChart data={ind?.porHora ?? []}>
                       <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
                       <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} />
                       <YAxis stroke={chartTheme.axis} fontSize={10} tickLine={false} axisLine={false} width={30} unit="m" />
@@ -2623,7 +2574,7 @@ export default function App() {
                 <div className="text-[0.6rem] font-mono text-ink-tertiary uppercase tracking-widest mb-4">protocolo Manchester · rótulo direto</div>
                 <div className="flex-1 w-full h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart layout="vertical" data={MANCHESTER_DIST.map(d => ({ ...d, value: Math.round(d.value * bf) }))} margin={{ left: 4, right: 40 }}>
+                    <BarChart layout="vertical" data={(ind?.manchester ?? []).map(d => ({ ...d, value: Math.round(d.value * bf) }))} margin={{ left: 4, right: 40 }}>
                       <XAxis type="number" hide />
                       <YAxis type="category" dataKey="name" stroke={chartTheme.axis} fontSize={11} tickLine={false} axisLine={false} width={68} />
                       <Tooltip
@@ -2633,7 +2584,7 @@ export default function App() {
                         labelStyle={{ fontSize: '12px', color: chartTheme.axis, marginBottom: '4px' }}
                       />
                       <Bar dataKey="value" name="Despachos" radius={[0, 4, 4, 0]} barSize={18}>
-                        {MANCHESTER_DIST.map(e => <Cell key={e.name} fill={e.color} />)}
+                        {(ind?.manchester ?? []).map(e => <Cell key={e.name} fill={e.color} />)}
                         <LabelList dataKey="value" position="right" fill={chartTheme.axis} fontSize={11} fontFamily="'JetBrains Mono', monospace" />
                       </Bar>
                     </BarChart>
@@ -2658,7 +2609,7 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {MOCK_RECENT_CALLS.map((call, idx) => (
+                    {(ind?.recentes ?? []).map((call, idx) => (
                       <tr key={idx} onClick={() => setFhirRecord(call)} className="border-b border-border-subtle/50 hover:bg-elevated/50 transition-colors cursor-pointer" title="Abrir registro de atendimento (FHIR R4)">
                         <td className="py-3 text-[0.65rem] font-mono text-ink-secondary">#{call.id}</td>
                         <td className="py-3 text-sm font-mono font-bold text-ink-primary">{call.phone}</td>

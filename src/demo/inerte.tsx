@@ -26,4 +26,7 @@ export const demo: PacoteDemo = {
   MensagemTranscrita: ({ text }) => <>{text}</>,
   Waveform: () => null,
   MapaLocal: null,
+  SeletorDeCenarios: () => null,
+  SeloSimulacao: null,
+  OverlayChamada: null,
 };
