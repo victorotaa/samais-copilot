@@ -1,3 +1,5 @@
+import type { AnalisadorDeTexto } from '../core/teatro';
+
 // ── IA sobre digitação (modo 2 da doutrina — docs/05 §2) ──────────────────
 // Extração DETERMINÍSTICA por palavras-chave sobre o texto que o TARM digita.
 // É simulação rotulada (sem modelo real): demonstra o fluxo — o TARM digita
@@ -28,3 +30,6 @@ export function extrairDeTexto(texto: string): { symptoms: string[]; risk: 'RED'
   const extras = SINAIS_EXTRA.filter(x => x.re.test(t)).map(x => x.s);
   return { symptoms: [...new Set([...regra.symptoms, ...extras])], risk: regra.risk, protocol: regra.protocol };
 }
+
+/** O analisador da demo atrás do contrato do núcleo (em operação: null). */
+export const analisadorDeTexto: AnalisadorDeTexto = { analisar: extrairDeTexto };

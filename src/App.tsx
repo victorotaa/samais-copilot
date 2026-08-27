@@ -4,7 +4,8 @@ import { useTheme } from './lib/theme';
 import { Icon } from './ui/Icon';
 import { SamaisMonogram, SamaisWordmark } from './ui/Brand';
 import { supabase, tryRealLogin, mapDbVehicle, VEHICLE_STATUS_UI_TO_DB, TENANT_ID, hasBackend } from './lib/supabase';
-import type { Chamador, DadosAml, ExtracaoClinica, FalaRoteiro, Veiculo, MembroEquipe, ItemFilaPabx, MensagemChat, ChamadaRecente, Risco, Papel, Escala } from './core/tipos';
+import type { Chamador, DadosAml, ExtracaoClinica, Veiculo, MembroEquipe, ItemFilaPabx, MensagemChat, ChamadaRecente, Risco, Papel, Escala } from './core/tipos';
+import type { FalaTranscrita } from './core/teatro';
 import { startOfWeek, addDays, isoDate, WEEKDAYS, MAX_WEEKS_AHEAD, TURNO_CYCLE, TURNO_BADGE } from './core/calendario';
 import { MOCK_CALLERS } from './demo/dados/chamadores';
 import { MOCK_SCRIPTS } from './demo/dados/roteiros';
@@ -15,7 +16,8 @@ import { MEDICO_CASES } from './demo/dados/regulacao';
 import { MOCK_QUEUE } from './demo/dados/fila';
 import { HOURLY_STATS, MANCHESTER_DIST, MOCK_RECENT_CALLS } from './demo/dados/estatisticas';
 import { TypingMessage, AudioWaveform, MapaEsquematico } from './demo/componentes';
-import { extrairDeTexto } from './demo/analise-texto';
+import { analisadorDeTexto } from './demo/analise-texto';
+import { fonteRoteiro } from './demo/fonte-roteiro';
 
 const MISSION_STEPS = ['A CAMINHO', 'NO LOCAL', 'TRANSPORTANDO', 'NO HOSPITAL'];
 
@@ -141,7 +143,6 @@ export default function App() {
 
   // TARM States
   const [aiActive, setAiActive] = useState(true);
-  const [activeScriptIndex, setActiveScriptIndex] = useState(0);
   const [tarmChat, setTarmChat] = useState<MensagemChat[]>([]);
   const [extractedData, setExtractedData] = useState<ExtracaoClinica>({
     patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '',
@@ -173,10 +174,6 @@ export default function App() {
   // não se sobrescreve em silêncio.
   const [missionMarks, setMissionMarks] = useState<Record<string, string>>({});
   const [skipArm, setSkipArm] = useState<string | null>(null);
-  // Timers do roteiro de transcrição: o kill switch precisa CANCELÁ-los de fato —
-  // sem isso a "transcrição" continuaria chegando com a IA desligada.
-  const scriptTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const scriptShownRef = useRef<Set<string>>(new Set());
   // Seletor de cenário da demonstração (IDLE): 'aleatorio' sorteia da bolsa.
   const [cenarioDemo, setCenarioDemo] = useState<string>('aleatorio');
   const bolsaCenariosRef = useRef<string[]>([]);
@@ -403,9 +400,7 @@ export default function App() {
     let timer: NodeJS.Timeout;
     if (isAuthenticated && currentModule === 'IDLE' && !incomingCall) {
       // Reset TARM states when going back to IDLE
-      scriptTimersRef.current.forEach(clearTimeout);
-      scriptTimersRef.current = [];
-      scriptShownRef.current = new Set();
+      fonteRoteiro.encerrar();
       setTarmChat([]);
       setExtractedData({ patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '', confidence: { patientName: 0, symptoms: 0, protocol: 0 } });
       setAiActive(true);
@@ -418,7 +413,7 @@ export default function App() {
         escolhido = CENARIOS_DEMO.find(c => c.id === proximo)!;
       }
       const cenario = escolhido;
-      setActiveScriptIndex(cenario.script);
+      fonteRoteiro.selecionar(cenario.script);
       setMissionStatus('A CAMINHO');
       setMissionMarks({});
       setSkipArm(null);
@@ -492,35 +487,28 @@ export default function App() {
     };
   }, [incomingCall]);
 
-  // Simulação do TARM (Chat e Extração). Todos os timers ficam registrados para o
-  // kill switch poder CANCELAR de verdade — sem isso a transcrição continuaria
-  // chegando com a IA desligada, e o modo degradado seria só cosmético.
-  const agendarRoteiro = (itens: FalaRoteiro[], atraso: (i: number, item: { delay: number }) => number) => {
-    itens.forEach((item, i) => {
-      if (scriptShownRef.current.has(item.text)) return;
-      const id = setTimeout(() => {
-        scriptShownRef.current.add(item.text);
-        setTarmChat(prev => {
-          // Evita duplicatas caso o componente re-renderize
-          if (prev.some(msg => msg.text === item.text)) return prev;
-          return [...prev, { speaker: item.speaker, text: item.text, time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) }];
-        });
-
-        if (item.extract) {
-          const extract = item.extract;
-          if (extract.patientName) {
-            setExtractedData(prev => ({ ...prev, patientName: extract.patientName!, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
-          }
-          if (extract.symptoms) {
-            setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms!])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
-          }
-          if (extract.risk) {
-            setExtractedData(prev => ({ ...prev, risk: extract.risk!, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
-          }
-        }
-      }, atraso(i, item));
-      scriptTimersRef.current.push(id);
+  // O que uma fala transcrita FAZ no estado é produto — o STT real entregará o
+  // mesmo shape (contrato FonteDeTranscricao). Cadência e dedup de entrega são
+  // da fonte; aqui fica só o dedup de render e a extração incremental.
+  const aoItemTranscricao = (fala: FalaTranscrita) => {
+    setTarmChat(prev => {
+      // Evita duplicatas caso o componente re-renderize
+      if (prev.some(msg => msg.text === fala.text)) return prev;
+      return [...prev, { speaker: fala.speaker, text: fala.text, time: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) }];
     });
+
+    if (fala.extract) {
+      const extract = fala.extract;
+      if (extract.patientName) {
+        setExtractedData(prev => ({ ...prev, patientName: extract.patientName!, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
+      }
+      if (extract.symptoms) {
+        setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms!])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
+      }
+      if (extract.risk) {
+        setExtractedData(prev => ({ ...prev, risk: extract.risk!, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
+      }
+    }
   };
 
   const marcadorSistema = (texto: string) => {
@@ -537,13 +525,12 @@ export default function App() {
     if (novo === 'escuta') {
       if (currentModule === 'TARM' && tarmChat.length > 0) {
         marcadorSistema(`— escuta religada às ${agora} · transcrição retomada; a janela fica registrada na auditoria —`);
-        agendarRoteiro(MOCK_SCRIPTS[activeScriptIndex], i => 1800 + i * 2600);
+        fonteRoteiro.retomar(aoItemTranscricao);
       }
       audit('IA_RELIGADA', { em: agora, modulo: currentModule, de: modoIA });
       setAiActive(true);
     } else {
-      scriptTimersRef.current.forEach(clearTimeout);
-      scriptTimersRef.current = [];
+      fonteRoteiro.pausar();
       if (currentModule === 'TARM' && tarmChat.length > 0) {
         marcadorSistema(novo === 'digitacao'
           ? `— escuta desligada às ${agora} · IA sobre digitação: a classificação passa a vir do texto do TARM —`
@@ -561,7 +548,7 @@ export default function App() {
     if (modoIA !== 'digitacao') return;
     if (digitacaoTimerRef.current) clearTimeout(digitacaoTimerRef.current);
     digitacaoTimerRef.current = setTimeout(() => {
-      const r = extrairDeTexto(textoDigitado);
+      const r = analisadorDeTexto.analisar(textoDigitado);
       if (r) {
         setExtractedData(prev => ({ ...prev, symptoms: r.symptoms, risk: r.risk, protocol: r.protocol, confidence: { ...prev.confidence, symptoms: 0.75, protocol: 0.75 } }));
       } else {
@@ -573,7 +560,7 @@ export default function App() {
 
   useEffect(() => {
     if (currentModule === 'TARM' && aiActive && tarmChat.length === 0) {
-      agendarRoteiro(MOCK_SCRIPTS[activeScriptIndex], (_i, item) => item.delay);
+      fonteRoteiro.iniciar(aoItemTranscricao);
     }
   }, [currentModule, aiActive]);
 
@@ -793,8 +780,7 @@ export default function App() {
 
   const encerrarSemRegulacao = (motivo: 'trote' | 'engano' | 'queda') => {
     audit('CHAMADA_ENCERRADA_SEM_REGULACAO', { motivo, extracao: extractedData.risk });
-    scriptTimersRef.current.forEach(clearTimeout);
-    scriptTimersRef.current = [];
+    fonteRoteiro.pausar();
     if (motivo === 'queda' && currentCaller) {
       // Queda: o rascunho sobrevive à volta ao IDLE — protocolo real manda
       // retornar a ligação, e o retorno reassocia à MESMA ocorrência.
