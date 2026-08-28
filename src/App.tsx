@@ -239,6 +239,10 @@ export default function App() {
   // Classificação de risco é DECISÃO EXPLÍCITA do regulador — nunca default.
   // null = ainda não classificado; o despacho fica bloqueado até a escolha.
   const [riscoFinal, setRiscoFinal] = useState<Risco | null>(null);
+  // Âncora do card de classificação: o despacho bloqueado APONTA o próximo
+  // passo (rola até aqui) em vez de ser um botão morto — defeito de demo
+  // reportado pelo Ota no mobile (28/08).
+  const classificacaoRef = useRef<HTMLDivElement>(null);
   // T1–T4: horário de cada marca; a barra de missão só habilita o PRÓXIMO passo,
   // pulo exige confirmação (2 toques) e marca feita é imutável — tempo probatório
   // não se sobrescreve em silêncio.
@@ -1691,10 +1695,23 @@ export default function App() {
                   <textarea
                     value={textoDigitado}
                     onChange={e => setTextoDigitado(e.target.value)}
-                    placeholder="Digite a ocorrência como no sistema da central — a classificação ao lado reage ao texto…"
+                    placeholder="Digite a ocorrência como no sistema da central — a classificação reage ao texto…"
                     rows={3}
                     className="w-full bg-surface border border-border-subtle rounded-xl p-3 text-sm text-ink-primary placeholder:text-ink-tertiary focus:outline-none focus:border-gold-500 resize-none"
                   />
+                  {/* Resposta JUNTO do campo: no mobile o quadro clínico fica
+                      fora da tela — quem digita precisa ver a classificação
+                      reagir aqui (defeito reportado pelo Ota, 28/08). */}
+                  {textoDigitado.trim() !== '' && (
+                    <div data-feedback-digitacao className={`mt-1.5 px-3 py-2 rounded-lg border flex items-center gap-2 flex-wrap ${extractedData.risk !== 'PENDING' ? (RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).box : 'bg-surface border-border-subtle'}`}>
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${(RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).dot}`}></span>
+                      {extractedData.risk !== 'PENDING' ? (
+                        <span className={`text-[0.7rem] font-bold ${(RISCO_UI[extractedData.risk] || RISCO_UI.PENDING).text}`}>{RISCO_LABEL[extractedData.risk]} · {extractedData.protocol}</span>
+                      ) : (
+                        <span className="text-[0.7rem] text-ink-secondary">{extractedData.protocol === 'Sem sinal identificado no texto' ? 'Sem sinal identificado no texto — o quadro permanece PENDENTE (nunca palpite)' : 'Analisando o texto…'}</span>
+                      )}
+                    </div>
+                  )}
                   <div className="text-[0.55rem] font-mono text-ink-tertiary mt-1.5">
                     Extração de demonstração por palavras-chave — sem modelo real. Sem sinal no texto, a classificação permanece pendente.
                   </div>
@@ -1862,7 +1879,7 @@ export default function App() {
                 {/* Classificação de risco — A DECISÃO É DO MÉDICO. A sugestão da IA é
                     proposta; sem escolha explícita aqui, o despacho fica bloqueado.
                     Nada de default silencioso (havia um YELLOW automático — removido). */}
-                <div className="p-4 bg-surface border border-border-subtle rounded-xl">
+                <div ref={classificacaoRef} className="p-4 bg-surface border border-border-subtle rounded-xl">
                   <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-ink-secondary mb-1 flex items-center gap-2">
                     <Icon name="user-doctor" className="text-gold-500" /> Classificação de risco — decisão do regulador
                   </h3>
@@ -2030,8 +2047,17 @@ export default function App() {
                 <Icon name="robot" className="text-ai mt-0.5" />
                 <span><b className="text-ai">Recomendação de despacho:</b> o sistema sugere {recommendedVehicles[0]?.id || 'USA-01'} (melhor ETA × gravidade). A decisão e o acionamento são da regulação — confirme abaixo, ou altere a viatura ao lado.</span>
               </div>
-              <button 
+              <button
                 onClick={() => {
+                  // Bloqueado não é morto: o botão explica e LEVA ao próximo
+                  // passo (classificar / justificar) — copiloto até no gate.
+                  if (!podeDespachar) {
+                    showToast(riscoFinal === null
+                      ? 'Classifique o risco para liberar o despacho — a decisão é do regulador.'
+                      : 'Divergência da sugestão: selecione a justificativa para liberar o despacho.', 'warn');
+                    classificacaoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                  }
                   setIsDispatching(true);
                   const codigo = selectedVehicleId || recommendedVehicles[0]?.id || 'USA-01';
                   if (connected && occId) {
@@ -2056,8 +2082,8 @@ export default function App() {
                     setCurrentModule('VIATURA');
                   }, 800);
                 }}
-                disabled={isDispatching || !podeDespachar}
-                className="w-full py-4 px-3 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-wider text-xs md:text-sm rounded-xl shadow-[0_0_30px_rgba(229,57,53,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-60 disabled:hover:scale-100 disabled:shadow-none"
+                disabled={isDispatching}
+                className={`w-full py-4 px-3 bg-gradient-to-r from-danger to-danger/80 text-white font-extrabold font-sans uppercase tracking-wider text-xs md:text-sm rounded-xl transition-transform flex items-center justify-center gap-3 shrink-0 disabled:opacity-60 ${podeDespachar ? 'shadow-[0_0_30px_rgba(229,57,53,0.3)] hover:scale-[1.02]' : 'opacity-60 shadow-none'}`}
               >
                 {isDispatching ? (
                   <><Icon name="circle-notch" className="animate-spin text-lg" /> Acionando...</>

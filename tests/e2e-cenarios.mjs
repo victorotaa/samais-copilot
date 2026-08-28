@@ -113,6 +113,19 @@ const { ok, fim } = coletor();
   ok(!reg.includes('Afrouxe roupas'), 'pcr: instruções de clínico geral NÃO aparecem numa parada');
   ok((await overflowScan(page)).length === 0, 'pcr: zero overflow');
   await page.screenshot({ path: `${ARTEFATOS}/cen-pcr.png` });
+  // despacho GUIADO: bloqueado sem classificação, o botão explica e NÃO navega;
+  // classificado, o mesmo toque despacha e vai à VIATURA
+  await page.locator('button:has-text("Confirmar Despacho"):visible').first().click();
+  await page.waitForTimeout(600);
+  const bloqueado = await page.evaluate(() => document.body.innerText);
+  ok(bloqueado.includes('Classifique o risco'), 'pcr: despacho bloqueado orienta o próximo passo');
+  ok(bloqueado.includes('Apoio à Decisão Clínica'), 'pcr: clique bloqueado NÃO navega (segue na regulação)');
+  await page.locator('button:has-text("VERMELHO"):visible').first().click();
+  await page.waitForTimeout(400);
+  await page.locator('button:has-text("Confirmar Despacho"):visible').first().click();
+  // rótulo renderiza em caixa alta (CSS) — comparação em minúsculas
+  await page.waitForFunction(() => document.body.innerText.toLowerCase().includes('classificação manchester'), undefined, { timeout: 8000 });
+  ok(true, 'pcr: classificado → despacho confirma e entrega à VIATURA');
   ok(errs.length === 0, 'pcr: zero pageerror', errs[0] || '');
   await page.close();
 }
