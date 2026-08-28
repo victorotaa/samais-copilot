@@ -81,6 +81,13 @@ const RISCO_UI: Record<string, { label: string; box: string; dot: string; text: 
   PENDING:{ label: 'PENDENTE', box: 'bg-surface border-border-subtle', dot: 'bg-hover',                                          text: 'text-ink-primary', chip: 'chip-nude',  bg: 'bg-elevated',      ring: 'border-border-subtle bg-hover' },
 };
 
+// A extração SEGUE a fala, nunca a antecipa: o quadro clínico aplica com uma
+// latência curta DEPOIS de a fala entrar no chat — é como o NLP real se
+// comporta, e como a demonstração precisa parecer (o diagnóstico "pronto"
+// antes de a transcrição capturar quebrava a credibilidade — Ota, 27/08).
+// Marcos operacionais (RCP, início dos sintomas) NÃO esperam: carimbo é da fala.
+const LAG_CRUZAMENTO_MS = 1200;
+
 // Meta de tempo da chamada — PARÂMETRO da central, nunca constante nacional
 // (docs/21 §3.3: o contador do MV-PR alerta ao exceder tempo "parametrizado no
 // sistema"; 1 min ideal / teto 3 min é protocolo LOCAL de Fortaleza; para o
@@ -477,6 +484,7 @@ export default function App() {
     if (isAuthenticated && currentModule === 'IDLE' && !incomingCall) {
       // Reset TARM states when going back to IDLE
       demo.transcricao.encerrar();
+      limparCruzamentos();
       setTarmChat([]);
       setExtractedData({ patientName: '', age: '', gender: '', symptoms: [], comorbidities: [], risk: 'PENDING', protocol: 'Analisando...', observations: '', confidence: { patientName: 0, symptoms: 0, protocol: 0 } });
       setAiActive(true);
@@ -559,6 +567,14 @@ export default function App() {
     };
   }, [incomingCall]);
 
+  // Timers do lag de cruzamento: cancelados quando a chamada reseta ou a
+  // escuta sai — extração pendente de uma chamada nunca vaza para a próxima.
+  const lagTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const limparCruzamentos = () => {
+    lagTimersRef.current.forEach(clearTimeout);
+    lagTimersRef.current = [];
+  };
+
   // O que uma fala transcrita FAZ no estado é produto — o STT real entregará o
   // mesmo shape (contrato FonteDeTranscricao). Cadência e dedup de entrega são
   // da fonte; aqui fica só o dedup de render e a extração incremental.
@@ -571,17 +587,8 @@ export default function App() {
 
     if (fala.extract) {
       const extract = fala.extract;
-      if (extract.patientName) {
-        setExtractedData(prev => ({ ...prev, patientName: extract.patientName!, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
-      }
-      if (extract.symptoms) {
-        setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms!])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
-      }
-      if (extract.risk) {
-        setExtractedData(prev => ({ ...prev, risk: extract.risk!, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
-      }
-      // Marcos operacionais: updaters idempotentes (a entrega pode duplicar em
-      // dev/StrictMode — o primeiro carimbo vence, nunca se sobrescreve).
+      // Marcos operacionais aplicam JÁ (carimbo é da fala) e são idempotentes
+      // (a entrega pode duplicar em dev/StrictMode — o primeiro carimbo vence).
       if (extract.marco === 'rcp_iniciada') {
         setRcpInicio(prev => prev ?? Date.now());
       }
@@ -589,6 +596,20 @@ export default function App() {
         const min = extract.inicioSintomasMinutos;
         setInicioSintomasTs(prev => prev ?? Date.now() - min * 60000);
       }
+      // O quadro clínico segue a fala com o lag de cruzamento — o diagnóstico
+      // nunca aparece antes de a transcrição capturar (timing da demo).
+      const id = setTimeout(() => {
+        if (extract.patientName) {
+          setExtractedData(prev => ({ ...prev, patientName: extract.patientName!, age: extract.age || prev.age, gender: extract.gender || prev.gender, confidence: { ...prev.confidence, patientName: 0.96 } }));
+        }
+        if (extract.symptoms) {
+          setExtractedData(prev => ({ ...prev, symptoms: [...new Set([...prev.symptoms, ...extract.symptoms!])], confidence: { ...prev.confidence, symptoms: 0.89 } }));
+        }
+        if (extract.risk) {
+          setExtractedData(prev => ({ ...prev, risk: extract.risk!, protocol: extract.protocol || prev.protocol, confidence: { ...prev.confidence, protocol: 0.92 } }));
+        }
+      }, LAG_CRUZAMENTO_MS);
+      lagTimersRef.current.push(id);
     }
   };
 
@@ -620,6 +641,7 @@ export default function App() {
       setAiActive(true);
     } else {
       demo.transcricao.pausar();
+      limparCruzamentos();
       if (currentModule === 'TARM' && tarmChat.length > 0) {
         marcadorSistema(novo === 'digitacao'
           ? `— escuta desligada às ${agora} · IA sobre digitação: a classificação passa a vir do texto do TARM —`
@@ -874,6 +896,7 @@ export default function App() {
   const encerrarSemRegulacao = (motivo: 'trote' | 'engano' | 'queda') => {
     audit('CHAMADA_ENCERRADA_SEM_REGULACAO', { motivo, extracao: extractedData.risk });
     demo.transcricao.pausar();
+    limparCruzamentos();
     if (motivo === 'queda' && currentCaller) {
       // Queda: o rascunho sobrevive à volta ao IDLE — protocolo real manda
       // retornar a ligação, e o retorno reassocia à MESMA ocorrência.
@@ -1612,7 +1635,10 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="flex-1 p-5 lg:overflow-y-auto flex flex-col gap-4 bg-surface">
+              {/* No mobile o chat rola POR DENTRO (altura limitada): a última
+                  fala fica sempre visível dentro da caixa — o rodapé sticky de
+                  CTAs nunca cobre a transcrição (print do Ota, 27/08). */}
+              <div data-chat-mensagens className="flex-1 p-5 overflow-y-auto max-lg:max-h-[52vh] flex flex-col gap-4 bg-surface">
                 {tarmChat.map((msg, idx) => (
                   <div key={idx} className={`flex flex-col ${msg.speaker === 'TARM' ? 'items-end' : msg.speaker === 'SYS' ? 'items-center' : 'items-start'} fu`}>
                     {msg.speaker === 'SYS' ? (
@@ -1676,8 +1702,9 @@ export default function App() {
               )}
             </div>
 
-            {/* Handoff CTAs (Mobile) */}
-            <div className="flex lg:hidden flex-col gap-2 shrink-0 order-3 w-full mt-2 sticky bottom-0 bg-canvas pt-2 pb-4 z-10">
+            {/* Handoff CTAs (Mobile) — sticky com borda: separação visível do
+                conteúdo que passa por baixo. */}
+            <div className="flex lg:hidden flex-col gap-2 shrink-0 order-3 w-full mt-2 sticky bottom-0 bg-canvas border-t border-border-subtle pt-2 pb-4 z-10">
               {handoffCTAs}
             </div>
           </div>

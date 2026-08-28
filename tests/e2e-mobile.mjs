@@ -52,6 +52,30 @@ const { ok, fim } = coletor();
   }, undefined, { timeout: 6000 });
   ok(true, 'header volta ao rolar para cima');
   ok((await overflowScan(page)).length === 0, 'zero overflow a 390', (await overflowScan(page)).join(','));
+  // o chat rola POR DENTRO no mobile: transcrição autoscrollada dentro da
+  // caixa — o rodapé sticky de CTAs nunca cobre a última fala. Rolando a
+  // coluna até o FIM o rodapé assume a posição natural (desgruda): a caixa
+  // da transcrição tem que ficar inteira acima dele.
+  await page.evaluate(() => {
+    const col = [...document.querySelectorAll('main > div')].find(d => getComputedStyle(d).overflowY === 'auto');
+    if (col) col.scrollTop = col.scrollHeight;
+  });
+  await page.waitForTimeout(600);
+  const chatEstado = await page.evaluate(() => {
+    const el = document.querySelector('[data-chat-mensagens]');
+    const cta = [...document.querySelectorAll('button')].find(b => b.textContent.includes('Handoff & Ir p/ Regulador') && b.getBoundingClientRect().height > 0);
+    if (!el || !cta) return null;
+    const a = el.getBoundingClientRect(); const b = cta.getBoundingClientRect();
+    return {
+      rolavel: getComputedStyle(el).overflowY === 'auto',
+      folga: el.scrollHeight - el.scrollTop - el.clientHeight,
+      interno: el.scrollHeight > el.clientHeight,
+      livre: b.top >= a.bottom - 2,
+    };
+  });
+  ok(chatEstado !== null && chatEstado.rolavel, 'mob390: chat rola por dentro (caixa própria)');
+  ok(chatEstado.interno ? chatEstado.folga < 60 : true, 'mob390: transcrição autoscrollada — última fala visível na caixa', `folga=${chatEstado?.folga}`);
+  ok(chatEstado.livre === true, 'mob390: rodapé de CTAs não cobre a caixa da transcrição');
   await page.waitForFunction(() => document.body.innerText.includes('fique na linha'), undefined, { timeout: 60000 });
   await page.waitForTimeout(800);
   const html = await page.evaluate(() => document.body.innerHTML);
@@ -106,7 +130,7 @@ const { ok, fim } = coletor();
   await page.waitForTimeout(2000);
   ok(await page.locator(CHIP).first().isVisible(), 'tarm768: chip visível');
   ok((await overflowScan(page)).length === 0, 'tarm768: zero overflow');
-  await page.waitForTimeout(11000);
+  await page.waitForTimeout(12500);
   await page.locator('button:has-text("Handoff & Ir p/ Regulador"):visible').first().click();
   await page.waitForTimeout(2500);
   ok(await page.locator(CHIP).first().isVisible(), 'reg768: chip EM REGULAÇÃO visível');

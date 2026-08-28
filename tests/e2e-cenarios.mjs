@@ -51,7 +51,7 @@ const { ok, fim } = coletor();
   await loginTarmIdle(page);
   const overlay = await atenderCenario(page, 'AVC');
   ok(overlay.includes('(11) 97777-8888'), 'avc: telefone do par (filho, com histórico)');
-  await page.waitForTimeout(21000);
+  await page.waitForTimeout(22500);
   const body = await page.evaluate(() => document.body.innerText);
   ok(body.includes('LARANJA'), 'avc: rótulo LARANJA na superfície');
   ok(body.includes('janela terapêutica'), 'avc: protocolo certo');
@@ -91,6 +91,14 @@ const { ok, fim } = coletor();
   const errs = []; page.on('pageerror', e => errs.push(String(e)));
   await loginTarmIdle(page);
   await atenderCenario(page, 'PCR');
+  // a extração SEGUE a fala (lag de cruzamento): no instante em que a fala
+  // acabou de entrar no chat, o quadro ainda não pode ter fechado diagnóstico
+  const cedo = await page.waitForFunction(() => {
+    const t = document.body.innerText;
+    if (!t.includes('Ele não tá respirando')) return null;
+    return { pendente: t.includes('PENDENTE') || t.includes('Analisando') };
+  }, undefined, { timeout: 20000 });
+  ok((await cedo.jsonValue()).pendente, 'pcr: a extração segue a fala — diagnóstico não antecipa a transcrição');
   // o marco chega na fala da instrução de compressão (~13,5s do roteiro)
   await page.waitForFunction(() => document.body.innerText.includes('1ª COMPRESSÃO'), undefined, { timeout: 30000 });
   const corpo = await page.evaluate(() => document.body.innerText);
