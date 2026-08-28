@@ -40,11 +40,16 @@ const { ok, fim } = coletor();
     return !!h && h.getBoundingClientRect().y < -40;
   }, undefined, { timeout: 6000 });
   ok(true, 'header se esconde ao rolar para baixo (auto-hide)');
-  const flutuante = page.locator('div.fixed span[title*="Meta da etapa"]').first();
-  await flutuante.waitFor({ state: 'visible', timeout: 3000 });
-  ok(true, 'mini-chip do cronômetro flutua com o header escondido');
-  const fbox = await flutuante.boundingBox();
-  ok(fbox && fbox.y < 60 && fbox.x + fbox.width <= 391, 'mini-chip no canto superior, dentro da tela', JSON.stringify(fbox));
+  // mini-chip: ESTADO + geometria numa única leitura — re-medir depois corre
+  // contra a volta do header (mesmo flake do assert do auto-hide; visto no
+  // runner: waitFor visível passou e o boundingBox veio null logo em seguida)
+  const chip390 = await page.waitForFunction(() => {
+    const el = document.querySelector('div.fixed span[title*="Meta da etapa"]');
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.y < 60 && r.x + r.width <= 391 ? JSON.stringify({ x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width) }) : null;
+  }, undefined, { timeout: 4000 });
+  ok(true, 'mini-chip do cronômetro flutua no canto superior, dentro da tela', await chip390.jsonValue());
   await page.mouse.wheel(0, -900);
   await page.waitForFunction(() => {
     const h = document.querySelector('header');
