@@ -51,7 +51,7 @@ const { ok, fim } = coletor();
   await loginTarmIdle(page);
   const overlay = await atenderCenario(page, 'AVC');
   ok(overlay.includes('(11) 97777-8888'), 'avc: telefone do par (filho, com histórico)');
-  await page.waitForTimeout(21000);
+  await page.waitForTimeout(22500);
   const body = await page.evaluate(() => document.body.innerText);
   ok(body.includes('LARANJA'), 'avc: rótulo LARANJA na superfície');
   ok(body.includes('janela terapêutica'), 'avc: protocolo certo');
@@ -91,6 +91,14 @@ const { ok, fim } = coletor();
   const errs = []; page.on('pageerror', e => errs.push(String(e)));
   await loginTarmIdle(page);
   await atenderCenario(page, 'PCR');
+  // a extração SEGUE a fala (lag de cruzamento): no instante em que a fala
+  // acabou de entrar no chat, o quadro ainda não pode ter fechado diagnóstico
+  const cedo = await page.waitForFunction(() => {
+    const t = document.body.innerText;
+    if (!t.includes('Ele não tá respirando')) return null;
+    return { pendente: t.includes('PENDENTE') || t.includes('Analisando') };
+  }, undefined, { timeout: 20000 });
+  ok((await cedo.jsonValue()).pendente, 'pcr: a extração segue a fala — diagnóstico não antecipa a transcrição');
   // o marco chega na fala da instrução de compressão (~13,5s do roteiro)
   await page.waitForFunction(() => document.body.innerText.includes('1ª COMPRESSÃO'), undefined, { timeout: 30000 });
   const corpo = await page.evaluate(() => document.body.innerText);
@@ -105,6 +113,19 @@ const { ok, fim } = coletor();
   ok(!reg.includes('Afrouxe roupas'), 'pcr: instruções de clínico geral NÃO aparecem numa parada');
   ok((await overflowScan(page)).length === 0, 'pcr: zero overflow');
   await page.screenshot({ path: `${ARTEFATOS}/cen-pcr.png` });
+  // despacho GUIADO: bloqueado sem classificação, o botão explica e NÃO navega;
+  // classificado, o mesmo toque despacha e vai à VIATURA
+  await page.locator('button:has-text("Confirmar Despacho"):visible').first().click();
+  await page.waitForTimeout(600);
+  const bloqueado = await page.evaluate(() => document.body.innerText);
+  ok(bloqueado.includes('Classifique o risco'), 'pcr: despacho bloqueado orienta o próximo passo');
+  ok(bloqueado.includes('Apoio à Decisão Clínica'), 'pcr: clique bloqueado NÃO navega (segue na regulação)');
+  await page.locator('button:has-text("VERMELHO"):visible').first().click();
+  await page.waitForTimeout(400);
+  await page.locator('button:has-text("Confirmar Despacho"):visible').first().click();
+  // rótulo renderiza em caixa alta (CSS) — comparação em minúsculas
+  await page.waitForFunction(() => document.body.innerText.toLowerCase().includes('classificação manchester'), undefined, { timeout: 8000 });
+  ok(true, 'pcr: classificado → despacho confirma e entrega à VIATURA');
   ok(errs.length === 0, 'pcr: zero pageerror', errs[0] || '');
   await page.close();
 }
@@ -130,6 +151,66 @@ const { ok, fim } = coletor();
   ok(chat.includes('contexto reassociado'), 'queda: retorno do mesmo número REASSOCIA a ocorrência');
   ok((await page.locator('text=Ocorrência em aberto').count()) === 0, 'queda: card some após reassociar');
   ok(errs.length === 0, 'queda: zero pageerror', errs[0] || '');
+  await page.close();
+}
+
+// ── VERDE: o médico ENCERRA com orientação — despacho não é a única porta ──
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const errs = []; page.on('pageerror', e => errs.push(String(e)));
+  await loginTarmIdle(page);
+  await atenderCenario(page, 'Verde');
+  await page.waitForFunction(() => document.body.innerText.includes('rede básica (UBS)'), undefined, { timeout: 30000 });
+  await page.locator('button:has-text("Handoff & Ir p/ Regulador"):visible').first().click();
+  await page.waitForTimeout(2000);
+  // mesmo gate do despacho: sem classificar, o botão orienta e NÃO encerra
+  await page.locator('button:has-text("Encerrar com orientação"):visible').first().click();
+  await page.waitForTimeout(500);
+  const travado = await page.evaluate(() => document.body.innerText);
+  ok(travado.includes('Classifique o risco antes de encerrar'), 'verde: encerrar sem classificar orienta o gate');
+  ok(travado.includes('Apoio à Decisão Clínica'), 'verde: segue na regulação');
+  await page.locator('button:has-text("VERDE"):visible').first().click();
+  await page.waitForTimeout(400);
+  await page.locator('button:has-text("Encerrar com orientação"):visible').first().click();
+  await page.waitForSelector('text=Demonstração · próxima chamada', { timeout: 8000 });
+  ok(true, 'verde: classificado → encerra com orientação (sem despacho) e volta à espera');
+  ok(errs.length === 0, 'verde: zero pageerror', errs[0] || '');
+  await page.close();
+}
+
+// ── RETOMAR CONTEXTO da queda: localização volta junto ──
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await loginTarmIdle(page);
+  await atenderCenario(page, 'IAM');
+  await page.waitForTimeout(5000);
+  await page.locator('button:has-text("Encerrar sem regulação"):visible').first().click();
+  await page.waitForTimeout(400);
+  await page.locator('button:has-text("Queda"):visible').last().click();
+  await page.waitForSelector('text=Ocorrência em aberto', { timeout: 8000 });
+  await page.locator('button:has-text("Retomar contexto"):visible').first().click();
+  await page.waitForTimeout(900);
+  const retomado = await page.evaluate(() => document.body.innerText.toLowerCase());
+  ok(retomado.includes('contexto restaurado'), 'retomar: marcador de restauração no chat');
+  // endereço vive no VALUE do input — innerText não o carrega
+  const endereco = await page.locator('input[placeholder*="Endereço"]').first().inputValue();
+  ok(endereco.includes('Rua Direita'), 'retomar: LOCALIZAÇÃO restaurada junto (endereço no painel)', endereco);
+  await page.close();
+}
+
+// ── LOGIN MÉDICO: cronômetro EM REGULAÇÃO nasce no login; troca de caso reinicia ──
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const { login } = await import('./lib.mjs');
+  await login(page, 'Médico');
+  await page.waitForTimeout(3500);
+  const chip = page.locator('span[title*="Meta da etapa"]').first();
+  ok((await chip.count()) >= 1 && (await chip.innerText()).includes('EM REGULAÇÃO'), 'medico-login: cronômetro de regulação presente desde o login');
+  await page.waitForTimeout(5000);
+  await page.locator('button:has-text("#4015")').first().click();
+  await page.waitForTimeout(600);
+  const t = (await chip.innerText()).trim();
+  ok(/00:0[0-2]/.test(t), 'medico-login: trocar de caso REINICIA o relógio da etapa', t);
   await page.close();
 }
 

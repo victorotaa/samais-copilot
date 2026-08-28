@@ -35,6 +35,9 @@ const { ok, fim } = coletor();
   let body = await page.evaluate(() => document.body.innerText);
   ok(body.includes('Suspeita de IAM'), 'texto de IAM → protocolo IAM');
   ok(body.includes('Dor torácica') && body.includes('Sudorese fria'), 'sintomas extraídos do texto');
+  // resposta JUNTO do campo (no mobile o quadro fica fora da tela)
+  const strip = page.locator('[data-feedback-digitacao]');
+  ok(await strip.isVisible() && (await strip.innerText()).includes('Suspeita de IAM'), 'feedback inline junto ao campo reage ao texto');
   await page.screenshot({ path: `${ARTEFATOS}/digitacao-iam.png` });
 
   // obstétrico → LARANJA
@@ -51,6 +54,7 @@ const { ok, fim } = coletor();
   body = await page.evaluate(() => document.body.innerText);
   ok(body.includes('Sem sinal identificado no texto'), 'sem sinal → sem classificação (PENDENTE)');
   ok(body.includes('PENDENTE'), 'rótulo PENDENTE de volta');
+  ok((await page.locator('[data-feedback-digitacao]').innerText()).toLowerCase().includes('sem sinal'), 'feedback inline declara a ausência de sinal (nunca palpite)');
 
   // manual: campo some, banner com a garantia da gravação
   await page.click('button:has-text("Manual")');
@@ -82,6 +86,8 @@ const { ok, fim } = coletor();
   await ta.fill('paciente engasgado, nao respira');
   await page.waitForTimeout(1100);
   ok((await page.evaluate(() => document.body.innerText)).includes('OVACE'), 'mob390: classificação reage ao texto');
+  const stripM = page.locator('[data-feedback-digitacao]');
+  ok(await stripM.isVisible() && (await stripM.innerText()).includes('OVACE'), 'mob390: feedback VISÍVEL junto do campo (o quadro está fora da tela)');
   ok((await overflowScan(page)).length === 0, 'mob390: zero overflow no modo digitação');
   await page.screenshot({ path: `${ARTEFATOS}/digitacao-390.png` });
   await page.close();
