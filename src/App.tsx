@@ -714,9 +714,12 @@ export default function App() {
       setIsAuthenticating(false);
       if (role === 'MEDICO') {
         // O papel promete regulação — aterrissar no IDLE era surpresa. Entra direto
-        // na fila de regulação com um handoff pronto, como no login real.
+        // na fila de regulação com um handoff pronto, como no login real. O
+        // cronômetro EM REGULAÇÃO nasce aqui (achado da revisão 28/08: o login
+        // como médico entrava sem relógio de etapa).
         applyDemoSnapshot();
         setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
+        setRegulacaoInicio(Date.now());
         setCurrentModule('REGULADOR');
       } else {
         setCurrentModule(role === 'GESTOR' ? 'GESTOR' : role === 'VIATURA' ? 'VIATURA' : 'IDLE');
@@ -861,6 +864,8 @@ export default function App() {
   const jumpToStage = (stage: 'IDLE' | 'TARM' | 'REGULADOR' | 'VIATURA') => {
     if (stage !== 'IDLE' && !currentCaller) applyDemoSnapshot();
     if (stage === 'REGULADOR' && !selectedVehicleId) setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
+    // Entrar na regulação sem cronômetro de etapa é buraco de medição.
+    if (stage === 'REGULADOR') setRegulacaoInicio(prev => prev ?? Date.now());
     setCurrentModule(stage);
     setIsNavOpen(false);
   };
@@ -956,11 +961,27 @@ export default function App() {
     setCurrentModule('IDLE');
   };
 
+  // O handoff PERSISTE e AUDITA independente do caminho: "ir p/ regulador" e
+  // "próxima chamada" entregam o MESMO registro — antes, o caminho "próxima"
+  // largava a ocorrência sem transcrição nem trilha (achado da revisão 28/08).
+  const persistirHandoff = () => {
+    if (connected && occId) {
+      supabase.from('ocorrencias').update({
+        transcricao: tarmChat,
+        extracao: extractedData,
+        risco_sugerido: extractedData.risk === 'PENDING' ? null : extractedData.risk,
+        fatores_ia: { sintomas: extractedData.symptoms, comorbidades: extractedData.comorbidities, confianca: extractedData.confidence },
+      }).eq('id', occId).then();
+      audit('HANDOFF_REGULACAO', { risco: extractedData.risk });
+    }
+  };
+
   const handoffCTAs = (
     <>
-      <button 
+      <button
         disabled={extractedData.risk === 'PENDING' && aiActive}
         onClick={() => {
+          persistirHandoff();
           setIncomingCall(false);
           setCurrentModule('IDLE');
         }}
@@ -968,21 +989,13 @@ export default function App() {
       >
         <Icon name="forward-step" /> Handoff & Próxima Chamada
       </button>
-      <button 
+      <button
         disabled={extractedData.risk === 'PENDING' && aiActive}
         onClick={() => {
           if (!selectedVehicleId) {
             setSelectedVehicleId(recommendedVehicles[0]?.id || 'USA-01');
           }
-          if (connected && occId) {
-            supabase.from('ocorrencias').update({
-              transcricao: tarmChat,
-              extracao: extractedData,
-              risco_sugerido: extractedData.risk === 'PENDING' ? null : extractedData.risk,
-              fatores_ia: { sintomas: extractedData.symptoms, comorbidades: extractedData.comorbidities, confianca: extractedData.confidence },
-            }).eq('id', occId).then();
-            audit('HANDOFF_REGULACAO', { risco: extractedData.risk });
-          }
+          persistirHandoff();
           setRegulacaoInicio(Date.now());
           setCurrentModule('REGULADOR');
         }}
@@ -1292,6 +1305,9 @@ export default function App() {
                         const q = quedaPendente;
                         setQuedaPendente(null);
                         setCurrentCaller(q.caller);
+                        // restaura também a localização — sem isso o painel
+                        // ficava em "aguardando sinalização…" para sempre
+                        setAmlData(q.caller.aml);
                         setChamadaInicio(q.em);
                         setModoIA('manual');
                         setAiActive(false);
@@ -1750,6 +1766,12 @@ export default function App() {
                             setSelectedVehicleId(null);
                             setRiscoFinal(null);
                             setJustification(null);
+                            // cada caso tem o SEU relógio de etapa; e os
+                            // carimbos (RCP, janela) são da chamada viva —
+                            // nunca viajam para outro caso da fila
+                            setRegulacaoInicio(Date.now());
+                            setRcpInicio(null);
+                            setInicioSintomasTs(null);
                             showToast(`Atendimento ${c.num} em foco`, 'info');
                           }}
                           className={`w-full p-2 rounded-lg border text-left flex items-center gap-2 transition-colors ${active ? 'bg-gold-500/10 border-gold-500' : 'bg-surface border-border-subtle hover:border-gold-500'}`}
@@ -2096,6 +2118,23 @@ export default function App() {
                   {riscoFinal === null ? 'Classifique o risco para liberar o despacho — a decisão é do regulador.' : 'Divergência da sugestão: selecione a justificativa para liberar o despacho.'}
                 </p>
               )}
+              {/* A saída que faltava ao médico (revisão 28/08): caso verde/azul
+                  se ENCERRA com orientação, sem viatura — despacho não é a
+                  única porta. Mesmo gate do despacho: classificar primeiro. */}
+              <button
+                onClick={() => {
+                  if (riscoFinal === null) {
+                    showToast('Classifique o risco antes de encerrar — a decisão é do regulador.', 'warn');
+                    classificacaoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                  }
+                  audit('REGULACAO_ENCERRADA_ORIENTACAO', { risco: riscoFinal, sugestao: extractedData.risk });
+                  encerrarAtendimento('ORIENTAÇÃO MÉDICA · SEM DESPACHO');
+                }}
+                className="w-full py-2 text-[0.65rem] font-mono uppercase tracking-widest text-ink-secondary hover:text-ok transition-colors flex items-center justify-center gap-2 shrink-0"
+              >
+                <Icon name="circle-check" /> Encerrar com orientação · sem despacho
+              </button>
             </div>
           </div>
         )}

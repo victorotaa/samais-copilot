@@ -154,6 +154,66 @@ const { ok, fim } = coletor();
   await page.close();
 }
 
+// ── VERDE: o médico ENCERRA com orientação — despacho não é a única porta ──
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const errs = []; page.on('pageerror', e => errs.push(String(e)));
+  await loginTarmIdle(page);
+  await atenderCenario(page, 'Verde');
+  await page.waitForFunction(() => document.body.innerText.includes('rede básica (UBS)'), undefined, { timeout: 30000 });
+  await page.locator('button:has-text("Handoff & Ir p/ Regulador"):visible').first().click();
+  await page.waitForTimeout(2000);
+  // mesmo gate do despacho: sem classificar, o botão orienta e NÃO encerra
+  await page.locator('button:has-text("Encerrar com orientação"):visible').first().click();
+  await page.waitForTimeout(500);
+  const travado = await page.evaluate(() => document.body.innerText);
+  ok(travado.includes('Classifique o risco antes de encerrar'), 'verde: encerrar sem classificar orienta o gate');
+  ok(travado.includes('Apoio à Decisão Clínica'), 'verde: segue na regulação');
+  await page.locator('button:has-text("VERDE"):visible').first().click();
+  await page.waitForTimeout(400);
+  await page.locator('button:has-text("Encerrar com orientação"):visible').first().click();
+  await page.waitForSelector('text=Demonstração · próxima chamada', { timeout: 8000 });
+  ok(true, 'verde: classificado → encerra com orientação (sem despacho) e volta à espera');
+  ok(errs.length === 0, 'verde: zero pageerror', errs[0] || '');
+  await page.close();
+}
+
+// ── RETOMAR CONTEXTO da queda: localização volta junto ──
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await loginTarmIdle(page);
+  await atenderCenario(page, 'IAM');
+  await page.waitForTimeout(5000);
+  await page.locator('button:has-text("Encerrar sem regulação"):visible').first().click();
+  await page.waitForTimeout(400);
+  await page.locator('button:has-text("Queda"):visible').last().click();
+  await page.waitForSelector('text=Ocorrência em aberto', { timeout: 8000 });
+  await page.locator('button:has-text("Retomar contexto"):visible').first().click();
+  await page.waitForTimeout(900);
+  const retomado = await page.evaluate(() => document.body.innerText.toLowerCase());
+  ok(retomado.includes('contexto restaurado'), 'retomar: marcador de restauração no chat');
+  // endereço vive no VALUE do input — innerText não o carrega
+  const endereco = await page.locator('input[placeholder*="Endereço"]').first().inputValue();
+  ok(endereco.includes('Rua Direita'), 'retomar: LOCALIZAÇÃO restaurada junto (endereço no painel)', endereco);
+  await page.close();
+}
+
+// ── LOGIN MÉDICO: cronômetro EM REGULAÇÃO nasce no login; troca de caso reinicia ──
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const { login } = await import('./lib.mjs');
+  await login(page, 'Médico');
+  await page.waitForTimeout(3500);
+  const chip = page.locator('span[title*="Meta da etapa"]').first();
+  ok((await chip.count()) >= 1 && (await chip.innerText()).includes('EM REGULAÇÃO'), 'medico-login: cronômetro de regulação presente desde o login');
+  await page.waitForTimeout(5000);
+  await page.locator('button:has-text("#4015")').first().click();
+  await page.waitForTimeout(600);
+  const t = (await chip.innerText()).trim();
+  ok(/00:0[0-2]/.test(t), 'medico-login: trocar de caso REINICIA o relógio da etapa', t);
+  await page.close();
+}
+
 // ── IDLE 390: seletor sem overflow ──
 {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
