@@ -58,6 +58,17 @@ Em ordem de chegada, com onde ler e onde está o código:
    Os campos novos do `ExtratoFala` (`marco`, `inicioSintomasMinutos`) são o
    shape que o STT real entregará.
 
+8. **Doutrina de implantação gradual por contrato** (`docs/27`) — decisão de
+   28/08: em cada contrato, a central de regulação segue operando como sempre;
+   o CoPilot entra em **shadow silencioso → piloto assistido → uso
+   operacional** (etapas E0–E3), com critério de passagem definido antes de
+   cada etapa — e o período shadow é onde a IA **aprende a realidade local**
+   (sotaques, gírias, léxico do território) por contrato. Derivam daí seis
+   requisitos de produto (R1–R6): modo shadow real, estágio de implantação por
+   tenant, **captura de rótulo em toda correção** (requisito de schema desde
+   já), pareamento sugestão × decisão oficial, ferramenta de anotação do golden
+   set e versionamento de modelo por contrato.
+
 **O que NÃO mudou** — continua não existindo STT/LLM real (a IA segue roteiro
 determinístico rotulado), integração de telefonia, GPS real, offline-first. O
 deploy demo (`main` → Vercel) segue intocado. A matriz real × simulação vigente
@@ -84,8 +95,9 @@ deploy demo (`main` → Vercel) segue intocado. A matriz real × simulação vig
 3. `docs/24` — arquitetura núcleo × demo (contratos, alias, guardas)
 4. `docs/23` — cenários shadow (o que o produto fará sobre esse seam)
 5. `docs/26` — auditoria de seis visões (backlog por persona e ordem de ataque)
-6. `docs/22` — roteiro de demonstração (o arco que a demo conta)
-7. Código, nesta ordem: `src/core/teatro.ts` (contratos) →
+6. `docs/27` — implantação gradual por contrato (E0–E3 e os requisitos R1–R6)
+7. `docs/22` — roteiro de demonstração (o arco que a demo conta)
+8. Código, nesta ordem: `src/core/teatro.ts` (contratos) →
    `src/demo/index.tsx` + `src/demo/inerte.tsx` (os dois pacotes) →
    `src/demo/fonte-roteiro.ts` (a fonte) → `src/App.tsx` (orquestração) →
    `tests/*.mjs` → `.github/workflows/ci.yml`.
@@ -127,7 +139,8 @@ primeira análise.
 CONTEXTO OBRIGATÓRIO (leia antes de opinar, nesta ordem):
 README.md · docs/10 (real × simulação — inclui §6 com correções de registro) ·
 docs/24 (arquitetura núcleo × demo) · docs/23 (cenários shadow) · docs/26
-(auditoria de seis visões — o backlog por persona) · docs/25 §1 (o delta).
+(auditoria de seis visões — o backlog por persona) · docs/27 (implantação
+gradual por contrato — etapas E0–E3 e requisitos R1–R6) · docs/25 §1 (o delta).
 Código: src/core/teatro.ts → src/demo/index.tsx e inerte.tsx →
 src/demo/fonte-roteiro.ts → src/App.tsx → tests/*.mjs → .github/workflows/ci.yml.
 
@@ -151,7 +164,11 @@ RESPONDA, COM ARQUIVO E TRECHO CITADOS EM CADA ACHADO:
    streaming real? O que falta (confiança, diarização, correção retroativa,
    backpressure) e onde isso deveria entrar sem quebrar a demo?
 3. Quais riscos concretos a Fase 2 (docs/24 §8 — telas em componentes +
-   estado por ocorrência) vai encontrar nesta base?
+   estado por ocorrência) vai encontrar nesta base? Considere também os
+   requisitos de implantação do docs/27 (R1 modo shadow sem UI · R2 estágio
+   por tenant · R3 captura de rótulo em toda correção): o que na base atual
+   conflita com eles, e o que deveria nascer junto com a Fase 2 para não
+   retrabalhar?
 4. O que a suíte de testes NÃO cobre e deveria? (régua: o que quebraria uma
    demonstração ao vivo ou uma operação futura)
 5. Alguma regressão de segurança vs docs/07 e docs/17? Os fixes do parecer

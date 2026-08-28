@@ -137,6 +137,13 @@ Sete workstreams: Segurança/LGPD · Engenharia · IA/Dados · Integrações · 
 Treinamento · Institucional. Durações em ordem de grandeza honesta; **total ~6–9 meses
 até operação plena em 1 CRU**, condicionado ao acesso à CRU piloto (decisão §6).
 
+> **Nota (28/08/2026):** estas fases são o programa do **produto**, executado uma
+> vez. O roteiro **por contrato** — como cada central nova recebe o CoPilot
+> (shadow silencioso → piloto assistido → uso operacional, etapas E0–E3, com a
+> central operando como sempre desde o dia 1) — está em `docs/27`, que traz
+> também o ciclo de aprendizado local e os requisitos de produto derivados
+> (R1–R6). O primeiro piloto executa os dois programas ao mesmo tempo.
+
 ### F0 — Fundação e higiene (2–4 semanas)
 - Segurança: **Tier 0 completo** — SEC-01 (rotação da senha exposta), SEC-02 (HSTS/CSP
   ok; documentar repouso), SEC-03 (MFA TOTP), SEC-04 (testes RLS), SEC-05 (aplicar

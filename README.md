@@ -49,6 +49,7 @@ disponível, o app cai em modo demonstração e os dados voltam a ser locais.
 | [`docs/24-arquitetura-nucleo-demo.md`](./docs/24-arquitetura-nucleo-demo.md) | Separação núcleo × demo (Fase 1): contratos, alias por modo de build, guarda de bundle e smoke do modo operação |
 | [`docs/25-handoff-atualizacao-hugo.md`](./docs/25-handoff-atualizacao-hugo.md) | Handoff de atualização para análise independente: o delta desde o parecer, o rumo, e o prompt de revisão pronto para IA (Claude/Codex) |
 | [`docs/26-auditoria-seis-visoes.md`](./docs/26-auditoria-seis-visoes.md) | Auditoria por persona (socorrista, médico, TARM, gestor+ente, designer, dev): achados com estado e ordem de ataque — origem do cenário PCR/T-CPR e da janela clínica |
+| [`docs/27-implantacao-gradual-contrato.md`](./docs/27-implantacao-gradual-contrato.md) | Implantação gradual por contrato: a central opera como sempre, o CoPilot passa por shadow → piloto → uso (E0–E3), aprendendo a realidade local — e os requisitos de produto derivados (R1–R6) |
 | [`SECURITY.md`](./SECURITY.md) | Postura de segurança e o que ainda é roadmap |
 
 ## Rodando local
